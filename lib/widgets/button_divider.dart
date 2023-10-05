@@ -12,7 +12,7 @@ class ButtonDivider extends StatelessWidget {
       children: [
         Expanded(
           child: Divider(
-            color: CRColors.wGray3,
+            color: Colors.grey,
           ),
         ),
         Padding(
@@ -21,7 +21,7 @@ class ButtonDivider extends StatelessWidget {
         ),
         Expanded(
           child: Divider(
-            color: CRColors.wGray3,
+            color:Colors.grey,
           ),
         ),
       ],

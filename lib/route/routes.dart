@@ -45,16 +45,16 @@ class RouterNotifier extends ChangeNotifier {
             name: SplashPage.routeName,
             builder: (context, state) => const SplashPage(),
             path: '/',
-            routes: []),
+            ),
 
         GoRoute(
             name: OnboardingPageView.route,
             builder: (context, state) => const OnboardingPageView(),
             path: OnboardingPageView.route,
-            routes: []),
+          ),
 
             GoRoute(
-          
+             name: LoginPage.name,
             builder: (context, state) =>  LoginPage(),
             path: LoginPage.route,
          ),

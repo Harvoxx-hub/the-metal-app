@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:gap/gap.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/gen/assets.gen.dart';
 
 import '../../utils/constant/colors.dart';
 import '../../utils/screen.size.dart';
+import '../../widgets/text_views.dart';
 
 class BaseScreen extends StatelessWidget {
   final Widget body;
@@ -50,28 +55,10 @@ class BaseScreen extends StatelessWidget {
             )
           : null,
       body: Container(
-        height: getDeviceHeight(context),
-        width: getDeviceWidth(context),
-        child: bgImage != null
-            ? _backgroundImage(
-                isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(), // Loading indicator
-                      )
-                    : GestureDetector(
-                        onTap: () {
-                          // Dismiss the keyboard when tapping outside of text fields
-                          FocusScope.of(context).unfocus();
-                        },
-                        child: SingleChildScrollView(
-                          child: Container(
-                            padding: const EdgeInsets.all(16.0),
-                            child: body,
-                          ),
-                        ),
-                      ),
-              )
-            : isLoading
+          height: getDeviceHeight(context),
+          width: getDeviceWidth(context),
+          child: _backgroundImage(
+            isLoading
                 ? const Center(
                     child: CircularProgressIndicator(), // Loading indicator
                   )
@@ -85,13 +72,22 @@ class BaseScreen extends StatelessWidget {
                             padding: const EdgeInsets.all(16.0),
                             child: Container(
                               height: getDeviceHeight(context) - 100,
-                              width: getDeviceWidth(context) - 100,
-                              color: AppColors.metalBlack75,
-                              child: body,
+                              padding: const EdgeInsets.all(10),
+                              color: AppColors.metalWhite,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Column(
+                                children: [
+                                  _authAppbar(),
+                                  Gap(10.h),
+                                  body,
+                                ],
+                              ),
                             ))
                         : body,
                   ),
-      ),
+          )),
+
       // bottomSheet: Container(
 
       //   color: AppColors.metalWhite,
@@ -113,6 +109,35 @@ class BaseScreen extends StatelessWidget {
         ),
       ),
       child: child,
+    );
+  }
+
+  Widget _authAppbar() {
+    return Container(
+      height: 100,
+      color: AppColors.metalWhite,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () {},
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: SvgPicture.asset(
+                Assets.icons.back.path,
+                height: 24,
+                width: 24,
+              ),
+            ),
+          ),
+          TextView(
+            text: Header!,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.normal,
+          ),
+          Container()
+        ],
+      ),
     );
   }
 }

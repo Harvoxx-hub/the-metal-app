@@ -61,6 +61,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
     return BaseScreen(
       appBarEnabled: false,
       bgImage: Assets.images.bg2.path,
+      
       body: Column(
         children: [
           SizedBox(

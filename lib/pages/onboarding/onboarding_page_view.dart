@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/pages/authentication/presentation/login/login.screen.dart';
+import 'package:metal/pages/main_activity/main_activity.dart';
 import 'package:metal/utils/screen.size.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button_divider.dart';
@@ -113,7 +114,8 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
             BaseButton(
           buttonText: 'Sign up with your email' ,
               onPressed: () {
-             context.pushReplacementNamed(LoginPage.name);
+              //  context.pushReplacementNamed(LoginPage.name);
+              context.pushNamed(MainActivityPage.name);
               },
             ),
             const Gap(20),

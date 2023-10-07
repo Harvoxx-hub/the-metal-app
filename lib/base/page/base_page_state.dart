@@ -73,8 +73,9 @@ class BaseScreen extends StatelessWidget {
                             child: Container(
                               height: getDeviceHeight(context) - 100,
                               padding: const EdgeInsets.all(10),
-                              color: AppColors.metalWhite,
+                             
                               decoration: BoxDecoration(
+                                  color: AppColors.metalWhite,
                                   borderRadius: BorderRadius.circular(10)),
                               child: Column(
                                 children: [

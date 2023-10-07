@@ -65,7 +65,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
      final router = ref.watch(routerProvider);
     return ScreenUtilInit(
         useInheritedMediaQuery: true,
-        designSize: const Size(380, 844),
+        designSize: const Size(375, 812),
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (BuildContext context, Widget? child) {

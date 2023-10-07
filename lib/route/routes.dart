@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/pages/authentication/presentation/login/login.screen.dart';
+import 'package:metal/pages/main_activity/main_activity.dart';
 import 'package:metal/pages/onboarding/onboarding_page_view.dart';
 
 import '../pages/splash/splash.screen.dart';
@@ -58,6 +59,11 @@ class RouterNotifier extends ChangeNotifier {
             builder: (context, state) =>  LoginPage(),
             path: LoginPage.route,
          ),
+        GoRoute(
+          name: MainActivityPage.name,
+          builder: (context, state) => MainActivityPage(),
+          path: MainActivityPage.route,
+        ),
 
          
        

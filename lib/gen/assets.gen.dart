@@ -37,6 +37,9 @@ class $AssetsGifsGen {
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/User.svg
+  SvgGenImage get user => const SvgGenImage('assets/icons/User.svg');
+
   /// File path: assets/icons/back.svg
   SvgGenImage get back => const SvgGenImage('assets/icons/back.svg');
 
@@ -51,8 +54,23 @@ class $AssetsIconsGen {
   SvgGenImage get notification =>
       const SvgGenImage('assets/icons/notification.svg');
 
+  /// File path: assets/icons/password.icon.svg
+  SvgGenImage get passwordIcon =>
+      const SvgGenImage('assets/icons/password.icon.svg');
+
+  /// File path: assets/icons/password.svg
+  SvgGenImage get password => const SvgGenImage('assets/icons/password.svg');
+
   /// List of all assets
-  List<SvgGenImage> get values => [back, checkVerified, hambuger, notification];
+  List<SvgGenImage> get values => [
+        user,
+        back,
+        checkVerified,
+        hambuger,
+        notification,
+        passwordIcon,
+        password
+      ];
 }
 
 class $AssetsImagesGen {
@@ -225,7 +243,7 @@ class SvgGenImage {
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
       theme: theme,
-      //colorFilter: colorFilter,
+      //    colorFilter: colorFilter,
       color: color,
       colorBlendMode: colorBlendMode,
       clipBehavior: clipBehavior,

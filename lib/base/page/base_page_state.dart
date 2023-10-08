@@ -72,9 +72,9 @@ class BaseScreen extends StatelessWidget {
                             padding: const EdgeInsets.all(16.0),
                             child: Container(
                               height: getDeviceHeight(context) - 100,
-                              padding: const EdgeInsets.all(10),
-                              color: AppColors.metalWhite,
+                              padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
+                                  color: AppColors.metalWhite,
                                   borderRadius: BorderRadius.circular(10)),
                               child: Column(
                                 children: [
@@ -114,7 +114,6 @@ class BaseScreen extends StatelessWidget {
 
   Widget _authAppbar() {
     return Container(
-      height: 100,
       color: AppColors.metalWhite,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -125,14 +124,14 @@ class BaseScreen extends StatelessWidget {
               padding: const EdgeInsets.only(left: 8.0),
               child: SvgPicture.asset(
                 Assets.icons.back.path,
-                height: 24,
-                width: 24,
+                height: 32,
+                width: 32,
               ),
             ),
           ),
           TextView(
             text: Header!,
-            fontSize: 16.sp,
+            fontSize: 20.sp,
             fontWeight: FontWeight.normal,
           ),
           Container()

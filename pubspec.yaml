@@ -95,7 +95,7 @@ flutter_gen:
     flutter_svg: true
     flare_flutter: true
     rive: true
-    lottie: true
+    lottie: false
 
 flutter_launcher_icons:
   android: "launcher_icon"

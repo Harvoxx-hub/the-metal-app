@@ -72,7 +72,7 @@ class BaseScreen extends StatelessWidget {
                             padding: const EdgeInsets.all(16.0),
                             child: Container(
                               height: getDeviceHeight(context) - 100,
-                              padding: const EdgeInsets.all(4),
+                              padding: const EdgeInsets.all(15),
                               decoration: BoxDecoration(
                                   color: AppColors.metalWhite,
                                   borderRadius: BorderRadius.circular(10)),
@@ -84,7 +84,10 @@ class BaseScreen extends StatelessWidget {
                                 ],
                               ),
                             ))
-                        : body,
+                        : Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: body,
+                          ),
                   ),
           )),
 

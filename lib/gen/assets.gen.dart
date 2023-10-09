@@ -47,6 +47,9 @@ class $AssetsIconsGen {
   SvgGenImage get checkVerified =>
       const SvgGenImage('assets/icons/check-verified.svg');
 
+  /// File path: assets/icons/checked.svg
+  SvgGenImage get checked => const SvgGenImage('assets/icons/checked.svg');
+
   /// File path: assets/icons/hambuger.svg
   SvgGenImage get hambuger => const SvgGenImage('assets/icons/hambuger.svg');
 
@@ -61,15 +64,21 @@ class $AssetsIconsGen {
   /// File path: assets/icons/password.svg
   SvgGenImage get password => const SvgGenImage('assets/icons/password.svg');
 
+  /// File path: assets/icons/unchecked.png
+  AssetGenImage get unchecked =>
+      const AssetGenImage('assets/icons/unchecked.png');
+
   /// List of all assets
-  List<SvgGenImage> get values => [
+  List<dynamic> get values => [
         user,
         back,
         checkVerified,
+        checked,
         hambuger,
         notification,
         passwordIcon,
-        password
+        password,
+        unchecked
       ];
 }
 
@@ -243,7 +252,7 @@ class SvgGenImage {
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
       theme: theme,
-      //    colorFilter: colorFilter,
+      // colorFilter: colorFilter,
       color: color,
       colorBlendMode: colorBlendMode,
       clipBehavior: clipBehavior,

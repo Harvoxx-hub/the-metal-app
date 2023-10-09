@@ -6,8 +6,10 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/pages/main_activity/main_activity.dart';
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/app.text.field.dart';
+import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text_views.dart';
 
 import '../../../../utils/input/validators/email_validator.dart';
@@ -69,46 +71,59 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                 fontWeight: FontWeight.w400),
             Gap(52.h),
             Form(
+                key: _form,
                 child: Column(
-              children: [
-                EditFormField(
-                  floatingLabel: 'Email address/Phone number/User name',
-                  label: 'Enter your email address',
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  autoValidate: _autoValidate,
-                  prefixWidget: SvgPicture.asset(
-                    Assets.icons.user.path,
-                    height: 24,
-                    width: 24,
-                  ),
-                  // validator: EmailValidator.validate(email),
-                  radius: 10,
-                  // fillColor: AppColors.appGrey,
-                ),
-                Gap(16.h),
-                EditFormField(
-                  floatingLabel: 'Password',
-                  label: '*************',
-                  controller: _passwordController,
-                  keyboardType: TextInputType.visiblePassword,
-                  autoValidate: _autoValidate,
-                  prefixWidget: SvgPicture.asset(
-                    Assets.icons.passwordIcon.path,
-                    height: 24,
-                    width: 24,
-                  ),
-                  // validator: EmailValidator.validate(email),
-                  radius: 10,
-                ),
-                Gap(16.h),
-                AgreeClick(
-                  title: "Remember me",
-                  isAgree: true,
-                  onChanged: (value) {},
-                ),
-              ],
-            ))
+                  children: [
+                    EditFormField(
+                      floatingLabel: 'Email address/Phone number/User name',
+                      label: 'Enter your email address',
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      autoValidate: _autoValidate,
+                      prefixWidget: SvgPicture.asset(
+                        Assets.icons.user.path,
+                        height: 24,
+                        width: 24,
+                      ),
+                      // validator: EmailValidator.validate(email),
+                      radius: 10,
+                      // fillColor: AppColors.appGrey,
+                    ),
+                    Gap(16.h),
+                    EditFormField(
+                      floatingLabel: 'Password',
+                      label: '*************',
+                      controller: _passwordController,
+                      keyboardType: TextInputType.visiblePassword,
+                      autoValidate: _autoValidate,
+                      prefixWidget: SvgPicture.asset(
+                        Assets.icons.passwordIcon.path,
+                        height: 24,
+                        width: 24,
+                      ),
+                      // validator: EmailValidator.validate(email),
+                      radius: 10,
+                    ),
+                    Gap(16.h),
+                    CustomCheckWidget(
+                      title: 'Keep me logged in',
+                      initialValue: false,
+                      onChanged: (bool value) {
+                        print('Value changed to $value');
+                      },
+                    ),
+                    Gap(16.h),
+                    BaseButton(
+                      buttonText: "Login",
+                      onPressed: () {
+                        context.pushNamed(MainActivityPage.name);
+                      },
+                      enabled: _form.currentState!.validate(),
+                    ),
+                    Gap(16.h),
+                    TextView(text: "Forgot Password?", fontSize: 14.sp),
+                  ],
+                ))
           ],
         ));
   }

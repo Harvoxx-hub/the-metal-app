@@ -6,7 +6,9 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/pages/authentication/presentation/login/forgot_password.screen.dart';
 import 'package:metal/pages/main_activity/main_activity.dart';
+import 'package:metal/res/res.dart';
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/app.text.field.dart';
 import 'package:metal/widgets/button/buttons.dart';
@@ -112,18 +114,43 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                         print('Value changed to $value');
                       },
                     ),
-                    Gap(16.h),
-                    BaseButton(
-                      buttonText: "Login",
-                      onPressed: () {
-                        context.pushNamed(MainActivityPage.name);
-                      },
-                      enabled: _form.currentState!.validate(),
-                    ),
-                    Gap(16.h),
-                    TextView(text: "Forgot Password?", fontSize: 14.sp),
+                    Gap(64.h),
                   ],
-                ))
+                )),
+            BaseButton(
+              buttonText: "Login",
+              onPressed: () {
+                context.pushNamed(MainActivityPage.name);
+              },
+              // enabled: _emailController.text.isNotEmpty &&
+              //     _passwordController.text.isNotEmpty,
+            ),
+            Gap(31.h),
+            TextView(
+              onTap: () {
+                context.pushNamed(ForgetPasswordPage.name);
+              },
+              text: "Forgot Password?",
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+            ),
+            Gap(14.sp),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextView(
+                  text: "Not a User?",
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.metaltext,
+                ),
+                TextView(
+                  text: "  Create account",
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w700,
+                ),
+              ],
+            )
           ],
         ));
   }

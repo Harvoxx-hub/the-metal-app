@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/res/colors/cr_colors.dart';
 
-import '../../utils/constant/colors.dart';
+ 
 import '../../utils/screen.size.dart';
 import '../../widgets/text_views.dart';
 
@@ -78,7 +80,7 @@ class BaseScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(10)),
                               child: Column(
                                 children: [
-                                  _authAppbar(),
+                                  _authAppbar(context),
                                   Gap(10.h),
                                   body,
                                 ],
@@ -115,14 +117,16 @@ class BaseScreen extends StatelessWidget {
     );
   }
 
-  Widget _authAppbar() {
+  Widget _authAppbar(BuildContext context) {
     return Container(
       color: AppColors.metalWhite,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              context.pop();
+            },
             child: Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: SvgPicture.asset(

@@ -24,10 +24,15 @@ abstract class AppColors {
   static Color metalWhite75 = const Color(0xffffffff).withOpacity(0.75);
 
   static Color metalGray = const Color(0xffDADADA80);
+   static const Color metaltext = Color(0xff071717);
 
   // metalBlack Color Swatch
   static const Color metalBlack = Color(0xff000000);
   static const Color metalBlack30 = Color(0x4C121212);
   static const Color metalBlack50 = Color(0x4C121212);
   static const Color metalBlack75 = Color(0xBF121212);
+
+ 
+
+  static const Color metalButtonStroke = Color(0xffCBD5E0);
 }

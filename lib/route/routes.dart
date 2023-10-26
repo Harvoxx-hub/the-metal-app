@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:metal/pages/authentication/presentation/create.profile/create.profile.dart';
+import 'package:metal/pages/authentication/presentation/login/forgot_password.screen.dart';
 import 'package:metal/pages/authentication/presentation/login/login.screen.dart';
+import 'package:metal/pages/authentication/presentation/signup/account.setting.dart';
+import 'package:metal/pages/authentication/presentation/signup/verfication.dart';
+import 'package:metal/pages/authentication/presentation/welcome/presentation/welcome.page.dart';
 import 'package:metal/pages/main_activity/main_activity.dart';
 import 'package:metal/pages/onboarding/onboarding_page_view.dart';
 
@@ -49,10 +54,37 @@ class RouterNotifier extends ChangeNotifier {
           path: OnboardingPageView.route,
         ),
         GoRoute(
-          name: LoginPage.name,
-          builder: (context, state) => LoginPage(),
-          path: LoginPage.route,
-        ),
+            name: LoginPage.name,
+            builder: (context, state) => LoginPage(),
+            path: LoginPage.route,
+            routes: [
+              GoRoute(
+                name: ForgetPasswordPage.name,
+                builder: (context, state) => ForgetPasswordPage(),
+                path: ForgetPasswordPage.route,
+              ),
+            ]),
+        GoRoute(
+            name: AccountSetting.name,
+            builder: (context, state) => AccountSetting(),
+            path: AccountSetting.route,
+            routes: [
+              GoRoute(
+                name: VerificationPage.name,
+                builder: (context, state) => VerificationPage(),
+                path: VerificationPage.route,
+              ),
+              GoRoute(
+                name: WelcomePage.name,
+                builder: (context, state) => WelcomePage(),
+                path: WelcomePage.route,
+              ),
+              GoRoute(
+                name: CreateProfilePage.name,
+                builder: (context, state) => CreateProfilePage(),
+                path: CreateProfilePage.route,
+              ),
+            ]),
         GoRoute(
           name: MainActivityPage.name,
           builder: (context, state) => MainActivityPage(),

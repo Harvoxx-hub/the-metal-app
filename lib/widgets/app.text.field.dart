@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 
-import '../utils/constant/colors.dart';
+
+import '../res/colors/cr_colors.dart';
 import 'text_views.dart';
 
 class AppTextField extends StatelessWidget {

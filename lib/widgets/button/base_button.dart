@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../utils/constant/colors.dart';
+import '../../res/colors/cr_colors.dart';
+ 
 import '../text_views.dart';
 
 class BaseButton extends StatelessWidget {
@@ -58,7 +59,8 @@ class BaseButton extends StatelessWidget {
             end: Alignment(-1, 0.03),
             colors: enabled // Use enabled state to determine gradient colors
                 ? [Color(0xFFCE0D87), Color(0xFFFF5553), Color(0xFFD2128B)]
-                : [Colors.grey, Colors.grey, Colors.grey],
+                : [Color(0xFFCE0D87).withOpacity(0.3), Color(0xFFFF5553).withOpacity(0.3), Color(0xFFD2128B).withOpacity(0.3)],
+               
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),

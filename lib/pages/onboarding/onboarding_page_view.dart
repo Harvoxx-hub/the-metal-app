@@ -12,6 +12,7 @@ import 'package:metal/widgets/button_divider.dart';
 import 'package:metal/widgets/dash.progress.indicator.dart';
 import 'package:metal/widgets/text_views.dart';
 
+import '../authentication/presentation/signup/account.setting.dart';
 import 'onboarding_screen.dart';
 
 class OnboardingPageView extends StatefulWidget {
@@ -104,7 +105,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
           BaseButton(
             buttonText: 'Sign up with your email',
             onPressed: () {
-              context.pushReplacementNamed(LoginPage.name);
+              context.pushReplacementNamed(AccountSetting.name);
               //  context.pushNamed(MainActivityPage.name);
             },
           ),
@@ -137,6 +138,9 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
               ),
               const Gap(5),
               TextView(
+                onTap: () {
+                  context.pushReplacementNamed(LoginPage.name);
+                },
                 text: 'Log in',
               ),
             ],

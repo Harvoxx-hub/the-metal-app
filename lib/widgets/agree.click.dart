@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
@@ -56,7 +57,7 @@ class _CustomCheckWidgetState extends State<CustomCheckWidget> {
           const SizedBox(width: 8.0),
           TextView(
             text: widget.title,
-            fontSize: 13,
+            fontSize: 13.sp,
             color: AppColors.metalBrownColourForText.withOpacity(0.5),
             fontWeight: FontWeight.normal,
           ),

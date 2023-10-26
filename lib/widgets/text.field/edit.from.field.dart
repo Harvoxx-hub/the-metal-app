@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
-import '../../utils/constant/colors.dart';
+ 
 
 // ignore: must_be_immutable
 class EditFormField extends StatefulWidget {
@@ -46,7 +47,7 @@ class EditFormField extends StatefulWidget {
       this.focusNode,
       this.textInputAction = TextInputAction.next,
       this.clickable,
-      this.fontSize = 10,
+      this.fontSize = 16,
       this.cursorColor,
       this.prefixIconColor,
       this.isFilled = true,
@@ -55,7 +56,7 @@ class EditFormField extends StatefulWidget {
       this.isTyping = false,
       this.autoValidate = false,
       this.showMaxLengthCounter = false,
-      this.radius = 5,
+      this.radius = 20,
       this.prefixWidget})
       : super(key: key);
 
@@ -129,7 +130,7 @@ class _EditFormFieldState extends State<EditFormField> {
             ? TextView(
                 text: widget.floatingLabel!,
                 fontWeight: FontWeight.w500,
-                fontSize: 12.sp,
+                fontSize: 14.sp,
                 color: AppColors.metalBrownColourForText,
                 textAlign: TextAlign.left,
               )
@@ -221,7 +222,7 @@ class _EditFormFieldState extends State<EditFormField> {
                           fontFamily: 'Plus_Jakarta',
                           color: AppColors.metalBrownColourForText,
                           fontWeight: FontWeight.w500,
-                          fontSize: 10.sp,
+                          fontSize: 16.sp,
                           fontStyle: FontStyle.normal),
                   prefixIcon: widget.prefixWidget != null
                       ? Padding(

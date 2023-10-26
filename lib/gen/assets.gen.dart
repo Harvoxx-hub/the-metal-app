@@ -68,6 +68,18 @@ class $AssetsIconsGen {
   AssetGenImage get unchecked =>
       const AssetGenImage('assets/icons/unchecked.png');
 
+  /// File path: assets/icons/verification.call.svg
+  SvgGenImage get verificationCall =>
+      const SvgGenImage('assets/icons/verification.call.svg');
+
+  /// File path: assets/icons/verification.text.svg
+  SvgGenImage get verificationText =>
+      const SvgGenImage('assets/icons/verification.text.svg');
+
+  /// File path: assets/icons/welcome.item.svg
+  SvgGenImage get welcomeItem =>
+      const SvgGenImage('assets/icons/welcome.item.svg');
+
   /// List of all assets
   List<dynamic> get values => [
         user,
@@ -78,7 +90,10 @@ class $AssetsIconsGen {
         notification,
         passwordIcon,
         password,
-        unchecked
+        unchecked,
+        verificationCall,
+        verificationText,
+        welcomeItem
       ];
 }
 
@@ -252,7 +267,7 @@ class SvgGenImage {
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
       theme: theme,
-      // colorFilter: colorFilter,
+      //  colorFilter: colorFilter,
       color: color,
       colorBlendMode: colorBlendMode,
       clipBehavior: clipBehavior,

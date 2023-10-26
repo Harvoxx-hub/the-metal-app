@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/utils/constant/colors.dart';
+import 'package:metal/res/colors/cr_colors.dart';
+ 
  
 
 import '../../gen/assets.gen.dart';

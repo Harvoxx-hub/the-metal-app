@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
  
-import 'package:metal/utils/constant/colors.dart';
+ 
 import 'package:metal/utils/screen.size.dart';
+
+import '../res/colors/cr_colors.dart';
 
 class DashProgressIndicator extends StatelessWidget {
   final int pageCount; // Total number of pages in onboarding

@@ -39,7 +39,7 @@ class VerificationPage extends ConsumerWidget {
             children: [
               TextView(
                 text: '👀',
-                fontSize: 20.sp,
+                fontSize: 30.sp,
                 fontWeight: FontWeight.w400,
               ),
               TextView(
@@ -128,7 +128,7 @@ class VerificationPage extends ConsumerWidget {
           ),
           Gap(27.h),
           BaseButton(
-            buttonText: "Login",
+            buttonText: "Verify Code",
             onPressed: () {
               context.pushNamed(WelcomePage.name);
             },

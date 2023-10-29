@@ -16,13 +16,13 @@ class PhoneInput extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextView(
-                text: 'Phone number',
-                fontWeight: FontWeight.w500,
-                fontSize: 14.sp,
-                color: AppColors.metalBrownColourForText,
-                textAlign: TextAlign.left,
-              ), 
-              Gap(8),
+          text: 'Phone number',
+          fontWeight: FontWeight.w400,
+          fontSize: 14.sp,
+          color: AppColors.metalBrownColourForText,
+          textAlign: TextAlign.left,
+        ),
+        Gap(8),
         IntlPhoneField(
           dropdownIconPosition: IconPosition.trailing,
           style: TextStyle(

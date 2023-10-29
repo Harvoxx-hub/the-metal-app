@@ -37,6 +37,16 @@ class $AssetsGifsGen {
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/NewspaperClipping.svg
+  SvgGenImage get newspaperClipping =>
+      const SvgGenImage('assets/icons/NewspaperClipping.svg');
+
+  /// File path: assets/icons/User.2.svg
+  SvgGenImage get user2 => const SvgGenImage('assets/icons/User.2.svg');
+
+  /// File path: assets/icons/User.3.svg
+  SvgGenImage get user3 => const SvgGenImage('assets/icons/User.3.svg');
+
   /// File path: assets/icons/User.svg
   SvgGenImage get user => const SvgGenImage('assets/icons/User.svg');
 
@@ -64,6 +74,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/password.svg
   SvgGenImage get password => const SvgGenImage('assets/icons/password.svg');
 
+  /// File path: assets/icons/sms.svg
+  SvgGenImage get sms => const SvgGenImage('assets/icons/sms.svg');
+
   /// File path: assets/icons/unchecked.png
   AssetGenImage get unchecked =>
       const AssetGenImage('assets/icons/unchecked.png');
@@ -82,6 +95,9 @@ class $AssetsIconsGen {
 
   /// List of all assets
   List<dynamic> get values => [
+        newspaperClipping,
+        user2,
+        user3,
         user,
         back,
         checkVerified,
@@ -90,6 +106,7 @@ class $AssetsIconsGen {
         notification,
         passwordIcon,
         password,
+        sms,
         unchecked,
         verificationCall,
         verificationText,
@@ -267,7 +284,7 @@ class SvgGenImage {
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
       theme: theme,
-      //  colorFilter: colorFilter,
+      // colorFilter: colorFilter,
       color: color,
       colorBlendMode: colorBlendMode,
       clipBehavior: clipBehavior,

@@ -4,8 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
- 
-
 // ignore: must_be_immutable
 class EditFormField extends StatefulWidget {
   EditFormField(
@@ -129,7 +127,7 @@ class _EditFormFieldState extends State<EditFormField> {
         widget.floatingLabel != null
             ? TextView(
                 text: widget.floatingLabel!,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w400,
                 fontSize: 14.sp,
                 color: AppColors.metalBrownColourForText,
                 textAlign: TextAlign.left,
@@ -213,7 +211,7 @@ class _EditFormFieldState extends State<EditFormField> {
                   hintStyle: widget.hintStyle ??
                       TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w300,
                           fontSize: 14.sp,
                           fontStyle: FontStyle.normal),
                   labelText: widget.label,
@@ -221,7 +219,7 @@ class _EditFormFieldState extends State<EditFormField> {
                       TextStyle(
                           fontFamily: 'Plus_Jakarta',
                           color: AppColors.metalBrownColourForText,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w300,
                           fontSize: 16.sp,
                           fontStyle: FontStyle.normal),
                   prefixIcon: widget.prefixWidget != null

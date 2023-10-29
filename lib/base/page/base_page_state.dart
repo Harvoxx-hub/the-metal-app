@@ -7,7 +7,6 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 
- 
 import '../../utils/screen.size.dart';
 import '../../widgets/text_views.dart';
 
@@ -56,7 +55,7 @@ class BaseScreen extends StatelessWidget {
               appBarEnabled: appBarEnabled,
             )
           : null,
-      body: Container(
+      body: SizedBox(
           height: getDeviceHeight(context),
           width: getDeviceWidth(context),
           child: _backgroundImage(
@@ -71,7 +70,8 @@ class BaseScreen extends StatelessWidget {
                     },
                     child: authFlow
                         ? Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.only(
+                                top: 50.0, left: 16, right: 16, bottom: 16),
                             child: Container(
                               height: getDeviceHeight(context) - 100,
                               padding: const EdgeInsets.all(15),

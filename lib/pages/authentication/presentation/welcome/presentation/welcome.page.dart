@@ -80,7 +80,7 @@ class WelcomePage extends ConsumerWidget {
           ),
           Gap(10.w),
           SizedBox(
-            width: getDeviceWidth(context) * 0.7,
+            width: getDeviceWidth(context) * 0.6,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

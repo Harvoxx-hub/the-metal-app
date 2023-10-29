@@ -15,7 +15,7 @@ import 'package:metal/widgets/text.field/phone.number.input.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class AccountSetting extends ConsumerWidget {
-  AccountSetting ({Key? key}) : super(key: key);
+  AccountSetting({Key? key}) : super(key: key);
   static const name = 'createAccount';
   static const route = '/$name';
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
@@ -35,7 +35,7 @@ class AccountSetting extends ConsumerWidget {
         children: [
           Gap(43.h),
           TextView(
-            text: 'Hello',
+            text: '👋　Hello',
             fontSize: 20.sp,
             fontWeight: FontWeight.w400,
           ),
@@ -62,7 +62,7 @@ class AccountSetting extends ConsumerWidget {
                     keyboardType: TextInputType.emailAddress,
 
                     prefixWidget: SvgPicture.asset(
-                      Assets.icons.user.path,
+                      Assets.icons.sms.path,
                       height: 24,
                       width: 24,
                     ),
@@ -87,7 +87,7 @@ class AccountSetting extends ConsumerWidget {
           ),
           Gap(27.h),
           BaseButton(
-            buttonText: "Login",
+            buttonText: "Continue",
             onPressed: () {
               context.pushNamed(VerificationPage.name);
             },

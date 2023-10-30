@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../res/colors/cr_colors.dart';
- 
+
 import '../text_views.dart';
 
 class BaseButton extends StatelessWidget {
@@ -23,7 +23,10 @@ class BaseButton extends StatelessWidget {
   final bool lowerCase;
   final bool thickBorder;
   final Widget? child;
-  final bool enabled; // Add this property for button state
+  final bool enabled;
+  final Widget? leftIcon;
+
+  final Widget? rightIcon;
 
   BaseButton({
     required this.buttonText,
@@ -35,6 +38,8 @@ class BaseButton extends StatelessWidget {
     this.width = double.infinity * 0.8,
     this.fontSize = 12.0,
     this.radius = 12.0,
+    this.leftIcon,
+    this.rightIcon,
     this.loading = false,
     this.fontWeight = FontWeight.w400,
     this.fontStyle = FontStyle.normal,
@@ -59,8 +64,11 @@ class BaseButton extends StatelessWidget {
             end: Alignment(-1, 0.03),
             colors: enabled // Use enabled state to determine gradient colors
                 ? [Color(0xFFCE0D87), Color(0xFFFF5553), Color(0xFFD2128B)]
-                : [Color(0xFFCE0D87).withOpacity(0.3), Color(0xFFFF5553).withOpacity(0.3), Color(0xFFD2128B).withOpacity(0.3)],
-               
+                : [
+                    Color(0xFFCE0D87).withOpacity(0.3),
+                    Color(0xFFFF5553).withOpacity(0.3),
+                    Color(0xFFD2128B).withOpacity(0.3)
+                  ],
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -79,16 +87,22 @@ class BaseButton extends StatelessWidget {
                   ),
                 ),
               )
-            : child ??
-                Center(
-                  child: TextView(
-                    text: lowerCase ? buttonText : buttonText.toUpperCase(),
-                    fontWeight: fontWeight,
-                    fontSize: fontSize,
-                    color: outlined ? color : textColor,
-                    textAlign: textAlign,
-                  ),
-                ),
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  leftIcon ?? const SizedBox.shrink(),
+                  child ??
+                      TextView(
+                        text: lowerCase ? buttonText : buttonText.toUpperCase(),
+                        fontWeight: fontWeight,
+                        fontSize: fontSize,
+                        color: outlined ? color : textColor,
+                        textAlign: textAlign,
+                      ),
+                  rightIcon ?? const SizedBox.shrink(),
+                ],
+              ),
       ),
     );
   }

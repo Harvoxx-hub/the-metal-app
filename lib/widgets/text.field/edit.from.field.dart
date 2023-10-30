@@ -236,22 +236,25 @@ class _EditFormFieldState extends State<EditFormField> {
                                 color: widget.prefixIconColor,
                               ))
                           : null),
-                  suffixIcon: widget.suffixWidget ??
-                      (widget.keyboardType == TextInputType.visiblePassword
-                          ? GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  widget.obscureText = !widget.obscureText!;
-                                });
-                              },
-                              child: Icon(
-                                !widget.obscureText!
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: AppColors.metalBrownColour,
-                              ),
-                            )
-                          : null)),
+                  suffixIcon: Padding(
+                    padding: EdgeInsets.only(left: 16.w, right: 16.w),
+                    child: widget.suffixWidget ??
+                        (widget.keyboardType == TextInputType.visiblePassword
+                            ? GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    widget.obscureText = !widget.obscureText!;
+                                  });
+                                },
+                                child: Icon(
+                                  !widget.obscureText!
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: AppColors.metalBrownColour,
+                                ),
+                              )
+                            : null),
+                  )),
         ),
         const SizedBox(
           height: 8,

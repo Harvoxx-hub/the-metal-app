@@ -37,6 +37,10 @@ class $AssetsGifsGen {
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/CalendarBlank.svg
+  SvgGenImage get calendarBlank =>
+      const SvgGenImage('assets/icons/CalendarBlank.svg');
+
   /// File path: assets/icons/NewspaperClipping.svg
   SvgGenImage get newspaperClipping =>
       const SvgGenImage('assets/icons/NewspaperClipping.svg');
@@ -60,6 +64,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/checked.svg
   SvgGenImage get checked => const SvgGenImage('assets/icons/checked.svg');
 
+  /// File path: assets/icons/down.svg
+  SvgGenImage get down => const SvgGenImage('assets/icons/down.svg');
+
   /// File path: assets/icons/hambuger.svg
   SvgGenImage get hambuger => const SvgGenImage('assets/icons/hambuger.svg');
 
@@ -76,6 +83,9 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/sms.svg
   SvgGenImage get sms => const SvgGenImage('assets/icons/sms.svg');
+
+  /// File path: assets/icons/sr-close.svg
+  SvgGenImage get srClose => const SvgGenImage('assets/icons/sr-close.svg');
 
   /// File path: assets/icons/unchecked.png
   AssetGenImage get unchecked =>
@@ -95,6 +105,7 @@ class $AssetsIconsGen {
 
   /// List of all assets
   List<dynamic> get values => [
+        calendarBlank,
         newspaperClipping,
         user2,
         user3,
@@ -102,11 +113,13 @@ class $AssetsIconsGen {
         back,
         checkVerified,
         checked,
+        down,
         hambuger,
         notification,
         passwordIcon,
         password,
         sms,
+        srClose,
         unchecked,
         verificationCall,
         verificationText,
@@ -284,7 +297,7 @@ class SvgGenImage {
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
       theme: theme,
-      // colorFilter: colorFilter,
+      //   colorFilter: colorFilter,
       color: color,
       colorBlendMode: colorBlendMode,
       clipBehavior: clipBehavior,

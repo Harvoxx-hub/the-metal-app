@@ -49,6 +49,7 @@ dependencies:
   url_launcher: ^6.1.9
   flutter_rating_bar: ^4.0.0
   country_pickers: ^2.0.0
+  bottom_picker: ^2.2.1
 
    
 

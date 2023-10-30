@@ -72,23 +72,19 @@ class BaseScreen extends StatelessWidget {
                         ? Padding(
                             padding: const EdgeInsets.only(
                                 top: 50.0, left: 16, right: 16, bottom: 16),
-                            child: SingleChildScrollView(
-                              child: Container(
-                                height: isScrollable
-                                    ? null // Remove fixed height for scrollable content
-                                    : getDeviceHeight(context) - 100,
-                                padding: const EdgeInsets.all(15),
-                                decoration: BoxDecoration(
-                                    color: AppColors.metalWhite,
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Column(
-                                  children: [
-                                    _authAppbar(context),
-                                    Gap(10.h),
+                            child: Container(
+                              height: getDeviceHeight(context) - 100,
+                              padding: const EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                  color: AppColors.metalWhite,
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Column(
+                                children: [
+                                  _authAppbar(context),
+                                  Gap(10.h),
 
-                                    body, // Use an Expanded widget for flexible content
-                                  ],
-                                ),
+                                  body, // Use an Expanded widget for flexible content
+                                ],
                               ),
                             ))
                         : Padding(

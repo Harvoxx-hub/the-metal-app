@@ -11,6 +11,7 @@ class EditFormField extends StatefulWidget {
       this.label = '',
       this.hint = '',
       this.floatingLabel = '',
+      this.bottomLabel,
       this.prefixIcon,
       this.suffixIcon,
       this.onSaved,
@@ -61,6 +62,7 @@ class EditFormField extends StatefulWidget {
   final TextCapitalization? textCapitalization;
   final String? label;
   final String? floatingLabel;
+  final String? bottomLabel;
   final String? hint;
   final IconData? prefixIcon;
   final IconData? suffixIcon;
@@ -251,6 +253,19 @@ class _EditFormFieldState extends State<EditFormField> {
                             )
                           : null)),
         ),
+        const SizedBox(
+          height: 8,
+        ),
+        widget.bottomLabel != null
+            ? TextView(
+                text: widget.bottomLabel!,
+                fontWeight: FontWeight.w300,
+                fontSize: 13.sp,
+                fontStyle: FontStyle.italic,
+                color: AppColors.metalBrownColourForText,
+                textAlign: TextAlign.left,
+              )
+            : SizedBox(),
       ],
     );
   }

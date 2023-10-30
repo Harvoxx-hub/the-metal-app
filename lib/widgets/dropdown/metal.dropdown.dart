@@ -1,50 +1,81 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/widgets/text_views.dart';
 
-class MentalDropdown<T> extends StatefulWidget {
-  final List<DropdownMenuItem<T>> items;
-  final T value;
-  final ValueChanged<T> onChanged;
+class MentalDropdown extends StatefulWidget {
+  final List<String> items;
+  final String? value;
+  final ValueChanged<String?> onChanged;
   final Widget? prefixIcon;
+  final String? hint;
+  final String? floatingLabel;
 
   MentalDropdown({
     required this.items,
-    required this.value,
+    this.value,
     required this.onChanged,
     this.prefixIcon,
+    this.hint,
+    this.floatingLabel,
   });
 
   @override
-  _MentalDropdownState<T> createState() => _MentalDropdownState<T>();
+  _MentalDropdownState createState() => _MentalDropdownState();
 }
 
-class _MentalDropdownState<T> extends State<MentalDropdown<T>> {
+class _MentalDropdownState extends State<MentalDropdown> {
   bool isDropdownOpen = false;
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: widget.prefixIcon,
-          title: Row(
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  widget.items
-                      .firstWhere((item) => item.value == widget.value)
-                      .child
-                      .toString(),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isDropdownOpen = !isDropdownOpen;
-                  });
-                },
-                child: Icon(
-                  isDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+        widget.floatingLabel != null
+            ? TextView(
+                text: widget.floatingLabel!,
+                fontWeight: FontWeight.w400,
+                fontSize: 14.sp,
+                color: AppColors.metalBrownColourForText,
+                textAlign: TextAlign.left,
+              )
+            : SizedBox(),
+        const SizedBox(
+          height: 8,
+        ),
+        Container(
+          padding: EdgeInsets.only(left: 10, right: 10),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.metalButtonStroke)),
+          child: Column(
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: widget.prefixIcon,
+                title: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: TextView(
+                        text: widget.value ??
+                            widget.hint ??
+                            '', // Show hint if no value is selected
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isDropdownOpen = !isDropdownOpen;
+                        });
+                      },
+                      child: Icon(
+                        isDropdownOpen
+                            ? Icons.arrow_drop_up
+                            : Icons.arrow_drop_down,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -53,14 +84,15 @@ class _MentalDropdownState<T> extends State<MentalDropdown<T>> {
         if (isDropdownOpen)
           Container(
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.metalPinkColour),
             ),
             child: Column(
               children: widget.items.map((item) {
                 return ListTile(
-                  title: Text(item.child.toString()),
+                  title: TextView(text: item),
                   onTap: () {
-                    widget.onChanged(item.value as T);
+                    widget.onChanged(item);
                     setState(() {
                       isDropdownOpen = false;
                     });

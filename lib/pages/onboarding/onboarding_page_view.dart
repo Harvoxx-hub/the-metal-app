@@ -4,11 +4,14 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
+
 import 'package:metal/pages/authentication/presentation/login/login.screen.dart';
 import 'package:metal/pages/main_activity/main_activity.dart';
+
 import 'package:metal/utils/screen.size.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button_divider.dart';
+
 import 'package:metal/widgets/dash.progress.indicator.dart';
 import 'package:metal/widgets/text_views.dart';
 

@@ -18,6 +18,7 @@ class BaseScreen extends StatelessWidget {
   final String? bgImage;
   final Widget? bottomWidget;
   final Widget? floatingActionButton;
+  final BottomNavigationBar? bottomNavigationBar;
   final String? Header;
   final Function()? onSkipButtonPressed;
   final bool isScrollable;
@@ -28,6 +29,7 @@ class BaseScreen extends StatelessWidget {
     this.bgImage,
     required this.body,
     this.bottomWidget,
+    this.bottomNavigationBar,
     this.appBarState = AppBarState.BackWithHeader,
     this.appBarEnabled = true,
     this.isScrollable = true,
@@ -43,12 +45,13 @@ class BaseScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.metalWhite,
-
       appBar: appBarEnabled
           ? CustomAppBar(
               appBarState: appBarState,
               onHamburgerPressed: () {},
-              onBackButtonPressed: () {},
+              onBackButtonPressed: () {
+                context.pop();
+              },
               onSkipButtonPressed: () {},
               onNotificationPressed: () {},
               headerText: Header!,
@@ -83,39 +86,38 @@ class BaseScreen extends StatelessWidget {
                                   _authAppbar(context),
                                   Gap(10.h),
 
-                                  body, // Use an Expanded widget for flexible content
+                                  Expanded(
+                                      child:
+                                          body), // Use an Expanded widget for flexible content
                                 ],
                               ),
                             ))
-                        : Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: body,
-                          ),
+                        : body,
                   ),
           )),
-
-      // bottomSheet: Container(
-
-      //   color: AppColors.metalWhite,
-      //   child: Padding(
-      //     padding: const EdgeInsets.all(8.0),
-      //     child: bottomWidget,
-      //   ),
-      // ),
       floatingActionButton: floatingActionButton,
+      bottomNavigationBar: bottomNavigationBar,
     );
   }
 
   Widget _backgroundImage(Widget child) {
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(bgImage!),
-          fit: BoxFit.cover,
+    if (bgImage != null) {
+      return Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(bgImage!),
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-      child: child,
-    );
+        child: child,
+      );
+    } else {
+      // If bgImage is null, you can choose a fallback background or return just the child.
+      // For example, returning a container with a background color:
+
+      // Alternatively, if you want to return just the child with no background:
+      return child;
+    }
   }
 
   Widget _authAppbar(BuildContext context) {

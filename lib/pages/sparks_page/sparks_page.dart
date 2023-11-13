@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/pages/sparks_page/widget/spark.card.dart';
+import 'package:metal/pages/sparks_page/widget/spark.card.item.dart';
+import 'package:metal/pages/sparks_page/widget/spark.history.item.dart';
+import 'package:metal/widgets/text_views.dart';
 
 import '../../res/colors/cr_colors.dart';
 import '../../res/style/text_styles.dart';
@@ -12,142 +17,102 @@ class SparksPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 15.w),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-        margin: EdgeInsets.only(left: 20.w, right: 20.w),
-        decoration: BoxDecoration(
-            color: AppColors.metalWhite,
-            borderRadius: BorderRadius.circular(13.sp)),
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
+    return SingleChildScrollView(
+      child: Stack(
+        children: [
+          Column(
             children: [
               Container(
-                height: 221.h,
+                height: 220.h,
+                width: double.infinity,
                 decoration: BoxDecoration(
                     color: AppColors.metalPinkColour,
-                    borderRadius: BorderRadius.circular(10.sp),
-                    boxShadow: [BoxShadow()]),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(35.sp),
+                      bottomRight: Radius.circular(35.sp),
+                    )),
               ),
-              Gap(15.h),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 12.h),
-                alignment: Alignment.center,
-                child: Text(
-                  'Transaction History',
-                  style: TextStyles.text(weight: FontWeight.w600),
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.metalPinkColour.withOpacity(0.1),
-                ),
-              )
+
+              // This container is for the background image decoration
+              Container()
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class MetalUserCard extends StatelessWidget {
-  const MetalUserCard({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 27.h),
-      margin: EdgeInsets.only(bottom: 40.h, left: 20.w, right: 20.w),
-      // height: 100.h,
-      decoration: BoxDecoration(
-          color: AppColors.metalWhite,
-          borderRadius: BorderRadius.circular(13.sp),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 3,
-              color: Colors.grey.withOpacity(0.5),
-            )
-          ]),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Gap(30),
-          Align(
-            alignment: Alignment.center,
-            child: Container(
-              height: 140.w,
-              width: 140.w,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.metalBlack.withOpacity(0.1)),
-            ),
-          ),
-          Gap(20),
-          Row(
-            children: [
-              Text(
-                '@love123_aluminium',
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Gap(10.w),
-              Icon(Icons.cloud_done_rounded)
-            ],
-          ),
-          Gap(6.h),
-          _buildSubItem('Gender', 'Female'),
-          _buildSubItem('Age range', '25 - 30years'),
-          Gap(12.h),
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 7.w,
-              vertical: 4.w,
-            ),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(3.sp),
-                color: AppColors.metalPinkColour60.withOpacity(0.2)),
-            child: Text(
-              'Ready to Melt with Father figure',
-              style: TextStyles.text(weight: FontWeight.w500),
-            ),
-          ),
-          Gap(15.h),
-          Text(
-            'Interests: Travelling, Photography etc',
-            style: TextStyles.text(fontStyle: FontStyle.italic),
-          ),
-          Gap(15.h),
           Padding(
-            padding: EdgeInsets.only(right: 15.w),
-            child: Divider(thickness: 1.5),
-          ),
-          Gap(8.h),
-          Text(
-            'I term myself an Aluminium because I am light and emotional. I like to be cared for as I have some tendencies to get rusty. It would be great to connect with you! Let’s melt!',
-            style: TextStyles.text(),
-          ),
-          Gap(30.h),
-          Row(
-            children: [],
-          )
+              padding: EdgeInsets.symmetric(vertical: 15.w),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+                margin: EdgeInsets.only(left: 10.w, right: 10.w),
+                decoration: BoxDecoration(
+                    color: AppColors.metalWhite,
+                    borderRadius: BorderRadius.circular(13.sp)),
+                child: Column(
+                  children: [
+                    const SparkCard(),
+                    Gap(15),
+                    Container(
+                      decoration: ShapeDecoration(
+                        color: AppColors.metalPinkColour.withOpacity(0.1),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10),
+                          ),
+                        ),
+                      ),
+                      padding: EdgeInsets.all(13),
+                      child: Row(
+                        children: [
+                          TextView(
+                            text: "Transaction History",
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          Spacer(),
+                          TextView(
+                            text: "See all",
+                            fontSize: 14.sp,
+                            color: AppColors.metalPinkColour,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Gap(9),
+                    SparkHistoryItem(
+                        type: SparkHistoryType.send,
+                        User: "Seguncodes",
+                        dateTime: DateTime.now(),
+                        title: "Sent 2 Sparks"),
+                    SparkHistoryItem(
+                        type: SparkHistoryType.recived,
+                        User: "Seguncodes",
+                        dateTime: DateTime.now(),
+                        title: "Sent 2 Sparks"),
+                    SparkHistoryItem(
+                        type: SparkHistoryType.recived,
+                        User: "Seguncodes",
+                        dateTime: DateTime.now(),
+                        title: "Sent 2 Sparks"),
+                    SparkHistoryItem(
+                        type: SparkHistoryType.referred,
+                        User: "Seguncodes",
+                        dateTime: DateTime.now(),
+                        title: "Sent 2 Sparks"),
+                    SparkHistoryItem(
+                        type: SparkHistoryType.referred,
+                        User: "Seguncodes",
+                        dateTime: DateTime.now(),
+                        title: "Sent 2 Sparks"),
+                    SparkHistoryItem(
+                        type: SparkHistoryType.send,
+                        User: "Seguncodes",
+                        dateTime: DateTime.now(),
+                        title: "Sent 2 Sparks"),
+                  ],
+                ),
+              ))
         ],
       ),
     );
-  }
-
-  Text _buildSubItem(String key, String value) {
-    return Text.rich(
-        TextSpan(style: TextStyle(fontSize: 15.sp), text: '$key: ', children: [
-      TextSpan(
-        text: value,
-        style: TextStyle(fontWeight: FontWeight.w500),
-      )
-    ]));
   }
 }

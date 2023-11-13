@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/pages/authentication/presentation/login/forgot_password.screen.dart';
-import 'package:metal/pages/main_activity/main_activity.dart';
+import 'package:metal/pages/dashboard.dart/dashboard.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/app.text.field.dart';
@@ -120,7 +120,7 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
             BaseButton(
               buttonText: "Login",
               onPressed: () {
-                context.pushNamed(MainActivityPage.name);
+                context.pushNamed(DashboardPage.name);
               },
               // enabled: _emailController.text.isNotEmpty &&
               //     _passwordController.text.isNotEmpty,

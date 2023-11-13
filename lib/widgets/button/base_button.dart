@@ -96,7 +96,7 @@ class BaseButton extends StatelessWidget {
                       TextView(
                         text: lowerCase ? buttonText : buttonText.toUpperCase(),
                         fontWeight: fontWeight,
-                        fontSize: fontSize,
+                        fontSize: fontSize.sp,
                         color: outlined ? color : textColor,
                         textAlign: textAlign,
                       ),

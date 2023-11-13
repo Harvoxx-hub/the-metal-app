@@ -3,18 +3,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/res/colors/cr_colors.dart';
- 
- 
 
 import '../../gen/assets.gen.dart';
 
 enum AppBarState {
   Dashboard,
   BackWithHeader,
-  BackWithHeaderWithSkip
-,
-
-
+  BackWithHeaderWithSkip,
+  HambugerWithHeader,
 }
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -24,7 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Function() onSkipButtonPressed;
   final Function() onNotificationPressed;
   final String headerText;
- 
+
   final bool appBarEnabled; // New parameter to enable/disable the AppBar
 
   CustomAppBar({
@@ -34,8 +30,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.onSkipButtonPressed,
     required this.onNotificationPressed,
     required this.headerText,
-
- 
     required this.appBarEnabled, // Pass true to enable AppBar, false to disable
   });
 
@@ -52,15 +46,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     String leftIcon;
     String? rightIcon;
     String? rightText;
- 
+
     Function() onLeftIconTap;
     Function()? onRightIconTap;
 
     switch (appBarState) {
       case AppBarState.BackWithHeader:
-        leftIcon = Assets.icons.back.path;
-         
-
+        leftIcon = Assets.icons.backBtn.path;
+        onLeftIconTap = onBackButtonPressed;
+        break;
+      case AppBarState.HambugerWithHeader:
+        leftIcon = Assets.icons.hambuger.path;
         onLeftIconTap = onBackButtonPressed;
         break;
       case AppBarState.Dashboard:
@@ -74,7 +70,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         rightText = "Skip";
         onLeftIconTap = onBackButtonPressed;
         onRightIconTap = onSkipButtonPressed;
-      
+
         break;
     }
 
@@ -86,22 +82,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           padding: const EdgeInsets.only(left: 8.0),
           child: SvgPicture.asset(
             leftIcon,
-            height: 24,
-            width: 24,
+            height: 40.h,
+            width: 40.w,
           ),
         ),
       ),
-      leadingWidth: 30,
-   
+      elevation: 0,
+      leadingWidth: appBarState == AppBarState.BackWithHeader ? 32 : 45,
       title: Center(
-          child:  Text(
-            headerText,
-            style: TextStyle(
-              color: AppColors.metalWhite,
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),),
+        child: Text(
+          headerText,
+          style: TextStyle(
+            color: AppColors.metalWhite,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ),
       centerTitle: true,
       actions: [
         rightIcon == null
@@ -110,11 +107,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onTap: onRightIconTap,
                 child: SvgPicture.asset(
                   rightIcon,
-                  height: 24.h,
-                  width: 24.w,
+                  height: 40.h,
+                  width: 40.w,
                 ),
               ),
-              Gap(10),
+        Gap(10),
       ],
     );
   }

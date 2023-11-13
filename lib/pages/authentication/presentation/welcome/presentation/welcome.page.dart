@@ -6,7 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/pages/authentication/presentation/create.profile/create.profile.dart';
+import 'package:metal/pages/authentication/presentation/profile.setting/create.profile.dart';
 import 'package:metal/utils/screen.size.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -23,7 +23,6 @@ class WelcomePage extends ConsumerWidget {
         bgImage: Assets.images.bg2.path,
         authFlow: true,
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [

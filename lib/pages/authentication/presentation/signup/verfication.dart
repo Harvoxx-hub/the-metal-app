@@ -7,6 +7,10 @@ import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/pages/authentication/presentation/welcome/presentation/welcome.page.dart';
+import 'package:metal/pages/profile/update.email/new.email.page.dart';
+import 'package:metal/pages/profile/update.email/update.email.page.dart';
+import 'package:metal/pages/profile/update.phone.number/new.phone.number.page.dart';
+import 'package:metal/pages/profile/update.phone.number/update.phone.number.page.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/utils/screen.size.dart';
 import 'package:metal/widgets/button/buttons.dart';
@@ -14,10 +18,13 @@ import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
+enum RouteFrom { AccountSetting, UpdatePhoneNumber, UpdateEmail }
+
 class VerificationPage extends ConsumerWidget {
-  VerificationPage({Key? key}) : super(key: key);
+  VerificationPage(this.routeFrom, {Key? key}) : super(key: key);
   static const name = 'Verification';
   static const route = '$name';
+  final String routeFrom;
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   final TextEditingController _otpController = TextEditingController();
@@ -130,7 +137,15 @@ class VerificationPage extends ConsumerWidget {
           BaseButton(
             buttonText: "Verify Code",
             onPressed: () {
-              context.pushNamed(WelcomePage.name);
+              if (routeFrom == RouteFrom.AccountSetting.name) {
+                context.pushNamed(WelcomePage.name);
+              }
+              if (routeFrom == RouteFrom.UpdatePhoneNumber.name) {
+                context.pushNamed(NewPhoneNumberPage.name);
+              }
+              if (routeFrom == RouteFrom.UpdateEmail.name) {
+                context.pushNamed(NewEmailPage.name);
+              }
             },
             // enabled: _emailController.text.isNotEmpty &&
             //     _passwordController.text.isNotEmpty,

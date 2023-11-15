@@ -89,7 +89,8 @@ class AccountSetting extends ConsumerWidget {
           BaseButton(
             buttonText: "Continue",
             onPressed: () {
-              context.pushNamed(VerificationPage.name);
+              context.pushNamed(VerificationPage.name,
+                  extra: RouteFrom.AccountSetting.name);
             },
             // enabled: _emailController.text.isNotEmpty &&
             //     _passwordController.text.isNotEmpty,

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../res/colors/cr_colors.dart';
- 
 
- 
 class TextView extends StatelessWidget {
   final String text;
   final TextOverflow? textOverflow;
@@ -18,6 +16,7 @@ class TextView extends StatelessWidget {
   final int? maxLines;
   final String? fontFamily;
   final bool heading;
+  final bool underline;
   final String boldSymbol;
 
   TextView({
@@ -34,6 +33,7 @@ class TextView extends StatelessWidget {
     this.fontFamily,
     this.heading = false,
     this.boldSymbol = '*',
+    this.underline = false,
   });
 
   @override
@@ -44,6 +44,7 @@ class TextView extends StatelessWidget {
       fontFamily: fontFamily ?? 'Plus_Jakarta',
       color: color ?? AppColors.metalBlack,
       fontWeight: fontWeight,
+      decoration: underline ? TextDecoration.underline : TextDecoration.none,
       fontSize: fontSize.sp,
       fontStyle: fontStyle,
     );

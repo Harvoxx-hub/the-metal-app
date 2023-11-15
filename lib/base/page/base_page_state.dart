@@ -5,12 +5,13 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/pages/dashboard.dart/widget/nav.drawer.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 
 import '../../utils/screen.size.dart';
 import '../../widgets/text_views.dart';
 
-class BaseScreen extends StatelessWidget {
+class BaseScreen extends StatefulWidget {
   final Widget body;
   final AppBarState appBarState;
   final bool appBarEnabled; // New parameter to enable/disable the AppBar
@@ -42,27 +43,38 @@ class BaseScreen extends StatelessWidget {
   });
 
   @override
+  State<BaseScreen> createState() => _BaseScreenState();
+}
+
+class _BaseScreenState extends State<BaseScreen> {
+  final GlobalKey<ScaffoldState> _key = GlobalKey(); // Create a key
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _key,
+      drawer: NavDrawer(),
       backgroundColor: AppColors.metalWhite,
-      appBar: appBarEnabled
+      appBar: widget.appBarEnabled
           ? CustomAppBar(
-              appBarState: appBarState,
-              onHamburgerPressed: () {},
+              appBarState: widget.appBarState,
+              onHamburgerPressed: () {
+                _key.currentState!.openDrawer();
+              },
               onBackButtonPressed: () {
                 context.pop();
               },
               onSkipButtonPressed: () {},
               onNotificationPressed: () {},
-              headerText: Header!,
-              appBarEnabled: appBarEnabled,
+              headerText: widget.Header!,
+              appBarEnabled: widget.appBarEnabled,
             )
           : null,
       body: SizedBox(
           height: getDeviceHeight(context),
           width: getDeviceWidth(context),
           child: _backgroundImage(
-            isLoading
+            widget.isLoading
                 ? const Center(
                     child: CircularProgressIndicator(), // Loading indicator
                   )
@@ -71,7 +83,7 @@ class BaseScreen extends StatelessWidget {
                       // Dismiss the keyboard when tapping outside of text fields
                       FocusScope.of(context).unfocus();
                     },
-                    child: authFlow
+                    child: widget.authFlow
                         ? Padding(
                             padding: const EdgeInsets.only(
                                 top: 50.0, left: 16, right: 16, bottom: 16),
@@ -87,25 +99,25 @@ class BaseScreen extends StatelessWidget {
                                   Gap(10.h),
 
                                   Expanded(
-                                      child:
-                                          body), // Use an Expanded widget for flexible content
+                                      child: widget
+                                          .body), // Use an Expanded widget for flexible content
                                 ],
                               ),
                             ))
-                        : body,
+                        : widget.body,
                   ),
           )),
-      floatingActionButton: floatingActionButton,
-      bottomNavigationBar: bottomNavigationBar,
+      floatingActionButton: widget.floatingActionButton,
+      bottomNavigationBar: widget.bottomNavigationBar,
     );
   }
 
   Widget _backgroundImage(Widget child) {
-    if (bgImage != null) {
+    if (widget.bgImage != null) {
       return Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(bgImage!),
+            image: AssetImage(widget.bgImage!),
             fit: BoxFit.cover,
           ),
         ),
@@ -140,7 +152,7 @@ class BaseScreen extends StatelessWidget {
             ),
           ),
           TextView(
-            text: Header!,
+            text: widget.Header!,
             fontSize: 20.sp,
             fontWeight: FontWeight.normal,
           ),

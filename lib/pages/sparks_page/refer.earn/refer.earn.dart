@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/pages/sparks_page/send.spark/widget/send.card.dart';
 import 'package:metal/pages/sparks_page/widget/single.spark.card.dart';
-import 'package:metal/pages/sparks_page/widget/spark.card.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/utils/screen.size.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
-import 'package:metal/widgets/dialog/custom.dialog.dart';
-import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text.field/phone.number.input.dart';
-import 'package:metal/widgets/text_views.dart';
 
 class ReferEarnSpark extends StatelessWidget {
   ReferEarnSpark({super.key});

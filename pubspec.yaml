@@ -50,7 +50,7 @@ dependencies:
   flutter_rating_bar: ^4.0.0
   country_pickers: ^2.0.0
   bottom_picker: ^2.2.1
-
+  pie_chart: ^5.4.0
    
 
   go_router: ^6.0.1
@@ -79,6 +79,7 @@ dependencies:
   pin_code_fields: ^8.0.1
   flutter_localizations:
     sdk: flutter
+  range_slider_flutter: ^0.0.2
   
   
 

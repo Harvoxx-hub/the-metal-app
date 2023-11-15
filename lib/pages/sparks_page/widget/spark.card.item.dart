@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/utils/constant/app_images_constant.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class SparkCardItem extends StatelessWidget {

@@ -7,7 +7,9 @@ import 'package:metal/widgets/text_views.dart';
 import '../../res/colors/cr_colors.dart';
 
 class PhoneInput extends StatelessWidget {
-  const PhoneInput({super.key, this.phoneController});
+  final String floatingLabel;
+  const PhoneInput(
+      {super.key, this.phoneController, this.floatingLabel = "Phone number"});
 // ignore: prefer_typing_uninitialized_variables
   final phoneController;
   @override
@@ -16,7 +18,7 @@ class PhoneInput extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextView(
-          text: 'Phone number',
+          text: floatingLabel,
           fontWeight: FontWeight.w400,
           fontSize: 14.sp,
           color: AppColors.metalBrownColourForText,

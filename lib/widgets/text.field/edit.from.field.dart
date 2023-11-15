@@ -56,7 +56,9 @@ class EditFormField extends StatefulWidget {
       this.autoValidate = false,
       this.showMaxLengthCounter = false,
       this.radius = 20,
-      this.prefixWidget})
+      this.prefixWidget,
+      this.editButton = false,
+      this.onEditTap})
       : super(key: key);
 
   final TextCapitalization? textCapitalization;
@@ -71,6 +73,7 @@ class EditFormField extends StatefulWidget {
 
   final FormFieldSetter<String>? onSaved;
   final Function(String)? onChange;
+  final Function()? onEditTap;
   final FormFieldValidator<String>? validator;
   final VoidCallback? onPasswordToggle;
 
@@ -79,6 +82,7 @@ class EditFormField extends StatefulWidget {
   final FloatingLabelBehavior? floatingLabelBehavior;
 
   final bool? autocorrect;
+  final bool? editButton;
   final AutovalidateMode? autoValidateMode;
   final bool? enabled;
   bool? obscureText;
@@ -126,17 +130,36 @@ class _EditFormFieldState extends State<EditFormField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
       children: [
-        widget.floatingLabel != null
-            ? TextView(
-                text: widget.floatingLabel!,
-                fontWeight: FontWeight.w400,
-                fontSize: 14.sp,
-                color: AppColors.metalBrownColourForText,
-                textAlign: TextAlign.left,
-              )
-            : SizedBox(),
-        const SizedBox(
-          height: 8,
+        Row(
+          children: [
+            widget.floatingLabel != null
+                ? Column(
+                    children: [
+                      TextView(
+                        text: widget.floatingLabel!,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14.sp,
+                        color: AppColors.metalBrownColourForText,
+                        textAlign: TextAlign.left,
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                    ],
+                  )
+                : SizedBox(),
+            Spacer(),
+            widget.editButton != false
+                ? TextView(
+                    text: "Edit",
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.blueAccent,
+                    underline: true,
+                    onTap: widget.onEditTap,
+                  )
+                : SizedBox(),
+          ],
         ),
         TextFormField(
           readOnly: widget.readOnly!,
@@ -144,7 +167,7 @@ class _EditFormFieldState extends State<EditFormField> {
           key: widget.formKey,
           cursorColor: widget.cursorColor ?? AppColors.metalPinkColour,
           keyboardType: widget.keyboardType,
-          enabled: widget.enabled,
+          enabled: widget.enabled! || widget.editButton!,
 
           focusNode: widget.focusNode,
           textInputAction: widget.textInputAction,

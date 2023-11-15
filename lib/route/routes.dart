@@ -19,8 +19,15 @@ import 'package:metal/pages/authentication/presentation/profile.setting/preferen
 import 'package:metal/pages/authentication/presentation/signup/account.setting.dart';
 import 'package:metal/pages/authentication/presentation/signup/verfication.dart';
 import 'package:metal/pages/authentication/presentation/welcome/presentation/welcome.page.dart';
+import 'package:metal/pages/chat/chat.window/chat.window.dart';
+import 'package:metal/pages/chat/games/games.page.dart';
+import 'package:metal/pages/chat/games/games.rule.dart';
 import 'package:metal/pages/dashboard.dart/dashboard.dart';
 import 'package:metal/pages/onboarding/onboarding_page_view.dart';
+import 'package:metal/pages/profile/update.email/new.email.page.dart';
+import 'package:metal/pages/profile/update.email/update.email.page.dart';
+import 'package:metal/pages/profile/update.phone.number/new.phone.number.page.dart';
+import 'package:metal/pages/profile/update.phone.number/update.phone.number.page.dart';
 import 'package:metal/pages/sparks_page/buy.spark/buy.spark.dart';
 import 'package:metal/pages/sparks_page/refer.earn/refer.earn.dart';
 import 'package:metal/pages/sparks_page/send.spark/send.spark.dart';
@@ -97,7 +104,8 @@ class RouterNotifier extends ChangeNotifier {
             routes: [
               GoRoute(
                 name: VerificationPage.name,
-                builder: (context, state) => VerificationPage(),
+                builder: (context, state) =>
+                    VerificationPage(state.extra as String),
                 path: VerificationPage.route,
               ),
               GoRoute(
@@ -180,6 +188,43 @@ class RouterNotifier extends ChangeNotifier {
                 name: ReferEarnSpark.name,
                 builder: (context, state) => ReferEarnSpark(),
                 path: ReferEarnSpark.route,
+              ),
+              GoRoute(
+                name: ChatWindowsPage.name,
+                builder: (context, state) => ChatWindowsPage(),
+                path: ChatWindowsPage.route,
+              ),
+              GoRoute(
+                name: GamePage.name,
+                builder: (context, state) => GamePage(),
+                path: GamePage.route,
+              ),
+              GoRoute(
+                name: GameRules.name,
+                builder: (context, state) => GameRules(
+                  games: state.extra as String,
+                ),
+                path: GameRules.route,
+              ),
+              GoRoute(
+                name: UpdatePhoneNumberPage.name,
+                builder: (context, state) => UpdatePhoneNumberPage(),
+                path: UpdatePhoneNumberPage.route,
+              ),
+              GoRoute(
+                name: UpdateEmailPage.name,
+                builder: (context, state) => UpdateEmailPage(),
+                path: UpdateEmailPage.route,
+              ),
+              GoRoute(
+                name: NewPhoneNumberPage.name,
+                builder: (context, state) => NewPhoneNumberPage(),
+                path: NewPhoneNumberPage.route,
+              ),
+              GoRoute(
+                name: NewEmailPage.name,
+                builder: (context, state) => NewEmailPage(),
+                path: NewEmailPage.route,
               ),
             ]),
       ];

@@ -6,6 +6,8 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/pages/chat/chat.page.dart';
+import 'package:metal/pages/profile/profile.page.dart';
 
 import 'package:metal/pages/sparks_page/sparks_page.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -31,8 +33,8 @@ class _DashboardPageState extends State<DashboardPage> {
     final bottomNavPages = [
       const HomePage(),
       const SparksPage(),
-      Container(),
-      Container(),
+      const ChatPage(),
+      const ProfilePage(),
     ];
     return BaseScreen(
       appBarState: AppBarState.Dashboard,

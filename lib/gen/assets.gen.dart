@@ -82,6 +82,46 @@ class $AssetsIconsGen {
   SvgGenImage get chalkboardTeacher =>
       const SvgGenImage('assets/icons/chalkboard-teacher.svg');
 
+  /// File path: assets/icons/chats-empty-state-gaming-pad-01.svg
+  SvgGenImage get chatsEmptyStateGamingPad01 =>
+      const SvgGenImage('assets/icons/chats-empty-state-gaming-pad-01.svg');
+
+  /// File path: assets/icons/chats-empty-state-microphone.svg
+  SvgGenImage get chatsEmptyStateMicrophone =>
+      const SvgGenImage('assets/icons/chats-empty-state-microphone.svg');
+
+  /// File path: assets/icons/chats-search.svg
+  SvgGenImage get chatsSearch =>
+      const SvgGenImage('assets/icons/chats-search.svg');
+
+  /// File path: assets/icons/chats-windowactive-caret-left.svg
+  SvgGenImage get chatsWindowactiveCaretLeft =>
+      const SvgGenImage('assets/icons/chats-windowactive-caret-left.svg');
+
+  /// File path: assets/icons/chats-windowactive-done-all.svg
+  SvgGenImage get chatsWindowactiveDoneAll =>
+      const SvgGenImage('assets/icons/chats-windowactive-done-all.svg');
+
+  /// File path: assets/icons/chats-windowactive-emojis.svg
+  SvgGenImage get chatsWindowactiveEmojis =>
+      const SvgGenImage('assets/icons/chats-windowactive-emojis.svg');
+
+  /// File path: assets/icons/chats-windowactive-fill.svg
+  SvgGenImage get chatsWindowactiveFill =>
+      const SvgGenImage('assets/icons/chats-windowactive-fill.svg');
+
+  /// File path: assets/icons/chats-windowactive-send.svg
+  SvgGenImage get chatsWindowactiveSend =>
+      const SvgGenImage('assets/icons/chats-windowactive-send.svg');
+
+  /// File path: assets/icons/chats-windowactive-sr-menu-vertical-lite.svg
+  SvgGenImage get chatsWindowactiveSrMenuVerticalLite => const SvgGenImage(
+      'assets/icons/chats-windowactive-sr-menu-vertical-lite.svg');
+
+  /// File path: assets/icons/chats-windowactive-video-recorder.svg
+  SvgGenImage get chatsWindowactiveVideoRecorder =>
+      const SvgGenImage('assets/icons/chats-windowactive-video-recorder.svg');
+
   /// File path: assets/icons/check-verified.svg
   SvgGenImage get checkVerified =>
       const SvgGenImage('assets/icons/check-verified.svg');
@@ -93,6 +133,10 @@ class $AssetsIconsGen {
   SvgGenImage get christianity =>
       const SvgGenImage('assets/icons/christianity.svg');
 
+  /// File path: assets/icons/currency-dollar.svg
+  SvgGenImage get currencyDollar =>
+      const SvgGenImage('assets/icons/currency-dollar.svg');
+
   /// File path: assets/icons/down.svg
   SvgGenImage get down => const SvgGenImage('assets/icons/down.svg');
 
@@ -102,6 +146,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/gaming-pad-01.svg
   SvgGenImage get gamingPad01 =>
       const SvgGenImage('assets/icons/gaming-pad-01.svg');
+
+  /// File path: assets/icons/gear.svg
+  SvgGenImage get gear => const SvgGenImage('assets/icons/gear.svg');
 
   /// File path: assets/icons/graduation-hat-01.svg
   SvgGenImage get graduationHat01 =>
@@ -151,12 +198,36 @@ class $AssetsIconsGen {
   /// File path: assets/icons/password.svg
   SvgGenImage get password => const SvgGenImage('assets/icons/password.svg');
 
+  /// File path: assets/icons/pencil-line.svg
+  SvgGenImage get pencilLine =>
+      const SvgGenImage('assets/icons/pencil-line.svg');
+
   /// File path: assets/icons/profession.svg
   SvgGenImage get profession =>
       const SvgGenImage('assets/icons/profession.svg');
 
+  /// File path: assets/icons/profile-icon.svg
+  SvgGenImage get profileIcon =>
+      const SvgGenImage('assets/icons/profile-icon.svg');
+
+  /// File path: assets/icons/profile-mail-01.svg
+  SvgGenImage get profileMail01 =>
+      const SvgGenImage('assets/icons/profile-mail-01.svg');
+
+  /// File path: assets/icons/profile-phone.svg
+  SvgGenImage get profilePhone =>
+      const SvgGenImage('assets/icons/profile-phone.svg');
+
+  /// File path: assets/icons/profile-trash.svg
+  SvgGenImage get profileTrash =>
+      const SvgGenImage('assets/icons/profile-trash.svg');
+
   /// File path: assets/icons/referred.svg
   SvgGenImage get referred => const SvgGenImage('assets/icons/referred.svg');
+
+  /// File path: assets/icons/rocket-launch.svg
+  SvgGenImage get rocketLaunch =>
+      const SvgGenImage('assets/icons/rocket-launch.svg');
 
   /// File path: assets/icons/scales-01.svg
   SvgGenImage get scales01 => const SvgGenImage('assets/icons/scales-01.svg');
@@ -168,6 +239,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/shopping-cart-01.svg
   SvgGenImage get shoppingCart01 =>
       const SvgGenImage('assets/icons/shopping-cart-01.svg');
+
+  /// File path: assets/icons/sign-out.svg
+  SvgGenImage get signOut => const SvgGenImage('assets/icons/sign-out.svg');
 
   /// File path: assets/icons/single.svg
   SvgGenImage get single => const SvgGenImage('assets/icons/single.svg');
@@ -204,6 +278,9 @@ class $AssetsIconsGen {
   SvgGenImage get welcomeItem =>
       const SvgGenImage('assets/icons/welcome.item.svg');
 
+  /// File path: assets/icons/x-close.svg
+  SvgGenImage get xClose => const SvgGenImage('assets/icons/x-close.svg');
+
   /// List of all assets
   List<dynamic> get values => [
         calendarBlank,
@@ -219,12 +296,24 @@ class $AssetsIconsGen {
         buySparks,
         cameraPlus,
         chalkboardTeacher,
+        chatsEmptyStateGamingPad01,
+        chatsEmptyStateMicrophone,
+        chatsSearch,
+        chatsWindowactiveCaretLeft,
+        chatsWindowactiveDoneAll,
+        chatsWindowactiveEmojis,
+        chatsWindowactiveFill,
+        chatsWindowactiveSend,
+        chatsWindowactiveSrMenuVerticalLite,
+        chatsWindowactiveVideoRecorder,
         checkVerified,
         checked,
         christianity,
+        currencyDollar,
         down,
         edit04,
         gamingPad01,
+        gear,
         graduationHat01,
         hambuger,
         icon,
@@ -238,11 +327,18 @@ class $AssetsIconsGen {
         notification,
         passwordIcon,
         password,
+        pencilLine,
         profession,
+        profileIcon,
+        profileMail01,
+        profilePhone,
+        profileTrash,
         referred,
+        rocketLaunch,
         scales01,
         sendSparks,
         shoppingCart01,
+        signOut,
         single,
         sms,
         srClose,
@@ -252,7 +348,8 @@ class $AssetsIconsGen {
         user,
         verificationCall,
         verificationText,
-        welcomeItem
+        welcomeItem,
+        xClose
       ];
 }
 
@@ -305,6 +402,38 @@ class $AssetsImagesGen {
   /// File path: assets/images/card.background.png
   AssetGenImage get cardBackground =>
       const AssetGenImage('assets/images/card.background.png');
+
+  /// File path: assets/images/chat-astonished-face-emoji-1.png
+  AssetGenImage get chatAstonishedFaceEmoji1 =>
+      const AssetGenImage('assets/images/chat-astonished-face-emoji-1.png');
+
+  /// File path: assets/images/chat-emoji-woman-raising-hand-1.png
+  AssetGenImage get chatEmojiWomanRaisingHand1 =>
+      const AssetGenImage('assets/images/chat-emoji-woman-raising-hand-1.png');
+
+  /// File path: assets/images/chat-frame-3049.png
+  AssetGenImage get chatFrame3049 =>
+      const AssetGenImage('assets/images/chat-frame-3049.png');
+
+  /// File path: assets/images/chat-person-saying-more-emoji-1.png
+  AssetGenImage get chatPersonSayingMoreEmoji1 =>
+      const AssetGenImage('assets/images/chat-person-saying-more-emoji-1.png');
+
+  /// File path: assets/images/chat-smiling-face-emoji-1.png
+  AssetGenImage get chatSmilingFaceEmoji1 =>
+      const AssetGenImage('assets/images/chat-smiling-face-emoji-1.png');
+
+  /// File path: assets/images/chat-star-struck-excited-happy-emoji-1.png
+  AssetGenImage get chatStarStruckExcitedHappyEmoji1 => const AssetGenImage(
+      'assets/images/chat-star-struck-excited-happy-emoji-1.png');
+
+  /// File path: assets/images/chat-video-game-emoji-1.png
+  AssetGenImage get chatVideoGameEmoji1 =>
+      const AssetGenImage('assets/images/chat-video-game-emoji-1.png');
+
+  /// File path: assets/images/chats-photo.png
+  AssetGenImage get chatsPhoto =>
+      const AssetGenImage('assets/images/chats-photo.png');
 
   /// File path: assets/images/choose.metal.png
   AssetGenImage get chooseMetal =>
@@ -375,6 +504,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/melt.png
   AssetGenImage get melt => const AssetGenImage('assets/images/melt.png');
 
+  /// File path: assets/images/nav-bar.profile.png
+  AssetGenImage get navBarProfile =>
+      const AssetGenImage('assets/images/nav-bar.profile.png');
+
   /// File path: assets/images/notification.png
   AssetGenImage get notification =>
       const AssetGenImage('assets/images/notification.png');
@@ -390,6 +523,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/profile-image.png
   AssetGenImage get profileImage =>
       const AssetGenImage('assets/images/profile-image.png');
+
+  /// File path: assets/images/profile.image1.png
+  AssetGenImage get profileImage1 =>
+      const AssetGenImage('assets/images/profile.image1.png');
 
   /// File path: assets/images/push.click.png
   AssetGenImage get pushClick =>
@@ -433,6 +570,14 @@ class $AssetsImagesGen {
         buySpark,
         calcium,
         cardBackground,
+        chatAstonishedFaceEmoji1,
+        chatEmojiWomanRaisingHand1,
+        chatFrame3049,
+        chatPersonSayingMoreEmoji1,
+        chatSmilingFaceEmoji1,
+        chatStarStruckExcitedHappyEmoji1,
+        chatVideoGameEmoji1,
+        chatsPhoto,
         chooseMetal,
         eyesEmoji,
         flame,
@@ -452,10 +597,12 @@ class $AssetsImagesGen {
         magnesium,
         meltClick,
         melt,
+        navBarProfile,
         notification,
         partpoppercelebrationemoji,
         potassium,
         profileImage,
+        profileImage1,
         pushClick,
         push,
         refer,

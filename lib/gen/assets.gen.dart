@@ -143,6 +143,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/edit-04.svg
   SvgGenImage get edit04 => const SvgGenImage('assets/icons/edit-04.svg');
 
+  /// File path: assets/icons/eye.svg
+  SvgGenImage get eye => const SvgGenImage('assets/icons/eye.svg');
+
   /// File path: assets/icons/gaming-pad-01.svg
   SvgGenImage get gamingPad01 =>
       const SvgGenImage('assets/icons/gaming-pad-01.svg');
@@ -332,6 +335,7 @@ class $AssetsIconsGen {
         currencyDollar,
         down,
         edit04,
+        eye,
         gamingPad01,
         gear,
         graduationHat01,
@@ -824,7 +828,7 @@ class SvgGenImage {
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
       theme: theme,
-      //  colorFilter: colorFilter,
+      //   colorFilter: colorFilter,
       color: color,
       colorBlendMode: colorBlendMode,
       clipBehavior: clipBehavior,

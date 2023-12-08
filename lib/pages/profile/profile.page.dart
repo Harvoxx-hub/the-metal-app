@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/pages/profile/tab.screen/discovery.tab.dart';
@@ -78,6 +79,14 @@ class ProfileHeader extends StatelessWidget {
             verfly: true,
           ),
         ),
+        Positioned(
+            top: 140,
+            right: 50.w,
+            child: SvgPicture.asset(
+              Assets.icons.eye.path,
+              height: 40,
+              width: 40,
+            )),
       ],
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/pages/authentication/models/choose.metal.card.model.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
@@ -64,7 +65,7 @@ class ChooseMetalCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Image.asset(
-                  model.path,
+                  model.path == "" ? Assets.images.silver.path : model.path,
                   height: 31,
                   width: 31,
                 )

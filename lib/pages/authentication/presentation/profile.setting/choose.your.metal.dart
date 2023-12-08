@@ -23,40 +23,7 @@ class ChooseYourMetalPage extends ConsumerStatefulWidget {
 
 class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
   String? _selectedMetal;
-  List data = [
-    ChooseYourMetalModel(
-        Title: "Aluminium",
-        Subtitle: "Strong, Resilient, Hardworking, Friendly, Punctual",
-        path: Assets.images.aluminium.path),
-    ChooseYourMetalModel(
-        Title: "Lead",
-        Subtitle: "Perseverance, Strong-willed, Witty, Punctual",
-        path: Assets.images.lead.path),
-    ChooseYourMetalModel(
-        Title: "Magnesium",
-        Subtitle: "Strong, Resilient, Hardworking, Friendly, Punctual",
-        path: Assets.images.magnesium.path),
-    ChooseYourMetalModel(
-        Title: "Iron",
-        Subtitle: "Jovial, Doggedness, Friendly, Assertive",
-        path: Assets.images.iron.path),
-    ChooseYourMetalModel(
-        Title: "Calcium",
-        Subtitle: "Strong, Resilient, Hardworking, Friendly, Punctual",
-        path: Assets.images.calcium.path),
-    ChooseYourMetalModel(
-        Title: "Potassium",
-        Subtitle: "Perseverance, Strong-willed, Friendly, Punctual",
-        path: Assets.images.potassium.path),
-    ChooseYourMetalModel(
-        Title: "Silver",
-        Subtitle: "Perseverance, Strong-willed, Friendly, Punctual",
-        path: Assets.images.silver.path),
-    ChooseYourMetalModel(
-        Title: "Zinc",
-        Subtitle: "Perseverance, Strong-willed, Friendly, Punctual",
-        path: Assets.images.zinc.path),
-  ];
+
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -85,9 +52,9 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
                       mainAxisSpacing: 10.0,
                       childAspectRatio: 16 / 12,
                     ),
-                    itemCount: data.length,
+                    itemCount: metalList.length,
                     itemBuilder: (BuildContext context, int index) {
-                      final ChooseYourMetalModel model = data[index];
+                      final ChooseYourMetalModel model = metalList[index];
                       return ChooseMetalCard(
                         model: model,
                         onTap: () => updateMetal(model.Title),

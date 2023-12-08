@@ -4,6 +4,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/pages/my.metals/my.melted.metals.dart';
+import 'package:metal/pages/refer.earn/refer.earn.dart';
+import 'package:metal/pages/settings/settings.page.dart';
+import 'package:metal/pages/upgrade/upgrade.page.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -82,7 +86,7 @@ class NavDrawer extends StatelessWidget {
               )),
             ),
             title: TextView(text: "My melted metals"),
-            onTap: () => {},
+            onTap: () => {context.pushNamed(MyMeltedMetals.name)},
           ),
           Gap(20),
           ListTile(
@@ -101,7 +105,7 @@ class NavDrawer extends StatelessWidget {
               )),
             ),
             title: TextView(text: "Upgrade to Metal Plus"),
-            onTap: () => {},
+            onTap: () => {context.pushNamed(UpgradePage.name)},
           ),
           Gap(20),
           ListTile(
@@ -120,7 +124,7 @@ class NavDrawer extends StatelessWidget {
               )),
             ),
             title: TextView(text: "Refer & Earn"),
-            onTap: () => {},
+            onTap: () => {context.pushNamed(ReferEarn.name)},
           ),
           Gap(20),
           ListTile(
@@ -158,7 +162,7 @@ class NavDrawer extends StatelessWidget {
               )),
             ),
             title: TextView(text: "Settings"),
-            onTap: () => {},
+            onTap: () => {context.pushNamed(SettingPage.name)},
           ),
           Gap(20),
           ListTile(

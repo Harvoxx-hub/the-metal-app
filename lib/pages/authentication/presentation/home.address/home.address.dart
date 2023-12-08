@@ -52,7 +52,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
             child: Column(
           children: [
             CreateProfileHeader2(
-                path: Assets.images.flame.path,
+                path: Assets.images.homeAddress.path,
                 title: "Let us know your address",
                 subtitle:
                     "Select the information you want us to exclude from your feed and the Metals that reside in that address "),

@@ -1,0 +1,11 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="SmileyXEyes">
+<path id="Vector" opacity="0.2" d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28Z" fill="black" fill-opacity="0.5"/>
+<path id="Vector_2" d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28Z" stroke="#290F0F" stroke-width="1.5" stroke-miterlimit="10"/>
+<path id="Vector_3" d="M23 12L19 16" stroke="#290F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M23 16L19 12" stroke="#290F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_5" d="M13 12L9 16" stroke="#290F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_6" d="M13 16L9 12" stroke="#290F0F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_7" d="M16.75 22.5C16.75 22.9142 16.4142 23.25 16 23.25C15.5858 23.25 15.25 22.9142 15.25 22.5C15.25 22.0858 15.5858 21.75 16 21.75C16.4142 21.75 16.75 22.0858 16.75 22.5Z" fill="black" stroke="#290F0F" stroke-width="1.5"/>
+</g>
+</svg>

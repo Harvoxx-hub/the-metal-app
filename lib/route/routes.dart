@@ -23,15 +23,24 @@ import 'package:metal/pages/chat/chat.window/chat.window.dart';
 import 'package:metal/pages/chat/games/games.page.dart';
 import 'package:metal/pages/chat/games/games.rule.dart';
 import 'package:metal/pages/dashboard.dart/dashboard.dart';
+import 'package:metal/pages/my.metals/my.melted.metals.dart';
+import 'package:metal/pages/my.metals/my.melted.user.dart';
+import 'package:metal/pages/my.metals/user.profile.dart';
+import 'package:metal/pages/notification/notification.page.dart';
 import 'package:metal/pages/onboarding/onboarding_page_view.dart';
 import 'package:metal/pages/profile/update.email/new.email.page.dart';
 import 'package:metal/pages/profile/update.email/update.email.page.dart';
 import 'package:metal/pages/profile/update.phone.number/new.phone.number.page.dart';
 import 'package:metal/pages/profile/update.phone.number/update.phone.number.page.dart';
+import 'package:metal/pages/refer.earn/refer.earn.dart';
+import 'package:metal/pages/settings/blocked.user.dart';
+import 'package:metal/pages/settings/settings.page.dart';
 import 'package:metal/pages/sparks_page/buy.spark/buy.spark.dart';
 import 'package:metal/pages/sparks_page/refer.earn/refer.earn.dart';
 import 'package:metal/pages/sparks_page/send.spark/send.spark.dart';
 import 'package:metal/pages/sparks_page/sparks_page.dart';
+import 'package:metal/pages/upgrade/make.payment.dart';
+import 'package:metal/pages/upgrade/upgrade.page.dart';
 
 import '../pages/splash/splash.screen.dart';
 
@@ -174,6 +183,52 @@ class RouterNotifier extends ChangeNotifier {
             builder: (context, state) => DashboardPage(),
             path: DashboardPage.route,
             routes: [
+              GoRoute(
+                name: SettingPage.name,
+                builder: (context, state) => SettingPage(),
+                path: SettingPage.route,
+              ),
+              GoRoute(
+                name: BlockedUser.name,
+                builder: (context, state) => BlockedUser(),
+                path: BlockedUser.route,
+              ),
+              GoRoute(
+                name: NotificationPage.name,
+                builder: (context, state) => NotificationPage(),
+                path: NotificationPage.route,
+              ),
+              GoRoute(
+                name: UserProfilePage.name,
+                builder: (context, state) => UserProfilePage(),
+                path: UserProfilePage.route,
+              ),
+              GoRoute(
+                name: UpgradePage.name,
+                builder: (context, state) => UpgradePage(),
+                path: UpgradePage.route,
+              ),
+              GoRoute(
+                name: MakePayment.name,
+                builder: (context, state) => MakePayment(),
+                path: MakePayment.route,
+              ),
+              GoRoute(
+                name: ReferEarn.name,
+                builder: (context, state) => ReferEarn(),
+                path: ReferEarn.route,
+              ),
+              GoRoute(
+                  name: MyMeltedMetals.name,
+                  builder: (context, state) => MyMeltedMetals(),
+                  path: MyMeltedMetals.route,
+                  routes: [
+                    GoRoute(
+                      name: MyMeltedUser.name,
+                      builder: (context, state) => MyMeltedUser(),
+                      path: MyMeltedUser.route,
+                    ),
+                  ]),
               GoRoute(
                 name: SendSpark.name,
                 builder: (context, state) => SendSpark(),

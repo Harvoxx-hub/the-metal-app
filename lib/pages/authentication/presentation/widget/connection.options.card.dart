@@ -59,12 +59,13 @@ class ConnectionOptionsCard extends StatelessWidget {
           children: [
             TextView(
               text: model.title,
-              fontSize: 16.sp,
+              fontSize: 15.sp,
               fontWeight: FontWeight.w500,
             ),
+            Gap(2),
             TextView(
               text: model.subTitle,
-              fontSize: 13.sp,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w400,
             ),
           ],

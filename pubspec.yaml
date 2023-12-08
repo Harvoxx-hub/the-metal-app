@@ -51,6 +51,7 @@ dependencies:
   country_pickers: ^2.0.0
   bottom_picker: ^2.2.1
   pie_chart: ^5.4.0
+  dotted_border: ^2.1.0
    
 
   go_router: ^6.0.1

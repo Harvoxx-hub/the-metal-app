@@ -175,6 +175,26 @@ class $AssetsIconsGen {
   SvgGenImage get markerPin03 =>
       const SvgGenImage('assets/icons/marker-pin-03.svg');
 
+  /// File path: assets/icons/melt.notification.svg
+  SvgGenImage get meltNotification =>
+      const SvgGenImage('assets/icons/melt.notification.svg');
+
+  /// File path: assets/icons/melted-metals-arrow-up-right.svg
+  SvgGenImage get meltedMetalsArrowUpRight =>
+      const SvgGenImage('assets/icons/melted-metals-arrow-up-right.svg');
+
+  /// File path: assets/icons/melted-metals-chats-circle.svg
+  SvgGenImage get meltedMetalsChatsCircle =>
+      const SvgGenImage('assets/icons/melted-metals-chats-circle.svg');
+
+  /// File path: assets/icons/melted-metals-smiley-x-eyes.svg
+  SvgGenImage get meltedMetalsSmileyXEyes =>
+      const SvgGenImage('assets/icons/melted-metals-smiley-x-eyes.svg');
+
+  /// File path: assets/icons/melted-metals-trash-01.svg
+  SvgGenImage get meltedMetalsTrash01 =>
+      const SvgGenImage('assets/icons/melted-metals-trash-01.svg');
+
   /// File path: assets/icons/menu.notification.svg
   SvgGenImage get menuNotification =>
       const SvgGenImage('assets/icons/menu.notification.svg');
@@ -321,6 +341,11 @@ class $AssetsIconsGen {
         intersectCircle,
         luggage03,
         markerPin03,
+        meltNotification,
+        meltedMetalsArrowUpRight,
+        meltedMetalsChatsCircle,
+        meltedMetalsSmileyXEyes,
+        meltedMetalsTrash01,
         menuNotification,
         microphone01,
         musicNote01,
@@ -375,6 +400,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/active.user.png
   AssetGenImage get activeUser =>
       const AssetGenImage('assets/images/active.user.png');
+
+  /// File path: assets/images/address.png
+  AssetGenImage get address => const AssetGenImage('assets/images/address.png');
 
   /// File path: assets/images/ads.png
   AssetGenImage get ads => const AssetGenImage('assets/images/ads.png');
@@ -449,6 +477,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/google.png
   AssetGenImage get google => const AssetGenImage('assets/images/google.png');
 
+  /// File path: assets/images/hamburger-heart-locks.png
+  AssetGenImage get hamburgerHeartLocks =>
+      const AssetGenImage('assets/images/hamburger-heart-locks.png');
+
   /// File path: assets/images/heart-locks-1.png
   AssetGenImage get heartLocks1 =>
       const AssetGenImage('assets/images/heart-locks-1.png');
@@ -483,6 +515,10 @@ class $AssetsImagesGen {
   AssetGenImage get likeClick =>
       const AssetGenImage('assets/images/like.click.png');
 
+  /// File path: assets/images/like.notification.png
+  AssetGenImage get likeNotification =>
+      const AssetGenImage('assets/images/like.notification.png');
+
   /// File path: assets/images/like.png
   AssetGenImage get like => const AssetGenImage('assets/images/like.png');
 
@@ -501,6 +537,10 @@ class $AssetsImagesGen {
   AssetGenImage get meltClick =>
       const AssetGenImage('assets/images/melt.click.png');
 
+  /// File path: assets/images/melt.notifcation.png
+  AssetGenImage get meltNotifcation =>
+      const AssetGenImage('assets/images/melt.notifcation.png');
+
   /// File path: assets/images/melt.png
   AssetGenImage get melt => const AssetGenImage('assets/images/melt.png');
 
@@ -512,9 +552,17 @@ class $AssetsImagesGen {
   AssetGenImage get notification =>
       const AssetGenImage('assets/images/notification.png');
 
+  /// File path: assets/images/notification.profile.png
+  AssetGenImage get notificationProfile =>
+      const AssetGenImage('assets/images/notification.profile.png');
+
   /// File path: assets/images/partpoppercelebrationemoji.png
   AssetGenImage get partpoppercelebrationemoji =>
       const AssetGenImage('assets/images/partpoppercelebrationemoji.png');
+
+  /// File path: assets/images/paymentCard.png
+  AssetGenImage get paymentCard =>
+      const AssetGenImage('assets/images/paymentCard.png');
 
   /// File path: assets/images/potassium.png
   AssetGenImage get potassium =>
@@ -528,6 +576,10 @@ class $AssetsImagesGen {
   AssetGenImage get profileImage1 =>
       const AssetGenImage('assets/images/profile.image1.png');
 
+  /// File path: assets/images/profile.notification.png
+  AssetGenImage get profileNotification =>
+      const AssetGenImage('assets/images/profile.notification.png');
+
   /// File path: assets/images/push.click.png
   AssetGenImage get pushClick =>
       const AssetGenImage('assets/images/push.click.png');
@@ -535,8 +587,15 @@ class $AssetsImagesGen {
   /// File path: assets/images/push.png
   AssetGenImage get push => const AssetGenImage('assets/images/push.png');
 
+  /// File path: assets/images/pushed.png
+  AssetGenImage get pushed => const AssetGenImage('assets/images/pushed.png');
+
   /// File path: assets/images/refer.png
   AssetGenImage get refer => const AssetGenImage('assets/images/refer.png');
+
+  /// File path: assets/images/reminder.png
+  AssetGenImage get reminder =>
+      const AssetGenImage('assets/images/reminder.png');
 
   /// File path: assets/images/rocket emoji 1.png
   AssetGenImage get rocketEmoji1 =>
@@ -549,8 +608,24 @@ class $AssetsImagesGen {
   /// File path: assets/images/silver.png
   AssetGenImage get silver => const AssetGenImage('assets/images/silver.png');
 
+  /// File path: assets/images/spark.notification.png
+  AssetGenImage get sparkNotification =>
+      const AssetGenImage('assets/images/spark.notification.png');
+
+  /// File path: assets/images/square.logo.png
+  AssetGenImage get squareLogo =>
+      const AssetGenImage('assets/images/square.logo.png');
+
+  /// File path: assets/images/stripe.png
+  AssetGenImage get stripe => const AssetGenImage('assets/images/stripe.png');
+
   /// File path: assets/images/unnamed.png
   AssetGenImage get unnamed => const AssetGenImage('assets/images/unnamed.png');
+
+  /// File path: assets/images/verification-partpoppercelebrationemoji.png
+  AssetGenImage get verificationPartpoppercelebrationemoji =>
+      const AssetGenImage(
+          'assets/images/verification-partpoppercelebrationemoji.png');
 
   /// File path: assets/images/zinc.png
   AssetGenImage get zinc => const AssetGenImage('assets/images/zinc.png');
@@ -562,6 +637,7 @@ class $AssetsImagesGen {
         activeMessage,
         activeSpark,
         activeUser,
+        address,
         ads,
         aluminium,
         apple,
@@ -582,6 +658,7 @@ class $AssetsImagesGen {
         eyesEmoji,
         flame,
         google,
+        hamburgerHeartLocks,
         heartLocks1,
         homeAddress,
         inactiveHome,
@@ -591,25 +668,36 @@ class $AssetsImagesGen {
         iron,
         lead,
         likeClick,
+        likeNotification,
         like,
         location,
         logo,
         magnesium,
         meltClick,
+        meltNotifcation,
         melt,
         navBarProfile,
         notification,
+        notificationProfile,
         partpoppercelebrationemoji,
+        paymentCard,
         potassium,
         profileImage,
         profileImage1,
+        profileNotification,
         pushClick,
         push,
+        pushed,
         refer,
+        reminder,
         rocketEmoji1,
         sendSpark,
         silver,
+        sparkNotification,
+        squareLogo,
+        stripe,
         unnamed,
+        verificationPartpoppercelebrationemoji,
         zinc
       ];
 }
@@ -736,7 +824,7 @@ class SvgGenImage {
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
       theme: theme,
-      //   colorFilter: colorFilter,
+      //  colorFilter: colorFilter,
       color: color,
       colorBlendMode: colorBlendMode,
       clipBehavior: clipBehavior,

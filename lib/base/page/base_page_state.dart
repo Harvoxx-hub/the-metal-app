@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/pages/dashboard.dart/widget/nav.drawer.dart';
+import 'package:metal/pages/notification/notification.page.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 
 import '../../utils/screen.size.dart';
@@ -23,12 +24,14 @@ class BaseScreen extends StatefulWidget {
   final String? Header;
   final Function()? onSkipButtonPressed;
   final bool isScrollable;
+  final bool subAppBar;
   final bool authFlow;
   // New parameter to indicate loading state
 
   BaseScreen({
     this.bgImage,
     required this.body,
+    this.subAppBar = false,
     this.bottomWidget,
     this.bottomNavigationBar,
     this.appBarState = AppBarState.BackWithHeader,
@@ -65,7 +68,9 @@ class _BaseScreenState extends State<BaseScreen> {
                 context.pop();
               },
               onSkipButtonPressed: () {},
-              onNotificationPressed: () {},
+              onNotificationPressed: () {
+                context.pushNamed(NotificationPage.name);
+              },
               headerText: widget.Header!,
               appBarEnabled: widget.appBarEnabled,
             )
@@ -73,7 +78,7 @@ class _BaseScreenState extends State<BaseScreen> {
       body: SizedBox(
           height: getDeviceHeight(context),
           width: getDeviceWidth(context),
-          child: _backgroundImage(
+          child: _backgroundImage(_subAppbar(
             widget.isLoading
                 ? const Center(
                     child: CircularProgressIndicator(), // Loading indicator
@@ -106,7 +111,7 @@ class _BaseScreenState extends State<BaseScreen> {
                             ))
                         : widget.body,
                   ),
-          )),
+          ))),
       floatingActionButton: widget.floatingActionButton,
       bottomNavigationBar: widget.bottomNavigationBar,
     );
@@ -128,6 +133,39 @@ class _BaseScreenState extends State<BaseScreen> {
       // For example, returning a container with a background color:
 
       // Alternatively, if you want to return just the child with no background:
+      return child;
+    }
+  }
+
+  Widget _subAppbar(Widget child) {
+    if (widget.subAppBar) {
+      return SingleChildScrollView(
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 53.h,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment(0.00, -1.00),
+                        end: Alignment(0, 1),
+                        colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
+                      ),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(35.sp),
+                        bottomRight: Radius.circular(35.sp),
+                      )),
+                ),
+                child
+              ],
+            ),
+          ],
+        ),
+      );
+    } else {
       return child;
     }
   }

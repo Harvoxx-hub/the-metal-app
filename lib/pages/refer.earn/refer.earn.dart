@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/pages/refer.earn/widget/refer.earn.card.dart';
+import 'package:metal/pages/sparks_page/refer.earn/refer.earn.dart';
 import 'package:metal/pages/sparks_page/widget/single.spark.card.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/utils/screen.size.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
 import 'package:metal/widgets/text.field/phone.number.input.dart';
+import 'package:metal/widgets/text_views.dart';
 
-class ReferEarnSpark extends StatelessWidget {
-  ReferEarnSpark({super.key});
-  static const name = 'referEarnSpark';
+class ReferEarn extends StatelessWidget {
+  ReferEarn({super.key});
+  static const name = 'referEarn';
   static const route = '$name';
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
@@ -55,22 +59,51 @@ class ReferEarnSpark extends StatelessWidget {
                         borderRadius: BorderRadius.circular(13.sp)),
                     child: Column(
                       children: [
-                        SingleSparkCard(
+                        ReferEarnCard(
                           title: "Refer \n& Earn",
                           path: Assets.images.refer.path,
                         ),
-                        Gap(15),
-                        PhoneInput(
-                          phoneController: _phoneController,
+                        Gap(56),
+                        SizedBox(
+                          width: 218,
+                          child: TextView(
+                              textAlign: TextAlign.center,
+                              text:
+                                  "You’re doing great! Your counts are increasing. Invite more friends to earn more sparks with Metal."),
                         ),
-                        Gap(getDeviceHeight(context) * 0.2),
+                        Gap(29),
+                        Container(
+                          width: 200,
+                          padding: EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                              color: AppColors.metalTabBg,
+                              borderRadius: BorderRadius.circular(5)),
+                          child: Column(
+                            children: [
+                              TextView(
+                                text: "Referral count",
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              Gap(8),
+                              TextView(
+                                text: "21",
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                              )
+                            ],
+                          ),
+                        ),
+                        Gap(getDeviceHeight(context) * 0.1),
                         BaseButton(
-                          buttonText: "Invite to Metal",
-                          onPressed: () {},
+                          buttonText: "Refer friends",
+                          onPressed: () {
+                            context.pushNamed(ReferEarnSpark.name);
+                          },
                         ),
                         Gap(16.h),
                         OutilineButton(
-                          buttonText: "Copy invite Link ",
+                          buttonText: "View last 30 days",
                           onPressed: () {},
                         ),
                       ],

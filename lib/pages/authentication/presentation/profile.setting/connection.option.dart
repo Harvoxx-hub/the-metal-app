@@ -39,23 +39,27 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
         title: "Marriage",
         subTitle: "Match with Metals that are interestedin walking the aisle"),
     ConnectionOptionsCardModel(
-        title: "Marriage",
-        subTitle: "Match with Metals that are interestedin walking the aisle"),
+        title: "Mentorship",
+        subTitle: "Match with Metals that can support your goal advancements"),
     ConnectionOptionsCardModel(
-        title: "Marriage",
-        subTitle: "Match with Metals that are interestedin walking the aisle"),
+        title: "Casual Friendship",
+        subTitle:
+            "Match with Metal that are not interested in serious relationship "),
     ConnectionOptionsCardModel(
-        title: "Marriage",
-        subTitle: "Match with Metals that are interestedin walking the aisle"),
+        title: "Romance",
+        subTitle: "Match with Metal that wants a physical relationship"),
     ConnectionOptionsCardModel(
-        title: "Marriage",
-        subTitle: "Match with Metals that are interestedin walking the aisle"),
+        title: "Listening ear ",
+        subTitle: "Match with Metal to pour our your mind to"),
     ConnectionOptionsCardModel(
-        title: "Marriage",
-        subTitle: "Match with Metals that are interestedin walking the aisle"),
+        title: "Companion",
+        subTitle: "Match with Metal go to the movies, shops, parks with"),
     ConnectionOptionsCardModel(
-        title: "Marriage",
-        subTitle: "Match with Metals that are interestedin walking the aisle"),
+        title: "Father Figure",
+        subTitle: "Strong, Resilient, Hardworking, Friendly, Punctual"),
+    ConnectionOptionsCardModel(
+        title: "Daughter Figure",
+        subTitle: "Perseverance, Strong-willed, Friendly, Punctual"),
   ];
   @override
   Widget build(BuildContext context) {

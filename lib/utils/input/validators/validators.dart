@@ -1,4 +1,3 @@
- 
 import 'package:flutter/widgets.dart';
 import 'package:metal/utils/constant/constants.dart';
 import 'package:metal/utils/input/validators/email_validator.dart';
@@ -8,8 +7,8 @@ class Validators {
 
   static String? emailValidator(String? text, BuildContext context) {
     final trimmedText = text?.trim();
-    if (trimmedText == null   || !EmailValidator.validate(trimmedText)) {
-      return  'Email is not valid';
+    if (trimmedText == null || !EmailValidator.validate(trimmedText)) {
+      return 'Email is not valid';
     }
 
     return null;
@@ -21,9 +20,9 @@ class Validators {
     BuildContext context,
   ) {
     if (currentEmail?.trim() == newEmail?.trim()) {
-      return  'Wrong New Email Address';
+      return 'Wrong New Email Address';
     } else if (emailValidator(newEmail, context) != null) {
-      return  'Wrong New Email Address';
+      return 'Wrong New Email Address';
     }
 
     return null;
@@ -54,7 +53,7 @@ class Validators {
     BuildContext context,
   ) {
     if (newPassword?.trim() == currentPassword?.trim()) {
-      return  'Wrong New Password';
+      return 'Wrong New Password';
     }
 
     return passwordValidator(newPassword, context);
@@ -90,10 +89,10 @@ class Validators {
   static String? nameValidator(BuildContext context, String? name) {
     if (name != null) {
       if (!RegExp(r"^[a-zA-Z0-9\s]+$").hasMatch(name)) {
-        return  'Name should contain only letters and numbers';
+        return 'Name should contain only letters and numbers';
       }
       if (name.trim().isEmpty || name.length > 25) {
-        return  'Name should be from 1 to 25 symbols';
+        return 'Name should be from 1 to 25 symbols';
       }
     }
 
@@ -185,7 +184,7 @@ class Validators {
   static String? eventDateValidator(BuildContext context, String? text) {
     final trimmedText = text?.trim();
     if (trimmedText == null || trimmedText.isEmpty) {
-      return  'Select Session Date';
+      return 'Select Session Date';
     }
 
     return null;
@@ -229,6 +228,4 @@ class Validators {
 
   //   return null;
   // }
-
-   
 }

@@ -8,11 +8,14 @@ import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/pages/authentication/presentation/profile.setting/choose.your.metal.dart';
+import 'package:metal/pages/authentication/presentation/signup/verfication.dart';
 import 'package:metal/pages/authentication/presentation/widget/create.profile.header1.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
+import 'package:metal/widgets/text.field/phone.number.input.dart';
+import 'package:metal/widgets/text_views.dart';
 
 import '../../../../widgets/dropdown/metal.dropdown.dart';
 
@@ -28,6 +31,7 @@ class CreateProfileDobPage extends ConsumerStatefulWidget {
 
 class _CreateProfileDobPageState extends ConsumerState<CreateProfileDobPage> {
   final TextEditingController _dobController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
   String? seletedValue;
   @override
@@ -106,6 +110,20 @@ class _CreateProfileDobPageState extends ConsumerState<CreateProfileDobPage> {
                           width: 24,
                         ),
                       ),
+                      Gap(16.h),
+                      PhoneInput(
+                        phoneController: _phoneController,
+                      ),
+                      Gap(16.h),
+                      TextView(
+                        text:
+                            'A verification code will be sent to this number. Message and data rates may apply. Learn what happens what your number changes',
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w400,
+                        fontStyle: FontStyle.italic,
+                        color:
+                            AppColors.metalBrownColourForText.withOpacity(0.5),
+                      ),
                       Gap(64.h),
                     ],
                   )),
@@ -119,6 +137,8 @@ class _CreateProfileDobPageState extends ConsumerState<CreateProfileDobPage> {
   }
 
   void _onNextPressed() {
-    context.pushNamed(ChooseYourMetalPage.name);
+    context.pushNamed(VerificationPage.name,
+        extra: RouteFrom.AccountSetting.name);
+    // context.pushNamed(ChooseYourMetalPage.name);
   }
 }

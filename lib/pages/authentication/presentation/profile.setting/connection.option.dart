@@ -53,13 +53,16 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
         subTitle: "Match with Metal to pour our your mind to"),
     ConnectionOptionsCardModel(
         title: "Companion",
-        subTitle: "Match with Metal go to the movies, shops, parks with"),
+        subTitle:
+            " Match with metal looking for frienship. Someone to go to mivies, parks, shopping or simply hangout"),
     ConnectionOptionsCardModel(
         title: "Father Figure",
-        subTitle: "Strong, Resilient, Hardworking, Friendly, Punctual"),
+        subTitle:
+            "Match with metal to gain motherly advise on family topics, attend family dinners, or show up on your special days"),
     ConnectionOptionsCardModel(
         title: "Daughter Figure",
-        subTitle: "Perseverance, Strong-willed, Friendly, Punctual"),
+        subTitle:
+            "Match with metal to gain fatherly advise on family topics, attend family dinners, or show up on your special days"),
   ];
   @override
   Widget build(BuildContext context) {

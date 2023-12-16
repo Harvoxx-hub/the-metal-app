@@ -1,5 +1,3 @@
- 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -9,8 +7,7 @@ import 'package:metal/utils/screen.size.dart';
 
 import '../../widgets/dash.progress.indicator.dart';
 import '../../widgets/text_views.dart';
- 
- 
+
 class OnboardingWidget extends StatefulWidget {
   final String imageUrl;
   final String headerText;
@@ -35,20 +32,17 @@ class _OnboardingWidgetState extends State<OnboardingWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      
       height: getDeviceHeight(context),
       width: getDeviceWidth(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-      
-         
           Gap(128.h),
-            Image.asset(
-            widget. imageUrl,
-              width: 172.w,
-              height: 172.h,
-            ),
+          Image.asset(
+            widget.imageUrl,
+            width: 172.w,
+            height: 172.h,
+          ),
           TextView(
             text: widget.headerText,
             fontSize: 36.sp,
@@ -59,12 +53,8 @@ class _OnboardingWidgetState extends State<OnboardingWidget> {
             text: widget.descriptionText,
             fontSize: 16.sp,
             fontFamily: 'Merri_weather',
-            
             fontWeight: FontWeight.normal,
           ),
-          Gap(50),
-       
-           
         ],
       ),
     );

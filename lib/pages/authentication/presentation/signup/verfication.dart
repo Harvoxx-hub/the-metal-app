@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/pages/authentication/presentation/profile.setting/choose.your.metal.dart';
 import 'package:metal/pages/authentication/presentation/welcome/presentation/welcome.page.dart';
 import 'package:metal/pages/profile/update.email/new.email.page.dart';
 import 'package:metal/pages/profile/update.email/update.email.page.dart';
@@ -138,7 +139,8 @@ class VerificationPage extends ConsumerWidget {
             buttonText: "Verify Code",
             onPressed: () {
               if (routeFrom == RouteFrom.AccountSetting.name) {
-                context.pushNamed(WelcomePage.name);
+                context.pushNamed(ChooseYourMetalPage.name);
+                // context.pushNamed(WelcomePage.name);
               }
               if (routeFrom == RouteFrom.UpdatePhoneNumber.name) {
                 context.pushNamed(NewPhoneNumberPage.name);
@@ -147,8 +149,6 @@ class VerificationPage extends ConsumerWidget {
                 context.pushNamed(NewEmailPage.name);
               }
             },
-            // enabled: _emailController.text.isNotEmpty &&
-            //     _passwordController.text.isNotEmpty,
           ),
         ],
       ),

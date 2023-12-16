@@ -45,11 +45,13 @@ class ProfilePhoto extends StatelessWidget {
         Positioned(
             bottom: 0,
             right: size >= 57 ? size / 1.3 : 0,
-            child: SvgPicture.asset(
-              Assets.icons.checkVerified.path,
-              height: 23,
-              width: 23,
-            ))
+            child: verfly
+                ? SvgPicture.asset(
+                    Assets.icons.checkVerified.path,
+                    height: 23,
+                    width: 23,
+                  )
+                : SizedBox())
       ],
     );
   }

@@ -66,6 +66,12 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       label: 'Type here...',
                       controller: _apartmentNumberController,
                       keyboardType: TextInputType.number,
+                      suffixWidget: CustomCheckWidget(
+                        initialValue: false,
+                        onChanged: (bool value) {
+                          print('Value changed to $value');
+                        },
+                      ),
 
                       // validator: EmailValidator.validate(email),
                       radius: 10,
@@ -78,6 +84,12 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       controller: _houseNumberController,
                       keyboardType: TextInputType.number,
                       radius: 10,
+                      suffixWidget: CustomCheckWidget(
+                        initialValue: false,
+                        onChanged: (bool value) {
+                          print('Value changed to $value');
+                        },
+                      ),
                     ),
                     Gap(16.h),
                     EditFormField(
@@ -86,6 +98,12 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       controller: _streetNameController,
                       keyboardType: TextInputType.name,
                       radius: 10,
+                      suffixWidget: CustomCheckWidget(
+                        initialValue: false,
+                        onChanged: (bool value) {
+                          print('Value changed to $value');
+                        },
+                      ),
                     ),
                     Gap(16.h),
                     EditFormField(
@@ -94,6 +112,12 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       controller: _townController,
                       keyboardType: TextInputType.name,
                       radius: 10,
+                      suffixWidget: CustomCheckWidget(
+                        initialValue: false,
+                        onChanged: (bool value) {
+                          print('Value changed to $value');
+                        },
+                      ),
                     ),
                     Gap(16.h),
                     EditFormField(
@@ -102,6 +126,12 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       controller: _stateController,
                       keyboardType: TextInputType.name,
                       radius: 10,
+                      suffixWidget: CustomCheckWidget(
+                        initialValue: false,
+                        onChanged: (bool value) {
+                          print('Value changed to $value');
+                        },
+                      ),
                     ),
                     Gap(16.h),
                     EditFormField(
@@ -110,6 +140,12 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       controller: _countryController,
                       keyboardType: TextInputType.name,
                       radius: 10,
+                      suffixWidget: CustomCheckWidget(
+                        initialValue: false,
+                        onChanged: (bool value) {
+                          print('Value changed to $value');
+                        },
+                      ),
                     ),
                     Gap(16.h),
                     BaseButton(

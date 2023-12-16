@@ -45,6 +45,10 @@ class $AssetsIconsGen {
   SvgGenImage get newspaperClipping =>
       const SvgGenImage('assets/icons/NewspaperClipping.svg');
 
+  /// File path: assets/icons/Tick Square.svg
+  SvgGenImage get tickSquare =>
+      const SvgGenImage('assets/icons/Tick Square.svg');
+
   /// File path: assets/icons/User.2.svg
   SvgGenImage get user2 => const SvgGenImage('assets/icons/User.2.svg');
 
@@ -308,6 +312,7 @@ class $AssetsIconsGen {
   List<dynamic> get values => [
         calendarBlank,
         newspaperClipping,
+        tickSquare,
         user2,
         user3,
         ageRange,
@@ -537,9 +542,17 @@ class $AssetsImagesGen {
   AssetGenImage get magnesium =>
       const AssetGenImage('assets/images/magnesium.png');
 
+  /// File path: assets/images/melt.chat.png
+  AssetGenImage get meltChat =>
+      const AssetGenImage('assets/images/melt.chat.png');
+
   /// File path: assets/images/melt.click.png
   AssetGenImage get meltClick =>
       const AssetGenImage('assets/images/melt.click.png');
+
+  /// File path: assets/images/melt.dashboard.png
+  AssetGenImage get meltDashboard =>
+      const AssetGenImage('assets/images/melt.dashboard.png');
 
   /// File path: assets/images/melt.notifcation.png
   AssetGenImage get meltNotifcation =>
@@ -547,6 +560,14 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/melt.png
   AssetGenImage get melt => const AssetGenImage('assets/images/melt.png');
+
+  /// File path: assets/images/melt.profile.png
+  AssetGenImage get meltProfile =>
+      const AssetGenImage('assets/images/melt.profile.png');
+
+  /// File path: assets/images/melt.spark.png
+  AssetGenImage get meltSpark =>
+      const AssetGenImage('assets/images/melt.spark.png');
 
   /// File path: assets/images/nav-bar.profile.png
   AssetGenImage get navBarProfile =>
@@ -677,9 +698,13 @@ class $AssetsImagesGen {
         location,
         logo,
         magnesium,
+        meltChat,
         meltClick,
+        meltDashboard,
         meltNotifcation,
         melt,
+        meltProfile,
+        meltSpark,
         navBarProfile,
         notification,
         notificationProfile,
@@ -828,7 +853,7 @@ class SvgGenImage {
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
       theme: theme,
-      //   colorFilter: colorFilter,
+      //  colorFilter: colorFilter,
       color: color,
       colorBlendMode: colorBlendMode,
       clipBehavior: clipBehavior,

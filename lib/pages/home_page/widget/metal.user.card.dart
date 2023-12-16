@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/pages/home_page/melt.metal.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/res/style/text_styles.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -95,9 +97,18 @@ class MetalUserCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Image.asset(Assets.images.melt.path),
-              Image.asset(Assets.images.like.path),
-              Image.asset(Assets.images.push.path),
+              GestureDetector(
+                onTap: () {
+                  context.pushNamed(MeltMetal.name);
+                },
+                child: Image.asset(Assets.images.melt.path),
+              ),
+              GestureDetector(
+                child: Image.asset(Assets.images.like.path),
+              ),
+              GestureDetector(
+                child: Image.asset(Assets.images.push.path),
+              )
             ],
           )
         ],

@@ -61,33 +61,35 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AppbarBackground(),
-          ],
-        ),
-        child,
-        const Positioned(
-          top: 19,
-          left: 0,
-          right: 0,
-          child: ProfilePhoto(
-            size: 170,
-            verfly: true,
+    return SingleChildScrollView(
+      child: Stack(
+        children: [
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppbarBackground(),
+            ],
           ),
-        ),
-        Positioned(
-            top: 140,
-            right: 50.w,
-            child: SvgPicture.asset(
-              Assets.icons.eye.path,
-              height: 40,
-              width: 40,
-            )),
-      ],
+          child,
+          const Positioned(
+            top: 19,
+            left: 0,
+            right: 0,
+            child: ProfilePhoto(
+              size: 170,
+              verfly: true,
+            ),
+          ),
+          Positioned(
+              top: 140,
+              right: 50.w,
+              child: SvgPicture.asset(
+                Assets.icons.eye.path,
+                height: 40,
+                width: 40,
+              )),
+        ],
+      ),
     );
   }
 }

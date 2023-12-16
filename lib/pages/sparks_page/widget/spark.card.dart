@@ -16,7 +16,7 @@ class SparkCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 221.h,
+      height: 229.h,
       width: double.infinity,
       padding: const EdgeInsets.all(23),
       decoration: BoxDecoration(

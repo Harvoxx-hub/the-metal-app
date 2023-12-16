@@ -8,6 +8,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/pages/authentication/presentation/signup/verfication.dart';
+import 'package:metal/pages/authentication/presentation/welcome/presentation/welcome.page.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
@@ -21,7 +22,7 @@ class AccountSetting extends ConsumerWidget {
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,26 +72,34 @@ class AccountSetting extends ConsumerWidget {
                     // fillColor: AppColors.appGrey,
                   ),
                   Gap(22.h),
-
-                  PhoneInput(
-                    phoneController: _phoneController,
-                  ) // validator: EmailValidator.validate(email),
+                  EditFormField(
+                    floatingLabel: 'Password',
+                    label: '**********',
+                    controller: _passwordController,
+                    keyboardType: TextInputType.visiblePassword,
+                    prefixWidget: SvgPicture.asset(
+                      Assets.icons.passwordIcon.path,
+                      height: 24,
+                      width: 24,
+                    ),
+                  ),
                 ],
               )),
-          TextView(
-            text:
-                'A verification code will be sent to this number. Message and data rates may apply. Learn what happens what your number changes',
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w400,
-            fontStyle: FontStyle.italic,
-            color: AppColors.metalBrownColourForText.withOpacity(0.5),
-          ),
+          // TextView(
+          //   text:
+          //       'A verification code will be sent to this number. Message and data rates may apply. Learn what happens what your number changes',
+          //   fontSize: 12.sp,
+          //   fontWeight: FontWeight.w400,
+          //   fontStyle: FontStyle.italic,
+          //   color: AppColors.metalBrownColourForText.withOpacity(0.5),
+          // ),
           Gap(27.h),
           BaseButton(
             buttonText: "Continue",
             onPressed: () {
-              context.pushNamed(VerificationPage.name,
-                  extra: RouteFrom.AccountSetting.name);
+              context.pushNamed(WelcomePage.name);
+              // context.pushNamed(VerificationPage.name,
+              //     extra: RouteFrom.AccountSetting.name);
             },
             // enabled: _emailController.text.isNotEmpty &&
             //     _passwordController.text.isNotEmpty,

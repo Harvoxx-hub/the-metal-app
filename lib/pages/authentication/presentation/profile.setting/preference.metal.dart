@@ -13,6 +13,7 @@ import 'package:metal/utils/screen.size.dart';
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdown.dart';
+import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
 import 'package:metal/widgets/text_views.dart';
 
 import '../widget/passions.card.dart';
@@ -64,7 +65,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               fontWeight: FontWeight.w300,
             ),
             Gap(15.h),
-            MentalDropdown(
+            MentalDropdownMutipleSelection(
               items: const [
                 "18 - 30 years",
                 "30 - 45 years",
@@ -86,7 +87,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               ),
             ),
             Gap(15.h),
-            MentalDropdown(
+            MentalDropdownMutipleSelection(
               items: const [
                 "Christianity",
                 "Islam",
@@ -95,7 +96,9 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
                 "Sikhim",
                 "Judaism",
                 "Indigenous religion",
-                "Others (Please specify)",
+                "New Age spirituality",
+                "Paganism"
+                    "Others (Please specify)",
               ],
               value: seletedReligion,
               onChanged: (newValue) {
@@ -160,7 +163,30 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               ),
             ),
             Gap(15.h),
-            MentalDropdown(
+            MentalDropdownMutipleSelection(
+              items: const [
+                "Anywhere in the world",
+                "Africa",
+                "Asia",
+                "North America",
+                "Europe",
+              ],
+              value: seletedDemography,
+              onChanged: (newValue) {
+                setState(() {
+                  seletedDemography = newValue;
+                });
+              },
+              floatingLabel: "Demography",
+              hint: "Please Select",
+              prefixIcon: SvgPicture.asset(
+                Assets.icons.markerPin03.path,
+                height: 24,
+                width: 24,
+              ),
+            ),
+            Gap(15.h),
+            MentalDropdownMutipleSelection(
               items: const [
                 "Anywhere in the world",
                 "Africa",

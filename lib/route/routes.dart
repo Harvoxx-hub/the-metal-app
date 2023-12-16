@@ -23,6 +23,7 @@ import 'package:metal/pages/chat/chat.window/chat.window.dart';
 import 'package:metal/pages/chat/games/games.page.dart';
 import 'package:metal/pages/chat/games/games.rule.dart';
 import 'package:metal/pages/dashboard.dart/dashboard.dart';
+import 'package:metal/pages/home_page/melt.metal.dart';
 import 'package:metal/pages/my.metals/my.melted.metals.dart';
 import 'package:metal/pages/my.metals/my.melted.user.dart';
 import 'package:metal/pages/my.metals/user.profile.dart';
@@ -187,6 +188,11 @@ class RouterNotifier extends ChangeNotifier {
                 name: SettingPage.name,
                 builder: (context, state) => SettingPage(),
                 path: SettingPage.route,
+              ),
+              GoRoute(
+                name: MeltMetal.name,
+                builder: (context, state) => MeltMetal(),
+                path: MeltMetal.route,
               ),
               GoRoute(
                 name: BlockedUser.name,

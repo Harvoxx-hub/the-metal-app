@@ -51,7 +51,7 @@ List<ChooseYourMetalModel> metalList = [
   ),
   ChooseYourMetalModel(
     Title: "Iron",
-    Subtitle: "Strong, Available, Cheap",
+    Subtitle: "Strong, Available, inexpensive",
     path: Assets.images.iron.path,
   ),
   ChooseYourMetalModel(

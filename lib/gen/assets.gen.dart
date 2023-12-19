@@ -406,6 +406,10 @@ class $AssetsImagesGen {
   AssetGenImage get activeSpark =>
       const AssetGenImage('assets/images/active.spark.png');
 
+  /// File path: assets/images/active.star.svg
+  SvgGenImage get activeStar =>
+      const SvgGenImage('assets/images/active.star.svg');
+
   /// File path: assets/images/active.user.png
   AssetGenImage get activeUser =>
       const AssetGenImage('assets/images/active.user.png');
@@ -490,6 +494,10 @@ class $AssetsImagesGen {
   AssetGenImage get hamburgerHeartLocks =>
       const AssetGenImage('assets/images/hamburger-heart-locks.png');
 
+  /// File path: assets/images/handshake.png
+  AssetGenImage get handshake =>
+      const AssetGenImage('assets/images/handshake.png');
+
   /// File path: assets/images/heart-locks-1.png
   AssetGenImage get heartLocks1 =>
       const AssetGenImage('assets/images/heart-locks-1.png');
@@ -510,6 +518,10 @@ class $AssetsImagesGen {
   AssetGenImage get inactiveSpark =>
       const AssetGenImage('assets/images/inactive.spark.png');
 
+  /// File path: assets/images/inactive.star.svg
+  SvgGenImage get inactiveStar =>
+      const SvgGenImage('assets/images/inactive.star.svg');
+
   /// File path: assets/images/inactive.user.png
   AssetGenImage get inactiveUser =>
       const AssetGenImage('assets/images/inactive.user.png');
@@ -519,6 +531,10 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/lead.png
   AssetGenImage get lead => const AssetGenImage('assets/images/lead.png');
+
+  /// File path: assets/images/lets-hear-from-you-group.png
+  AssetGenImage get letsHearFromYouGroup =>
+      const AssetGenImage('assets/images/lets-hear-from-you-group.png');
 
   /// File path: assets/images/like.click.png
   AssetGenImage get likeClick =>
@@ -609,6 +625,14 @@ class $AssetsImagesGen {
   AssetGenImage get pushClick =>
       const AssetGenImage('assets/images/push.click.png');
 
+  /// File path: assets/images/push.melt.png
+  AssetGenImage get pushMelt =>
+      const AssetGenImage('assets/images/push.melt.png');
+
+  /// File path: assets/images/push.metal.png
+  AssetGenImage get pushMetal =>
+      const AssetGenImage('assets/images/push.metal.png');
+
   /// File path: assets/images/push.png
   AssetGenImage get push => const AssetGenImage('assets/images/push.png');
 
@@ -656,11 +680,12 @@ class $AssetsImagesGen {
   AssetGenImage get zinc => const AssetGenImage('assets/images/zinc.png');
 
   /// List of all assets
-  List<AssetGenImage> get values => [
+  List<dynamic> get values => [
         aboutYou,
         activeHome,
         activeMessage,
         activeSpark,
+        activeStar,
         activeUser,
         address,
         ads,
@@ -684,14 +709,17 @@ class $AssetsImagesGen {
         flame,
         google,
         hamburgerHeartLocks,
+        handshake,
         heartLocks1,
         homeAddress,
         inactiveHome,
         inactiveMessage,
         inactiveSpark,
+        inactiveStar,
         inactiveUser,
         iron,
         lead,
+        letsHearFromYouGroup,
         likeClick,
         likeNotification,
         like,
@@ -715,6 +743,8 @@ class $AssetsImagesGen {
         profileImage1,
         profileNotification,
         pushClick,
+        pushMelt,
+        pushMetal,
         push,
         pushed,
         refer,

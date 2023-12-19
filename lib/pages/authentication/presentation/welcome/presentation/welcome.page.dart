@@ -53,7 +53,7 @@ class WelcomePage extends ConsumerWidget {
                 'Ensure that your pictures, age, and every information you put here is true to who you are. '),
             welcomeItem(context, 'Respect is reciprocal',
                 'Have regards for each other during conversations as you would love to be treated well.'),
-            welcomeItem(context, 'Be true to yourself',
+            welcomeItem(context, 'Prioritize your safety',
                 ' - Don’t be so quick to share out your personal information. \n\n - Book your first date in an open space. \n\n - Do not hesitate to report bad behaviour. Be proactive'),
             Gap(40.h),
             BaseButton(

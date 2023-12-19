@@ -186,29 +186,6 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               ),
             ),
             Gap(15.h),
-            MentalDropdownMutipleSelection(
-              items: const [
-                "Anywhere in the world",
-                "Africa",
-                "Asia",
-                "North America",
-                "Europe",
-              ],
-              value: seletedDemography,
-              onChanged: (newValue) {
-                setState(() {
-                  seletedDemography = newValue;
-                });
-              },
-              floatingLabel: "Demography",
-              hint: "Please Select",
-              prefixIcon: SvgPicture.asset(
-                Assets.icons.markerPin03.path,
-                height: 24,
-                width: 24,
-              ),
-            ),
-            Gap(15.h),
             BaseButton(
               buttonText: "Next",
               onPressed: _onNextPressed,

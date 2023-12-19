@@ -53,9 +53,9 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
           children: [
             CreateProfileHeader2(
                 path: Assets.images.homeAddress.path,
-                title: "Let us know your address",
+                title: "Let us know your home address",
                 subtitle:
-                    "Select the information you want us to exclude from your feed and the Metals that reside in that address "),
+                    "Select the information you want us to exclude from your feed. The metals with the highlighted information will be excluded from your feed."),
             Gap(26.h),
             Form(
                 key: _form,

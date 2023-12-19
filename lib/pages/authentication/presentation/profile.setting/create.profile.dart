@@ -73,7 +73,8 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                         label: "User name",
                         controller: _userNameController,
                         keyboardType: TextInputType.name,
-                        bottomLabel: "Type a name unique to you",
+                        bottomLabel:
+                            "Type a name unique to you that will be displayed to other users",
 
                         prefixWidget: SvgPicture.asset(
                           Assets.icons.newspaperClipping.path,

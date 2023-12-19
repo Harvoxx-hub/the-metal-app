@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/pages/feedback/feedback.page.dart';
 import 'package:metal/pages/my.metals/my.melted.metals.dart';
 import 'package:metal/pages/refer.earn/refer.earn.dart';
 import 'package:metal/pages/settings/settings.page.dart';
@@ -143,7 +144,7 @@ class NavDrawer extends StatelessWidget {
               )),
             ),
             title: TextView(text: "Let’s hear from you"),
-            onTap: () => {},
+            onTap: () => {context.pushNamed(FeedBackPage.name)},
           ),
           Gap(20),
           ListTile(

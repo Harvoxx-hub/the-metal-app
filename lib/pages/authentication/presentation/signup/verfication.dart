@@ -139,8 +139,8 @@ class VerificationPage extends ConsumerWidget {
             buttonText: "Verify Code",
             onPressed: () {
               if (routeFrom == RouteFrom.AccountSetting.name) {
-                context.pushNamed(ChooseYourMetalPage.name);
-                // context.pushNamed(WelcomePage.name);
+                // context.pushNamed(ChooseYourMetalPage.name);
+                context.pushNamed(WelcomePage.name);
               }
               if (routeFrom == RouteFrom.UpdatePhoneNumber.name) {
                 context.pushNamed(NewPhoneNumberPage.name);

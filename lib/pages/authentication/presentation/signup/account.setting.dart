@@ -23,7 +23,7 @@ class AccountSetting extends ConsumerWidget {
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
+  final TextEditingController _phoneController = TextEditingController();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return BaseScreen(
@@ -83,23 +83,28 @@ class AccountSetting extends ConsumerWidget {
                       width: 24,
                     ),
                   ),
+                  Gap(16.h),
+                  PhoneInput(
+                    phoneController: _phoneController,
+                  ),
+                  Gap(16.h),
                 ],
               )),
-          // TextView(
-          //   text:
-          //       'A verification code will be sent to this number. Message and data rates may apply. Learn what happens what your number changes',
-          //   fontSize: 12.sp,
-          //   fontWeight: FontWeight.w400,
-          //   fontStyle: FontStyle.italic,
-          //   color: AppColors.metalBrownColourForText.withOpacity(0.5),
-          // ),
+          TextView(
+            text:
+                'A verification code will be sent to this number. Message and data rates may apply. Learn what happens what your number changes',
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w400,
+            fontStyle: FontStyle.italic,
+            color: AppColors.metalBrownColourForText.withOpacity(0.5),
+          ),
           Gap(27.h),
           BaseButton(
             buttonText: "Continue",
             onPressed: () {
-              context.pushNamed(WelcomePage.name);
-              // context.pushNamed(VerificationPage.name,
-              //     extra: RouteFrom.AccountSetting.name);
+              // context.pushNamed(WelcomePage.name);
+              context.pushNamed(VerificationPage.name,
+                  extra: RouteFrom.AccountSetting.name);
             },
             // enabled: _emailController.text.isNotEmpty &&
             //     _passwordController.text.isNotEmpty,

@@ -89,7 +89,7 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
                   right: 0,
                   left: 0,
                   child: BaseButton(
-                    buttonText: "Next 4/6",
+                    buttonText: "Next 3/5",
                     onPressed: _onNextPressed,
                   ),
                 )

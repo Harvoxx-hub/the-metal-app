@@ -258,7 +258,7 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
               ),
               Gap(20),
               BaseButton(
-                buttonText: "Next 5/6",
+                buttonText: "Next 4/5",
                 onPressed: _onNextPressed,
               ),
             ],

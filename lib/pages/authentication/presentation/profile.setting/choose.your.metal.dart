@@ -68,7 +68,7 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
                   right: 0,
                   left: 0,
                   child: BaseButton(
-                    buttonText: "Next 3/6",
+                    buttonText: "Next 2/5",
                     onPressed: _onNextPressed,
                   ),
                 )

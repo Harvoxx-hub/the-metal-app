@@ -12,7 +12,7 @@ import 'package:metal/pages/authentication/presentation/profile.setting/connecti
 import 'package:metal/pages/authentication/presentation/profile.setting/create.profile.dart';
 import 'package:metal/pages/authentication/presentation/login/forgot_password.screen.dart';
 import 'package:metal/pages/authentication/presentation/login/login.screen.dart';
-import 'package:metal/pages/authentication/presentation/profile.setting/create.profile.dob.dart';
+
 import 'package:metal/pages/authentication/presentation/profile.setting/more.about.you.dart';
 import 'package:metal/pages/authentication/presentation/profile.setting/passions.dart';
 import 'package:metal/pages/authentication/presentation/profile.setting/preference.metal.dart';
@@ -144,11 +144,6 @@ class RouterNotifier extends ChangeNotifier {
                 name: MoreAboutYouPage.name,
                 builder: (context, state) => MoreAboutYouPage(),
                 path: MoreAboutYouPage.route,
-              ),
-              GoRoute(
-                name: CreateProfileDobPage.name,
-                builder: (context, state) => CreateProfileDobPage(),
-                path: CreateProfileDobPage.route,
               ),
               GoRoute(
                 name: ConnectionOptionsPage.name,

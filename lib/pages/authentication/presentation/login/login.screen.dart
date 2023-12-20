@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/pages/authentication/presentation/login/forgot_password.screen.dart';
+import 'package:metal/pages/authentication/presentation/signup/account.setting.dart';
 import 'package:metal/pages/dashboard.dart/dashboard.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/widgets/agree.click.dart';
@@ -146,6 +147,9 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                     color: AppColors.metaltext,
                   ),
                   TextView(
+                    onTap: () {
+                      context.pushNamed(AccountSetting.name);
+                    },
                     text: "  Create account",
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,

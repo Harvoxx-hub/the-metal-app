@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
- 
- 
-import 'package:metal/utils/screen.size.dart';
+
+import 'package:metal/core/utils/utils/screen.size.dart';
 
 import '../res/colors/cr_colors.dart';
 
@@ -27,7 +26,9 @@ class DashProgressIndicator extends StatelessWidget {
             height: 7.0,
             margin: EdgeInsets.symmetric(horizontal: 4.0),
             decoration: BoxDecoration(
-              color: currentPage == index ? AppColors.metalBrownColour : Colors.grey[300],
+              color: currentPage == index
+                  ? AppColors.metalBrownColour
+                  : Colors.grey[300],
               borderRadius: BorderRadius.circular(20.0),
             ),
           );

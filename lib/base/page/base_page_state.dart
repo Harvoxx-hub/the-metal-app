@@ -4,12 +4,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/pages/dashboard.dart/widget/nav.drawer.dart';
-import 'package:metal/pages/notification/notification.page.dart';
+import 'package:metal/features/dashboard.dart/widget/nav.drawer.dart';
+import 'package:metal/features/notification/notification.page.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 
-import '../../utils/screen.size.dart';
 import '../../widgets/text_views.dart';
 
 class BaseScreen extends StatefulWidget {

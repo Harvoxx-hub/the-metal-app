@@ -7,7 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/screen.size.dart';
-import 'package:metal/features/authentication/models/connection.options.card.dart';
+import 'package:metal/features/authentication/domain/entries/connection.options.card.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/authentication/presentation/profile.setting/preference.metal.dart';

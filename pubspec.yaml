@@ -81,6 +81,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   range_slider_flutter: ^0.0.2
+  fluttertoast: ^8.2.4
+  flutter_secure_storage: ^9.0.0
   
   
 

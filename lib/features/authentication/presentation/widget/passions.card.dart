@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/features/authentication/models/passion.card.model.dart';
+import 'package:metal/features/authentication/domain/entries/passion.card.model.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
 

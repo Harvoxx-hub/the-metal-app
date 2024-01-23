@@ -4,28 +4,42 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
+
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/features/authentication/provider/account.setting.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.dart';
-import 'package:metal/features/authentication/presentation/welcome/presentation/welcome.page.dart';
+
 import 'package:metal/res/res.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text.field/phone.number.input.dart';
 import 'package:metal/widgets/text_views.dart';
 
-class AccountSetting extends ConsumerWidget {
+class AccountSetting extends ConsumerStatefulWidget {
   AccountSetting({Key? key}) : super(key: key);
   static const name = 'createAccount';
   static const route = '/$name';
+
+  @override
+  ConsumerState<AccountSetting> createState() => _AccountSettingtate();
+}
+
+class _AccountSettingtate extends ConsumerState<AccountSetting> {
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    ref.listen<AccountSettingState>(accountSettingProvider, (prev, current) {
+      if (current.isSuccess) {
+        context.pushReplacementNamed(VerificationPage.name);
+      }
+    });
+
+    final _accountSettingState = ref.watch(accountSettingProvider);
     return BaseScreen(
       bgImage: Assets.images.bg2.path,
       appBarEnabled: false,
@@ -101,13 +115,13 @@ class AccountSetting extends ConsumerWidget {
           Gap(27.h),
           BaseButton(
             buttonText: "Continue",
+            loading: _accountSettingState.isLoading,
             onPressed: () {
-              // context.pushNamed(WelcomePage.name);
-              context.pushNamed(VerificationPage.name,
-                  extra: RouteFrom.AccountSetting.name);
+              ref.read(accountSettingProvider.notifier).signup(
+                  email: _emailController.text,
+                  password: _passwordController.text,
+                  phoneNumber: _phoneController.text);
             },
-            // enabled: _emailController.text.isNotEmpty &&
-            //     _passwordController.text.isNotEmpty,
           ),
         ],
       ),

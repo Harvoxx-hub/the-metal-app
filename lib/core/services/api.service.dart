@@ -1,11 +1,12 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:metal/core/error/error.handle.dart';
+import 'package:metal/core/model/responces.dart';
 
 class ApiService {
-  final String baseUrl;
-
-  ApiService({required this.baseUrl});
+  ApiService();
+  final String baseUrl = 'https://metal-server.vercel.app/api/v1';
 
   Future<dynamic> get(String endpoint) async {
     final response = await http.get(Uri.parse('$baseUrl/$endpoint'));
@@ -23,14 +24,15 @@ class ApiService {
     return _handleResponse(response);
   }
 
-  Future<dynamic> _handleResponse(http.Response response) async {
+  Future<Response> _handleResponse(http.Response response) async {
     final body = jsonDecode(response.body);
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
+    final data = Response.fromJson(body);
+    if (data.success) {
       // Successful response
-      return body;
+      return data;
     } else {
       // Error response
+      ErrorHandler.handleError(_createAppError(response.statusCode, body));
       throw _createAppError(response.statusCode, body);
     }
   }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/presentation/login/screens/login.screen.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/res/res.dart';
 
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button_divider.dart';
@@ -28,30 +29,11 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
   final image1 = Assets.gifs.onboarding.path;
   final image2 = Assets.gifs.onboarding2.path;
   final image3 = Assets.gifs.onboarding3.path;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  PageController _controller = PageController();
+  int currentPage = 0;
 
   @override
   Widget build(BuildContext context) {
-    PageController _controller = PageController(
-      initialPage: 0,
-    );
-    int currentPage = 0;
-
-    void nextPage() {
-      setState(() {
-        if (_controller.page == 2) {}
-        _controller.nextPage(
-            duration: const Duration(
-              milliseconds: 100,
-            ),
-            curve: Curves.easeIn);
-      });
-    }
-
     return BaseScreen(
       appBarEnabled: false,
       bgImage: Assets.images.bg2.path,
@@ -68,6 +50,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                     setState(() {
                       currentPage = value;
                     });
+                    print(currentPage);
                   },
                   children: [
                     OnboardingWidget(
@@ -75,34 +58,28 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                       descriptionText:
                           'A true love, a companion, a listening ear, a mentor, a father or a daughter? We got you!',
                       imageUrl: image1,
-                      currentPage: 0,
-                      index: 3,
-                      next: () => nextPage(),
                     ),
                     OnboardingWidget(
                       headerText: 'Interact from around the world',
                       descriptionText:
                           'Irrespective of your location, you can get to interact with new contacts and friends',
                       imageUrl: image2,
-                      currentPage: 1,
-                      index: 3,
-                      next: nextPage,
                     ),
                     OnboardingWidget(
                       headerText: 'Let your hearts talk',
                       descriptionText:
                           'With our exciting Metal features, get to have meaningful blind conversations and connect your hearts.',
                       imageUrl: image3,
-                      currentPage: 2,
-                      index: 3,
-                      next: nextPage,
                     ),
                   ],
                 ),
               ),
-              DashProgressIndicator(
-                pageCount: 3,
-                currentPage: currentPage,
+              Row(
+                children: [
+                  buildDot(currentPage == 0),
+                  buildDot(currentPage == 1),
+                  buildDot(currentPage == 2),
+                ],
               ),
               const Gap(38),
               BaseButton(
@@ -186,6 +163,18 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildDot(bool index) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 2.0),
+      height: 6.0,
+      width: 6.0,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: index ? AppColors.metalBlack : Colors.grey,
       ),
     );
   }

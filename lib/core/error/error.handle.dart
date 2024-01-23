@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AppError {
   final String code;
@@ -11,21 +12,19 @@ class AppError {
 }
 
 class ErrorHandler {
-  static void handleError(BuildContext context, AppError appError) {
+  static void handleError(AppError appError) {
     // Customize this method to handle errors
     print('Error Code: ${appError.code}');
     print('Error Message: ${appError.message}');
 
     // Example: Show a snackbar with error details
-    _showErrorSnackbar(context, 'Error: ${appError.message}');
-  }
-
-  static void _showErrorSnackbar(BuildContext context, String errorMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(errorMessage),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    Fluttertoast.showToast(
+        msg: "Error: ${appError.message}",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 3,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
   }
 }

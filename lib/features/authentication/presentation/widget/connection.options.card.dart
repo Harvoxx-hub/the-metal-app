@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:gap/gap.dart';
-import 'package:metal/features/authentication/models/connection.options.card.dart';
+import 'package:metal/features/authentication/domain/entries/connection.options.card.dart';
 
 import 'package:metal/widgets/text_views.dart';
 

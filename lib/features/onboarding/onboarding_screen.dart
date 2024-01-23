@@ -9,17 +9,13 @@ class OnboardingWidget extends StatefulWidget {
   final String imageUrl;
   final String headerText;
   final String descriptionText;
-  final int index;
-  final int currentPage;
-  final VoidCallback next;
-  const OnboardingWidget(
-      {super.key,
-      required this.imageUrl,
-      required this.headerText,
-      required this.index,
-      required this.currentPage,
-      required this.descriptionText,
-      required this.next});
+
+  const OnboardingWidget({
+    super.key,
+    required this.imageUrl,
+    required this.headerText,
+    required this.descriptionText,
+  });
 
   @override
   State<OnboardingWidget> createState() => _OnboardingWidgetState();

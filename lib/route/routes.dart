@@ -4,14 +4,15 @@ import 'package:go_router/go_router.dart';
 import 'package:metal/features/authentication/presentation/home.address/home.address.dart';
 import 'package:metal/features/authentication/presentation/home.address/location.dart';
 import 'package:metal/features/authentication/presentation/home.address/notification.dart';
-import 'package:metal/pages/authentication/presentation/login/create.new.password.dart';
-import 'package:metal/pages/authentication/presentation/login/forgot_password.otp.screen.dart';
+import 'package:metal/features/authentication/presentation/login/screens/create.new.password.dart';
+import 'package:metal/features/authentication/presentation/login/screens/forgot_password.otp.screen.dart';
+import 'package:metal/features/authentication/presentation/login/screens/forgot_password.screen.dart';
+import 'package:metal/features/authentication/presentation/login/screens/login.screen.dart';
+
 import 'package:metal/features/authentication/presentation/profile.setting/about.you.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/choose.your.metal.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/connection.option.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/create.profile.dart';
-import 'package:metal/pages/authentication/presentation/login/forgot_password.screen.dart';
-import 'package:metal/pages/authentication/presentation/login/login.screen.dart';
 
 import 'package:metal/features/authentication/presentation/profile.setting/more.about.you.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/passions.dart';
@@ -41,7 +42,7 @@ import 'package:metal/features/settings/settings.page.dart';
 import 'package:metal/features/sparks_page/buy.spark/buy.spark.dart';
 import 'package:metal/features/sparks_page/refer.earn/refer.earn.dart';
 import 'package:metal/features/sparks_page/send.spark/send.spark.dart';
-import 'package:metal/features/sparks_page/sparks_page.dart';
+
 import 'package:metal/features/upgrade/make.payment.dart';
 import 'package:metal/features/upgrade/upgrade.page.dart';
 
@@ -69,13 +70,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
 
-  RouterNotifier(this._ref) {
-    // _ref.listen<AuthenticationState>(
-    //   authenticationNotifierProvider,
-    //   (_, __) => notifyListeners(),
-
-    // );
-  }
+  RouterNotifier(this._ref) {}
 
   List<GoRoute> get _routes => [
         GoRoute(

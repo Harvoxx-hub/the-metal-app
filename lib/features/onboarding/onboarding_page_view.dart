@@ -3,12 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/features/authentication/presentation/login/screens/login.screen.dart';
 import 'package:metal/gen/assets.gen.dart';
 
-import 'package:metal/pages/authentication/presentation/login/login.screen.dart';
-import 'package:metal/features/dashboard.dart/dashboard.dart';
-
-import 'package:metal/core/utils/utils/screen.size.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button_divider.dart';
 

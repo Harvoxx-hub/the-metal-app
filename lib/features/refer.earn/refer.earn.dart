@@ -4,15 +4,16 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/refer.earn/widget/refer.earn.card.dart';
 import 'package:metal/features/sparks_page/refer.earn/refer.earn.dart';
-import 'package:metal/features/sparks_page/widget/single.spark.card.dart';
+
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/core/utils/utils/screen.size.dart';
+
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
-import 'package:metal/widgets/text.field/phone.number.input.dart';
+
 import 'package:metal/widgets/text_views.dart';
 
 class ReferEarn extends StatelessWidget {

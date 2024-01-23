@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:metal/core/utils/utils/screen.size.dart';
-
 import '../res/colors/cr_colors.dart';
 
 class DashProgressIndicator extends StatelessWidget {

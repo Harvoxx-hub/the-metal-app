@@ -6,7 +6,7 @@ import 'package:metal/features/chat/chat.window/widget/chat.bottom.sheet.dart';
 import 'package:metal/features/chat/chat.window/widget/chat.bubble.dart';
 import 'package:metal/features/chat/chat.window/widget/chat.windows.appbar.dart';
 import 'package:metal/res/res.dart';
-import 'package:metal/core/utils/utils/screen.size.dart';
+
 import 'package:metal/widgets/text_views.dart';
 
 class ChatWindowsPage extends StatefulWidget {

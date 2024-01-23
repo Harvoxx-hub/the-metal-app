@@ -1,4 +1,3 @@
-import 'package:bottom_picker/bottom_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,19 +6,14 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/pages/authentication/models/passion.card.model.dart';
+ 
 import 'package:metal/features/authentication/presentation/profile.setting/more.about.you.dart';
-import 'package:metal/features/authentication/presentation/widget/create.profile.header1.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
-import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/core/utils/utils/screen.size.dart';
-import 'package:metal/widgets/agree.click.dart';
+ 
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
-import 'package:metal/widgets/text.field/edit.from.field.dart';
 
 import '../../../../widgets/dropdown/metal.dropdown.dart';
-import '../widget/passions.card.dart';
 
 class AboutYouPage extends ConsumerStatefulWidget {
   AboutYouPage({Key? key}) : super(key: key);

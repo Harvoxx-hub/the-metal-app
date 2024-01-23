@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/pages/authentication/models/passion.card.model.dart';
+
 import 'package:metal/features/authentication/presentation/home.address/location.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
-import 'package:metal/core/utils/utils/screen.size.dart';
+
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
-import 'package:metal/widgets/dropdown/metal.dropdown.dart';
 import 'package:metal/widgets/text.field/text.field.dart';
-import 'package:metal/widgets/text_views.dart';
-
-import '../widget/passions.card.dart';
 
 class HomeAddressPage extends ConsumerStatefulWidget {
   HomeAddressPage({Key? key}) : super(key: key);

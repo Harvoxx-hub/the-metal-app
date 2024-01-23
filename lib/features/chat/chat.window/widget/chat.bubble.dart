@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/core/utils/utils/screen.size.dart';
+
 import 'package:metal/widgets/text_views.dart';
 
 class ChatBubble extends ConsumerWidget {

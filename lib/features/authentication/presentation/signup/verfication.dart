@@ -5,17 +5,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/choose.your.metal.dart';
 import 'package:metal/features/authentication/presentation/welcome/presentation/welcome.page.dart';
 import 'package:metal/features/profile/update.email/new.email.page.dart';
-import 'package:metal/features/profile/update.email/update.email.page.dart';
 import 'package:metal/features/profile/update.phone.number/new.phone.number.page.dart';
-import 'package:metal/features/profile/update.phone.number/update.phone.number.page.dart';
 import 'package:metal/res/res.dart';
-import 'package:metal/core/utils/utils/screen.size.dart';
+
 import 'package:metal/widgets/button/buttons.dart';
-import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 

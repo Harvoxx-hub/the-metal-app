@@ -6,17 +6,15 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/pages/authentication/models/passion.card.model.dart';
+
 import 'package:metal/features/authentication/presentation/home.address/home.address.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
-import 'package:metal/core/utils/utils/screen.size.dart';
+
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdown.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
 import 'package:metal/widgets/text_views.dart';
-
-import '../widget/passions.card.dart';
 
 class PreferenceMetalPage extends ConsumerStatefulWidget {
   PreferenceMetalPage({Key? key}) : super(key: key);

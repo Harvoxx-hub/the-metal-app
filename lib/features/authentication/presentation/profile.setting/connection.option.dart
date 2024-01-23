@@ -6,15 +6,16 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/screen.size.dart';
+import 'package:metal/features/authentication/models/connection.options.card.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/pages/authentication/models/connection.options.card.model.dart';
-import 'package:metal/pages/authentication/models/passion.card.model.dart';
+
 import 'package:metal/features/authentication/presentation/profile.setting/preference.metal.dart';
 import 'package:metal/features/authentication/presentation/widget/connection.options.card.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header1.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/core/utils/utils/screen.size.dart';
+
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';

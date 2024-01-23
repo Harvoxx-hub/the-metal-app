@@ -5,9 +5,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/create.profile.dart';
-import 'package:metal/core/utils/utils/screen.size.dart';
+
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text_views.dart';
 

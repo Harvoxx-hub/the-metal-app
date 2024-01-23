@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
-import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/core/utils/utils/screen.size.dart';
+import 'package:metal/core/utils/screen.size.dart';
 
-import '../../widgets/dash.progress.indicator.dart';
 import '../../widgets/text_views.dart';
 
 class OnboardingWidget extends StatefulWidget {

@@ -5,7 +5,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
-import 'package:metal/features/authentication/presentation/login/screens/forgot_password.otp.screen.dart';
+import 'package:metal/features/authentication/presentation/forget.password/forgot_password.otp.screen.dart';
+
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/widgets/button/base_button.dart';

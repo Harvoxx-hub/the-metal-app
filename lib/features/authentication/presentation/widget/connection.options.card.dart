@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/connection.options.card.dart';
+import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 
 import 'package:metal/widgets/text_views.dart';
 
@@ -13,7 +14,7 @@ class ConnectionOptionsCard extends StatelessWidget {
     this.selected = false,
     required this.onTap,
   });
-  final ConnectionOptionsCardModel model;
+  final LookingFor model;
   final bool selected;
   final Function() onTap;
 
@@ -57,13 +58,13 @@ class ConnectionOptionsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextView(
-              text: model.title,
+              text: model.title!,
               fontSize: 15.sp,
               fontWeight: FontWeight.w500,
             ),
             Gap(2),
             TextView(
-              text: model.subTitle,
+              text: model.desc!,
               fontSize: 12.sp,
               fontWeight: FontWeight.w400,
             ),

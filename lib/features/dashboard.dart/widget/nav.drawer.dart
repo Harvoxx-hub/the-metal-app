@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:metal/core/services/auth.manager.dart';
+import 'package:metal/features/authentication/presentation/login/login.screen.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/verification/verification.video.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/feedback/feedback.page.dart';
 import 'package:metal/features/my.metals/my.melted.metals.dart';
@@ -10,11 +15,14 @@ import 'package:metal/features/refer.earn/refer.earn.dart';
 import 'package:metal/features/settings/settings.page.dart';
 import 'package:metal/features/upgrade/upgrade.page.dart';
 import 'package:metal/res/res.dart';
+import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:provider/provider.dart';
 
-class NavDrawer extends StatelessWidget {
+class NavDrawer extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final _authState = ref.watch(authProvider).data;
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -50,19 +58,24 @@ class NavDrawer extends StatelessWidget {
                   Gap(36),
                   Row(
                     children: [
-                      Image.asset(Assets.images.navBarProfile.path),
+                      ProfilePhoto(
+                        verfly: false,
+                        size: 51,
+                      ),
+                      // Image.asset(Assets.images.navBarProfile.path),
                       Gap(19),
                       Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TextView(
-                            text: "Chiehiura Designer",
+                            text: _authState!.fullname!,
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
                           ),
                           TextView(
-                            text: "@designe’chi_aluminium",
+                            text: "@${_authState!.username!}",
                             fontSize: 15,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
                           ),
                         ],
                       ),
@@ -143,6 +156,25 @@ class NavDrawer extends StatelessWidget {
                 width: 24,
               )),
             ),
+            title: TextView(text: "Verify your account"),
+            onTap: () => {context.pushNamed(VerificationVideo.name)},
+          ),
+          Gap(20),
+          ListTile(
+            leading: Container(
+              height: 46,
+              width: 46,
+              decoration: ShapeDecoration(
+                color: AppColors.metalPinkColour.withOpacity(0.06),
+                shape: OvalBorder(),
+              ),
+              child: Center(
+                  child: SvgPicture.asset(
+                Assets.icons.pencilLine.path,
+                height: 24,
+                width: 24,
+              )),
+            ),
             title: TextView(text: "Let’s hear from you"),
             onTap: () => {context.pushNamed(FeedBackPage.name)},
           ),
@@ -182,7 +214,10 @@ class NavDrawer extends StatelessWidget {
               )),
             ),
             title: TextView(text: "Log out"),
-            onTap: () => {},
+            onTap: () => {
+              logout(),
+              context.pushReplacementNamed(LoginPage.name),
+            },
           ),
           Gap(40),
           Padding(
@@ -211,5 +246,10 @@ class NavDrawer extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void logout() {
+    final authManager = AuthManager();
+    authManager.saveLoginState(LoginState.loggedOut);
   }
 }

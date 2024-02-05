@@ -1,0 +1,51 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/services/auth.manager.dart';
+
+import 'package:metal/core/state/base.state.dart';
+import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
+import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+
+class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
+  UpdateProfileNotifier(
+    UpdateProfileState state,
+    this.ref,
+  ) : super(state) {
+    initMyProfile();
+  }
+  final Ref ref;
+//init my profile
+  void initMyProfile() async {
+    state = UpdateProfileState.success(UserModel());
+  }
+
+  //update usermodel from user data
+  void updateUserData(UserModel userData) {
+    state = UpdateProfileState.success(userData);
+    print(state.data!.toJson());
+  }
+
+  Future<void> sendUserUpdate(UserModel userModel) async {
+    try {
+      state = UpdateProfileState.loading();
+      final authenticationRepository =
+          ref.watch(authenticationRepositoryProvider);
+      final response = await authenticationRepository.updateUser(userModel);
+      final userData = UserModel.fromJson(response.data);
+      ref.read(authProvider.notifier).getCurrentUser();
+      state = UpdateProfileState.success(userData);
+    } catch (e) {
+      print(e.toString());
+      state = UpdateProfileState.error(e.toString());
+    }
+  }
+}
+
+// Define a type alias
+typedef UpdateProfileState = BaseState<UserModel>;
+
+final updateProfileProvider =
+    StateNotifierProvider<UpdateProfileNotifier, UpdateProfileState>(
+  (ref) => UpdateProfileNotifier(UpdateProfileState.initial(), ref),
+);

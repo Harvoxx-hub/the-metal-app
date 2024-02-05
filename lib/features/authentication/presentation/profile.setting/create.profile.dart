@@ -6,6 +6,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/date.formart.dart';
+import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/choose.your.metal.dart';
 
@@ -35,9 +38,9 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
 
-  String? seletedValue;
+  String? _gender;
+  String? _whatImLookingFor;
 
-  List<Widget> _pages = [];
   int currentPage = 0;
   @override
   Widget build(BuildContext context) {
@@ -51,26 +54,30 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Gap(45.h),
-              CreateProfileHeader1(),
+              const CreateProfileHeader1(
+                title1:          '👋 Hello',
+ 
+                title2:
+                          'Let’s set up your profile',
+                    title3: "it will only take a 3 minutes" ,
+              ),
               Gap(24.h),
               Form(
                   key: _form,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       EditFormField(
                         floatingLabel: 'First Name and Last Name',
                         label: 'First Name and Last Name',
                         controller: _nameController,
                         keyboardType: TextInputType.name,
-
-                        prefixWidget: SvgPicture.asset(
-                          Assets.icons.user3.path,
-                          height: 24,
+                        prefixWidget: Assets.icons.user3.svg(
                           width: 24,
+                          height: 24,
                         ),
-                        // validator: EmailValidator.validate(email),
-                        radius: 10,
-                        // fillColor: AppColors.appGrey,
+                        validator: Validators.validateString(),
+                        autoValidate: true,
                       ),
                       Gap(16.h),
                       EditFormField(
@@ -80,53 +87,51 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                         keyboardType: TextInputType.name,
                         bottomLabel:
                             "Type a name unique to you that will be displayed to other users",
+                        prefixWidget: Assets.icons.user3.svg(
+                          width: 24,
+                          height: 24,
+                        ),
+                        validator: Validators.validateString(),
+                        autoValidate: true,
+                      ),
+                      Gap(16.h),
 
-                        prefixWidget: SvgPicture.asset(
-                          Assets.icons.newspaperClipping.path,
+                      MentalDropdown(
+                        items: const [
+                          "Male",
+                          "Female",
+                          "Prefer not to say",
+                          "Others (Please specify)",
+                        ],
+                        value: _gender,
+                        onChanged: (newValue) {
+                          setState(() {
+                            _gender = newValue;
+                          });
+                        },
+                        floatingLabel: "Gender",
+                        hint: "Select Gender",
+                        prefixIcon: SvgPicture.asset(
+                          Assets.icons.user2.path,
                           height: 24,
                           width: 24,
                         ),
-                        // validator: EmailValidator.validate(email),
-                        radius: 10,
                       ),
-                      Gap(16.h),
-                      if (seletedValue != "Others (Please specify)")
-                        MentalDropdown(
-                          items: const [
-                            "Male",
-                            "Female",
-                            "Prefer not to say",
-                            "Others (Please specify)",
-                          ],
-                          value: seletedValue,
-                          onChanged: (newValue) {
-                            setState(() {
-                              seletedValue = newValue;
-                            });
-                          },
-                          floatingLabel: "Gender",
-                          hint: "Select Gender",
-                          prefixIcon: SvgPicture.asset(
-                            Assets.icons.user2.path,
-                            height: 24,
-                            width: 24,
-                          ),
-                        ),
-                      if (seletedValue == "Others (Please specify)")
-                        EditFormField(
-                          floatingLabel: 'Gender/Others',
-                          label: "Female",
-                          controller: _userNameController,
-                          keyboardType: TextInputType.name,
+                      // if (seletedValue == "Others (Please specify)")
+                      //   EditFormField(
+                      //     floatingLabel: 'Gender/Others',
+                      //     label: "Female",
+                      //     controller: _userNameController,
+                      //     keyboardType: TextInputType.name,
 
-                          prefixWidget: SvgPicture.asset(
-                            Assets.icons.user2.path,
-                            height: 24,
-                            width: 24,
-                          ),
-                          // validator: EmailValidator.validate(email),
-                          radius: 10,
-                        ),
+                      //     prefixWidget: SvgPicture.asset(
+                      //       Assets.icons.user2.path,
+                      //       height: 24,
+                      //       width: 24,
+                      //     ),
+                      //     // validator: EmailValidator.validate(email),
+                      //     radius: 10,
+                      //   ),
                       Gap(16.h),
                       EditFormField(
                         floatingLabel: 'Please Select your Date Of Birth',
@@ -136,14 +141,13 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                         onTapped: () {
                           BottomPicker.date(
                             title: "Please Select your Date Of Birth",
-                            titleStyle: TextStyle(
+                            titleStyle: const TextStyle(
                                 fontWeight: FontWeight.w400,
                                 fontSize: 14,
                                 color: AppColors.metalBlack),
-                            onChange: (index) {
-                              print(index);
-                            },
                             onSubmit: (index) {
+                              _dobController.text =
+                                  formatDateDDMMYY(index.toString());
                               print(index);
                             },
                             buttonSingleColor: AppColors.metalBlack,
@@ -172,10 +176,10 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                           "Prefer not to say",
                           "Others (Please specify)",
                         ],
-                        value: seletedValue,
+                        value: _whatImLookingFor,
                         onChanged: (newValue) {
                           setState(() {
-                            seletedValue = newValue;
+                            _whatImLookingFor = newValue;
                           });
                         },
                         floatingLabel: "I am looking to connect with",
@@ -198,7 +202,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                     ],
                   )),
               BaseButton(
-                buttonText: "Next 5",
+                buttonText: "Next 1/5",
                 onPressed: _onNextPressed,
               ),
             ],
@@ -207,6 +211,17 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
   }
 
   void _onNextPressed() {
-    context.pushNamed(ChooseYourMetalPage.name);
+    final userData = ref.watch(updateProfileProvider).data;
+
+    if (_form.currentState!.validate()) {
+      userData!.fullname = _nameController.text;
+      userData!.username = _userNameController.text;
+      userData!.DOB = _dobController.text;
+      userData!.gender = _gender;
+      userData!.connect_with = _whatImLookingFor;
+  
+      ref.read(updateProfileProvider.notifier).updateUserData(userData);
+      context.pushNamed(ChooseYourMetalPage.name);
+    }
   }
 }

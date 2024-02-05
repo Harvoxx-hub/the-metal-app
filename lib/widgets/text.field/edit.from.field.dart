@@ -55,7 +55,7 @@ class EditFormField extends StatefulWidget {
       this.isTyping = false,
       this.autoValidate = false,
       this.showMaxLengthCounter = false,
-      this.radius = 20,
+      this.radius = 10,
       this.prefixWidget,
       this.editButton = false,
       this.onEditTap})

@@ -3,7 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
-import 'package:metal/features/authentication/presentation/login/screens/login.screen.dart';
+import 'package:metal/features/authentication/presentation/login/login.screen.dart';
+
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
 

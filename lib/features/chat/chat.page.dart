@@ -71,10 +71,10 @@ class _ChatPageState extends State<ChatPage> {
                         child: Row(
                           children: [
                             chat("you"),
-                            chat("Musa"),
-                            chat("Segun"),
-                            chat("Muda"),
-                            chat("Dave"),
+                            chat("@Musa"),
+                            chat("@Segun"),
+                            chat("@Muda"),
+                            chat("@Dave"),
                           ],
                         ),
                       )
@@ -86,20 +86,36 @@ class _ChatPageState extends State<ChatPage> {
               Padding(
                 padding: const EdgeInsets.only(left: 20.0, right: 20),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    // TextView(
+                    //   text: "Messages",
+                    //   fontSize: 18.sp,
+                    //   fontWeight: FontWeight.w700,
+                    // ),
+                    // Gap(16.h),
+                    Assets.images.emptyChat.image(),
+                    Gap(16.h),
                     TextView(
-                      text: "Messages",
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w700,
+                      text: "You have no messages yet",
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
                     ),
                     Gap(16.h),
-                    const chatMessageItem(),
-                    const chatMessageItem(),
-                    const chatMessageItem(),
-                    const chatMessageItem(),
-                    const chatMessageItem(),
-                    const chatMessageItem(),
+                    TextView(
+                      text:
+                          "Tap on any of your metals to kickstart a conversation",
+                      fontSize: 16,
+                      fontWeight: FontWeight.w300,
+                      textAlign: TextAlign.center,
+                    ),
+
+                    // const chatMessageItem(),
+                    // const chatMessageItem(),
+                    // const chatMessageItem(),
+                    // const chatMessageItem(),
+                    // const chatMessageItem(),
+                    // const chatMessageItem(),
                   ],
                 ),
               ),
@@ -118,8 +134,8 @@ class _ChatPageState extends State<ChatPage> {
           const ProfileImage(),
           TextView(
             text: title,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
             color: AppColors.metalWhite,
           ),
         ],

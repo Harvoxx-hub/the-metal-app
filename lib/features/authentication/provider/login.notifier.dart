@@ -1,0 +1,53 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/services/auth.manager.dart';
+
+import 'package:metal/core/state/base.state.dart';
+import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
+
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+
+class LoginNotifier extends StateNotifier<LoginStates> {
+  LoginNotifier(
+    LoginStates state,
+    this.ref,
+  ) : super(state) {}
+  final Ref ref;
+
+  //login user
+  void login({
+    required String email,
+    required String password,
+  }) async {
+    state = LoginStates.loading();
+    try {
+      final authenticationRepository =
+          ref.watch(authenticationRepositoryProvider);
+      final response = await authenticationRepository.logIn(
+        email: email,
+        password: password,
+      );
+      final tokenManager = ref.read(authManagerProvider);
+      await tokenManager.saveAccessToken(response.data['access_token']);
+      await tokenManager.saveRefreshToken(response.data['refresh_token']);
+      await tokenManager.saveLoginState(LoginState.loggedIn);
+      ref
+          .read(authProvider.notifier)
+          .updateUserData(UserModel.fromJson(response.data));
+      state = LoginStates.success(UserModel.fromJson(response.data));
+    } catch (e) {
+      print(e.toString());
+      state = LoginStates.error(e.toString());
+    }
+  }
+
+  //update state with new user data
+}
+
+// Define a type alias
+typedef LoginStates = BaseState<UserModel>;
+
+final loginProvider =
+    StateNotifierProvider.autoDispose<LoginNotifier, LoginStates>(
+  (ref) => LoginNotifier(LoginStates.initial(), ref),
+);

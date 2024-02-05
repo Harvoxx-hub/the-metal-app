@@ -32,7 +32,7 @@ class SingleSparkCard extends StatelessWidget {
             color: AppColors.metalWhite,
           ),
           TextView(
-            text: "10,240",
+            text: "0.00",
             fontSize: 40.sp,
             fontWeight: FontWeight.w700,
             color: AppColors.metalWhite,

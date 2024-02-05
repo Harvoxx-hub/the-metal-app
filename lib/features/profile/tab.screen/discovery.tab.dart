@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/profile/widget/edit.field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:range_slider_flutter/range_slider_flutter.dart';
 
-class DiscoveryTab extends StatefulWidget {
+class DiscoveryTab extends ConsumerStatefulWidget {
   const DiscoveryTab({super.key});
 
   @override
-  State<DiscoveryTab> createState() => _DiscoveryTabState();
+  ConsumerState<DiscoveryTab> createState() => _DiscoveryTabState();
 }
 
-class _DiscoveryTabState extends State<DiscoveryTab> {
+class _DiscoveryTabState extends ConsumerState<DiscoveryTab> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _lookingeController = TextEditingController();
   @override
@@ -28,16 +31,14 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
 
   @override
   Widget build(BuildContext context) {
+    final userState = ref.watch(authProvider).data;
     return Column(
       children: [
-        EditFormField(
-          floatingLabel: 'Location',
-          label: 'Location',
-          controller: _locationController,
-          keyboardType: TextInputType.name,
-          radius: 10,
-          editButton: true,
-          onEditTap: () {
+        EditField(
+          text: userState?.location?.address ?? "Location",
+          floatingLabel: "Location",
+          subLabel: "Edit",
+          onSubLabel: () {
             // context.pushNamed(UpdateEmailPage.name);
           },
         ),
@@ -94,15 +95,13 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
           ],
         ),
         Gap(20.h),
-        EditFormField(
-          floatingLabel: 'What are you looking for in a person?',
-          label: 'What are you looking for in a person?',
-          controller: _lookingeController,
-          keyboardType: TextInputType.name,
-          radius: 10,
-          editButton: true,
-          onEditTap: () {
-            //   context.pushNamed(UpdateEmailPage.name);
+        EditField(
+          text: userState?.connection_option?.join(",") ??
+              "What are you looking for in a person?",
+          floatingLabel: "What are you looking for in a person?",
+          subLabel: "Edit",
+          onSubLabel: () {
+            // context.pushNamed(UpdateEmailPage.name);
           },
         ),
         Gap(20.h),

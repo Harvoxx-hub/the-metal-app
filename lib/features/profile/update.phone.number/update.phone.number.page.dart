@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/authentication/presentation/signup/verfication.dart';
+import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 import 'package:metal/features/dashboard.dart/dashboard.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';

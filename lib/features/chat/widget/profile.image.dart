@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 
 class ProfileImage extends StatelessWidget {
@@ -20,19 +21,23 @@ class ProfileImage extends StatelessWidget {
         // context.pushNamed(SecoundaryProfile.name,  extra: id  );
       },
       child: Container(
-        width: width ?? 66.w,
-        height: height ?? 66.h,
-        padding: const EdgeInsets.all(2),
-        decoration: const ShapeDecoration(
-          color: Colors.white,
-          shape: OvalBorder(
-            side: BorderSide(width: 2, color: Color(0xFFF27121)),
+          width: width ?? 66.w,
+          height: height ?? 66.h,
+          padding: const EdgeInsets.all(2),
+          decoration: const ShapeDecoration(
+            color: Colors.white,
+            shape: OvalBorder(
+              side: BorderSide(width: 2, color: Color(0xFFF27121)),
+            ),
           ),
-        ),
-        child: const Stack(
-          children: [],
-        ),
-      ),
+          child: Center(
+            child: Image.asset(
+              Assets.images.silver.path,
+              height: 40,
+              width: 40,
+              fit: BoxFit.fill,
+            ),
+          )),
     );
   }
 }

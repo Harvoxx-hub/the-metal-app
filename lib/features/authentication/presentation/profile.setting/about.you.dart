@@ -5,11 +5,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
- 
+
 import 'package:metal/features/authentication/presentation/profile.setting/more.about.you.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
- 
+
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
 
@@ -28,9 +31,10 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
   String? maritalStatus;
   String? religion;
   String? profession;
-  String? language;
+  List<String>? language;
   @override
   Widget build(BuildContext context) {
+    final _metalProps = ref.watch(metalPropertiesProvider);
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -46,212 +50,64 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
                       "The more we know you, the easier it is to match you!"),
               Gap(40.h),
               MentalDropdown(
-                items: const [
-                  "Single",
-                  "Married",
-                  "Divorced",
-                  "Widowed",
-                  "Separated",
-                  "Civil Union",
-                  "Annulled",
-                  "Common-Law ",
-                  "Other",
-                ],
+                items: _metalProps.data!.marriageStatus!,
                 onChanged: (String? value) {
-                  maritalStatus = value;
+                  setState(() {
+                    maritalStatus = value;
+                  });
                 },
-                prefixIcon: SvgPicture.asset(
-                  Assets.icons.single.path,
-                  height: 24,
-                  width: 24,
-                ),
+                prefixIcon: Assets.icons.single.svg(width: 24, height: 24),
                 value: maritalStatus,
                 hint: "Please Select",
                 floatingLabel: "Marital Status",
               ),
               Gap(22.h),
               MentalDropdown(
-                items: const [
-                  "Christianity",
-                  "Hinduism",
-                  "Indigenous religion",
-                  "Traditional religion",
-                  "Others (Please specify)",
-                ],
+                items: _metalProps.data!.religion!,
                 onChanged: (String? value) {
-                  religion = value;
+                  setState(() {
+                    religion = value;
+                  });
                 },
-                prefixIcon: SvgPicture.asset(
-                  Assets.icons.christianity.path,
-                  height: 24,
-                  width: 24,
-                ),
+                prefixIcon:
+                    Assets.icons.christianity.svg(width: 24, height: 24),
                 value: religion,
                 hint: "Please Select",
                 floatingLabel: "Religon",
               ),
               Gap(22.h),
               MentalDropdown(
-                items: const [
-                  "Doctor",
-                  "Nurse",
-                  "Dentist",
-                  "Therapist",
-                  "Paramedic",
-                  "Web Developer",
-                  "Technology Consultant",
-                  "Business Consultant",
-                  "Entrepreneur",
-                  "Finance Professional",
-                  "Accountant",
-                  "Teacher",
-                  "College Professor",
-                  "Education Consultant",
-                  "School Administrator",
-                  "Banker",
-                  "Professional",
-                  "Artist",
-                  "Writer",
-                  "Graphic Designer",
-                  "Photographer",
-                  "Content Developer",
-                  "Unemployed",
-                  "Marketer",
-                  "Public Relations Specialist",
-                  "Social Media Manager",
-                  "Nanny",
-                  "Scientist",
-                  "Researcher",
-                  "Medical Professional",
-                  "Lawyer",
-                  "Legal Professional",
-                  "Engineering",
-                  "Technician",
-                  "Fitness Trainer",
-                  "Nutritionist",
-                  "Military",
-                  "Programmer",
-                  "Police Officer",
-                  "Firefighter",
-                  "Social Worker",
-                  "Chef",
-                  "Bartender",
-                  "Event Planner",
-                  "Hotel Manager",
-                  "Store Management",
-                  "Factory Production",
-                  "Actor/Actress",
-                  "Musician",
-                  "Film Producer",
-                  "Screenwriter",
-                  "Small Business Owner",
-                  "Startup Founder",
-                  "Consultant",
-                  "Government Official",
-                  "Electrician",
-                  "Plumber",
-                  "Carpenter",
-                  "Welder",
-                  "Mechanic",
-                  "Machinist",
-                  "Construction Worker",
-                  "Stay-at-home Mom",
-                  "Stay-at-home Dad",
-                  "Undergraduate Student",
-                  "Painter",
-                  "Postgraduate Student",
-                  "Landscaper",
-                  "Contractor",
-                  "Mason",
-                  "Auto Body Technician",
-                  "Locksmith",
-                  "Heavy Equipment Operator",
-                  "Other, please specify"
-                ],
+                items: _metalProps.data!.profession!,
                 onChanged: (String? value) {
-                  profession = value;
+                  setState(() {
+                    profession = value;
+                  });
                 },
-                prefixIcon: SvgPicture.asset(
-                  Assets.icons.profession.path,
-                  height: 24,
-                  width: 24,
-                ),
+                prefixIcon: Assets.icons.profession.svg(width: 24, height: 24),
                 value: profession,
                 hint: "Please Select",
                 floatingLabel: "Profession",
               ),
               Gap(22.h),
               MentalDropdownMutipleSelection(
-                items: [
-                  "Mandarin Chinese",
-                  "Spanish",
-                  "English",
-                  "Hindi",
-                  "Arabic",
-                  "Bengali",
-                  "Portuguese",
-                  "Russian",
-                  "Urdu",
-                  "French",
-                  "Indonesian",
-                  "German",
-                  "Japanese",
-                  "Swahili",
-                  "Turkish",
-                  "Telugu",
-                  "Marathi",
-                  "Tamil",
-                  "Vietnamese",
-                  "Korean",
-                  "Italian",
-                  "Tagalog (Filipino)",
-                  "Yoruba",
-                  "Thai",
-                  "Persian (Farsi)",
-                  "Malay",
-                  "Polish",
-                  "Ukrainian",
-                  "Dutch",
-                  "Javanese",
-                  "Gujarati",
-                  "Kannada",
-                  "Romanian",
-                  "Odia (Oriya)",
-                  "Burmese",
-                  "Malayalam",
-                  "Bhojpuri",
-                  "Hausa",
-                  "Punjabi",
-                  "Sundanese",
-                  "Nepali",
-                  "Sinhala",
-                  "Uzbek",
-                  "Amharic",
-                  "Fula",
-                  "Igbo",
-                  "Maithili",
-                  "Oromo",
-                  "Serbo-Croatian",
-                  "Azerbaijani",
-                  "Hebrew",
-                  "Others, please specify"
-                ],
-                onChanged: (String? value) {
+                items: _metalProps.data!.language!,
+                onChanged: (List? value) {
                   setState(() {
-                    language = value;
+                    language = value!.cast<String>();
                   });
                 },
-                prefixIcon: SvgPicture.asset(
-                  Assets.icons.profession.path,
-                  height: 24,
-                  width: 24,
-                ),
+                prefixIcon: Assets.icons.profession.svg(width: 24, height: 24),
                 value: language,
                 hint: "Please Select",
                 floatingLabel: "language",
               ),
               Gap(20),
               BaseButton(
+                enabled: language != null &&
+                    language!.isNotEmpty &&
+                    maritalStatus != null &&
+                    religion != null &&
+                    profession != null,
                 buttonText: "Next 4/5",
                 onPressed: _onNextPressed,
               ),
@@ -261,6 +117,17 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
   }
 
   void _onNextPressed() {
+    final userData = ref.watch(updateProfileProvider).data;
+    final ExtraData extraData = ExtraData();
+    extraData.marital_status = maritalStatus;
+    extraData.religion = religion;
+    extraData.profession = profession;
+    extraData.language = language!.join(',');
+    userData!.extra_data = extraData;
+
+    
+    ref.read(updateProfileProvider.notifier).updateUserData(userData);
+
     context.pushNamed(MoreAboutYouPage.name);
   }
 }

@@ -4,6 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/authentication/presentation/profile.setting/connection.option.dart';
@@ -23,9 +26,7 @@ class MoreAboutYouPage extends ConsumerStatefulWidget {
 }
 
 class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
-  String? maritalStatus;
-  String? religion;
-  String? profession;
+  TextEditingController _controller = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -46,12 +47,12 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
                 floatingLabel: 'Please Select your Date Of Birth',
                 label:
                     'I term myself a Aluminium because I am light and emotional. I like to be cared for as I have some tendencies to get rusty',
-                //  controller: _dobController,
+                controller: _controller,
                 keyboardType: TextInputType.name,
-                minLines: 15,
-                maxLines: 15,
-                // validator: EmailValidator.validate(email),
-                radius: 10,
+                minLines: 13,
+                maxLines: 13,
+                validator: Validators.validateString(),
+                autoValidate: true,
 
                 // fillColor: AppColors.appGrey,
               ),
@@ -66,6 +67,10 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
   }
 
   void _onNextPressed() {
+    final userData = ref.watch(updateProfileProvider).data;
+    userData!.description = _controller.text;
+
+    ref.read(updateProfileProvider.notifier).updateUserData(userData);
     context.pushNamed(ConnectionOptionsPage.name);
   }
 }

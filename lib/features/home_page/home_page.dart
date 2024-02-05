@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:metal/features/home_page/widget/ads.card.dart';
 import 'package:metal/features/sparks_page/sparks_page.dart';
@@ -6,11 +7,18 @@ import 'package:metal/res/colors/cr_colors.dart';
 
 import 'widget/metal.user.card.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({
     super.key,
   });
 
+  @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  
+  
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(

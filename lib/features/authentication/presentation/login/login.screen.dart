@@ -5,7 +5,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
-import 'package:metal/features/authentication/presentation/login/screens/forgot_password.screen.dart';
+import 'package:metal/core/utils/input/validators/email_validator.dart';
+import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
+import 'package:metal/features/authentication/presentation/welcome/presentation/welcome.page.dart';
+import 'package:metal/features/authentication/provider/login.notifier.dart';
+
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/authentication/presentation/signup/account.setting.dart';
@@ -39,6 +44,16 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
   Widget build(
     BuildContext context,
   ) {
+    final _LoginState = ref.watch(loginProvider);
+    ref.listen<LoginStates>(loginProvider, (prev, current) {
+      if (current.isSuccess) {
+        current.data!.profile_updated ?? false
+            ? context.pushReplacementNamed(DashboardPage.name)
+            : context.pushReplacementNamed(WelcomePage.name);
+
+        // context.pushReplacementNamed(DashboardPage.name);
+      }
+    });
     return BaseScreen(
         // isLoading: _LoginState.status == StateStatus.loading,
         authFlow: true,
@@ -69,6 +84,7 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
               Form(
                   key: _form,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       EditFormField(
                         floatingLabel: 'Email address/Phone number/User name',
@@ -81,9 +97,7 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                           height: 24,
                           width: 24,
                         ),
-                        // validator: EmailValidator.validate(email),
-                        radius: 10,
-                        // fillColor: AppColors.appGrey,
+                        validator: Validators.validateEmail(),
                       ),
                       Gap(16.h),
                       EditFormField(
@@ -97,8 +111,7 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                           height: 24,
                           width: 24,
                         ),
-                        // validator: EmailValidator.validate(email),
-                        radius: 10,
+                        validator: Validators.validatePlainPassword(),
                       ),
                       Gap(16.h),
                       CustomCheckWidget(
@@ -113,11 +126,14 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                   )),
               BaseButton(
                 buttonText: "Login",
+                loading: _LoginState.isLoading,
                 onPressed: () {
-                  context.pushNamed(DashboardPage.name);
+                  ref.read(loginProvider.notifier).login(
+                        email: _emailController.text,
+                        password: _passwordController.text,
+                      );
+                  // context.pushNamed(DashboardPage.name);
                 },
-                // enabled: _emailController.text.isNotEmpty &&
-                //     _passwordController.text.isNotEmpty,
               ),
               Gap(31.h),
               TextView(

@@ -5,15 +5,16 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class EditField extends StatelessWidget {
-  const EditField(
-      {super.key,
-      this.floatingLabel,
-      this.subLabel,
-      required this.text,
-      this.onSubLabel,
-      this.sufixIcon,
-      this.ontap,
-      this.prefixIcon});
+  const EditField({
+    super.key,
+    this.floatingLabel,
+    this.subLabel,
+    required this.text,
+    this.onSubLabel,
+    this.sufixIcon,
+    this.ontap,
+    this.prefixIcon,
+  });
   final String? floatingLabel;
   final String? subLabel;
   final String text;

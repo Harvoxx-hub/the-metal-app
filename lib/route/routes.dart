@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:metal/features/authentication/presentation/forget.password/create.new.password.dart';
+import 'package:metal/features/authentication/presentation/forget.password/forgot_password.otp.screen.dart';
+import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
 import 'package:metal/features/authentication/presentation/home.address/home.address.dart';
 import 'package:metal/features/authentication/presentation/home.address/location.dart';
 import 'package:metal/features/authentication/presentation/home.address/notification.dart';
-import 'package:metal/features/authentication/presentation/login/screens/create.new.password.dart';
-import 'package:metal/features/authentication/presentation/login/screens/forgot_password.otp.screen.dart';
-import 'package:metal/features/authentication/presentation/login/screens/forgot_password.screen.dart';
-import 'package:metal/features/authentication/presentation/login/screens/login.screen.dart';
+import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 
 import 'package:metal/features/authentication/presentation/profile.setting/about.you.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/choose.your.metal.dart';
@@ -18,7 +18,8 @@ import 'package:metal/features/authentication/presentation/profile.setting/more.
 import 'package:metal/features/authentication/presentation/profile.setting/passions.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/preference.metal.dart';
 import 'package:metal/features/authentication/presentation/signup/account.setting.dart';
-import 'package:metal/features/authentication/presentation/signup/verfication.dart';
+import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
+import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 import 'package:metal/features/authentication/presentation/welcome/presentation/welcome.page.dart';
 import 'package:metal/features/chat/chat.window/chat.window.dart';
 import 'package:metal/features/chat/games/games.page.dart';
@@ -45,6 +46,8 @@ import 'package:metal/features/sparks_page/send.spark/send.spark.dart';
 
 import 'package:metal/features/upgrade/make.payment.dart';
 import 'package:metal/features/upgrade/upgrade.page.dart';
+import 'package:metal/features/verification/verification.video.dart';
+import 'package:metal/features/verification/video.preview.dart';
 
 import '../features/splash/splash.screen.dart';
 
@@ -112,7 +115,7 @@ class RouterNotifier extends ChangeNotifier {
               GoRoute(
                 name: VerificationPage.name,
                 builder: (context, state) =>
-                    VerificationPage(state.extra as String),
+                    VerificationPage(state.extra as VerificationSentArgument),
                 path: VerificationPage.route,
               ),
               GoRoute(
@@ -181,6 +184,17 @@ class RouterNotifier extends ChangeNotifier {
                 builder: (context, state) => SettingPage(),
                 path: SettingPage.route,
               ),
+              GoRoute(
+                  name: VerificationVideo.name,
+                  builder: (context, state) => VerificationVideo(),
+                  path: VerificationVideo.route,
+                  routes: [
+                    GoRoute(
+                      name: VideoPreview.name,
+                      builder: (context, state) => VideoPreview(),
+                      path: VideoPreview.route,
+                    ),
+                  ]),
               GoRoute(
                 name: MeltMetal.name,
                 builder: (context, state) => MeltMetal(),

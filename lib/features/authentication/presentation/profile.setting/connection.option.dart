@@ -1,27 +1,18 @@
-import 'package:bottom_picker/bottom_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/features/authentication/domain/entries/connection.options.card.dart';
+import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/authentication/presentation/profile.setting/preference.metal.dart';
 import 'package:metal/features/authentication/presentation/widget/connection.options.card.dart';
-import 'package:metal/features/authentication/presentation/widget/create.profile.header1.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
-import 'package:metal/res/colors/cr_colors.dart';
 
-import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
-import 'package:metal/widgets/text.field/edit.from.field.dart';
-
-import '../../../../widgets/dropdown/metal.dropdown.dart';
-import '../widget/passions.card.dart';
 
 class ConnectionOptionsPage extends ConsumerStatefulWidget {
   ConnectionOptionsPage({Key? key}) : super(key: key);
@@ -35,38 +26,10 @@ class ConnectionOptionsPage extends ConsumerStatefulWidget {
 
 class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
   List _seletedOption = [];
-  List data = [
-    ConnectionOptionsCardModel(
-        title: "Marriage",
-        subTitle: "Match with Metals that are interestedin walking the aisle"),
-    ConnectionOptionsCardModel(
-        title: "Mentorship",
-        subTitle: "Match with Metals that can support your goal advancements"),
-    ConnectionOptionsCardModel(
-        title: "Casual Friendship",
-        subTitle:
-            "Match with Metal that are not interested in serious relationship "),
-    ConnectionOptionsCardModel(
-        title: "Romance",
-        subTitle: "Match with Metal that wants a physical relationship"),
-    ConnectionOptionsCardModel(
-        title: "Listening ear ",
-        subTitle: "Match with Metal to pour our your mind to"),
-    ConnectionOptionsCardModel(
-        title: "Companion",
-        subTitle:
-            " Match with metal looking for frienship. Someone to go to mivies, parks, shopping or simply hangout"),
-    ConnectionOptionsCardModel(
-        title: "Father Figure",
-        subTitle:
-            "Match with metal to gain motherly advise on family topics, attend family dinners, or show up on your special days"),
-    ConnectionOptionsCardModel(
-        title: "Daughter Figure",
-        subTitle:
-            "Match with metal to gain fatherly advise on family topics, attend family dinners, or show up on your special days"),
-  ];
+
   @override
   Widget build(BuildContext context) {
+    final _metalProps = ref.watch(metalPropertiesProvider);
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -94,12 +57,12 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
                       mainAxisSpacing: 10.0,
                       childAspectRatio: 16 / 10,
                     ),
-                    itemCount: data.length,
+                    itemCount: _metalProps.data!.lookingFor!.length,
                     itemBuilder: (BuildContext context, int index) {
-                      final model = data[index];
+                      final model = _metalProps.data!.lookingFor![index];
                       return ConnectionOptionsCard(
                         model: model,
-                        onTap: () => updateMetal(model.title),
+                        onTap: () => updateMetal(model.title!),
                         selected: _seletedOption.contains(model.title),
                       );
                     },
@@ -110,6 +73,7 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
                   right: 0,
                   left: 0,
                   child: BaseButton(
+                    enabled: _seletedOption.length >= 2,
                     buttonText: "Next ",
                     onPressed: _onNextPressed,
                   ),
@@ -129,6 +93,10 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
   }
 
   void _onNextPressed() {
+    final userData = ref.watch(updateProfileProvider).data;
+
+    userData!.connection_option = _seletedOption.cast<String>();
+    ref.read(updateProfileProvider.notifier).updateUserData(userData);
     context.pushNamed(PreferenceMetalPage.name);
   }
 }

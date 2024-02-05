@@ -6,9 +6,10 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/provider/account.setting.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/authentication/presentation/signup/verfication.dart';
+import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 
 import 'package:metal/res/res.dart';
 import 'package:metal/widgets/button/buttons.dart';
@@ -35,7 +36,11 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
   Widget build(BuildContext context) {
     ref.listen<AccountSettingState>(accountSettingProvider, (prev, current) {
       if (current.isSuccess) {
-        context.pushReplacementNamed(VerificationPage.name);
+        context.pushReplacementNamed(VerificationPage.name,
+            extra: VerificationSentArgument(
+                type: RouteFrom.AccountSetting,
+                code: current.data,
+                phoneNumber: _phoneController.text));
       }
     });
 
@@ -45,85 +50,87 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
       appBarEnabled: false,
       Header: 'Account setting',
       authFlow: true,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Gap(43.h),
-          TextView(
-            text: '👋　Hello',
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w400,
-          ),
-          TextView(
-            text: 'Let’s set up your account.',
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w400,
-          ),
-          TextView(
-            text: 'It takes only 3 minutes!',
-            fontSize: 14.sp,
-            fontStyle: FontStyle.italic,
-            fontWeight: FontWeight.w300,
-          ),
-          Gap(40.h),
-          Form(
-              key: _form,
-              child: Column(
-                children: [
-                  EditFormField(
-                    floatingLabel: 'Email address',
-                    label: 'someone@gmail.com',
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Gap(43.h),
+            TextView(
+              text: '👋　Hello',
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w400,
+            ),
+            TextView(
+              text: 'Let’s set up your account.',
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w400,
+            ),
+            TextView(
+              text: 'It takes only 3 minutes!',
+              fontSize: 14.sp,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w300,
+            ),
+            Gap(40.h),
+            Form(
+                key: _form,
+                child: Column(
+                  children: [
+                    EditFormField(
+                      floatingLabel: 'Email address',
+                      label: 'someone@gmail.com',
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
 
-                    prefixWidget: SvgPicture.asset(
-                      Assets.icons.sms.path,
-                      height: 24,
-                      width: 24,
-                    ),
-                    // validator: EmailValidator.validate(email),
+                      prefixWidget: SvgPicture.asset(
+                        Assets.icons.sms.path,
+                        height: 24,
+                        width: 24,
+                      ),
+                      // validator: EmailValidator.validate(email),
 
-                    // fillColor: AppColors.appGrey,
-                  ),
-                  Gap(22.h),
-                  EditFormField(
-                    floatingLabel: 'Password',
-                    label: '**********',
-                    controller: _passwordController,
-                    keyboardType: TextInputType.visiblePassword,
-                    prefixWidget: SvgPicture.asset(
-                      Assets.icons.passwordIcon.path,
-                      height: 24,
-                      width: 24,
+                      // fillColor: AppColors.appGrey,
                     ),
-                  ),
-                  Gap(16.h),
-                  PhoneInput(
-                    phoneController: _phoneController,
-                  ),
-                  Gap(16.h),
-                ],
-              )),
-          TextView(
-            text:
-                'A verification code will be sent to this number. Message and data rates may apply. Learn what happens what your number changes',
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w400,
-            fontStyle: FontStyle.italic,
-            color: AppColors.metalBrownColourForText.withOpacity(0.5),
-          ),
-          Gap(27.h),
-          BaseButton(
-            buttonText: "Continue",
-            loading: _accountSettingState.isLoading,
-            onPressed: () {
-              ref.read(accountSettingProvider.notifier).signup(
-                  email: _emailController.text,
-                  password: _passwordController.text,
-                  phoneNumber: _phoneController.text);
-            },
-          ),
-        ],
+                    Gap(22.h),
+                    EditFormField(
+                      floatingLabel: 'Password',
+                      label: '**********',
+                      controller: _passwordController,
+                      keyboardType: TextInputType.visiblePassword,
+                      prefixWidget: SvgPicture.asset(
+                        Assets.icons.passwordIcon.path,
+                        height: 24,
+                        width: 24,
+                      ),
+                    ),
+                    Gap(16.h),
+                    PhoneInput(
+                      phoneController: _phoneController,
+                    ),
+                    Gap(16.h),
+                  ],
+                )),
+            TextView(
+              text:
+                  'A verification code will be sent to this number. Message and data rates may apply. Learn what happens what your number changes',
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w400,
+              fontStyle: FontStyle.italic,
+              color: AppColors.metalBrownColourForText.withOpacity(0.5),
+            ),
+            Gap(27.h),
+            BaseButton(
+              buttonText: "Continue",
+              loading: _accountSettingState.isLoading,
+              onPressed: () {
+                ref.read(accountSettingProvider.notifier).signup(
+                    email: _emailController.text,
+                    password: _passwordController.text,
+                    phoneNumber: _phoneController.text);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

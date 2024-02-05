@@ -63,6 +63,8 @@ class _CustomCheckWidgetState extends State<CustomCheckWidget> {
                   : ShapeDecoration(
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                            width: 1, color: AppColors.metalButtonStroke),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       shadows: const [

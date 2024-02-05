@@ -4,6 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/authentication/presentation/home.address/location.dart';
@@ -67,10 +70,8 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                           print('Value changed to $value');
                         },
                       ),
-
-                      // validator: EmailValidator.validate(email),
+                      validator: Validators.validateInt(),
                       radius: 10,
-                      // fillColor: AppColors.appGrey,
                     ),
                     Gap(16.h),
                     EditFormField(
@@ -78,6 +79,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       label: 'Type here...',
                       controller: _houseNumberController,
                       keyboardType: TextInputType.number,
+                      validator: Validators.validateInt(),
                       radius: 10,
                       suffixWidget: CustomCheckWidget(
                         initialValue: false,
@@ -93,6 +95,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       controller: _streetNameController,
                       keyboardType: TextInputType.name,
                       radius: 10,
+                      validator: Validators.validateString(),
                       suffixWidget: CustomCheckWidget(
                         initialValue: false,
                         onChanged: (bool value) {
@@ -107,6 +110,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       controller: _townController,
                       keyboardType: TextInputType.name,
                       radius: 10,
+                      validator: Validators.validateString(),
                       suffixWidget: CustomCheckWidget(
                         initialValue: false,
                         onChanged: (bool value) {
@@ -121,6 +125,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       controller: _stateController,
                       keyboardType: TextInputType.name,
                       radius: 10,
+                      validator: Validators.validateString(),
                       suffixWidget: CustomCheckWidget(
                         initialValue: false,
                         onChanged: (bool value) {
@@ -135,6 +140,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       controller: _countryController,
                       keyboardType: TextInputType.name,
                       radius: 10,
+                      validator: Validators.validateString(),
                       suffixWidget: CustomCheckWidget(
                         initialValue: false,
                         onChanged: (bool value) {
@@ -146,7 +152,9 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                     BaseButton(
                       buttonText: "Next",
                       onPressed: () {
-                        context.pushNamed(LocationEnablePage.name);
+                        if (_form.currentState!.validate()) {
+                          _onNextPressed();
+                        }
                       },
                     ),
                     Gap(64.h),
@@ -157,6 +165,18 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
   }
 
   void _onNextPressed() {
+    final userData = ref.watch(updateProfileProvider).data;
+    final Address address = Address();
+    address.aprt_no = int.parse(_apartmentNumberController.text);
+    address.house_no = int.parse(_houseNumberController.text);
+    address.street_name = _streetNameController.text;
+    address.town = _townController.text;
+    address.state = _stateController.text;
+    address.country = _countryController.text;
+    userData!.address = address;
+
+    ref.read(updateProfileProvider.notifier).updateUserData(userData);
     // widget.onNextPress();
+    context.pushNamed(LocationEnablePage.name);
   }
 }

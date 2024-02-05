@@ -78,36 +78,58 @@ class SparksPage extends StatelessWidget {
                       ),
                     ),
                     Gap(9),
-                    SparkHistoryItem(
-                        type: SparkHistoryType.send,
-                        User: "Seguncodes",
-                        dateTime: DateTime.now(),
-                        title: "Sent 2 Sparks"),
-                    SparkHistoryItem(
-                        type: SparkHistoryType.recived,
-                        User: "Seguncodes",
-                        dateTime: DateTime.now(),
-                        title: "Sent 2 Sparks"),
-                    SparkHistoryItem(
-                        type: SparkHistoryType.recived,
-                        User: "Seguncodes",
-                        dateTime: DateTime.now(),
-                        title: "Sent 2 Sparks"),
-                    SparkHistoryItem(
-                        type: SparkHistoryType.referred,
-                        User: "Seguncodes",
-                        dateTime: DateTime.now(),
-                        title: "Sent 2 Sparks"),
-                    SparkHistoryItem(
-                        type: SparkHistoryType.referred,
-                        User: "Seguncodes",
-                        dateTime: DateTime.now(),
-                        title: "Sent 2 Sparks"),
-                    SparkHistoryItem(
-                        type: SparkHistoryType.send,
-                        User: "Seguncodes",
-                        dateTime: DateTime.now(),
-                        title: "Sent 2 Sparks"),
+
+                    Image.asset(
+                      Assets.gifs.empty.path,
+                      height: 250,
+                      width: 250,
+                    ),
+                    const Gap(20),
+                    TextView(
+                      textAlign: TextAlign.center,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      text: "You have no transaction history yet",
+                    ),
+
+                    const Gap(20),
+                    TextView(
+                      textAlign: TextAlign.center,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                      text: "You can start by sending or receiving Sparks",
+                    ),
+
+                    // SparkHistoryItem(
+                    //     type: SparkHistoryType.send,
+                    //     User: "Seguncodes",
+                    //     dateTime: DateTime.now(),
+                    //     title: "Sent 2 Sparks"),
+                    // SparkHistoryItem(
+                    //     type: SparkHistoryType.recived,
+                    //     User: "Seguncodes",
+                    //     dateTime: DateTime.now(),
+                    //     title: "Sent 2 Sparks"),
+                    // SparkHistoryItem(
+                    //     type: SparkHistoryType.recived,
+                    //     User: "Seguncodes",
+                    //     dateTime: DateTime.now(),
+                    //     title: "Sent 2 Sparks"),
+                    // SparkHistoryItem(
+                    //     type: SparkHistoryType.referred,
+                    //     User: "Seguncodes",
+                    //     dateTime: DateTime.now(),
+                    //     title: "Sent 2 Sparks"),
+                    // SparkHistoryItem(
+                    //     type: SparkHistoryType.referred,
+                    //     User: "Seguncodes",
+                    //     dateTime: DateTime.now(),
+                    //     title: "Sent 2 Sparks"),
+                    // SparkHistoryItem(
+                    //     type: SparkHistoryType.send,
+                    //     User: "Seguncodes",
+                    //     dateTime: DateTime.now(),
+                    //     title: "Sent 2 Sparks"),
                   ],
                 ),
               ))

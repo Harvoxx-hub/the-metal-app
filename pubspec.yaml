@@ -83,6 +83,9 @@ dependencies:
   range_slider_flutter: ^0.0.2
   fluttertoast: ^8.2.4
   flutter_secure_storage: ^9.0.0
+  geolocator: ^10.1.0
+  camera: ^0.10.5+9
+  video_player: ^2.8.2
   
   
 

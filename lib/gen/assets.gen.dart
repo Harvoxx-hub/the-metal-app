@@ -14,6 +14,9 @@ import 'package:flutter/services.dart';
 class $AssetsGifsGen {
   const $AssetsGifsGen();
 
+  /// File path: assets/gifs/empty.gif
+  AssetGenImage get empty => const AssetGenImage('assets/gifs/empty.gif');
+
   /// File path: assets/gifs/logo.gif
   AssetGenImage get logo => const AssetGenImage('assets/gifs/logo.gif');
 
@@ -31,7 +34,7 @@ class $AssetsGifsGen {
 
   /// List of all assets
   List<AssetGenImage> get values =>
-      [logo, onboarding, onboarding2, onboarding3];
+      [empty, logo, onboarding, onboarding2, onboarding3];
 }
 
 class $AssetsIconsGen {
@@ -54,6 +57,10 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/User.3.svg
   SvgGenImage get user3 => const SvgGenImage('assets/icons/User.3.svg');
+
+  /// File path: assets/icons/VideoCamera.svg
+  SvgGenImage get videoCamera =>
+      const SvgGenImage('assets/icons/VideoCamera.svg');
 
   /// File path: assets/icons/ageRange.svg
   SvgGenImage get ageRange => const SvgGenImage('assets/icons/ageRange.svg');
@@ -252,6 +259,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/referred.svg
   SvgGenImage get referred => const SvgGenImage('assets/icons/referred.svg');
 
+  /// File path: assets/icons/refresh.svg
+  SvgGenImage get refresh => const SvgGenImage('assets/icons/refresh.svg');
+
   /// File path: assets/icons/rocket-launch.svg
   SvgGenImage get rocketLaunch =>
       const SvgGenImage('assets/icons/rocket-launch.svg');
@@ -301,12 +311,19 @@ class $AssetsIconsGen {
   SvgGenImage get verificationText =>
       const SvgGenImage('assets/icons/verification.text.svg');
 
+  /// File path: assets/icons/video.square.svg
+  SvgGenImage get videoSquare =>
+      const SvgGenImage('assets/icons/video.square.svg');
+
   /// File path: assets/icons/welcome.item.svg
   SvgGenImage get welcomeItem =>
       const SvgGenImage('assets/icons/welcome.item.svg');
 
   /// File path: assets/icons/x-close.svg
   SvgGenImage get xClose => const SvgGenImage('assets/icons/x-close.svg');
+
+  /// File path: assets/icons/x.svg
+  SvgGenImage get x => const SvgGenImage('assets/icons/x.svg');
 
   /// List of all assets
   List<dynamic> get values => [
@@ -315,6 +332,7 @@ class $AssetsIconsGen {
         tickSquare,
         user2,
         user3,
+        videoCamera,
         ageRange,
         backBtn,
         back,
@@ -368,6 +386,7 @@ class $AssetsIconsGen {
         profilePhone,
         profileTrash,
         referred,
+        refresh,
         rocketLaunch,
         scales01,
         sendSparks,
@@ -382,8 +401,10 @@ class $AssetsIconsGen {
         user,
         verificationCall,
         verificationText,
+        videoSquare,
         welcomeItem,
-        xClose
+        xClose,
+        x
       ];
 }
 
@@ -476,9 +497,17 @@ class $AssetsImagesGen {
   AssetGenImage get chatsPhoto =>
       const AssetGenImage('assets/images/chats-photo.png');
 
+  /// File path: assets/images/check-verified.png
+  AssetGenImage get checkVerified =>
+      const AssetGenImage('assets/images/check-verified.png');
+
   /// File path: assets/images/choose.metal.png
   AssetGenImage get chooseMetal =>
       const AssetGenImage('assets/images/choose.metal.png');
+
+  /// File path: assets/images/empty.chat.png
+  AssetGenImage get emptyChat =>
+      const AssetGenImage('assets/images/empty.chat.png');
 
   /// File path: assets/images/eyes-emoji.png
   AssetGenImage get eyesEmoji =>
@@ -704,7 +733,9 @@ class $AssetsImagesGen {
         chatStarStruckExcitedHappyEmoji1,
         chatVideoGameEmoji1,
         chatsPhoto,
+        checkVerified,
         chooseMetal,
+        emptyChat,
         eyesEmoji,
         flame,
         google,
@@ -883,7 +914,8 @@ class SvgGenImage {
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
       theme: theme,
-      //  colorFilter: colorFilter,
+      //
+      //   colorFilter: colorFilter,
       color: color,
       colorBlendMode: colorBlendMode,
       clipBehavior: clipBehavior,

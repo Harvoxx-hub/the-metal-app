@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/features/authentication/domain/entries/passion.card.model.dart';
+import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/authentication/presentation/profile.setting/about.you.dart';
@@ -11,6 +12,7 @@ import 'package:metal/features/authentication/presentation/widget/create.profile
 
 import 'package:metal/widgets/button/buttons.dart';
 
+import '../../provider/metal.properties.notifier.dart';
 import '../widget/passions.card.dart';
 
 class PassionsPage extends ConsumerStatefulWidget {
@@ -23,7 +25,7 @@ class PassionsPage extends ConsumerStatefulWidget {
 }
 
 class _PassionsPageState extends ConsumerState<PassionsPage> {
-  List _seletedPassion = [];
+  List<String> _seletedPassion = [];
   List data = [
     PassionCardModel(title: "Photography", path: Assets.icons.cameraPlus.path),
     PassionCardModel(title: "Shopping", path: Assets.icons.shoppingCart01.path),
@@ -40,6 +42,7 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
   ];
   @override
   Widget build(BuildContext context) {
+    final metalProps = ref.watch(metalPropertiesProvider).data;
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -66,12 +69,12 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
                       mainAxisSpacing: 10.0,
                       childAspectRatio: 16 / 6,
                     ),
-                    itemCount: data.length,
+                    itemCount: metalProps!.passions!.length,
                     itemBuilder: (BuildContext context, int index) {
-                      final model = data[index];
+                      final model = metalProps!.passions![index];
                       return PassionsCard(
                         model: model,
-                        onTap: () => updateMetal(model.title),
+                        onTap: () => updateMetal(model.title!),
                         selected: _seletedPassion.contains(model.title),
                       );
                     },
@@ -83,6 +86,7 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
                   left: 0,
                   child: BaseButton(
                     buttonText: "Next 3/5",
+                    enabled: _seletedPassion.isNotEmpty,
                     onPressed: _onNextPressed,
                   ),
                 )
@@ -101,6 +105,10 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
   }
 
   void _onNextPressed() {
+    final userData = ref.watch(updateProfileProvider).data;
+    userData!.passion = _seletedPassion;
+    ref.read(updateProfileProvider.notifier).updateUserData(userData);
+
     context.pushNamed(AboutYouPage.name);
   }
 }

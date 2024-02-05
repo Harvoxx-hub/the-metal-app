@@ -4,10 +4,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/authentication/presentation/home.address/notification.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:geolocator/geolocator.dart';
 
 class LocationEnablePage extends ConsumerStatefulWidget {
   LocationEnablePage({Key? key}) : super(key: key);
@@ -20,6 +23,7 @@ class LocationEnablePage extends ConsumerStatefulWidget {
 }
 
 class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
+  Position? _currentPosition;
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -27,8 +31,9 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
         appBarEnabled: false,
         Header: 'Location',
         authFlow: true,
-        body: Center(
-          child: Column(children: [
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Image.asset(
               Assets.images.location.path,
             ),
@@ -49,14 +54,66 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
             BaseButton(
               buttonText: "Enable Location",
               onPressed: () {
-                context.pushNamed(NotificationEnablePage.name);
+                _onNextPressed();
+                // context.pushNamed(NotificationEnablePage.name);
               },
             ),
           ]),
         ));
   }
 
-  void _onNextPressed() {
-    // widget.onNextPress();
+  Future<bool> _handleLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location services are disabled. Please enable the services')));
+      return false;
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied')));
+        return false;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location permissions are permanently denied, we cannot request permissions.')));
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> _onNextPressed() async {
+    await _getCurrentPosition();
+    if (_currentPosition != null) {
+      final userData = ref.watch(updateProfileProvider).data;
+      userData!.location = Location(
+        lat: _currentPosition!.latitude,
+        lng: _currentPosition!.longitude,
+      );
+      ref.read(updateProfileProvider.notifier).updateUserData(userData);
+      context.pushNamed(NotificationEnablePage.name);
+    }
+    // context.pushNamed(NotificationEnablePage.name);
+  }
+
+  Future<void> _getCurrentPosition() async {
+    final hasPermission = await _handleLocationPermission();
+    if (!hasPermission) return;
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .then((Position position) {
+      setState(() => _currentPosition = position);
+    }).catchError((e) {
+      debugPrint(e);
+    });
   }
 }

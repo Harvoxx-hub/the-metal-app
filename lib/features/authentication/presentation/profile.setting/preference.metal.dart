@@ -5,6 +5,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/authentication/presentation/home.address/home.address.dart';
@@ -27,13 +30,15 @@ class PreferenceMetalPage extends ConsumerStatefulWidget {
 }
 
 class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
-  String? seletedAgeRange;
-  String? seletedReligion;
+  List<String>? seletedAgeRange;
+  List<String>? seletedReligion;
   String? seletedEthnicity;
   String? seletedEducation;
-  String? seletedDemography;
+  List<String>? seletedDemography;
+  bool _value = false;
   @override
   Widget build(BuildContext context) {
+    final _metalProps = ref.watch(metalPropertiesProvider);
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -53,7 +58,9 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               title: 'No Special Preference',
               initialValue: false,
               onChanged: (bool value) {
-                print('Value changed to $value');
+                setState(() {
+                  _value = value;
+                });
               },
             ),
             Gap(16.h),
@@ -86,18 +93,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
             ),
             Gap(15.h),
             MentalDropdownMutipleSelection(
-              items: const [
-                "Christianity",
-                "Islam",
-                "Hinduism",
-                "Buddhism",
-                "Sikhim",
-                "Judaism",
-                "Indigenous religion",
-                "New Age spirituality",
-                "Paganism"
-                    "Others (Please specify)",
-              ],
+              items: _metalProps.data!.religion!,
               value: seletedReligion,
               onChanged: (newValue) {
                 setState(() {
@@ -106,22 +102,11 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               },
               floatingLabel: "Religion",
               hint: "Please Select",
-              prefixIcon: SvgPicture.asset(
-                Assets.icons.christianity.path,
-                height: 24,
-                width: 24,
-              ),
+              prefixIcon: Assets.icons.christianity.svg(width: 24, height: 24),
             ),
             Gap(15.h),
             MentalDropdown(
-              items: const [
-                "African American",
-                "Asian",
-                "Blacks",
-                "Afro Carribean",
-                "Caucasian",
-                "Others (Please specify)",
-              ],
+              items:  _metalProps.data!.ethnicity!,
               value: seletedEthnicity,
               onChanged: (newValue) {
                 setState(() {
@@ -138,14 +123,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
             ),
             Gap(15.h),
             MentalDropdown(
-              items: const [
-                "High School",
-                "College/ University Graduate",
-                "Masters Degree",
-                "Doctoral Degree",
-                "Trade Certificate",
-                "Others (Please specify)",
-              ],
+              items:  _metalProps.data!.education!,
               value: seletedEducation,
               onChanged: (newValue) {
                 setState(() {
@@ -162,13 +140,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
             ),
             Gap(15.h),
             MentalDropdownMutipleSelection(
-              items: const [
-                "Anywhere in the world",
-                "Africa",
-                "Asia",
-                "North America",
-                "Europe",
-              ],
+              items:  _metalProps.data!.demography!,
               value: seletedDemography,
               onChanged: (newValue) {
                 setState(() {
@@ -185,6 +157,13 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
             ),
             Gap(15.h),
             BaseButton(
+              enabled: _value == true
+                  ? true
+                  : (seletedAgeRange != null &&
+                      seletedReligion != null &&
+                      seletedEthnicity != null &&
+                      seletedEducation != null &&
+                      seletedDemography != null),
               buttonText: "Next",
               onPressed: _onNextPressed,
             ),
@@ -193,6 +172,19 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
   }
 
   void _onNextPressed() {
+    final userData = ref.watch(updateProfileProvider).data;
+    final Preferences preferences = Preferences();
+    preferences.age_range = seletedAgeRange!.join(',');
+    preferences.religion = seletedReligion!.join(',');
+    preferences.demography = seletedDemography!.join(',');
+    preferences.education = seletedEducation ?? "";
+    preferences.ethnicity = seletedEthnicity?? "";
+    userData!.preferences = preferences;
+    ref.read(updateProfileProvider.notifier).updateUserData(userData);
+
+    
+
+
     context.pushNamed(HomeAddressPage.name);
   }
 }

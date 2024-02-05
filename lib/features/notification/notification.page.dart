@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/notification/widget/melt.notification.item.dart';
+import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/widgets/text_views.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
@@ -17,7 +20,7 @@ class NotificationPage extends StatelessWidget {
           child: Stack(
             children: [
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
                     height: 53.h,
@@ -33,20 +36,33 @@ class NotificationPage extends StatelessWidget {
                           bottomRight: Radius.circular(35.sp),
                         )),
                   ),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(left: 24.0, right: 24),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        MeltNotifcationItem(),
-                        MeltNotifcationItem(),
-                        MeltNotifcationItem(),
-                        MeltNotifcationItem(),
-                        MeltNotifcationItem(),
-                        MeltNotifcationItem(),
-                        MeltNotifcationItem(),
-                        MeltNotifcationItem(),
-                        MeltNotifcationItem(),
+                        Image.asset(
+                          Assets.gifs.empty.path,
+                          height: 250,
+                          width: 250,
+                        ),
+                        const Gap(46),
+                        TextView(
+                          textAlign: TextAlign.center,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          text: "You have no notifications yet",
+                        ),
+
+                        // MeltNotifcationItem(),
+                        // MeltNotifcationItem(),
+                        // MeltNotifcationItem(),
+                        // MeltNotifcationItem(),
+                        // MeltNotifcationItem(),
+                        // MeltNotifcationItem(),
+                        // MeltNotifcationItem(),
+                        // MeltNotifcationItem(),
+                        // MeltNotifcationItem(),
                       ],
                     ),
                   ),

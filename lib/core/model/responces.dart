@@ -1,16 +1,16 @@
-class Response {
+class Responses {
   final bool success;
   final String message;
   var data;
 
-  Response({
+  Responses({
     required this.success,
     required this.message,
     required this.data,
   });
 
-  factory Response.fromJson(Map<String, dynamic> json) {
-    return Response(
+  factory Responses.fromJson(Map<String, dynamic> json) {
+    return Responses(
       success: json['success'] ?? false,
       message: json['message'] ?? '',
       data: json['data'] ?? {},

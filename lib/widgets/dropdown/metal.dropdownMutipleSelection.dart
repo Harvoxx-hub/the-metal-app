@@ -6,13 +6,13 @@ import 'package:metal/widgets/text_views.dart';
 
 class MentalDropdownMutipleSelection extends StatefulWidget {
   final List<String> items;
-  final String? value;
-  final ValueChanged<String?> onChanged;
+  final List<String>? value;
+  final ValueChanged<List<String>> onChanged;
   final Widget? prefixIcon;
   final String? hint;
   final String? floatingLabel;
 
-  MentalDropdownMutipleSelection({
+  const MentalDropdownMutipleSelection({
     required this.items,
     this.value,
     required this.onChanged,
@@ -59,9 +59,9 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
                   children: <Widget>[
                     Expanded(
                       child: TextView(
-                        text: widget.value ??
-                            widget.hint ??
-                            '', // Show hint if no value is selected
+                        text: widget.value == null
+                            ? widget.hint!
+                            : widget.value!.join(','),
                       ),
                     ),
                     GestureDetector(
@@ -97,28 +97,33 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
                       TextView(text: item),
                       Spacer(),
                       CustomCheckWidget(
-                        initialValue: false,
+                        initialValue: widget.value == null
+                            ? false
+                            : widget.value!.contains(item),
                         onChanged: (bool value) {
-                          print('Value changed to $value');
+                          value
+                              ? widget.onChanged(
+                                   [
+                                      ...widget.value ?? [],
+                                      item
+                                   ]
+                                    )
+                              : widget.onChanged(
+                                  widget.value == null ? [] : widget.value!
+                                    ..remove(item));
                         },
                       ),
                     ],
                   ),
                 );
-                //  ListTile(
-                //   title: TextView(text: item),
-                //   trailing:
-                //   onTap: () {
-                //     widget.onChanged(item);
-                //     setState(() {
-                //       isDropdownOpen = false;
-                //     });
-                //   },
-                // );
               }).toList(),
             ),
           ),
       ],
     );
+  }
+
+  String ListToString(List<String> data) {
+    return data.join(',');
   }
 }

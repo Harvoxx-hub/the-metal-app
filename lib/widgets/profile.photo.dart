@@ -8,8 +8,13 @@ import 'package:metal/gen/assets.gen.dart';
 class ProfilePhoto extends StatelessWidget {
   final double size;
   final bool verfly;
+  final String? photourl;
 
-  const ProfilePhoto({super.key, required this.size, required this.verfly});
+  const ProfilePhoto({
+    super.key,
+    this.size = 58,
+    this.verfly = false, this.photourl,
+  });
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -26,14 +31,22 @@ class ProfilePhoto extends StatelessWidget {
                   width: size,
                   height: size,
                   decoration: ShapeDecoration(
-                    gradient: generateRandomGradient(),
+                    gradient: LinearGradient(
+                      begin: Alignment(-0.40, -0.92),
+                      end: Alignment(0.4, 0.92),
+                      colors: [
+                        Colors.white,
+                        Color(0x359B8787),
+                        Color(0x00755C5C)
+                      ],
+                    ),
                     shape: OvalBorder(),
                   ),
                   child: Center(
                     child: Image.asset(
                       Assets.images.silver.path,
-                      height: size * 0.7,
-                      width: size * 0.7,
+                      height: size! * 0.7,
+                      width: size! * 0.7,
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -44,8 +57,8 @@ class ProfilePhoto extends StatelessWidget {
         ),
         Positioned(
             bottom: 0,
-            right: size >= 57 ? size / 1.3 : 0,
-            child: verfly
+            right: size! >= 57 ? size! / 1.3 : 0,
+            child: verfly!
                 ? SvgPicture.asset(
                     Assets.icons.checkVerified.path,
                     height: 23,

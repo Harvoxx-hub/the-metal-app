@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/core/model/responces.dart';
-import 'package:metal/core/services/api.service.dart';
-import 'package:metal/core/services/token.manager.dart';
+
+import 'package:metal/core/services/auth.manager.dart';
+
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 
@@ -28,9 +27,10 @@ class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
         password: password,
         phoneNumber: phoneNumber,
       );
-      final tokenManager = ref.read(tokenManagerProvider);
+      final tokenManager = ref.read(authManagerProvider);
       await tokenManager.saveAccessToken(response.data['access_token']);
-      state = AccountSettingState.success(response.message);
+      await tokenManager.saveRefreshToken(response.data['refresh_token']);
+      state = AccountSettingState.success(response.data['OTP']);
     } catch (e) {
       print(e.toString());
       state = AccountSettingState.error(e.toString());
@@ -39,9 +39,9 @@ class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
 }
 
 // Define a type alias
-typedef AccountSettingState = BaseState<String>;
+typedef AccountSettingState = BaseState<int>;
 
-final accountSettingProvider =
-    StateNotifierProvider<AccountSettingNotifier, AccountSettingState>(
+final accountSettingProvider = StateNotifierProvider.autoDispose<
+    AccountSettingNotifier, AccountSettingState>(
   (ref) => AccountSettingNotifier(AccountSettingState.initial(), ref),
 );

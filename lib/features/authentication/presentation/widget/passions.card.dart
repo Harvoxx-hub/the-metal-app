@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 import 'package:metal/features/authentication/domain/entries/passion.card.model.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
@@ -15,7 +16,7 @@ class PassionsCard extends StatelessWidget {
     this.selected = false,
     required this.onTap,
   });
-  final PassionCardModel model;
+  final Passion model;
   final bool selected;
   final Function() onTap;
 
@@ -57,14 +58,14 @@ class PassionsCard extends StatelessWidget {
               ),
         child: Row(
           children: [
-            SvgPicture.asset(
-              model.path,
+            SvgPicture.network(
+              model.img!,
               height: 20,
               width: 20,
             ),
             Gap(8.w),
             TextView(
-              text: model.title,
+              text: model.title!,
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
             ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:metal/features/authentication/domain/entries/choose.metal.card.model.dart';
-import 'package:metal/gen/assets.gen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
 
@@ -14,7 +15,7 @@ class ChooseMetalCard extends StatelessWidget {
     this.selected = false,
     required this.onTap,
   });
-  final ChooseYourMetalModel model;
+  final Metal model;
   final bool selected;
   final Function() onTap;
 
@@ -59,20 +60,20 @@ class ChooseMetalCard extends StatelessWidget {
             Row(
               children: [
                 TextView(
-                  text: model.Title,
+                  text: model.title!,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w400,
                 ),
                 const Spacer(),
-                Image.asset(
-                  model.path == "" ? Assets.images.silver.path : model.path,
-                  height: 31,
-                  width: 31,
+                SvgPicture.network(
+                  model.img!,
+                  height: 20,
+                  width: 20,
                 )
               ],
             ),
             TextView(
-              text: model.Subtitle,
+              text: model.desc!,
               fontSize: 13.sp,
               fontWeight: FontWeight.w400,
               color: AppColors.metalBrownColourForText.withOpacity(0.5),

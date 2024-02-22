@@ -48,6 +48,9 @@ class $AssetsIconsGen {
   SvgGenImage get newspaperClipping =>
       const SvgGenImage('assets/icons/NewspaperClipping.svg');
 
+  /// File path: assets/icons/Send.svg
+  SvgGenImage get send => const SvgGenImage('assets/icons/Send.svg');
+
   /// File path: assets/icons/Tick Square.svg
   SvgGenImage get tickSquare =>
       const SvgGenImage('assets/icons/Tick Square.svg');
@@ -256,6 +259,9 @@ class $AssetsIconsGen {
   SvgGenImage get profileTrash =>
       const SvgGenImage('assets/icons/profile-trash.svg');
 
+  /// File path: assets/icons/push.png
+  AssetGenImage get push => const AssetGenImage('assets/icons/push.png');
+
   /// File path: assets/icons/referred.svg
   SvgGenImage get referred => const SvgGenImage('assets/icons/referred.svg');
 
@@ -293,6 +299,10 @@ class $AssetsIconsGen {
   SvgGenImage get srCristianV2 =>
       const SvgGenImage('assets/icons/sr-cristian-v-2.svg');
 
+  /// File path: assets/icons/sr-menu-vertical-lite.svg
+  SvgGenImage get srMenuVerticalLite =>
+      const SvgGenImage('assets/icons/sr-menu-vertical-lite.svg');
+
   /// File path: assets/icons/star-05.svg
   SvgGenImage get star05 => const SvgGenImage('assets/icons/star-05.svg');
 
@@ -329,6 +339,7 @@ class $AssetsIconsGen {
   List<dynamic> get values => [
         calendarBlank,
         newspaperClipping,
+        send,
         tickSquare,
         user2,
         user3,
@@ -385,6 +396,7 @@ class $AssetsIconsGen {
         profileMail01,
         profilePhone,
         profileTrash,
+        push,
         referred,
         refresh,
         rocketLaunch,
@@ -396,6 +408,7 @@ class $AssetsIconsGen {
         sms,
         srClose,
         srCristianV2,
+        srMenuVerticalLite,
         star05,
         unchecked,
         user,
@@ -513,6 +526,10 @@ class $AssetsImagesGen {
   AssetGenImage get eyesEmoji =>
       const AssetGenImage('assets/images/eyes-emoji.png');
 
+  /// File path: assets/images/eyes.image.png
+  AssetGenImage get eyesImage =>
+      const AssetGenImage('assets/images/eyes.image.png');
+
   /// File path: assets/images/flame.png
   AssetGenImage get flame => const AssetGenImage('assets/images/flame.png');
 
@@ -534,6 +551,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/home.address.png
   AssetGenImage get homeAddress =>
       const AssetGenImage('assets/images/home.address.png');
+
+  /// File path: assets/images/image-plus.png
+  AssetGenImage get imagePlus =>
+      const AssetGenImage('assets/images/image-plus.png');
 
   /// File path: assets/images/inactive.home.png
   AssetGenImage get inactiveHome =>
@@ -665,6 +686,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/push.png
   AssetGenImage get push => const AssetGenImage('assets/images/push.png');
 
+  /// File path: assets/images/pushMetalscreen.png
+  AssetGenImage get pushMetalscreen =>
+      const AssetGenImage('assets/images/pushMetalscreen.png');
+
   /// File path: assets/images/pushed.png
   AssetGenImage get pushed => const AssetGenImage('assets/images/pushed.png');
 
@@ -737,12 +762,14 @@ class $AssetsImagesGen {
         chooseMetal,
         emptyChat,
         eyesEmoji,
+        eyesImage,
         flame,
         google,
         hamburgerHeartLocks,
         handshake,
         heartLocks1,
         homeAddress,
+        imagePlus,
         inactiveHome,
         inactiveMessage,
         inactiveSpark,
@@ -777,6 +804,7 @@ class $AssetsImagesGen {
         pushMelt,
         pushMetal,
         push,
+        pushMetalscreen,
         pushed,
         refer,
         reminder,
@@ -914,8 +942,7 @@ class SvgGenImage {
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
       theme: theme,
-      //
-      //   colorFilter: colorFilter,
+      //  colorFilter: colorFilter,
       color: color,
       colorBlendMode: colorBlendMode,
       clipBehavior: clipBehavior,

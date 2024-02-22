@@ -27,35 +27,37 @@ class UpgradePage extends ConsumerWidget {
             ? const Center(
                 child: CircularProgressIndicator(),
               )
-            : Column(
-                children: [
-                  Gap(16.h),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextView(
-                        text:
-                            "Select any upgrade plan to continue your verification",
-                        fontSize: 20.sp,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      Gap(5.h),
-                      TextView(
-                        text:
-                            "You can always cancel your subscription at anytime",
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w300,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ],
-                  ),
-                  Gap(16.h),
-                  for (var i = 0; i < metalPlanState.data!.length; i++)
-                    subscriptionCard(
-                      model: metalPlanState.data![i],
+            : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Gap(16.h),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextView(
+                          text:
+                              "Select any upgrade plan to continue your verification",
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        Gap(5.h),
+                        TextView(
+                          text:
+                              "You can always cancel your subscription at anytime",
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w300,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ],
                     ),
-                  Gap(16.h),
-                ],
+                    Gap(16.h),
+                    for (var i = 0; i < metalPlanState.data!.length; i++)
+                      subscriptionCard(
+                        model: metalPlanState.data![i],
+                      ),
+                    Gap(16.h),
+                  ],
+                ),
               ));
   }
 }

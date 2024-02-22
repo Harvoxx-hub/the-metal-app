@@ -7,12 +7,13 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/verification/verification.video.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/chat/chat.page.dart';
+ 
 import 'package:metal/features/profile/profile.page.dart';
 
-import 'package:metal/features/sparks_page/sparks_page.dart';
+import 'package:metal/features/sparks_page/screens/sparks_page.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/res/style/text_styles.dart';
 import 'package:metal/widgets/button/base_button.dart';
@@ -58,7 +59,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final bottomNavPages = [
       const HomePage(),
       const SparksPage(),
-      const ChatPage(),
+        ChatPage(),
       const ProfilePage(),
     ];
     return BaseScreen(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
+import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/home_page/melt.metal.dart';
 
@@ -16,13 +18,15 @@ import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
 import 'package:metal/widgets/text_views.dart';
 
-class PushMetal extends StatelessWidget {
-  const PushMetal({super.key});
+class PushMetal extends ConsumerWidget {
+  const PushMetal({super.key, required this.user});
   static const name = 'pushMetal';
   static const route = '$name';
 
+  final ALLUserModel user;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return BaseScreen(
         appBarState: AppBarState.BackWithHeader,
         Header: "Push profile",
@@ -62,7 +66,7 @@ class PushMetal extends StatelessWidget {
                         Gap(20),
                         TextView(
                           textAlign: TextAlign.center,
-                          text: "Push my profile to \n @love123_aluminium",
+                          text: "Push my profile to \n @${user.username}",
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w700,
                         ),
@@ -71,7 +75,7 @@ class PushMetal extends StatelessWidget {
                           width: 288.w,
                           child: TextView(
                             text:
-                                "Pushing would get your profile noticed by @abel_cobalt. You will be ranked top in her dashboard view, which indicates that you are ready to melt!",
+                                "Pushing would get your profile noticed by @ ${user.username}t. You will be ranked top in her dashboard view, which indicates that you are ready to melt!",
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w400,
                           ),
@@ -111,6 +115,7 @@ class PushMetal extends StatelessWidget {
                         BaseButton(
                           buttonText: "Pay to Push",
                           onPressed: () {
+                            
                             context.pushNamed(MakePayment.name);
                           },
                         ),

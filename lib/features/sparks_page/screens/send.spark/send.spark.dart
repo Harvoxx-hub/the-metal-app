@@ -1,0 +1,317 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
+import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/home_page/provider/get.users.notifier.dart';
+import 'package:metal/features/sparks_page/provider/send.spark.notifier.dart';
+import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
+
+import 'package:metal/gen/assets.gen.dart';
+
+import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/widgets/button/base_button.dart';
+import 'package:metal/widgets/dialog/custom.dialog.dart';
+import 'package:metal/widgets/text.field/edit.from.field.dart';
+import 'package:metal/widgets/text_views.dart';
+
+class SendSpark extends ConsumerStatefulWidget {
+  SendSpark({super.key});
+  static const name = 'sendSpark';
+  static const route = '$name';
+
+  @override
+  ConsumerState<SendSpark> createState() => _SendSparkState();
+}
+
+class _SendSparkState extends ConsumerState<SendSpark> {
+  final TextEditingController _userNameController = TextEditingController();
+
+  final TextEditingController _sparkNumberController = TextEditingController();
+
+  final TextEditingController _transferFeeController = TextEditingController();
+
+  final TextEditingController _TotalSparkController = TextEditingController();
+  static final GlobalKey<FormState> _form = GlobalKey<FormState>();
+  @override
+  void initState() {
+    // TODO: implement initState
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _userNameController.addListener(_userNameListener);
+    });
+    super.initState();
+  }
+
+  void _userNameListener() {
+    if (_userNameController.text != "") {
+      ref
+          .read(getUserByNameProvider.notifier)
+          .getUserByquery(query: _userNameController.text);
+    }
+  }
+
+  @override
+  void dispose() async {
+    _userNameController.removeListener(_userNameListener);
+
+    super.dispose();
+  }
+
+  String SelectedUserId = "";
+  @override
+  Widget build(BuildContext context) {
+    final _users = ref.watch(getUserByNameProvider);
+    final _sendSparkProvider = ref.watch(sendSparkProvider);
+    final _currentUser = ref.watch(authProvider).data;
+    ref.listen<SendsparkState>(sendSparkProvider, (prev, current) {
+      if (current.isSuccess) {
+        confirm(context);
+      }
+    });
+
+    return BaseScreen(
+        appBarState: AppBarState.BackWithHeader,
+        Header: "Send Spark",
+        body: SingleChildScrollView(
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  Container(
+                    height: 220.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: AppColors.metalPinkColour,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(35.sp),
+                          bottomRight: Radius.circular(35.sp),
+                        )),
+                  ),
+
+                  // This container is for the background image decoration
+                  Container()
+                ],
+              ),
+              Padding(
+                  padding: EdgeInsets.symmetric(vertical: 15.w),
+                  child: Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+                    margin: EdgeInsets.only(left: 10.w, right: 10.w),
+                    decoration: BoxDecoration(
+                        color: AppColors.metalWhite,
+                        borderRadius: BorderRadius.circular(13.sp)),
+                    child: Form(
+                      key: _form,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SingleSparkHeaderCard(
+                            title: "Send \nSparks",
+                            path: Assets.images.sendSpark.path,
+                          ),
+                          Gap(15),
+                          EditFormField(
+                            floatingLabel: 'I want to send Sparks to',
+                            label: 'Type name of recipient',
+                            controller: _userNameController,
+                            keyboardType: TextInputType.name,
+                            prefixWidget: SvgPicture.asset(
+                              Assets.icons.iconlyLightProfile.path,
+                              height: 24,
+                              width: 24,
+                            ),
+                            validator: Validators.validateString(),
+                            radius: 10,
+                          ),
+                          _users.data == null
+                              ? Gap(15)
+                              : Wrap(
+                                  alignment: WrapAlignment.start,
+                                  children: [
+                                    for (var user in _users.data!)
+                                    //TODO: Add a condition to check if the user is the current user
+                                   // _currentUser.
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: TextView(
+                                            text: "@ ${user["username"]}",
+                                            onTap: () {
+                                              _userNameController.text =
+                                                  user["username"];
+                                              SelectedUserId = user["uuid"];
+                                            }),
+                                      )
+                                  ],
+                                ),
+                          Gap(15),
+                          EditFormField(
+                            floatingLabel: 'Number of Sparks to send',
+                            label: 'Number of sparks to send',
+                            controller: _sparkNumberController,
+                            keyboardType: TextInputType.number,
+                            prefixWidget: SvgPicture.asset(
+                              Assets.icons.star05.path,
+                              height: 24,
+                              width: 24,
+                            ),
+                            radius: 10,
+                            validator: Validators.validateAmount(),
+                          ),
+                          Gap(15),
+                          EditFormField(
+                            floatingLabel: 'Transfer Fee',
+                            label: '0.00',
+                            controller: _transferFeeController,
+                            keyboardType: TextInputType.number,
+                            prefixWidget: SvgPicture.asset(
+                              Assets.icons.star05.path,
+                              height: 24,
+                              width: 24,
+                            ),
+                            radius: 10,
+                            enabled: false,
+                            // validator: Validators.validateAmount(),
+                          ),
+                          Gap(15),
+                          EditFormField(
+                            floatingLabel: 'Total Sparks used ',
+                            label: '0.00',
+                            controller: _TotalSparkController,
+                            keyboardType: TextInputType.number,
+                            prefixWidget: SvgPicture.asset(
+                              Assets.icons.star05.path,
+                              height: 24,
+                              width: 24,
+                            ),
+                            radius: 10,
+                            enabled: false,
+                            //  validator: Validators.validateAmount(),
+                          ),
+                          Gap(15),
+                          BaseButton(
+                            buttonText: "Send spark",
+                            loading: _sendSparkProvider.isLoading,
+                            onPressed: () {
+                              if (_form.currentState!.validate() &&
+                                  SelectedUserId != "") {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return CustomDialog(
+                                      content: confirmationDialog(context),
+                                    );
+                                  },
+                                );
+                              } else {
+                                Fluttertoast.showToast(
+                                    msg:
+                                        "Error: Please fill all fields and select a user to send to.",
+                                    toastLength: Toast.LENGTH_LONG,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 3,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ))
+            ],
+          ),
+        ));
+  }
+
+  Widget confirmationDialog(
+    BuildContext context,
+  ) {
+    return Column(
+      children: [
+        Gap(38.h),
+        Image.asset(Assets.images.eyesEmoji.path),
+        Gap(15.h),
+        TextView(
+          text: "Confirmation",
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+        Gap(15.h),
+        TextView(
+          text:
+              "Confirm you want to send *${_sparkNumberController.text} * to *@${_userNameController.text}",
+          fontSize: 16,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.w400,
+        ),
+        Gap(38.h),
+        BaseButton(
+            buttonText: "Confirm",
+            onPressed: () {
+              context.pop();
+              ref.read(sendSparkProvider.notifier).sendSpark(
+                  receiverId: SelectedUserId,
+                  numberOfSparks: double.parse(_sparkNumberController.text));
+            }),
+        Gap(23.h),
+        TextView(
+          text: "Not Now",
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          onTap: () => context.pop(),
+        ),
+        Gap(21.h),
+      ],
+    );
+  }
+
+  
+
+  Widget successDialog(BuildContext context) {
+    return Column(
+      children: [
+        Gap(38.h),
+        Image.asset(Assets.images.partpoppercelebrationemoji.path),
+        Gap(15.h),
+        TextView(
+          text: "Success",
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+        Gap(15.h),
+        TextView(
+          text:
+              "*${_sparkNumberController.text} sparks* successfully sent to *@${_userNameController.text}*",
+          fontSize: 16,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.w400,
+        ),
+        Gap(58.h),
+        BaseButton(
+            buttonText: "Go back to dashboard",
+            onPressed: () {
+              context.pop();
+            })
+      ],
+    );
+  }
+
+  void confirm(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomDialog(
+          content: successDialog(context),
+        );
+      },
+    );
+  }
+}

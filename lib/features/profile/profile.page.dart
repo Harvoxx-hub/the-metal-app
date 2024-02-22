@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/eyes/presentation/eyes.intro.screen.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/profile/tab.screen/discovery.tab.dart';
 import 'package:metal/features/profile/tab.screen/metal.plan.tab.dart';
@@ -11,42 +16,49 @@ import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/tab/base.tab.dart';
 import 'package:metal/widgets/text_views.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class ProfilePage extends ConsumerStatefulWidget {
+  const ProfilePage({
+    super.key,
+  });
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authProvider).data;
     return SingleChildScrollView(
       child: ProfileHeader(
+          user: user!,
           child: Padding(
-        padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
-        child: Container(
-          padding: const EdgeInsets.only(
-            top: 122,
-          ),
-          decoration: const BoxDecoration(
-              color: AppColors.metalWhite,
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(35), topRight: Radius.circular(35))),
-          child: Column(
-            children: [
-              BaseTab(
-                tabs: [
-                  BaseTabModel(child: const PersonalTab(), title: "Personal"),
-                  BaseTabModel(
-                      child: const MetalPlanTab(), title: "Metal Plan"),
-                  BaseTabModel(child: const DiscoveryTab(), title: "Discovery")
+            padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
+            child: Container(
+              padding: const EdgeInsets.only(
+                top: 122,
+              ),
+              decoration: const BoxDecoration(
+                  color: AppColors.metalWhite,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(35),
+                      topRight: Radius.circular(35))),
+              child: Column(
+                children: [
+                  BaseTab(
+                    tabs: [
+                      BaseTabModel(
+                          child: const PersonalTab(), title: "Personal"),
+                      BaseTabModel(
+                          child: const MetalPlanTab(), title: "Metal Plan"),
+                      BaseTabModel(
+                          child: const DiscoveryTab(), title: "Discovery")
+                    ],
+                  )
                 ],
-              )
-            ],
-          ),
-        ),
-      )),
+              ),
+            ),
+          )),
     );
   }
 }
@@ -55,9 +67,11 @@ class ProfileHeader extends StatelessWidget {
   const ProfileHeader({
     super.key,
     required this.child,
+    required this.user,
   });
 
   final Widget child;
+  final UserModel user;
 
   @override
   Widget build(BuildContext context) {
@@ -71,22 +85,31 @@ class ProfileHeader extends StatelessWidget {
             ],
           ),
           child,
-          const Positioned(
+          Positioned(
             top: 19,
             left: 0,
             right: 0,
-            child: ProfilePhoto(
-              size: 170,
-              verfly: true,
-            ),
+            child: user.metal == null
+                ? ProfilePhoto(
+                    size: 170,
+                    verfly: false,
+                  )
+                : ProfilePhoto(
+                    size: 170,
+                    verfly: false,
+                    photourl: user.metal!.img!,
+                  ),
           ),
           Positioned(
               top: 140,
               right: 50.w,
-              child: SvgPicture.asset(
-                Assets.icons.eye.path,
-                height: 40,
-                width: 40,
+              child: GestureDetector(
+                onTap: () => context.pushNamed(EyesIntro.name),
+                child: SvgPicture.asset(
+                  Assets.icons.eye.path,
+                  height: 40,
+                  width: 40,
+                ),
               )),
         ],
       ),

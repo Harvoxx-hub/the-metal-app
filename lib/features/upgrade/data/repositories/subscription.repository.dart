@@ -16,6 +16,18 @@ class SubscriptionRepository implements ISubscriptionRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<Responses> subscribeMetalPlan(String Id) async {
+    try {
+      final response = await _apiService.post("user/subscribe-to-metal", body: {
+        "planID": Id,
+      });
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
 
 final subscriptionRepositoryProvider = Provider((ref) {

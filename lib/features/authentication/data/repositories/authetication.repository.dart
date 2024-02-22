@@ -62,9 +62,10 @@ class AuthenticationRepository implements IAuthenticationRepository {
   }
 
   @override
-  Future<Responses> activateAccount() async {
+  Future<Responses> activateAccount(String UUID) async {
     try {
-      final response = await _apiService.patch("auth/activate-account");
+      final response = await _apiService.patch("auth/activate-account",
+          body: {"UUID": UUID});
       return response;
     } catch (e) {
       rethrow;
@@ -82,10 +83,10 @@ class AuthenticationRepository implements IAuthenticationRepository {
   }
 
   @override
-  Future<Responses> updateUser(UserModel user) async {
+  Future<Responses> updateUser(Map<String, dynamic> user) async {
     try {
       final response =
-          await _apiService.patch("user/update-info", body: user.toJson());
+          await _apiService.patch("user/update-info", body: user );
       return response;
     } catch (e) {
       rethrow;

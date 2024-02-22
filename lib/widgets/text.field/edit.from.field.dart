@@ -58,7 +58,8 @@ class EditFormField extends StatefulWidget {
       this.radius = 10,
       this.prefixWidget,
       this.editButton = false,
-      this.onEditTap})
+      this.onEditTap,
+      this.labelColor})
       : super(key: key);
 
   final TextCapitalization? textCapitalization;
@@ -101,6 +102,7 @@ class EditFormField extends StatefulWidget {
   final int fontSize;
   final Color? focusedColorBorder;
   final Color? fillColor;
+  final Color? labelColor;
   final Color? cursorColor;
   final Color? suffixIconColor;
   final Color? prefixIconColor;
@@ -180,7 +182,7 @@ class _EditFormFieldState extends State<EditFormField> {
           // autovalidate: autoValidate,
           style: TextStyle(
               fontFamily: 'Plus_Jakarta',
-              color: AppColors.metalBrownColourForText,
+              color: widget.labelColor ?? AppColors.metalBrownColourForText,
               fontWeight: FontWeight.w300,
               fontSize: widget.fontSize.sp,
               fontStyle: FontStyle.normal),
@@ -243,7 +245,8 @@ class _EditFormFieldState extends State<EditFormField> {
                   labelStyle: widget.labelStyle ??
                       TextStyle(
                           fontFamily: 'Plus_Jakarta',
-                          color: AppColors.metalBrownColourForText,
+                          color: widget.labelColor ??
+                              AppColors.metalBrownColourForText,
                           fontWeight: FontWeight.w300,
                           fontSize: 16.sp,
                           fontStyle: FontStyle.normal),

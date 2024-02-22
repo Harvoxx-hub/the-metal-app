@@ -73,7 +73,7 @@ class NavDrawer extends ConsumerWidget {
                             fontWeight: FontWeight.w500,
                           ),
                           TextView(
-                            text: "@${_authState!.username!}",
+                            text: "@${_authState.username!}",
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
                           ),

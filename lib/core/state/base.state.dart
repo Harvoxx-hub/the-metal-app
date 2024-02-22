@@ -11,12 +11,10 @@ class BaseState<T> {
   final Status status;
   final String? errorMessage;
   final T? data;
+  final Map? errorData;
 
-  BaseState({
-    required this.status,
-    this.errorMessage,
-    this.data,
-  });
+  BaseState(
+      {required this.status, this.errorMessage, this.data, this.errorData});
 
   factory BaseState.initial() {
     return BaseState<T>(status: Status.initial);
@@ -30,8 +28,9 @@ class BaseState<T> {
     return BaseState<T>(status: Status.success, data: data);
   }
 
-  factory BaseState.error(String errorMessage) {
-    return BaseState<T>(status: Status.error, errorMessage: errorMessage);
+  factory BaseState.error(String errorMessage, {Map? errorData}) {
+    return BaseState<T>(
+        status: Status.error, errorMessage: errorMessage, errorData: errorData);
   }
 
   bool get isInitial => status == Status.initial;

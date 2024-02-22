@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/my.metals/user.profile.dart';
 import 'package:metal/features/profile/profile.page.dart';
@@ -14,23 +16,26 @@ import 'package:metal/widgets/button/plain.button.dart';
 import 'package:metal/widgets/custom.toggle.dart';
 import 'package:metal/widgets/text_views.dart';
 
-class SettingPage extends StatefulWidget {
+class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
   static const name = 'settingPage';
   static const route = '$name';
 
   @override
-  State<SettingPage> createState() => _SettingPageState();
+  ConsumerState<SettingPage> createState() => _SettingPageState();
 }
 
-class _SettingPageState extends State<SettingPage> {
+class _SettingPageState extends ConsumerState<SettingPage> {
+
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authProvider);
     return BaseScreen(
       Header: "Settings",
       appBarState: AppBarState.HambugerWithHeader,
       body: SingleChildScrollView(
         child: ProfileHeader(
+          user: user.data!,
             child: Padding(
           padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
           child: Container(

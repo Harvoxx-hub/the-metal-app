@@ -39,7 +39,8 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
         context.pushReplacementNamed(VerificationPage.name,
             extra: VerificationSentArgument(
                 type: RouteFrom.AccountSetting,
-                code: current.data,
+                code: current.data!['OTP'],
+                uuid: current.data!['UUID'],
                 phoneNumber: _phoneController.text));
       }
     });

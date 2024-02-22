@@ -93,6 +93,7 @@ class ApiService {
     return AppError(
       code: body['code'] ?? 'unknown-error',
       message: body['message'] ?? 'An error occurred.',
+      errorData: body['data']
     );
   }
 }

@@ -5,9 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
+import 'package:metal/features/sparks_page/screens/refer.earn/refer.earn.dart';
+import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/refer.earn/widget/refer.earn.card.dart';
-import 'package:metal/features/sparks_page/refer.earn/refer.earn.dart';
+ 
+
 
 import 'package:metal/res/colors/cr_colors.dart';
 
@@ -60,7 +62,7 @@ class ReferEarn extends StatelessWidget {
                         borderRadius: BorderRadius.circular(13.sp)),
                     child: Column(
                       children: [
-                        ReferEarnCard(
+                        SingleSparkHeaderCard(
                           title: "Refer \n& Earn",
                           path: Assets.images.refer.path,
                         ),

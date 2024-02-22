@@ -17,7 +17,9 @@ abstract class IAuthenticationRepository {
     required String email,
   });
 
-  Future<Responses> activateAccount();
+  Future<Responses> activateAccount(
+    String UUID,
+  );
 
   Future<Responses> getCurrentUser();
 
@@ -25,7 +27,7 @@ abstract class IAuthenticationRepository {
   Future<Responses> getMetalProperties();
 
   Future<Responses> updateUser(
-    UserModel user,
+    Map<String, dynamic>  user,
   );
 
   //get user by

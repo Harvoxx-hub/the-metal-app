@@ -4,6 +4,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/profile/profile.page.dart';
 import 'package:metal/features/profile/widget/edit.field.dart';
@@ -13,14 +15,16 @@ import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class UserProfilePage extends StatelessWidget {
-  const UserProfilePage({super.key});
+  const UserProfilePage({super.key, required this.user});
   static const name = 'userProfilePage';
   static const route = '$name';
+  final UserModel user;
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
       Header: "User Profile",
       body: ProfileHeader(
+          user: user,
           child: Padding(
         padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
         child: Container(
@@ -42,58 +46,54 @@ class UserProfilePage extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5)),
                   ),
-                  child: TextView(text: "@felix august_aluminium "),
+                  child: TextView(text: "@ ${user.username}"),
                 ),
                 Gap(40),
                 EditField(
-                  text: "Felix August",
+                  text: user.fullname!,
                   floatingLabel: " First name & Last name",
                 ),
                 Gap(20),
                 EditField(
-                  text: "@felix august_aluminium",
+                  text: "@${user.username}",
                   floatingLabel: "Username",
                 ),
                 Gap(20),
                 EditField(
-                  text: "28-September",
+                  text: user.DOB!,
                   floatingLabel: "Date of Birth (DD-MM)",
                 ),
                 Gap(20),
                 EditField(
-                  text: "Aluminium",
+                  text: user.metal!.title!,
                   floatingLabel: "Metal that represents your value",
                 ),
                 Gap(20),
                 EditField(
-                  text: "Dancing, Hiking, Travelling",
+                  text: user.passion!.join(", "),
                   floatingLabel: "Passion/Interests",
                 ),
                 Gap(20),
                 EditField(
-                  text: "Single",
+                  text: user.extra_data!.marital_status!,
                   floatingLabel: "Marital status",
                 ),
                 Gap(20),
                 EditField(
-                  text: "Christianity",
+                  text: user.extra_data!.religion!,
                   floatingLabel: "Religion",
                 ),
                 Gap(20),
                 EditField(
-                  text: "Barrister",
+                  text: user.extra_data!.profession!,
                   floatingLabel: "Profession",
                 ),
                 Gap(20),
                 EditField(
-                  text: "Both gender",
+                  text: user.connect_with!,
                   floatingLabel: "Interested in",
                 ),
                 Gap(20),
-                EditField(
-                  text: "Both gender",
-                  floatingLabel: "Interested in",
-                ),
               ],
             ),
           ),
@@ -113,7 +113,7 @@ class UserProfilePage extends StatelessWidget {
         ),
         Gap(15.h),
         TextView(
-          text: "Block Felix_aluminium",
+          text: "Block  ${user.username}",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
@@ -126,7 +126,7 @@ class UserProfilePage extends StatelessWidget {
           fontWeight: FontWeight.w400,
         ),
         Gap(38.h),
-        BaseButton(buttonText: "Block Felix_aluminium", onPressed: () {}),
+        BaseButton(buttonText: "Block  ${user.username}", onPressed: () {}),
         Gap(23.h),
         TextView(
           text: "Cancel",
@@ -150,7 +150,7 @@ class UserProfilePage extends StatelessWidget {
         ),
         Gap(15.h),
         TextView(
-          text: "De-melt Felix_aluminium",
+          text: "De-melt ${user.username}",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
@@ -162,7 +162,7 @@ class UserProfilePage extends StatelessWidget {
           fontWeight: FontWeight.w400,
         ),
         Gap(38.h),
-        BaseButton(buttonText: "De-melt Felix_aluminium", onPressed: () {}),
+        BaseButton(buttonText: "De-melt ${user.username}", onPressed: () {}),
         Gap(23.h),
         TextView(
           text: "Cancel",

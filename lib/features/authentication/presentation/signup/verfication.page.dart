@@ -195,7 +195,9 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
   void checkCode(String value, context) {
     if (value == widget.argument.code.toString()) {
       if (widget.argument.type == RouteFrom.AccountSetting) {
-        ref.read(verficationProvider.notifier).activateAccount();
+        ref.read(verficationProvider.notifier).activateAccount(
+              widget.argument.uuid!,
+        );
       }
       if (widget.argument.type == RouteFrom.UpdatePhoneNumber) {
         context.pushReplacementNamed(NewPhoneNumberPage.name);

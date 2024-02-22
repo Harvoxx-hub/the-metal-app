@@ -62,7 +62,7 @@ class subscriptionCard extends StatelessWidget {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             TextView(
-              text: model.planeName,
+              text: model.planName,
               fontWeight: FontWeight.w400,
               fontSize: 24,
             ),

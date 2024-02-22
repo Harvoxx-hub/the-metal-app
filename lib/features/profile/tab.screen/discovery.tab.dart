@@ -1,3 +1,4 @@
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,11 +28,10 @@ class _DiscoveryTabState extends ConsumerState<DiscoveryTab> {
     super.didChangeDependencies();
   }
 
-  double _value = 0;
-
   @override
   Widget build(BuildContext context) {
     final userState = ref.watch(authProvider).data;
+    double _value = userState?.distance.toDouble() ?? 0.0;
     return Column(
       children: [
         EditField(

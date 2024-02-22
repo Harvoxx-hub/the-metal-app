@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
+import 'package:metal/features/upgrade/domain/entries/subscribed.plan.model.dart';
 
 part 'user.model.g.dart';
 
@@ -25,7 +26,10 @@ class UserModel {
   String? username;
   String? access_token;
   String? refresh_token;
-  MetalPlanModel? subscription;
+  SubscribedPlanModel? subscription;
+  double sparkBalance;
+  String distance;
+  String? id;
 
   UserModel({
     this.profile_updated,
@@ -47,6 +51,10 @@ class UserModel {
     this.username,
     this.access_token,
     this.refresh_token,
+    this.subscription,
+    this.distance = '4.0',
+    this.sparkBalance = 0.0,
+    this.id,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>

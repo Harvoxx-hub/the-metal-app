@@ -4,10 +4,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 class AppError {
   final String code;
   final String message;
+  final Map? errorData;
 
   AppError({
     required this.code,
     required this.message,
+
+    this.errorData
   });
 }
 

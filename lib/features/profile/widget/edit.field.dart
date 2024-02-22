@@ -69,10 +69,12 @@ class EditField extends StatelessWidget {
                 children: [
                   sufixIcon ?? const SizedBox(),
                   const Gap(10),
-                  TextView(
-                    text: text,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
+                  Expanded(
+                    child: TextView(
+                      text: text,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                   const Spacer(),
                   prefixIcon ?? const SizedBox(),

@@ -55,11 +55,9 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
             children: [
               Gap(45.h),
               const CreateProfileHeader1(
-                title1:          '👋 Hello',
- 
-                title2:
-                          'Let’s set up your profile',
-                    title3: "it will only take a 3 minutes" ,
+                title1: '👋 Hello',
+                title2: 'Let’s set up your profile',
+                title3: "it will only take a 3 minutes",
               ),
               Gap(24.h),
               Form(
@@ -76,7 +74,24 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                           width: 24,
                           height: 24,
                         ),
-                        validator: Validators.validateString(),
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Please enter your name';
+                          }
+                          // Split the input by space
+                          List<String> parts = value.split(' ');
+                          // Check if there are exactly two parts (first name and last name)
+                          if (parts.length != 2) {
+                            return 'Please enter both first name and last name';
+                          }
+                          // Additional validation if needed for each part
+                          // For example, you can check if each part contains only alphabets
+                          // or meets certain length requirements.
+                          // Add your validation logic here...
+
+                          // If all validation passes, return null
+                          return null;
+                        },
                         autoValidate: true,
                       ),
                       Gap(16.h),
@@ -135,12 +150,13 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                       Gap(16.h),
                       EditFormField(
                         floatingLabel: 'Please Select your Date Of Birth',
-                        label: '01/01/2023',
+                        label: 'Select Date Of Birth',
                         controller: _dobController,
                         keyboardType: TextInputType.name,
                         onTapped: () {
                           BottomPicker.date(
                             title: "Please Select your Date Of Birth",
+                            maxDateTime: DateTime(DateTime.now().year - 18),
                             titleStyle: const TextStyle(
                                 fontWeight: FontWeight.w400,
                                 fontSize: 14,
@@ -219,7 +235,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
       userData!.DOB = _dobController.text;
       userData!.gender = _gender;
       userData!.connect_with = _whatImLookingFor;
-  
+
       ref.read(updateProfileProvider.notifier).updateUserData(userData);
       context.pushNamed(ChooseYourMetalPage.name);
     }

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
+import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/home_page/melt.metal.dart';
 import 'package:metal/features/home_page/push.metal.dart';
@@ -10,13 +13,15 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/res/style/text_styles.dart';
 import 'package:metal/widgets/text_views.dart';
 
-class MetalUserCard extends StatelessWidget {
+class MetalUserCard extends ConsumerWidget {
   const MetalUserCard({
     super.key,
+    required this.user,
   });
+  final ALLUserModel user;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 27.h),
       margin: EdgeInsets.only(bottom: 40.h, left: 20.w, right: 20.w),
@@ -41,20 +46,31 @@ class MetalUserCard extends StatelessWidget {
               width: 140.w,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  image: DecorationImage(
-                      image: AssetImage(Assets.images.unnamed.path)),
                   color: AppColors.metalBlack.withOpacity(0.1)),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(70.w),
+                  child: Image.network(
+                    user.metal!.img!,
+                    fit: BoxFit.cover,
+                  )),
             ),
           ),
           const Gap(20),
           Row(
             children: [
               TextView(
-                text: '@love123_aluminium',
+                text: '@${user.username}',
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w700,
               ),
               Gap(10.w),
+              user.verfied
+                  ? SvgPicture.asset(
+                      Assets.icons.checkVerified.path,
+                      height: 24,
+                      width: 24,
+                    )
+                  : const SizedBox.shrink(),
               SvgPicture.asset(
                 Assets.icons.checkVerified.path,
                 height: 24,
@@ -63,8 +79,8 @@ class MetalUserCard extends StatelessWidget {
             ],
           ),
           Gap(6.h),
-          _buildSubItem('Gender', 'Female'),
-          _buildSubItem('Age range', '25 - 30years'),
+          _buildSubItem('Gender', user.gender!),
+          _buildSubItem('Age range', user.age_range ?? ""),
           Gap(12.h),
           Container(
             padding: EdgeInsets.symmetric(
@@ -75,13 +91,13 @@ class MetalUserCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(3.sp),
                 color: AppColors.metalPinkColour60.withOpacity(0.2)),
             child: Text(
-              'Ready to Melt with Father figure',
+              'Ready to Melt with  ${user.connection_option!.join(', ')}',
               style: TextStyles.text(weight: FontWeight.w500),
             ),
           ),
           Gap(15.h),
           Text(
-            'Interests: Travelling, Photography etc',
+            'Interests: ${user.passion!.join(', ')}',
             style: TextStyles.text(fontStyle: FontStyle.italic),
           ),
           Gap(15.h),
@@ -91,7 +107,7 @@ class MetalUserCard extends StatelessWidget {
           ),
           Gap(8.h),
           Text(
-            'I term myself an Aluminium because I am light and emotional. I like to be cared for as I have some tendencies to get rusty. It would be great to connect with you! Let’s melt!',
+            user.description!,
             style: TextStyles.text(),
           ),
           Gap(30.h),
@@ -100,7 +116,7 @@ class MetalUserCard extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () {
-                  context.pushNamed(MeltMetal.name);
+                  context.pushNamed(MeltMetal.name, extra: user);
                 },
                 child: Image.asset(Assets.images.melt.path),
               ),

@@ -29,6 +29,11 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   @override
   void initState() {
     Future.delayed(const Duration(seconds: 3), () {
+      // ref.read(authManagerProvider)
+      //   ..deleteAccessToken()
+      //   ..deleteRefreshToken()
+      //   ..deleteLoginState();
+
       ref.read(authManagerProvider).getLoginState().then((value) {
         if (value == LoginState.loggedIn) {
           ref.read(authProvider.notifier).getCurrentUser();

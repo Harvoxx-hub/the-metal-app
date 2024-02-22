@@ -39,9 +39,14 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       username: json['username'] as String?,
       access_token: json['access_token'] as String?,
       refresh_token: json['refresh_token'] as String?,
-    )..subscription = json['subscription'] == null
-        ? null
-        : MetalPlanModel.fromJson(json['subscription'] as Map<String, dynamic>);
+      subscription: json['subscription'] == null
+          ? null
+          : SubscribedPlanModel.fromJson(
+              json['subscription'] as Map<String, dynamic>),
+      distance: json['distance'] as String? ?? '4.0',
+      sparkBalance: (json['sparkBalance'] as num?)?.toDouble() ?? 0.0,
+      id: json['id'] as String?,
+    );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'profile_updated': instance.profile_updated,
@@ -64,6 +69,9 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'access_token': instance.access_token,
       'refresh_token': instance.refresh_token,
       'subscription': instance.subscription?.toJson(),
+      'sparkBalance': instance.sparkBalance,
+      'distance': instance.distance,
+      'id': instance.id,
     };
 
 Address _$AddressFromJson(Map<String, dynamic> json) => Address(

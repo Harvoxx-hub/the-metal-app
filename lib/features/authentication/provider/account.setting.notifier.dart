@@ -27,10 +27,10 @@ class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
         password: password,
         phoneNumber: phoneNumber,
       );
-      final tokenManager = ref.read(authManagerProvider);
-      await tokenManager.saveAccessToken(response.data['access_token']);
-      await tokenManager.saveRefreshToken(response.data['refresh_token']);
-      state = AccountSettingState.success(response.data['OTP']);
+      // final tokenManager = ref.read(authManagerProvider);
+      // await tokenManager.saveAccessToken(response.data['access_token']);
+      // await tokenManager.saveRefreshToken(response.data['refresh_token']);
+      state = AccountSettingState.success(response.data);
     } catch (e) {
       print(e.toString());
       state = AccountSettingState.error(e.toString());
@@ -39,7 +39,7 @@ class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
 }
 
 // Define a type alias
-typedef AccountSettingState = BaseState<int>;
+typedef AccountSettingState = BaseState<Map>;
 
 final accountSettingProvider = StateNotifierProvider.autoDispose<
     AccountSettingNotifier, AccountSettingState>(

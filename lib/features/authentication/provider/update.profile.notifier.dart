@@ -17,6 +17,7 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
   final Ref ref;
 //init my profile
   void initMyProfile() async {
+      
     state = UpdateProfileState.success(UserModel());
   }
 
@@ -31,15 +32,25 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
       state = UpdateProfileState.loading();
       final authenticationRepository =
           ref.watch(authenticationRepositoryProvider);
-      final response = await authenticationRepository.updateUser(userModel);
+      final response = await authenticationRepository.updateUser(getNonNullValues(userModel
+          .toJson()));
       final userData = UserModel.fromJson(response.data);
-      ref.read(authProvider.notifier).getCurrentUser();
+      ref.read(authProvider.notifier).updateUserData(userData);
       state = UpdateProfileState.success(userData);
     } catch (e) {
       print(e.toString());
       state = UpdateProfileState.error(e.toString());
     }
   }
+  Map<String, dynamic> getNonNullValues(Map<String, dynamic> object) {
+  Map<String, dynamic> nonNullValues = {};
+  object.forEach((key, value) {
+    if (value != null) {
+      nonNullValues[key] = value;
+    }
+  });
+  return nonNullValues;
+}
 }
 
 // Define a type alias

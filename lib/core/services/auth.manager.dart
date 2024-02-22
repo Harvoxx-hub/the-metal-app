@@ -1,38 +1,38 @@
-import 'dart:convert';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:metal/core/services/api.service.dart';
 
 enum LoginState { loggedIn, loggedOut }
 
 class AuthManager {
-  late final FlutterSecureStorage _storage;
+  late final SharedPreferences _prefs;
 
   AuthManager() {
-    _storage = FlutterSecureStorage(
-      aOptions: const AndroidOptions(encryptedSharedPreferences: true),
-    );
+    _initPrefs();
+  }
+
+  Future<void> _initPrefs() async {
+    _prefs = await SharedPreferences.getInstance();
   }
 
   Future<void> saveAccessToken(String accessToken) async {
-    await _storage.write(key: 'access_token', value: accessToken);
+    await _prefs.setString('access_token', accessToken);
   }
 
   Future<String?> getAccessToken() async {
-    return await _storage.read(key: 'access_token');
+    return _prefs.getString('access_token');
   }
 
   Future<void> deleteAccessToken() async {
-    await _storage.delete(key: 'access_token');
+    await _prefs.remove('access_token');
   }
 
   Future<void> saveRefreshToken(String refreshToken) async {
-    await _storage.write(key: 'refresh_token', value: refreshToken);
+    await _prefs.setString('refresh_token', refreshToken);
   }
 
   Future<String?> getRefreshToken() async {
-    return await _storage.read(key: 'refresh_token');
+    return _prefs.getString('refresh_token');
   }
 
   //refresh token
@@ -52,20 +52,18 @@ class AuthManager {
     final data = response.data;
     await saveAccessToken(data['access_token']);
     return data['access_token'];
-
-    return '';
   }
 
   Future<void> deleteRefreshToken() async {
-    await _storage.delete(key: 'refresh_token');
+    await _prefs.remove('refresh_token');
   }
 
   Future<void> saveLoginState(LoginState loginState) async {
-    await _storage.write(key: 'login_state', value: loginState.toString());
+    await _prefs.setString('login_state', loginState.toString());
   }
 
   Future<LoginState?> getLoginState() async {
-    final loginStateString = await _storage.read(key: 'login_state');
+    final loginStateString = _prefs.getString('login_state');
 
     return loginStateString != null
         ? LoginState.values.firstWhere((e) => e.toString() == loginStateString)
@@ -73,7 +71,7 @@ class AuthManager {
   }
 
   Future<void> deleteLoginState() async {
-    await _storage.delete(key: 'login_state');
+    await _prefs.remove('login_state');
   }
 }
 

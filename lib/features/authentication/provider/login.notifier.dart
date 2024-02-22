@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/error/error.handle.dart';
 import 'package:metal/core/services/auth.manager.dart';
 
 import 'package:metal/core/state/base.state.dart';
@@ -35,9 +36,12 @@ class LoginNotifier extends StateNotifier<LoginStates> {
           .read(authProvider.notifier)
           .updateUserData(UserModel.fromJson(response.data));
       state = LoginStates.success(UserModel.fromJson(response.data));
+      // ignore: non_constant_identifier_names
     } catch (e) {
-      print(e.toString());
-      state = LoginStates.error(e.toString());
+      AppError error = e as AppError;
+    
+        state = LoginStates.error(error.message, errorData: e.errorData);
+    
     }
   }
 

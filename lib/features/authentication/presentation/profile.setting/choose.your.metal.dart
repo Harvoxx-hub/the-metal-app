@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/screen.size.dart';
- 
+
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
@@ -60,7 +60,7 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
                             crossAxisSpacing: 10.0,
 
                             mainAxisSpacing: 10.0,
-                            childAspectRatio: 16 / 12,
+                            childAspectRatio: 16 / 14,
                           ),
                           itemCount: metalProps.data!.metals!.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -68,7 +68,7 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
                             return ChooseMetalCard(
                               model: model,
                               onTap: () => updateMetal(model),
-                              selected: model.title == _selectedMetal,
+                              selected: model == _selectedMetal,
                             );
                           },
                         ),

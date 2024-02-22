@@ -1,6 +1,8 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/forget.password/create.new.password.dart';
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.otp.screen.dart';
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
@@ -21,11 +23,17 @@ import 'package:metal/features/authentication/presentation/signup/account.settin
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 import 'package:metal/features/authentication/presentation/welcome/presentation/welcome.page.dart';
-import 'package:metal/features/chat/chat.window/chat.window.dart';
-import 'package:metal/features/chat/games/games.page.dart';
-import 'package:metal/features/chat/games/games.rule.dart';
+import 'package:metal/features/chat/presentation/chat.window/chat.window.dart';
+import 'package:metal/features/chat/presentation/games/games.page.dart';
+import 'package:metal/features/chat/presentation/games/games.rule.dart';
 import 'package:metal/features/dashboard.dart/dashboard.dart';
+import 'package:metal/features/eyes/domain/entries/status.model.dart';
+import 'package:metal/features/eyes/presentation/eye.preview.media.dart';
+import 'package:metal/features/eyes/presentation/eye.select.media.dart';
+import 'package:metal/features/eyes/presentation/eyes.intro.screen.dart';
+import 'package:metal/features/eyes/presentation/view.eyes.dart';
 import 'package:metal/features/feedback/feedback.page.dart';
+import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
 import 'package:metal/features/home_page/melt.metal.dart';
 import 'package:metal/features/home_page/push.metal.dart';
 import 'package:metal/features/my.metals/my.melted.metals.dart';
@@ -40,9 +48,12 @@ import 'package:metal/features/profile/update.phone.number/update.phone.number.p
 import 'package:metal/features/refer.earn/refer.earn.dart';
 import 'package:metal/features/settings/blocked.user.dart';
 import 'package:metal/features/settings/settings.page.dart';
-import 'package:metal/features/sparks_page/buy.spark/buy.spark.dart';
-import 'package:metal/features/sparks_page/refer.earn/refer.earn.dart';
-import 'package:metal/features/sparks_page/send.spark/send.spark.dart';
+
+import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
+import 'package:metal/features/sparks_page/screens/refer.earn/refer.earn.dart';
+import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
+
+import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 
 import 'package:metal/features/upgrade/make.payment.dart';
 import 'package:metal/features/upgrade/upgrade.page.dart';
@@ -179,7 +190,33 @@ class RouterNotifier extends ChangeNotifier {
             builder: (context, state) => DashboardPage(),
             path: DashboardPage.route,
             routes: [
+               GoRoute(
+                name: ViewEyes.name,
+                builder: (context, state) => ViewEyes(
+                  eyes: state.extra as List<StatusModel>,
+                ),
+                path: ViewEyes.route,
+              ),
               GoRoute(
+                name: EyesIntro.name,
+                builder: (context, state) => EyesIntro(),
+                path: EyesIntro.route,
+              ),
+               GoRoute(
+                name: EyeSelectMedia.name,
+                builder: (context, state) => EyeSelectMedia(),
+                path: EyeSelectMedia.route,
+                routes: [
+                  GoRoute(
+                    name: EyePreviewMedia.name,
+                    builder: (context, state) => EyePreviewMedia(
+                      media: state.extra as XFile,
+                    ),
+                    path: EyePreviewMedia.route,
+                  ),
+                ],
+              ),
+               GoRoute(
                 name: SettingPage.name,
                 builder: (context, state) => SettingPage(),
                 path: SettingPage.route,
@@ -197,12 +234,15 @@ class RouterNotifier extends ChangeNotifier {
                   ]),
               GoRoute(
                 name: MeltMetal.name,
-                builder: (context, state) => MeltMetal(),
+                builder: (context, state) =>
+                    MeltMetal(state.extra as ALLUserModel),
                 path: MeltMetal.route,
               ),
               GoRoute(
                 name: PushMetal.name,
-                builder: (context, state) => PushMetal(),
+                builder: (context, state) => PushMetal(
+                  user: state.extra as ALLUserModel,
+                ),
                 path: PushMetal.route,
               ),
               GoRoute(
@@ -222,7 +262,9 @@ class RouterNotifier extends ChangeNotifier {
               ),
               GoRoute(
                 name: UserProfilePage.name,
-                builder: (context, state) => UserProfilePage(),
+                builder: (context, state) => UserProfilePage(
+                  user: state.extra as UserModel,
+                ),
                 path: UserProfilePage.route,
               ),
               GoRoute(
@@ -232,7 +274,9 @@ class RouterNotifier extends ChangeNotifier {
               ),
               GoRoute(
                 name: MakePayment.name,
-                builder: (context, state) => MakePayment(),
+                builder: (context, state) => MakePayment(
+                  metalPlanModel: state.extra as MetalPlanModel,
+                ),
                 path: MakePayment.route,
               ),
               GoRoute(
@@ -247,7 +291,9 @@ class RouterNotifier extends ChangeNotifier {
                   routes: [
                     GoRoute(
                       name: MyMeltedUser.name,
-                      builder: (context, state) => MyMeltedUser(),
+                      builder: (context, state) => MyMeltedUser(
+                        state.extra as String,
+                      ),
                       path: MyMeltedUser.route,
                     ),
                   ]),
@@ -268,7 +314,8 @@ class RouterNotifier extends ChangeNotifier {
               ),
               GoRoute(
                 name: ChatWindowsPage.name,
-                builder: (context, state) => ChatWindowsPage(),
+                builder: (context, state) =>
+                    ChatWindowsPage(conversationID: state.extra as String),
                 path: ChatWindowsPage.route,
               ),
               GoRoute(

@@ -8,6 +8,8 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/input/validators/email_validator.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
+import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
+import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 import 'package:metal/features/authentication/presentation/welcome/presentation/welcome.page.dart';
 import 'package:metal/features/authentication/provider/login.notifier.dart';
 
@@ -52,6 +54,17 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
             : context.pushReplacementNamed(WelcomePage.name);
 
         // context.pushReplacementNamed(DashboardPage.name);
+      }
+      if (current.isError) {
+        //
+        if (current.errorMessage == "Account not activated") {
+          context.pushNamed(VerificationPage.name,
+              extra: VerificationSentArgument(
+                  type: RouteFrom.AccountSetting,
+                  code: current.errorData!["OTP"],
+                  uuid: current.errorData!["UUID"],
+                  phoneNumber: current.errorData!["phone"]));
+        }
       }
     });
     return BaseScreen(

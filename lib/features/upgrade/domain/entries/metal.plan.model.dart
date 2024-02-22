@@ -4,12 +4,16 @@ part 'metal.plan.model.g.dart'; // This file will be generated
 
 @JsonSerializable()
 class MetalPlanModel {
-  final String planeName;
-  final double price;
+  final String id;
+  final int duration;
+  final String planName;
+  final int price;
   final List<String> metaData;
 
   MetalPlanModel({
-    required this.planeName,
+    required this.planName,
+    required this.id,
+    required this.duration,
     required this.price,
     required this.metaData,
   });
@@ -20,3 +24,5 @@ class MetalPlanModel {
   Map<String, dynamic> toJson() =>
       _$MetalPlanModelToJson(this); // Generated method
 }
+
+ 

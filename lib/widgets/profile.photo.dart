@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:metal/features/eyes/presentation/eyes.intro.screen.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 class ProfilePhoto extends StatelessWidget {
@@ -13,7 +15,8 @@ class ProfilePhoto extends StatelessWidget {
   const ProfilePhoto({
     super.key,
     this.size = 58,
-    this.verfly = false, this.photourl,
+    this.verfly = false,
+    this.photourl,
   });
   @override
   Widget build(BuildContext context) {
@@ -43,12 +46,19 @@ class ProfilePhoto extends StatelessWidget {
                     shape: OvalBorder(),
                   ),
                   child: Center(
-                    child: Image.asset(
-                      Assets.images.silver.path,
-                      height: size! * 0.7,
-                      width: size! * 0.7,
-                      fit: BoxFit.fill,
-                    ),
+                    child: photourl != null
+                        ? Image.network(
+                            photourl!,
+                            height: size! * 0.7,
+                            width: size! * 0.7,
+                            fit: BoxFit.fill,
+                          )
+                        : Image.asset(
+                            Assets.images.silver.path,
+                            height: size! * 0.7,
+                            width: size! * 0.7,
+                            fit: BoxFit.fill,
+                          ),
                   ),
                 ),
               ),
@@ -60,10 +70,10 @@ class ProfilePhoto extends StatelessWidget {
             right: size! >= 57 ? size! / 1.3 : 0,
             child: verfly!
                 ? SvgPicture.asset(
-                    Assets.icons.checkVerified.path,
-                    height: 23,
-                    width: 23,
-                  )
+                  Assets.icons.checkVerified.path,
+                  height: 23,
+                  width: 23,
+                )
                 : SizedBox())
       ],
     );

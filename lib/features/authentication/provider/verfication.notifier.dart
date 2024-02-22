@@ -12,17 +12,22 @@ class VerficationNotifier extends StateNotifier<VerficationState> {
   ) : super(state) {}
   final Ref ref;
 
-  void activateAccount() async {
+  void activateAccount(String UUID) async {
     state = VerficationState.loading();
     try {
       final authenticationRepository =
           ref.watch(authenticationRepositoryProvider);
-      final response = await authenticationRepository.activateAccount();
+      final response = await authenticationRepository.activateAccount(
+        UUID,
+      );
       final tokenManager = ref.read(authManagerProvider);
+      await tokenManager.saveAccessToken(response.data['access_token']);
+      await tokenManager.saveRefreshToken(response.data['refresh_token']);
+
       await tokenManager.saveLoginState(LoginState.loggedIn);
       state = VerficationState.success("");
     } catch (e) {
-      print(e.toString());
+      print(e);
       state = VerficationState.error(e.toString());
     }
   }

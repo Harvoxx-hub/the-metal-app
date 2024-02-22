@@ -24,7 +24,7 @@ class ChooseMetalCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(10),
         decoration: selected
             ? ShapeDecoration(
                 color: Color(0xFFFBF0F8),
@@ -61,14 +61,14 @@ class ChooseMetalCard extends StatelessWidget {
               children: [
                 TextView(
                   text: model.title!,
-                  fontSize: 16.sp,
+                  fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),
                 const Spacer(),
-                SvgPicture.network(
+                Image.network(
                   model.img!,
-                  height: 20,
-                  width: 20,
+                  height: 40,
+                  width: 40,
                 )
               ],
             ),

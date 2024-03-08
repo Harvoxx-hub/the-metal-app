@@ -16,7 +16,7 @@ class ALLUserModel {
   final Metal? metal;
   final bool verfied;
   final String? phone;
-  final bool liked;
+  late final bool liked;
   final bool melted;
 
   ALLUserModel({

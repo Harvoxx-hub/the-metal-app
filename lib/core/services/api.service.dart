@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:metal/core/error/error.handle.dart';
 import 'package:metal/core/model/responces.dart';
-import 'package:metal/core/services/auth.manager.dart';
+import 'package:metal/core/services/auth.pref.service.dart';
 
 class ApiService {
   final Dio _dio = Dio(); // Create an instance of Dio

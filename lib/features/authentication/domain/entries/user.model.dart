@@ -8,6 +8,7 @@ part 'user.model.g.dart';
 @JsonSerializable(explicitToJson: true)
 class UserModel {
   bool? profile_updated;
+  bool completed_profile;
   String? DOB;
   Address? address;
   String? connect_with;
@@ -31,31 +32,31 @@ class UserModel {
   String distance;
   String? id;
 
-  UserModel({
-    this.profile_updated,
-    this.DOB,
-    this.address,
-    this.connect_with,
-    this.connection_option,
-    this.description,
-    this.extra_data,
-    this.fullname,
-    this.gender,
-    this.isVerified,
-    this.location,
-    this.metal,
-    this.passion,
-    this.phone,
-    this.preferences,
-    this.email,
-    this.username,
-    this.access_token,
-    this.refresh_token,
-    this.subscription,
-    this.distance = '4.0',
-    this.sparkBalance = 0.0,
-    this.id,
-  });
+  UserModel(
+      {this.profile_updated,
+      this.DOB,
+      this.address,
+      this.connect_with,
+      this.connection_option,
+      this.description,
+      this.extra_data,
+      this.fullname,
+      this.gender,
+      this.isVerified,
+      this.location,
+      this.metal,
+      this.passion,
+      this.phone,
+      this.preferences,
+      this.email,
+      this.username,
+      this.access_token,
+      this.refresh_token,
+      this.subscription,
+      this.distance = '4.0',
+      this.sparkBalance = 0.0,
+      this.id,
+      this.completed_profile = false});
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
@@ -65,17 +66,14 @@ class UserModel {
 
 @JsonSerializable()
 class Address {
-  int? aprt_no;
-  int? house_no;
-  String? street_name;
+  String? house_address;
+
   String? town;
   String? state;
   String? country;
 
   Address({
-    this.aprt_no,
-    this.house_no,
-    this.street_name,
+    this.house_address,
     this.town,
     this.state,
     this.country,

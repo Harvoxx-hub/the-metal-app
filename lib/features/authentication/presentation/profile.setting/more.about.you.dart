@@ -44,7 +44,7 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
                   subtitle: "This will be displayed to your matched metals."),
               Gap(22.h),
               EditFormField(
-                floatingLabel: 'Please Select your Date Of Birth',
+                floatingLabel: '',
                 label:
                     'I term myself a Aluminium because I am light and emotional. I like to be cared for as I have some tendencies to get rusty',
                 controller: _controller,
@@ -58,7 +58,7 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
               ),
               Gap(20),
               BaseButton(
-                buttonText: "Next 5/5",
+                buttonText: "Next",
                 onPressed: _onNextPressed,
               ),
             ],

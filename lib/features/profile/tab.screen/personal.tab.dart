@@ -70,7 +70,7 @@ class _PersonalTabState extends ConsumerState<PersonalTab> {
         ),
         Gap(20.h),
         EditField(
-          text: userState?.passion!.join(",") ?? "Passion/Interest",
+          text: userState?.passion?.join(",") ?? "Passion/Interest",
           floatingLabel: "Passion/Interest",
           subLabel: "Edit",
           onSubLabel: () {},

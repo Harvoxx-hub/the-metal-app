@@ -31,7 +31,7 @@ class _DiscoveryTabState extends ConsumerState<DiscoveryTab> {
   @override
   Widget build(BuildContext context) {
     final userState = ref.watch(authProvider).data;
-    double _value = userState?.distance.toDouble() ?? 0.0;
+    
     return Column(
       children: [
         EditField(
@@ -43,58 +43,7 @@ class _DiscoveryTabState extends ConsumerState<DiscoveryTab> {
           },
         ),
         Gap(20.h),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextView(
-              text: "Maximum distance",
-              fontWeight: FontWeight.w400,
-              fontSize: 14.sp,
-              color: AppColors.metalBrownColourForText,
-              textAlign: TextAlign.left,
-            ),
-            const SizedBox(
-              height: 8,
-            ),
-            Container(
-              height: 73,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(
-                      color: AppColors.metalButtonStroke, width: 1.0)),
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8.0, top: 4.0),
-                      child: TextView(
-                        text: "${_value.toInt()} km",
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14.sp,
-                        color: AppColors.metalBrownColourForText,
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                  ),
-                  Slider(
-                    min: 0.0,
-                    activeColor: AppColors.metalPinkColour,
-                    inactiveColor: Colors.grey.withOpacity(0.5),
-                    max: 100.0,
-                    value: _value,
-                    onChanged: (value) {
-                      setState(() {
-                        _value = value;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        Gap(20.h),
+      
         EditField(
           text: userState?.connection_option?.join(",") ??
               "What are you looking for in a person?",

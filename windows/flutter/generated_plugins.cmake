@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  audioplayers_windows
   connectivity_plus
   emoji_picker_flutter
   file_selector_windows
@@ -12,6 +13,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   geolocator_windows
   permission_handler_windows
   url_launcher_windows
+  zego_express_engine
   zego_zim
 )
 

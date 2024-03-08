@@ -160,12 +160,12 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                         height: 50.h,
                         width: 50.w,
                       ),
-                      Gap(10.w),
-                      SvgPicture.asset(
-                        Assets.icons.verificationCall.path,
-                        height: 50.h,
-                        width: 50.w,
-                      ),
+                      // Gap(10.w),
+                      // SvgPicture.asset(
+                      //   Assets.icons.verificationCall.path,
+                      //   height: 50.h,
+                      //   width: 50.w,
+                      // ),
                     ],
                   )
                 : Gap(0),

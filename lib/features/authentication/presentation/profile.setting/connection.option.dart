@@ -45,7 +45,7 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
                     "**Please select up to two. You can always change your selection in settings"),
             Stack(
               children: [
-                Container(
+                SizedBox(
                   height: getDeviceHeight(context) * 0.59,
                   child: GridView.builder(
                     gridDelegate:
@@ -73,7 +73,7 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
                   right: 0,
                   left: 0,
                   child: BaseButton(
-                    enabled: _seletedOption.length >= 2,
+                    enabled: _seletedOption.isNotEmpty,
                     buttonText: "Next ",
                     onPressed: _onNextPressed,
                   ),
@@ -88,7 +88,9 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
     setState(() {
       _seletedOption.contains(item)
           ? _seletedOption.remove(item)
-          : _seletedOption.add(item);
+          : _seletedOption.length < 2
+              ? _seletedOption.add(item)
+              : null;
     });
   }
 

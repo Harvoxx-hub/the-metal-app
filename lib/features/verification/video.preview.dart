@@ -43,6 +43,8 @@ class _VideoPreviewState extends State<VideoPreview> {
     _cameraController.dispose();
     _timer.cancel();
     _videoPlayerController.dispose();
+    _videoPlayerController.pause(); // Pause the video
+
     super.dispose();
   }
 
@@ -174,7 +176,12 @@ class _VideoPreviewState extends State<VideoPreview> {
                                         : null,
                                     onPressed: () {
                                       _videoFile != null
-                                          ? context.pop(_videoFile!)
+                                          ? {
+                                              _videoPlayerController
+                                                  .pause(), // Pause the video
+                                              context.pop(
+                                                  _videoFile!) // Navigate back when the FAB is pressed
+                                            }
                                           : _recordVideo();
                                     }),
                             Spacer(),
@@ -220,7 +227,7 @@ class _VideoPreviewState extends State<VideoPreview> {
       startTimer();
       await _cameraController.prepareForVideoRecording();
       await _cameraController.startVideoRecording();
- 
+
       setState(() => _isRecording = true);
     }
   }

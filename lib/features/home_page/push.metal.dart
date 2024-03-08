@@ -8,6 +8,8 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
+import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
+import 'package:metal/features/home_page/provider/push.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/home_page/melt.metal.dart';
 
@@ -27,6 +29,15 @@ class PushMetal extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final push = ref.watch(pushUserProvider);
+
+    ref.listen<PushUsersState>(pushUserProvider, (prev, current) {
+      if (current.isSuccess) {
+        ref.read(getAllUserProvider.notifier).removeUser(user.id!);
+
+        // context.pushReplacementNamed(DashboardPage.name);
+      }
+    });
     return BaseScreen(
         appBarState: AppBarState.BackWithHeader,
         Header: "Push profile",
@@ -113,17 +124,20 @@ class PushMetal extends ConsumerWidget {
                         ),
                         Gap(getDeviceHeight(context) * 0.1),
                         BaseButton(
+                          loading: push.isLoading,
                           buttonText: "Pay to Push",
                           onPressed: () {
-                            
-                            context.pushNamed(MakePayment.name);
+                            ref
+                                .read(pushUserProvider.notifier)
+                                .pushUser(user.id!);
+                            // context.pushNamed(MakePayment.name);
                           },
                         ),
                         Gap(16.h),
                         OutilineButton(
                           buttonText: "Melt for free",
                           onPressed: () {
-                            context.pushNamed(MeltMetal.name);
+                            context.pushNamed(MeltMetal.name, extra: user);
                           },
                         ),
                       ],

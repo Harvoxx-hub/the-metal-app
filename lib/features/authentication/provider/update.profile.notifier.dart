@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/core/services/auth.manager.dart';
+import 'package:metal/core/services/auth.pref.service.dart';
 
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
@@ -15,14 +15,15 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
     initMyProfile();
   }
   final Ref ref;
+    UserModel model = UserModel();
 //init my profile
   void initMyProfile() async {
-      
     state = UpdateProfileState.success(UserModel());
   }
 
   //update usermodel from user data
   void updateUserData(UserModel userData) {
+    model = userData;
     state = UpdateProfileState.success(userData);
     print(state.data!.toJson());
   }
@@ -32,25 +33,27 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
       state = UpdateProfileState.loading();
       final authenticationRepository =
           ref.watch(authenticationRepositoryProvider);
-      final response = await authenticationRepository.updateUser(getNonNullValues(userModel
-          .toJson()));
+      final response = await authenticationRepository
+          .updateUser(getNonNullValues(userModel.toJson()));
       final userData = UserModel.fromJson(response.data);
       ref.read(authProvider.notifier).updateUserData(userData);
+       ref.read(authProvider.notifier).getUpdatedUser();
       state = UpdateProfileState.success(userData);
     } catch (e) {
       print(e.toString());
       state = UpdateProfileState.error(e.toString());
     }
   }
+
   Map<String, dynamic> getNonNullValues(Map<String, dynamic> object) {
-  Map<String, dynamic> nonNullValues = {};
-  object.forEach((key, value) {
-    if (value != null) {
-      nonNullValues[key] = value;
-    }
-  });
-  return nonNullValues;
-}
+    Map<String, dynamic> nonNullValues = {};
+    object.forEach((key, value) {
+      if (value != null) {
+        nonNullValues[key] = value;
+      }
+    });
+    return nonNullValues;
+  }
 }
 
 // Define a type alias

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -32,6 +34,20 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
   final image3 = Assets.gifs.onboarding3.path;
   PageController _controller = PageController();
   int currentPage = 0;
+  late Timer _timer;
+  @override
+  void initState() {
+    super.initState();
+    // Start timer to move to the next page every 3 seconds
+    _timer = Timer.periodic(Duration(seconds: 3), (timer) {
+      if (currentPage < 2) {
+        _controller.nextPage(
+            duration: Duration(milliseconds: 500), curve: Curves.ease);
+      } else {
+        _controller.jumpToPage(0);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,24 +108,24 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
               ),
               const Gap(20),
               const ButtonDivider(),
-              const Gap(20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    Assets.images.google.path,
-                    width: 39.w,
-                    height: 39.h,
-                  ),
-                  const Gap(10),
-                  Image.asset(
-                    Assets.images.apple.path,
-                    width: 39.w,
-                    height: 39.h,
-                  ),
-                ],
-              ),
+              // const Gap(20),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.center,
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     Image.asset(
+              //       Assets.images.google.path,
+              //       width: 39.w,
+              //       height: 39.h,
+              //     ),
+              //     const Gap(10),
+              //     Image.asset(
+              //       Assets.images.apple.path,
+              //       width: 39.w,
+              //       height: 39.h,
+              //     ),
+              //   ],
+              // ),
               const Gap(20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

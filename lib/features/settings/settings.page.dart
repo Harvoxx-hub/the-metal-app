@@ -26,162 +26,162 @@ class SettingPage extends ConsumerStatefulWidget {
 }
 
 class _SettingPageState extends ConsumerState<SettingPage> {
-
+ 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authProvider);
+    final user = ref.watch(authProvider).data;
     return BaseScreen(
       Header: "Settings",
       appBarState: AppBarState.HambugerWithHeader,
       body: SingleChildScrollView(
         child: ProfileHeader(
-          user: user.data!,
+            user: user!,
             child: Padding(
-          padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
-          child: Container(
-            padding: const EdgeInsets.only(
-              top: 122,
-            ),
-            decoration: const BoxDecoration(
-                color: AppColors.metalWhite,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(35),
-                    topRight: Radius.circular(35))),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: ShapeDecoration(
-                        color: const Color(0x0CD9197B),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5)),
-                      ),
-                      child: TextView(text: "@felix august_aluminium "),
+              padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
+              child: Container(
+                padding: const EdgeInsets.only(
+                  top: 122,
+                ),
+                decoration: const BoxDecoration(
+                    color: AppColors.metalWhite,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(35),
+                        topRight: Radius.circular(35))),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: ShapeDecoration(
+                            color: const Color(0x0CD9197B),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5)),
+                          ),
+                          child: TextView(text: user.username!),
+                        ),
+                        const Gap(40),
+                        EditField(
+                          text: "Show when I am online",
+                          floatingLabel: "Privacy",
+                          prefixIcon: CustomToggle(
+                            initialValue: true, // Set the initial value
+                            onChanged: (value) {
+                              // Handle the state change
+                              print('Toggle state changed: $value');
+                            },
+                          ),
+                        ),
+                        EditField(
+                          text: "Always a Metal",
+                          prefixIcon: CustomToggle(
+                            initialValue: true, // Set the initial value
+                            onChanged: (value) {
+                              // Handle the state change
+                              print('Toggle state changed: $value');
+                            },
+                          ),
+                        ),
+                        const Gap(20),
+                        EditField(
+                          text: "I want to receive notifications",
+                          floatingLabel: "Notifications",
+                          prefixIcon: CustomToggle(
+                            initialValue: true, // Set the initial value
+                            onChanged: (value) {
+                              // Handle the state change
+                              print('Toggle state changed: $value');
+                            },
+                          ),
+                        ),
+                        const Gap(20),
+                        EditField(
+                          text: "Show my profile to other metals",
+                          floatingLabel: "Profile visibility",
+                          prefixIcon: CustomToggle(
+                            initialValue: true, // Set the initial value
+                            onChanged: (value) {
+                              // Handle the state change
+                              print('Toggle state changed: $value');
+                            },
+                          ),
+                        ),
+                        const Gap(20),
+                        EditField(
+                          text: "Make chnages to my profile",
+                          floatingLabel: "Edit rofile",
+                          prefixIcon: TextView(
+                              text: "Edit",
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.blueAccent,
+                              underline: true,
+                              onTap: () {}),
+                        ),
+                        const Gap(20),
+                        EditField(
+                          text: "Activate voice notes",
+                          floatingLabel: "Call Preferences",
+                          prefixIcon: CustomToggle(
+                            initialValue: true, // Set the initial value
+                            onChanged: (value) {
+                              // Handle the state change
+                              print('Toggle state changed: $value');
+                            },
+                          ),
+                        ),
+                        EditField(
+                          text: "Active video call",
+                          prefixIcon: CustomToggle(
+                            initialValue: true, // Set the initial value
+                            onChanged: (value) {
+                              // Handle the state change
+                              print('Toggle state changed: $value');
+                            },
+                          ),
+                        ),
+                        EditField(
+                          text: "Activate voice call",
+                          prefixIcon: CustomToggle(
+                            initialValue: true, // Set the initial value
+                            onChanged: (value) {
+                              // Handle the state change
+                              print('Toggle state changed: $value');
+                            },
+                          ),
+                        ),
+                        const Gap(20),
+                        EditField(
+                          text: "20",
+                          floatingLabel: "*Blocked Contacts*",
+                          prefixIcon: TextView(
+                              text: "View",
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              onTap: () {
+                                context.pushNamed(BlockedUser.name);
+                              }),
+                        ),
+                        const Gap(20),
+                        PlainButton(
+                          buttonText: "Delete my account",
+                          onPressed: () {},
+                          textColor: AppColors.metalWhite,
+                          color: AppColors.metalRed,
+                          leftIcon: SvgPicture.asset(
+                            Assets.icons.profileTrash.path,
+                            height: 24,
+                            width: 24,
+                          ),
+                        ),
+                        const Gap(20),
+                      ],
                     ),
-                    const Gap(40),
-                    EditField(
-                      text: "Show when I am online",
-                      floatingLabel: "Privacy",
-                      prefixIcon: CustomToggle(
-                        initialValue: true, // Set the initial value
-                        onChanged: (value) {
-                          // Handle the state change
-                          print('Toggle state changed: $value');
-                        },
-                      ),
-                    ),
-                    EditField(
-                      text: "Always a Metal",
-                      prefixIcon: CustomToggle(
-                        initialValue: true, // Set the initial value
-                        onChanged: (value) {
-                          // Handle the state change
-                          print('Toggle state changed: $value');
-                        },
-                      ),
-                    ),
-                    const Gap(20),
-                    EditField(
-                      text: "I want to receive notifications",
-                      floatingLabel: "Notifications",
-                      prefixIcon: CustomToggle(
-                        initialValue: true, // Set the initial value
-                        onChanged: (value) {
-                          // Handle the state change
-                          print('Toggle state changed: $value');
-                        },
-                      ),
-                    ),
-                    const Gap(20),
-                    EditField(
-                      text: "Show my profile to other metals",
-                      floatingLabel: "Profile visibility",
-                      prefixIcon: CustomToggle(
-                        initialValue: true, // Set the initial value
-                        onChanged: (value) {
-                          // Handle the state change
-                          print('Toggle state changed: $value');
-                        },
-                      ),
-                    ),
-                    const Gap(20),
-                    EditField(
-                      text: "Make chnages to my profile",
-                      floatingLabel: "Edit rofile",
-                      prefixIcon: TextView(
-                          text: "Edit",
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.blueAccent,
-                          underline: true,
-                          onTap: () {}),
-                    ),
-                    const Gap(20),
-                    EditField(
-                      text: "Activate voice notes",
-                      floatingLabel: "Call Preferences",
-                      prefixIcon: CustomToggle(
-                        initialValue: true, // Set the initial value
-                        onChanged: (value) {
-                          // Handle the state change
-                          print('Toggle state changed: $value');
-                        },
-                      ),
-                    ),
-                    EditField(
-                      text: "Active video call",
-                      prefixIcon: CustomToggle(
-                        initialValue: true, // Set the initial value
-                        onChanged: (value) {
-                          // Handle the state change
-                          print('Toggle state changed: $value');
-                        },
-                      ),
-                    ),
-                    EditField(
-                      text: "Activate voice call",
-                      prefixIcon: CustomToggle(
-                        initialValue: true, // Set the initial value
-                        onChanged: (value) {
-                          // Handle the state change
-                          print('Toggle state changed: $value');
-                        },
-                      ),
-                    ),
-                    const Gap(20),
-                    EditField(
-                      text: "20",
-                      floatingLabel: "*Blocked Contacts*",
-                      prefixIcon: TextView(
-                          text: "View",
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          onTap: () {
-                            context.pushNamed(BlockedUser.name);
-                          }),
-                    ),
-                    const Gap(20),
-                    PlainButton(
-                      buttonText: "Delete my account",
-                      onPressed: () {},
-                      textColor: AppColors.metalWhite,
-                      color: AppColors.metalRed,
-                      leftIcon: SvgPicture.asset(
-                        Assets.icons.profileTrash.path,
-                        height: 24,
-                        width: 24,
-                      ),
-                    ),
-                    const Gap(20),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
-        )),
+            )),
       ),
     );
   }

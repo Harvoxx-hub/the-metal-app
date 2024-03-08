@@ -5,6 +5,7 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
+import 'package:metal/features/authentication/presentation/home.address/location.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -78,7 +79,7 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
                         right: 0,
                         left: 0,
                         child: BaseButton(
-                          buttonText: "Next 2/5",
+                          buttonText: "Next",
                           enabled: _selectedMetal != null,
                           onPressed: _onNextPressed,
                         ),
@@ -100,6 +101,8 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
     userData!.metal = _selectedMetal;
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
 
-    context.pushNamed(PassionsPage.name);
+ 
+
+     context.pushNamed(LocationEnablePage.name);
   }
 }

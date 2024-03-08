@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:metal/core/services/auth.manager.dart';
+import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/features/authentication/presentation/welcome/presentation/welcome.page.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/dashboard.dart/dashboard.dart';

@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/provider/account.setting.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -32,6 +33,7 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _referController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     ref.listen<AccountSettingState>(accountSettingProvider, (prev, current) {
@@ -82,15 +84,8 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
                       label: 'someone@gmail.com',
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-
-                      prefixWidget: SvgPicture.asset(
-                        Assets.icons.sms.path,
-                        height: 24,
-                        width: 24,
-                      ),
-                      // validator: EmailValidator.validate(email),
-
-                      // fillColor: AppColors.appGrey,
+                      validator: Validators.validateEmail(),
+                      prefixWidget: Assets.icons.sms.svg(height: 24),
                     ),
                     Gap(22.h),
                     EditFormField(
@@ -98,17 +93,20 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
                       label: '**********',
                       controller: _passwordController,
                       keyboardType: TextInputType.visiblePassword,
-                      prefixWidget: SvgPicture.asset(
-                        Assets.icons.passwordIcon.path,
-                        height: 24,
-                        width: 24,
-                      ),
+                      validator: Validators.validatePlainPassword(),
+                      prefixWidget: Assets.icons.passwordIcon.svg(height: 24),
                     ),
                     Gap(16.h),
                     PhoneInput(
                       phoneController: _phoneController,
                     ),
                     Gap(16.h),
+                    EditFormField(
+                      floatingLabel: 'Referal Code (Optional)',
+                      label: 'Referal Code',
+                      controller: _referController,
+                      keyboardType: TextInputType.text,
+                    ),
                   ],
                 )),
             TextView(

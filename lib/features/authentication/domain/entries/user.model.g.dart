@@ -46,10 +46,12 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       distance: json['distance'] as String? ?? '4.0',
       sparkBalance: (json['sparkBalance'] as num?)?.toDouble() ?? 0.0,
       id: json['id'] as String?,
+      completed_profile: json['completed_profile'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'profile_updated': instance.profile_updated,
+      'completed_profile': instance.completed_profile,
       'DOB': instance.DOB,
       'address': instance.address?.toJson(),
       'connect_with': instance.connect_with,
@@ -75,18 +77,14 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
     };
 
 Address _$AddressFromJson(Map<String, dynamic> json) => Address(
-      aprt_no: json['aprt_no'] as int?,
-      house_no: json['house_no'] as int?,
-      street_name: json['street_name'] as String?,
+      house_address: json['house_address'] as String?,
       town: json['town'] as String?,
       state: json['state'] as String?,
       country: json['country'] as String?,
     );
 
 Map<String, dynamic> _$AddressToJson(Address instance) => <String, dynamic>{
-      'aprt_no': instance.aprt_no,
-      'house_no': instance.house_no,
-      'street_name': instance.street_name,
+      'house_address': instance.house_address,
       'town': instance.town,
       'state': instance.state,
       'country': instance.country,

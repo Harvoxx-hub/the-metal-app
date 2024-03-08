@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:metal/core/services/auth.manager.dart';
+import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/core/utils/key_center.dart';
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';

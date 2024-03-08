@@ -15,6 +15,8 @@ abstract class IHomeRepository {
   Future<Responses> getALLUser(String distance);
 
   Future<Responses> meltUser(String userToMelt);
+
+  Future<Responses> pushUser(String userToPush);
   Future<Responses> unMeltUser(String userToMelt);
   Future<Responses> getMeltedUsers();
   Future<Responses> likeUser( {required String userToLike});

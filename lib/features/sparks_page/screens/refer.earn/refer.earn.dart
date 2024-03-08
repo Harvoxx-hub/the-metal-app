@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
@@ -19,7 +20,7 @@ class ReferEarnSpark extends StatelessWidget {
   static const route = '$name';
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
-  final TextEditingController _phoneController = TextEditingController();
+  // final TextEditingController _phoneController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +63,10 @@ class ReferEarnSpark extends StatelessWidget {
                           path: Assets.images.refer.path,
                         ),
                         Gap(15),
-                        PhoneInput(
-                          phoneController: _phoneController,
-                        ),
-                        Gap(getDeviceHeight(context) * 0.2),
+                        // PhoneInput(
+                        //   phoneController: _phoneController,
+                        // ),
+                        Gap(getDeviceHeight(context) * 0.4),
                         BaseButton(
                           buttonText: "Invite to Metal",
                           onPressed: () {},
@@ -73,7 +74,16 @@ class ReferEarnSpark extends StatelessWidget {
                         Gap(16.h),
                         OutilineButton(
                           buttonText: "Copy invite Link ",
-                          onPressed: () {},
+                          onPressed: () {
+                            Clipboard.setData(
+                                    const ClipboardData(text: "Your Copy text"))
+                                .then((_) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('Your refer')));
+                            });
+                          },
                         ),
                       ],
                     ),

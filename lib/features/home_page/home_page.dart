@@ -24,47 +24,50 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final _allUsers = ref.watch(getAllUserProvider);
-    final _currentUser = ref.watch(authProvider);
-    return _allUsers.isLoading
-        ? const Center(
-            child: CircularProgressIndicator(),
-          )
-        : _allUsers.data != null && _allUsers.data!.isNotEmpty
-            ? SingleChildScrollView(
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        Container(
-                          height: 220.h,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              color: AppColors.metalPinkColour,
-                              borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(35.sp),
-                                bottomRight: Radius.circular(35.sp),
-                              )),
-                        ),
+   // final _currentUser = ref.watch(authProvider);
+    if (_allUsers.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      return _allUsers.data != null && _allUsers.data!.isNotEmpty
+          ? SingleChildScrollView(
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      Container(
+                        height: 220.h,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            color: AppColors.metalPinkColour,
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(35.sp),
+                              bottomRight: Radius.circular(35.sp),
+                            )),
+                      ),
 
-                        // This container is for the background image decoration
-                        Container()
-                      ],
-                    ),
-                    Padding(
-                        padding: EdgeInsets.symmetric(vertical: 15.w),
-                        child: Column(
-                          children: [
-                            for (var user in _allUsers.data!)
-                              MetalUserCard(
-                                user: user,
-                              ),
-                          ],
-                        )),
-                  ],
-                ),
-              )
-            : Center(
-                child: Column(
+                      // This container is for the background image decoration
+                      Container()
+                    ],
+                  ),
+                  Padding(
+                      padding: EdgeInsets.symmetric(vertical: 15.w),
+                      child: Column(
+                        children: [
+                          for (var user in _allUsers.data!)
+                            MetalUserCard(
+                              user: user,
+                            ),
+                        ],
+                      )),
+                ],
+              ),
+            )
+          : Center(
+              child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
@@ -77,18 +80,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                     textAlign: TextAlign.center,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    text:
-                        "No metal users found within *${_currentUser.data!.distance} KM* your location",
+                    text: "No metal users found that matchs your Preference",
                   ),
                   const Gap(20),
-                  TextView(
-                    textAlign: TextAlign.center,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w300,
-                    text:
-                        "Go to your profile to update your location or increase your distance range to find more users.",
-                  ),
                 ],
-              ));
+              ),
+            ));
+    }
   }
 }

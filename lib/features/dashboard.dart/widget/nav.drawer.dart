@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:metal/core/services/auth.manager.dart';
+import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/verification/verification.video.dart';
@@ -118,7 +118,7 @@ class NavDrawer extends ConsumerWidget {
                 width: 24,
               )),
             ),
-            title: TextView(text: "Upgrade to Metal Plus"),
+            title: TextView(text: _authState.subscription == null? "Upgrade to Metal Plus":" Metal Plus" ),
             onTap: () => {context.pushNamed(UpgradePage.name)},
           ),
           Gap(20),
@@ -141,25 +141,32 @@ class NavDrawer extends ConsumerWidget {
             onTap: () => {context.pushNamed(ReferEarn.name)},
           ),
           Gap(20),
-          ListTile(
-            leading: Container(
-              height: 46,
-              width: 46,
-              decoration: ShapeDecoration(
-                color: AppColors.metalPinkColour.withOpacity(0.06),
-                shape: OvalBorder(),
-              ),
-              child: Center(
-                  child: SvgPicture.asset(
-                Assets.icons.pencilLine.path,
-                height: 24,
-                width: 24,
-              )),
-            ),
-            title: TextView(text: "Verify your account"),
-            onTap: () => {context.pushNamed(VerificationVideo.name)},
-          ),
-          Gap(20),
+          !_authState.isVerified!
+              ? Column(
+                  children: [
+                    ListTile(
+                      leading: Container(
+                        height: 46,
+                        width: 46,
+                        decoration: ShapeDecoration(
+                          color: AppColors.metalPinkColour.withOpacity(0.06),
+                          shape: OvalBorder(),
+                        ),
+                        child: Center(
+                            child: SvgPicture.asset(
+                          Assets.icons.checkVerified.path,
+                          color: AppColors.metalBlack75,
+                          height: 24,
+                          width: 24,
+                        )),
+                      ),
+                      title: TextView(text: "Verify your account"),
+                      onTap: () => {context.pushNamed(VerificationVideo.name)},
+                    ),
+                    Gap(20),
+                  ],
+                )
+              : SizedBox(),
           ListTile(
             leading: Container(
               height: 46,

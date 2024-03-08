@@ -4,9 +4,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/services/countries.service.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/dashboard.dart/dashboard.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/authentication/presentation/home.address/location.dart';
@@ -14,6 +16,7 @@ import 'package:metal/features/authentication/presentation/widget/create.profile
 
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
+import 'package:metal/widgets/dropdown/metal.dropdown.dart';
 import 'package:metal/widgets/text.field/text.field.dart';
 
 class HomeAddressPage extends ConsumerStatefulWidget {
@@ -29,18 +32,50 @@ class HomeAddressPage extends ConsumerStatefulWidget {
 class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
-  final TextEditingController _apartmentNumberController =
-      TextEditingController();
-  final TextEditingController _houseNumberController = TextEditingController();
-  final TextEditingController _streetNameController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
 
   final TextEditingController _townController = TextEditingController();
+  List<String> country = [];
+  List<String> states = [];
 
-  final TextEditingController _stateController = TextEditingController();
-  final TextEditingController _countryController = TextEditingController();
+  CountriesService _countriesService = CountriesService();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getCountries();
+    super.initState();
+  }
+
+  Future<void> getCountries() async {
+    final data = await _countriesService.getCountryNames();
+    setState(() {
+      country = data;
+    });
+    print(country.length);
+  }
+
+  Future<void> getState(String state) async {
+    final data = await _countriesService.getStateNames(state);
+    setState(() {
+      states = data;
+    });
+  }
+
+  String? _selectedCountries;
+  String? _selectedState;
 
   @override
   Widget build(BuildContext context) {
+    getCountries();
+
+    final _updateProfile = ref.watch(updateProfileProvider);
+
+    ref.listen<UpdateProfileState>(updateProfileProvider, (prev, current) {
+      if (current.isSuccess) {
+        context.pushReplacementNamed(DashboardPage.name);
+      }
+    });
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -53,55 +88,50 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                 path: Assets.images.homeAddress.path,
                 title: "Let us know your home address",
                 subtitle:
-                    "Select the information you want us to exclude from your feed. The metals with the highlighted information will be excluded from your feed."),
+                    "Choose the data you wish to omit from your feed. The metals containing the highlighted details will be removed from your feed. This filtered information is intended solely for the purpose of fitting."),
             Gap(26.h),
             Form(
                 key: _form,
                 child: Column(
                   children: [
                     EditFormField(
-                      floatingLabel: 'Apartment number',
+                      floatingLabel: 'House Address',
                       label: 'Type here...',
-                      controller: _apartmentNumberController,
-                      keyboardType: TextInputType.number,
+                      controller: _addressController,
+                      keyboardType: TextInputType.text,
                       suffixWidget: CustomCheckWidget(
                         initialValue: false,
                         onChanged: (bool value) {
                           print('Value changed to $value');
                         },
                       ),
-                      validator: Validators.validateInt(),
-                      radius: 10,
-                    ),
-                    Gap(16.h),
-                    EditFormField(
-                      floatingLabel: 'House number',
-                      label: 'Type here...',
-                      controller: _houseNumberController,
-                      keyboardType: TextInputType.number,
-                      validator: Validators.validateInt(),
-                      radius: 10,
-                      suffixWidget: CustomCheckWidget(
-                        initialValue: false,
-                        onChanged: (bool value) {
-                          print('Value changed to $value');
-                        },
-                      ),
-                    ),
-                    Gap(16.h),
-                    EditFormField(
-                      floatingLabel: 'Street name',
-                      label: 'Type here...',
-                      controller: _streetNameController,
-                      keyboardType: TextInputType.name,
-                      radius: 10,
                       validator: Validators.validateString(),
-                      suffixWidget: CustomCheckWidget(
-                        initialValue: false,
-                        onChanged: (bool value) {
-                          print('Value changed to $value');
-                        },
-                      ),
+                      radius: 10,
+                    ),
+                    Gap(16.h),
+                    MentalDropdown(
+                      items: country,
+                      onChanged: (String? value) {
+                        getState(value!);
+                        setState(() {
+                          _selectedCountries = value;
+                        });
+                      },
+                      value: _selectedCountries,
+                      hint: "Please Select",
+                      floatingLabel: "Country",
+                    ),
+                    Gap(16.h),
+                    MentalDropdown(
+                      items: states,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _selectedState = value;
+                        });
+                      },
+                      value: _selectedState,
+                      hint: "Please Select",
+                      floatingLabel: "State",
                     ),
                     Gap(16.h),
                     EditFormField(
@@ -109,37 +139,6 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       label: 'Type here...',
                       controller: _townController,
                       keyboardType: TextInputType.name,
-                      radius: 10,
-                      validator: Validators.validateString(),
-                      suffixWidget: CustomCheckWidget(
-                        initialValue: false,
-                        onChanged: (bool value) {
-                          print('Value changed to $value');
-                        },
-                      ),
-                    ),
-                    Gap(16.h),
-                    EditFormField(
-                      floatingLabel: 'State',
-                      label: 'Type here...',
-                      controller: _stateController,
-                      keyboardType: TextInputType.name,
-                      radius: 10,
-                      validator: Validators.validateString(),
-                      suffixWidget: CustomCheckWidget(
-                        initialValue: false,
-                        onChanged: (bool value) {
-                          print('Value changed to $value');
-                        },
-                      ),
-                    ),
-                    Gap(16.h),
-                    EditFormField(
-                      floatingLabel: 'Country',
-                      label: 'Type here...',
-                      controller: _countryController,
-                      keyboardType: TextInputType.name,
-                      radius: 10,
                       validator: Validators.validateString(),
                       suffixWidget: CustomCheckWidget(
                         initialValue: false,
@@ -167,16 +166,17 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
     final Address address = Address();
-    address.aprt_no = int.parse(_apartmentNumberController.text);
-    address.house_no = int.parse(_houseNumberController.text);
-    address.street_name = _streetNameController.text;
+
     address.town = _townController.text;
-    address.state = _stateController.text;
-    address.country = _countryController.text;
+    address.state = _selectedState;
+    address.country = _selectedCountries;
+    address.house_address = _addressController.text;
     userData!.address = address;
 
-    ref.read(updateProfileProvider.notifier).updateUserData(userData);
+    ref.read(updateProfileProvider.notifier).sendUserUpdate(userData);
+
     // widget.onNextPress();
-    context.pushNamed(LocationEnablePage.name);
+
+    // context.pushNamed(LocationEnablePage.name);
   }
 }

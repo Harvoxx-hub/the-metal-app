@@ -256,7 +256,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
         BaseButton(
             buttonText: "Confirm",
             onPressed: () {
-              context.pop();
+              Navigator.pop(context);
               ref.read(sendSparkProvider.notifier).sendSpark(
                   receiverId: SelectedUserId,
                   numberOfSparks: double.parse(_sparkNumberController.text));
@@ -266,7 +266,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
           text: "Not Now",
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          onTap: () => context.pop(),
+          onTap: () => Navigator.pop(context)
         ),
         Gap(21.h),
       ],
@@ -298,7 +298,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
         BaseButton(
             buttonText: "Go back to dashboard",
             onPressed: () {
-              context.pop();
+             Navigator.pop(context);
             })
       ],
     );

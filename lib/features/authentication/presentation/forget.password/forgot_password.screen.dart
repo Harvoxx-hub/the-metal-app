@@ -8,6 +8,7 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.otp.screen.dart';
 
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
@@ -73,7 +74,8 @@ class ForgetPasswordPage extends ConsumerWidget {
                 BaseButton(
                   buttonText: 'Send Instructions',
                   onPressed: () {
-                    context.pushNamed(ForgetPasswordOTPPage.name);
+                    Navigator.pushNamed(context, AppRoutes.forgetPasswordOTP);
+                
                   },
                 ),
               ],

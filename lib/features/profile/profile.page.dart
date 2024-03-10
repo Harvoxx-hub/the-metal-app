@@ -12,6 +12,7 @@ import 'package:metal/features/profile/tab.screen/discovery.tab.dart';
 import 'package:metal/features/profile/tab.screen/metal.plan.tab.dart';
 import 'package:metal/features/profile/tab.screen/personal.tab.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/tab/base.tab.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -104,7 +105,10 @@ class ProfileHeader extends StatelessWidget {
               top: 140,
               right: 50.w,
               child: GestureDetector(
-                onTap: () => context.pushNamed(EyesIntro.name),
+                onTap: () =>                   Navigator.pushNamed(context, AppRoutes.eyesIntro,
+                ),
+ 
+    
                 child: SvgPicture.asset(
                   Assets.icons.eye.path,
                   height: 40,

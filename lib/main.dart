@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
+
 import 'package:metal/core/utils/key_center.dart';
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:metal/route/routes.dart';
-import 'package:zego_zim/zego_zim.dart';
+
 import 'package:zego_zimkit/zego_zimkit.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
@@ -54,24 +54,24 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final router = ref.watch(routerProvider);
-    final authManager = ref.watch(authManagerProvider);
+    ref.watch(authManagerProvider);
     return ScreenUtilInit(
         useInheritedMediaQuery: true,
         designSize: const Size(375, 812),
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (BuildContext context, Widget? child) {
-          return MaterialApp.router(
+          return MaterialApp(
             title: 'Metal',
             key: _navKey,
-            localizationsDelegates: [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            routeInformationParser: router.routeInformationParser,
-            routerDelegate: router.routerDelegate,
+            // localizationsDelegates: [
+            //   GlobalMaterialLocalizations.delegate,
+            //   GlobalWidgetsLocalizations.delegate,
+            //   GlobalCupertinoLocalizations.delegate,
+            // ],
+            initialRoute: '/', // Set your initial route here
+            onGenerateRoute: AppRoutes.generateRoute,
+
             debugShowCheckedModeBanner: false,
           );
         });

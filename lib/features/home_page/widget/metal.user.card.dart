@@ -15,6 +15,7 @@ import 'package:metal/features/home_page/melt.metal.dart';
 import 'package:metal/features/home_page/push.metal.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/res/style/text_styles.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class MyWidget extends StatelessWidget {
@@ -161,7 +162,9 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
             children: [
               GestureDetector(
                 onTap: () {
-                  context.pushNamed(MeltMetal.name, extra: widget.user);
+                                    Navigator.pushNamed(context, AppRoutes.meltMetal, arguments: widget.user,
+                );
+  
                 },
                 child: Image.asset(Assets.images.melt.path),
               ),
@@ -194,7 +197,9 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
               ),
               GestureDetector(
                 onTap: () {
-                  context.pushNamed(PushMetal.name, extra: widget.user);
+                  Navigator.pushNamed(context,  AppRoutes.pushMetal, arguments:widget.user);
+                                
+               
                 },
                 child: Image.asset(Assets.images.pushMetalscreen.path),
               )

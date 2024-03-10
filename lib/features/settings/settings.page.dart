@@ -12,6 +12,7 @@ import 'package:metal/features/profile/profile.page.dart';
 import 'package:metal/features/profile/widget/edit.field.dart';
 import 'package:metal/features/settings/blocked.user.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/plain.button.dart';
 import 'package:metal/widgets/custom.toggle.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -26,7 +27,6 @@ class SettingPage extends ConsumerStatefulWidget {
 }
 
 class _SettingPageState extends ConsumerState<SettingPage> {
- 
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).data;
@@ -160,7 +160,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                               onTap: () {
-                                context.pushNamed(BlockedUser.name);
+                                Navigator.pushNamed(
+                                    context, AppRoutes.blockedUser);
+                                
                               }),
                         ),
                         const Gap(20),

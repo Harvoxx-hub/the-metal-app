@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/chat/presentation/games/games.page.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 
 class ChatBottomSheet extends StatefulWidget {
@@ -46,7 +47,9 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
               ? Row(
                   children: [
                     GestureDetector(
-                      onTap: () => context.pushNamed(GamePage.name),
+                      onTap: () =>  Navigator.pushNamed(context,  AppRoutes.gamePage, ),
+                      
+                   
                       child: SvgPicture.asset(
                         Assets.icons.chatsEmptyStateGamingPad01.path,
                         height: 30,

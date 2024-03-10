@@ -10,6 +10,7 @@ import 'package:metal/features/authentication/presentation/signup/verfication.pa
 import 'package:metal/features/profile/update.email/new.email.page.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text.field/phone.number.input.dart';
@@ -108,10 +109,11 @@ class UpdateEmailPage extends StatelessWidget {
                     BaseButton(
                       buttonText: "Confirm password",
                       onPressed: () {
-                        context.pushNamed(
-                          VerificationPage.name,
-                          extra: RouteFrom.UpdateEmail.name,
-                        );
+                                          Navigator.pushNamed(context, AppRoutes.verificationPage,
+                                          arguments: RouteFrom.UpdateEmail.name
+                );
+ 
+                        
                       },
                     ),
                     Gap(11.h),

@@ -7,6 +7,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/eyes/presentation/eye.select.media.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -56,7 +57,10 @@ class EyesIntro extends StatelessWidget {
                     BaseButton(
                         buttonText: "Upload files to eyes",
                         onPressed: () {
-                          context.pushNamed(EyeSelectMedia.name);
+                              Navigator.pushNamed(context, AppRoutes.eyeSelectMedia,
+                );
+ 
+                   
                         }),
                   ],
                 ),

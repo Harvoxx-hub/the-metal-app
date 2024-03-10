@@ -10,6 +10,7 @@ import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/authentication/presentation/profile.setting/about.you.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/shimmer.loading.dart';
@@ -101,7 +102,7 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
     final userData = ref.watch(updateProfileProvider).data;
     userData!.passion = _seletedPassion;
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
-
-    context.pushNamed(AboutYouPage.name);
+  Navigator.pushNamed(context,  AppRoutes.aboutYouPage, );
+ 
   }
 }

@@ -11,6 +11,7 @@ import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/preference.metal.dart';
 import 'package:metal/features/authentication/presentation/widget/connection.options.card.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
 
@@ -99,6 +100,8 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
 
     userData!.connection_option = _seletedOption.cast<String>();
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
-    context.pushNamed(PreferenceMetalPage.name);
+  
+        Navigator.pushNamed(context, AppRoutes.preferenceMetalPage,  
+                 );
   }
 }

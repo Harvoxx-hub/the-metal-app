@@ -20,6 +20,7 @@ import 'package:metal/features/profile/profile.page.dart';
 
 import 'package:metal/features/sparks_page/screens/sparks_page.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
@@ -152,7 +153,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         BaseButton(
             buttonText: "Verifly Me",
             onPressed: () {
-              context.pushNamed(VerificationVideo.name);
+              Navigator.pushNamed(
+                context,
+                AppRoutes.verificationVideo,
+              );
+
               //  confirm(context);
             }),
         Gap(23.h),
@@ -160,7 +165,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           text: "Skip for Now",
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          onTap: () => context.pop(),
+          onTap: () => Navigator.pop(context),
         ),
         Gap(21.h),
       ],
@@ -190,14 +195,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         BaseButton(
             buttonText: "Complete your profile",
             onPressed: () {
-              context.pushNamed(PassionsPage.name);
+              Navigator.pushNamed(
+                context,
+                AppRoutes.passionsPage,
+              );
+              Navigator.pop(context);
             }),
         Gap(23.h),
         TextView(
           text: "Skip for Now",
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          onTap: () => context.pop(),
+          onTap: () => Navigator.pop(context),
         ),
         Gap(21.h),
       ],

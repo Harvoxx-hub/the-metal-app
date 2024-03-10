@@ -11,6 +11,7 @@ import 'package:metal/features/authentication/provider/update.profile.notifier.d
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/passions.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
 
@@ -101,8 +102,9 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
     userData!.metal = _selectedMetal;
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
 
- 
+     Navigator.pushNamed(context, AppRoutes.locationEnablePage,  
+                 );
 
-     context.pushNamed(LocationEnablePage.name);
+   
   }
 }

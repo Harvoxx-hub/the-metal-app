@@ -16,6 +16,7 @@ import 'package:metal/features/authentication/presentation/welcome/presentation/
 import 'package:metal/features/profile/update.email/new.email.page.dart';
 import 'package:metal/features/profile/update.phone.number/new.phone.number.page.dart';
 import 'package:metal/res/res.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -67,7 +68,8 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
   Widget build(BuildContext context) {
     ref.listen<VerficationState>(verficationProvider, (prev, current) {
       if (current.isSuccess) {
-        context.pushReplacementNamed(WelcomePage.name);
+                Navigator.pushReplacementNamed(context, AppRoutes.welcomePage);
+ 
       }
     });
 
@@ -200,10 +202,12 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
         );
       }
       if (widget.argument.type == RouteFrom.UpdatePhoneNumber) {
-        context.pushReplacementNamed(NewPhoneNumberPage.name);
+        Navigator.pushReplacementNamed(context, AppRoutes.newPhoneNumberPage);
+      
       }
       if (widget.argument.type == RouteFrom.UpdateEmail) {
-        context.pushReplacementNamed(NewEmailPage.name);
+                Navigator.pushReplacementNamed(context, AppRoutes.newEmailPage);
+        
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

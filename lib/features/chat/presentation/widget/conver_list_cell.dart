@@ -9,6 +9,7 @@ import 'package:metal/features/chat/presentation/widget/profile.image.dart';
 import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:zego_zim/zego_zim.dart';
@@ -174,7 +175,8 @@ class _MyState extends State<ConverListCell> {
     //最外层容器
     return GestureDetector(
       onTap: () {
-        context.pushNamed(ChatWindowsPage.name, extra: widget.conversation.conversationID);
+         Navigator.pushNamed(context,  AppRoutes.chatWindowsPage, arguments:  widget.conversation.conversationID);
+ 
       },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 10.0),

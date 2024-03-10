@@ -11,6 +11,7 @@ import 'package:metal/features/upgrade/provider/metal.plan.notifier.dart';
 import 'package:metal/features/upgrade/provider/subscribe.metal.notifier.dart';
 import 'package:metal/features/upgrade/upgrade.page.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:pie_chart/pie_chart.dart';
@@ -146,7 +147,10 @@ class _noSubscriptionContent extends StatelessWidget {
         BaseButton(
             buttonText: "Subscribe",
             onPressed: () {
-              context.pushNamed(UpgradePage.name);
+                                Navigator.pushNamed(context, AppRoutes.upgradePage,
+                );
+ 
+            
             }),
       ],
     );

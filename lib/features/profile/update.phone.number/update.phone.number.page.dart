@@ -9,6 +9,7 @@ import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 import 'package:metal/features/dashboard.dart/dashboard.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -120,8 +121,11 @@ class UpdatePhoneNumberPage extends StatelessWidget {
                     BaseButton(
                       buttonText: "Confirm password",
                       onPressed: () {
-                        context.pushNamed(VerificationPage.name,
-                            extra: RouteFrom.UpdatePhoneNumber.name);
+                                       Navigator.pushNamed(context, AppRoutes.verificationPage,
+                                          arguments: RouteFrom.UpdatePhoneNumber.name
+                );
+ 
+ 
                       },
                     ),
                     Gap(11.h),

@@ -33,7 +33,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           Row(
       children: [
         GestureDetector(
-          onTap: () => context.pop(),
+          onTap: () => Navigator.pop(context),
           child: SvgPicture.asset(
             Assets.icons.chatsWindowactiveCaretLeft.path,
             height: 32,
@@ -192,7 +192,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         BaseButton(
             buttonText: "Return to chat",
             onPressed: () {
-              context.pop();
+             Navigator.pop(context);
             }),
         Gap(23.h),
       ],

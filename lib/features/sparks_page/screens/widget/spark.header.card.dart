@@ -11,6 +11,7 @@ import 'package:metal/features/sparks_page/screens/widget/spark.card.item.dart';
 import 'package:metal/gen/assets.gen.dart';
  
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class SparkHeaderCard extends ConsumerWidget {
@@ -49,15 +50,18 @@ class SparkHeaderCard extends ConsumerWidget {
               SparkCardItem(
                 title: "Send Sparks",
                 path: Assets.images.sendSpark.path,
-                onTap: () => context.pushNamed(SendSpark.name),
+                onTap: () =>  Navigator.pushNamed(context, AppRoutes.sendSpark)
+ 
               ),
               SparkCardItem(
                   title: "Buy Sparks",
-                  onTap: () => context.pushNamed(BuySpark.name),
+                  onTap: () =>  Navigator.pushNamed(context, AppRoutes.buySpark),
+           
                   path: Assets.images.buySpark.path),
               SparkCardItem(
                   title: "Refer & Earn",
-                  onTap: () => context.pushNamed(ReferEarnSpark.name),
+                  onTap: () =>   Navigator.pushNamed(context, AppRoutes.referEarnSpark),
+  
                   path: Assets.images.refer.path),
             ],
           )

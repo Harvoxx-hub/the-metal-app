@@ -11,6 +11,7 @@ import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/features/eyes/presentation/eye.preview.media.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/text_views.dart';
 import 'package:video_player/video_player.dart';
@@ -242,7 +243,9 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
       try {
         final image = await _cameraController.takePicture();
         // Do something with the captured image
-        context.pushNamed(EyePreviewMedia.name, extra: image);
+            Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,  
+                 );
+      
       } catch (e) {
         print('Error taking picture: $e');
       }
@@ -269,7 +272,9 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
         setState(() {
           _isRecording = false;
         });
-        context.pushNamed(EyePreviewMedia.name, extra: video);
+            Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,  
+                 );
+ 
       } catch (e) {
         print('Error stopping video recording: $e');
       }
@@ -283,15 +288,11 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
     final pickedFile = await _picker.pickMedia();
     if (pickedFile != null) {
       // User picked an image
-      context.pushNamed(EyePreviewMedia.name, extra: pickedFile);
+          Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,  
+                 );
+     
     }
 
-    // // If user didn't pick an image, try picking a video
-    // final pickedVideoFile =
-    //     await _picker.pickVideo(source: ImageSource.gallery);
-    // if (pickedVideoFile != null) {
-    //   // User picked a video
-    //   context.pushNamed(EyePreviewMedia.name, extra: pickedVideoFile);
-    // }
+     
   }
 }

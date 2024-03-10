@@ -13,6 +13,7 @@ import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.dart';
 import 'package:metal/features/my.metals/user.profile.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -32,8 +33,7 @@ class MeltMetal extends ConsumerWidget {
         (prev, current) {
       if (current.isSuccess) {
         ref.read(getAllUserProvider.notifier).removeUser(meltUserData.id!);
-
-        // context.pushReplacementNamed(DashboardPage.name);
+ 
       }
     });
     final user = ref.watch(authProvider);
@@ -96,18 +96,24 @@ class MeltMetal extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  meltItem("Chat", Assets.images.meltChat.path, () {
-                    context.pushNamed(ChatWindowsPage.name,
-                        extra: meltUserData.phone);
-                  }),
+                //   meltItem("Chat", Assets.images.meltChat.path, () {
+                //         Navigator.pushNamed(context, AppRoutes.chatWindowsPage,  
+                //  );
+                //     context.pushNamed(ChatWindowsPage.name,
+                //         extra: meltUserData.phone);
+                //   }),
                   meltItem("Spark", Assets.images.meltSpark.path, () {
-                    context.pushNamed(SendSpark.name);
+                          Navigator.pushNamed(context, AppRoutes.sendSpark,  
+                 );
+                  
                   }),
                   meltItem("Profile", Assets.images.meltProfile.path, () {
-                    context.pushNamed(UserProfilePage.name);
+                          Navigator.pushNamed(context, AppRoutes.userProfilePage,  
+                 );
+                    
                   }),
                   meltItem("Dashboard", Assets.images.meltDashboard.path, () {
-                    context.pop();
+                 Navigator.pop(context);
                   })
                 ],
               )

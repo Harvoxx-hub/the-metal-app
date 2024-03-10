@@ -12,6 +12,7 @@ import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/authentication/presentation/home.address/home.address.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
@@ -182,9 +183,9 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
     userData!.preferences = preferences;
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
 
-    
+     Navigator.pushNamed(context,  AppRoutes.homeAddressPage, );
 
 
-    context.pushNamed(HomeAddressPage.name);
+ 
   }
 }

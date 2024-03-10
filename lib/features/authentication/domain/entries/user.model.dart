@@ -31,10 +31,12 @@ class UserModel {
   double sparkBalance;
   String distance;
   String? id;
+  String? referralCode;
 
   UserModel(
       {this.profile_updated,
       this.DOB,
+      this.referralCode,
       this.address,
       this.connect_with,
       this.connection_option,

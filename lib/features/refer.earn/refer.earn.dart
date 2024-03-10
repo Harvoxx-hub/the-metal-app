@@ -8,10 +8,9 @@ import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/features/sparks_page/screens/refer.earn/refer.earn.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
 import 'package:metal/gen/assets.gen.dart';
- 
-
 
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
@@ -101,7 +100,8 @@ class ReferEarn extends StatelessWidget {
                         BaseButton(
                           buttonText: "Refer friends",
                           onPressed: () {
-                            context.pushNamed(ReferEarnSpark.name);
+                            Navigator.pushNamed(
+                                context, AppRoutes.referEarnSpark);
                           },
                         ),
                         Gap(16.h),

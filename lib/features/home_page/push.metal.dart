@@ -15,6 +15,7 @@ import 'package:metal/features/home_page/melt.metal.dart';
 
 import 'package:metal/features/upgrade/make.payment.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
@@ -34,8 +35,7 @@ class PushMetal extends ConsumerWidget {
     ref.listen<PushUsersState>(pushUserProvider, (prev, current) {
       if (current.isSuccess) {
         ref.read(getAllUserProvider.notifier).removeUser(user.id!);
-
-        // context.pushReplacementNamed(DashboardPage.name);
+ 
       }
     });
     return BaseScreen(
@@ -130,14 +130,15 @@ class PushMetal extends ConsumerWidget {
                             ref
                                 .read(pushUserProvider.notifier)
                                 .pushUser(user.id!);
-                            // context.pushNamed(MakePayment.name);
+                 
                           },
                         ),
                         Gap(16.h),
                         OutilineButton(
                           buttonText: "Melt for free",
                           onPressed: () {
-                            context.pushNamed(MeltMetal.name, extra: user);
+                              Navigator.pushNamed(context,  AppRoutes.pushMetal, arguments:user);
+ 
                           },
                         ),
                       ],

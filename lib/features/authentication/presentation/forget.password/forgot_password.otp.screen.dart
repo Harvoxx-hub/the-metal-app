@@ -10,6 +10,7 @@ import 'package:metal/features/authentication/presentation/forget.password/creat
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 
 import 'package:metal/widgets/text_views.dart';
@@ -115,7 +116,8 @@ class ForgetPasswordOTPPage extends ConsumerWidget {
         BaseButton(
           buttonText: "Verify Code",
           onPressed: () {
-            context.pushNamed(CreateNewPasswordPage.name);
+     
+            Navigator.pushNamed(context, AppRoutes.createNewPassword);
           },
           // enabled: _emailController.text.isNotEmpty &&
           //     _passwordController.text.isNotEmpty,

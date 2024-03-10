@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
 import 'package:metal/gen/assets.gen.dart';
-
+import 'package:share_plus/share_plus.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
-import 'package:metal/widgets/text.field/phone.number.input.dart';
 
-class ReferEarnSpark extends StatelessWidget {
+class ReferEarnSpark extends ConsumerWidget {
   ReferEarnSpark({super.key});
   static const name = 'referEarnSpark';
   static const route = '$name';
@@ -23,7 +24,8 @@ class ReferEarnSpark extends StatelessWidget {
   // final TextEditingController _phoneController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userdata = ref.watch(authProvider).data;
     return BaseScreen(
         appBarState: AppBarState.BackWithHeader,
         Header: "Refer & Earn",
@@ -69,19 +71,21 @@ class ReferEarnSpark extends StatelessWidget {
                         Gap(getDeviceHeight(context) * 0.4),
                         BaseButton(
                           buttonText: "Invite to Metal",
-                          onPressed: () {},
+                          onPressed: () {
+                            Share.share(
+                                "Hey there! 👋 I'm using Metal App Plus, if you sign up using my referral code  and download the app from Https://metalapp.com, we both get [mention any benefits or rewards for using the referral code: ${userdata!.referralCode}. Give it a try and let's explore Metal App together! 🚀",
+                                subject: 'Join me at Metal');
+                          },
                         ),
                         Gap(16.h),
                         OutilineButton(
                           buttonText: "Copy invite Link ",
                           onPressed: () {
                             Clipboard.setData(
-                                    const ClipboardData(text: "Your Copy text"))
+                                     ClipboardData(text: "Your Referal Code: ${userdata!.referralCode}"))
                                 .then((_) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content:
-                                          Text('Your refer')));
+                                  const SnackBar(content: Text('Your have coppied your Referal Code')));
                             });
                           },
                         ),

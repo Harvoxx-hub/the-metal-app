@@ -14,6 +14,7 @@ import 'package:metal/features/upgrade/upgrade.page.dart';
 import 'package:metal/features/verification/provider/verification.notifier.dart';
 import 'package:metal/features/verification/video.preview.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -43,8 +44,8 @@ class _VerificationVideoState extends ConsumerState<VerificationVideo> {
             );
           },
         );
-
-        context.pushReplacementNamed(DashboardPage.name);
+Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
+ 
       }
     });
     return BaseScreen(
@@ -64,13 +65,7 @@ class _VerificationVideoState extends ConsumerState<VerificationVideo> {
             Gap(24.h),
             EditField(
                 ontap: () {
-                context.pushNamed(VideoPreview.name).then((value) {
-                    if (value != null) {
-                      setState(() {
-                        _videoFile = value as File;
-                      });
-                    }
-                  });
+                  getVideoFile(context);
                 },
                 floatingLabel: "Full live video of yourself",
                 sufixIcon: Assets.icons.videoCamera.svg(width: 24, height: 24),
@@ -113,6 +108,16 @@ class _VerificationVideoState extends ConsumerState<VerificationVideo> {
         ));
   }
 
+  Future<void> getVideoFile(BuildContext context) async {
+    final file = await Navigator.pushNamed(
+      context,
+      AppRoutes.videoPreview,
+    );
+     setState(() {
+            _videoFile =    File(file.toString());
+          });
+  }
+
   void _onNextPressed() {
     ref.watch(verficationVideoProvider.notifier).verificationMe(_videoFile!);
   }
@@ -140,7 +145,8 @@ class _VerificationVideoState extends ConsumerState<VerificationVideo> {
         BaseButton(
             buttonText: "Upgrade to Metal Plus",
             onPressed: () {
-              context.pushNamed(UpgradePage.name);
+              Navigator.pushNamed(context, AppRoutes.upgradePage);
+
               //  confirm(context);
             }),
         Gap(23.h),
@@ -148,7 +154,7 @@ class _VerificationVideoState extends ConsumerState<VerificationVideo> {
           text: "Not Now",
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          onTap: () => context.pop(),
+          onTap: () => Navigator.pop(context),
         ),
         Gap(21.h),
       ],

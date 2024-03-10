@@ -18,6 +18,7 @@ import 'package:metal/features/my.metals/user.profile.dart';
 import 'package:metal/features/profile/profile.page.dart';
 import 'package:metal/features/profile/widget/edit.field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -71,8 +72,8 @@ class MyMeltedUser extends ConsumerWidget {
                               EditField(
                                 text: "Go to Felix metal profile",
                                 ontap: () {
-                                  context.pushNamed(UserProfilePage.name,
-                                      extra: myMelt.data!);
+                                  Navigator.pushNamed(context,  AppRoutes.upgradePage, arguments: myMelt.data);
+                                
                                 },
                                 floatingLabel: " View profile",
                                 sufixIcon: SvgPicture.asset(
@@ -85,8 +86,10 @@ class MyMeltedUser extends ConsumerWidget {
                               EditField(
                                 text: "Send and receive messages ",
                                 ontap: () {
-                                  context.pushNamed(ChatWindowsPage.name,
-                                      extra: myMelt.data!.phone!);
+                                                    Navigator.pushNamed(context, AppRoutes.chatWindowsPage, arguments: myMelt.data!.phone
+                );
+ 
+                         
                                 },
                                 floatingLabel: "Start a conversation",
                                 sufixIcon: Image.asset(
@@ -175,7 +178,7 @@ class MyMeltedUser extends ConsumerWidget {
           text: "Cancel",
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          onTap: () => context.pop(),
+          onTap: () => Navigator.pop(context),
         ),
         Gap(21.h),
       ],
@@ -211,7 +214,7 @@ class MyMeltedUser extends ConsumerWidget {
           text: "Cancel",
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          onTap: () => context.pop(),
+          onTap: () => Navigator.pop(context),
         ),
         Gap(21.h),
       ],

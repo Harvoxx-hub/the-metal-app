@@ -60,7 +60,7 @@ class CreateNewPasswordPage extends ConsumerWidget {
                 BaseButton(
                   buttonText: 'Reset Password',
                   onPressed: () {
-                    //  context.pushNamed(AccountSetting.name);
+             
                   },
                 ),
               ],

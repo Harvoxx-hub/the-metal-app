@@ -39,7 +39,7 @@ class _DiscoveryTabState extends ConsumerState<DiscoveryTab> {
           floatingLabel: "Location",
           subLabel: "Edit",
           onSubLabel: () {
-            // context.pushNamed(UpdateEmailPage.name);
+          
           },
         ),
         Gap(20.h),
@@ -50,7 +50,7 @@ class _DiscoveryTabState extends ConsumerState<DiscoveryTab> {
           floatingLabel: "What are you looking for in a person?",
           subLabel: "Edit",
           onSubLabel: () {
-            // context.pushNamed(UpdateEmailPage.name);
+       
           },
         ),
         Gap(20.h),

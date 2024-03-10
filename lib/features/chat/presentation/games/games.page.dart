@@ -7,6 +7,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/chat/presentation/games/games.rule.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class GamePage extends StatelessWidget {
@@ -135,7 +136,9 @@ class gameCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.pushNamed(GameRules.name, extra: game.name),
+      onTap: () =>  Navigator.pushNamed(context,  AppRoutes.gameRules, arguments: game.name ),
+      
+ 
       child: Container(
         height: 162,
         width: 150.w,

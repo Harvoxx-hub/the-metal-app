@@ -9,6 +9,7 @@ part of 'user.model.dart';
 UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       profile_updated: json['profile_updated'] as bool?,
       DOB: json['DOB'] as String?,
+      referralCode: json['referralCode'] as String?,
       address: json['address'] == null
           ? null
           : Address.fromJson(json['address'] as Map<String, dynamic>),
@@ -74,6 +75,7 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'sparkBalance': instance.sparkBalance,
       'distance': instance.distance,
       'id': instance.id,
+      'referralCode': instance.referralCode,
     };
 
 Address _$AddressFromJson(Map<String, dynamic> json) => Address(

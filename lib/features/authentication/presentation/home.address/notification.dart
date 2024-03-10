@@ -8,6 +8,7 @@ import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/dashboard.dart/dashboard.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -29,7 +30,8 @@ class _NotificationEnablePageState
 
     ref.listen<UpdateProfileState>(updateProfileProvider, (prev, current) {
       if (current.isSuccess) {
-        context.pushReplacementNamed(DashboardPage.name);
+        Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
+   
       }
     });
     return BaseScreen(

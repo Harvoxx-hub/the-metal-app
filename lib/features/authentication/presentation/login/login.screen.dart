@@ -18,6 +18,7 @@ import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/authentication/presentation/signup/account.setting.dart';
 import 'package:metal/features/dashboard.dart/dashboard.dart';
 import 'package:metal/res/res.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/agree.click.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
@@ -50,20 +51,24 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
     ref.listen<LoginStates>(loginProvider, (prev, current) {
       if (current.isSuccess) {
         current.data!.profile_updated ?? false
-            ? context.pushReplacementNamed(DashboardPage.name)
-            : context.pushReplacementNamed(WelcomePage.name);
+       
+            ?  Navigator.pushNamed(context, AppRoutes.dashboardPage, )
+ 
+            :   Navigator.pushNamed(context, AppRoutes.welcomePage, );
+            
 
-        // context.pushReplacementNamed(DashboardPage.name);
+       
       }
       if (current.isError) {
         //
         if (current.errorMessage == "Account not activated") {
-          context.pushNamed(VerificationPage.name,
-              extra: VerificationSentArgument(
+                Navigator.pushNamed(context, AppRoutes.notificationEnablePage, arguments: VerificationSentArgument(
                   type: RouteFrom.AccountSetting,
                   code: current.errorData!["OTP"],
                   uuid: current.errorData!["UUID"],
-                  phoneNumber: current.errorData!["phone"]));
+                  phoneNumber: current.errorData!["phone"]) );
+ 
+              
         }
       }
     });
@@ -145,13 +150,15 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                         email: _emailController.text,
                         password: _passwordController.text,
                       );
-                  // context.pushNamed(DashboardPage.name);
+           
                 },
               ),
               Gap(31.h),
               TextView(
                 onTap: () {
-                  context.pushNamed(ForgetPasswordPage.name);
+                     Navigator.pushNamed(context, AppRoutes.forgetPassword,  
+                 );
+            
                 },
                 text: "Forgot Password?",
                 fontSize: 14.sp,
@@ -169,7 +176,9 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                   ),
                   TextView(
                     onTap: () {
-                      context.pushNamed(AccountSetting.name);
+                          Navigator.pushNamed(context, AppRoutes.accountSetting,  
+                 );
+                
                     },
                     text: "  Create account",
                     fontSize: 14.sp,

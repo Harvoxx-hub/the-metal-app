@@ -127,7 +127,7 @@ class NewEmailPage extends StatelessWidget {
                             );
                           },
                         );
-                        //   context.pushNamed(DashboardPage.name);
+                 
                       },
                     ),
                   ],
@@ -166,7 +166,7 @@ class NewEmailPage extends StatelessWidget {
         BaseButton(
             buttonText: "OK. Got it! ",
             onPressed: () {
-              context.pop();
+              Navigator.pop(context);
             }),
         Gap(21.h),
       ],

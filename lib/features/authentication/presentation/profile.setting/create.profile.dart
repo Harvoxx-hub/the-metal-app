@@ -15,6 +15,7 @@ import 'package:metal/features/authentication/presentation/profile.setting/choos
 import 'package:metal/features/authentication/presentation/signup/account.setting.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header1.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
@@ -209,7 +210,11 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
       userData.connect_with = _whatImLookingFor.join(",");
 
       ref.read(updateProfileProvider.notifier).updateUserData(userData);
-      context.pushNamed(ChooseYourMetalPage.name);
+
+      Navigator.pushNamed(
+        context,
+        AppRoutes.chooseYourMetalPage,
+      );
     }
   }
 }

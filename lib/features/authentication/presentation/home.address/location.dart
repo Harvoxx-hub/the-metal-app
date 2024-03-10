@@ -8,6 +8,7 @@ import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/authentication/presentation/home.address/notification.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:geolocator/geolocator.dart';
@@ -55,7 +56,7 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
               buttonText: "Enable Location",
               onPressed: () {
                 _onNextPressed();
-                // context.pushNamed(NotificationEnablePage.name);
+          
               },
             ),
           ]),
@@ -101,9 +102,10 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
         lng: _currentPosition!.longitude,
       );
       ref.read(updateProfileProvider.notifier).updateUserData(userData);
-      context.pushNamed(NotificationEnablePage.name);
+ 
+      Navigator.pushNamed(context, AppRoutes.notificationEnablePage);
     }
-    // context.pushNamed(NotificationEnablePage.name);
+ 
   }
 
   Future<void> _getCurrentPosition() async {

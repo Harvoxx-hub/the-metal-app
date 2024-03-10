@@ -15,6 +15,7 @@ import 'package:metal/features/refer.earn/refer.earn.dart';
 import 'package:metal/features/settings/settings.page.dart';
 import 'package:metal/features/upgrade/upgrade.page.dart';
 import 'package:metal/res/res.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:provider/provider.dart';
@@ -46,7 +47,7 @@ class NavDrawer extends ConsumerWidget {
                       ),
                       const Spacer(),
                       GestureDetector(
-                        onTap: () => context.pop(),
+                        onTap: () => Navigator.pop(context),
                         child: SvgPicture.asset(
                           Assets.icons.xClose.path,
                           height: 24,
@@ -100,7 +101,11 @@ class NavDrawer extends ConsumerWidget {
               )),
             ),
             title: TextView(text: "My melted metals"),
-            onTap: () => {context.pushNamed(MyMeltedMetals.name)},
+            onTap: () => {
+                  Navigator.pushNamed(context, AppRoutes.myMeltedMetals,  
+                 )
+ 
+              },
           ),
           Gap(20),
           ListTile(
@@ -119,7 +124,11 @@ class NavDrawer extends ConsumerWidget {
               )),
             ),
             title: TextView(text: _authState.subscription == null? "Upgrade to Metal Plus":" Metal Plus" ),
-            onTap: () => {context.pushNamed(UpgradePage.name)},
+            onTap: () => {
+                  Navigator.pushNamed(context, AppRoutes.upgradePage,  
+                 )
+             
+              },
           ),
           Gap(20),
           ListTile(
@@ -138,7 +147,13 @@ class NavDrawer extends ConsumerWidget {
               )),
             ),
             title: TextView(text: "Refer & Earn"),
-            onTap: () => {context.pushNamed(ReferEarn.name)},
+            onTap: () => {
+
+                  Navigator.pushNamed(context, AppRoutes.referEarn,  
+                 )
+ 
+              
+              },
           ),
           Gap(20),
           !_authState.isVerified!
@@ -161,7 +176,11 @@ class NavDrawer extends ConsumerWidget {
                         )),
                       ),
                       title: TextView(text: "Verify your account"),
-                      onTap: () => {context.pushNamed(VerificationVideo.name)},
+                      onTap: () => {
+                            Navigator.pushNamed(context, AppRoutes.verificationVideo,  
+                 ) 
+                        
+                        },
                     ),
                     Gap(20),
                   ],
@@ -183,7 +202,13 @@ class NavDrawer extends ConsumerWidget {
               )),
             ),
             title: TextView(text: "Let’s hear from you"),
-            onTap: () => {context.pushNamed(FeedBackPage.name)},
+            onTap: () => {
+    Navigator.pushNamed(context, AppRoutes.feedBackPage,  
+                 )
+
+  
+              
+              },
           ),
           Gap(20),
           ListTile(
@@ -202,7 +227,13 @@ class NavDrawer extends ConsumerWidget {
               )),
             ),
             title: TextView(text: "Settings"),
-            onTap: () => {context.pushNamed(SettingPage.name)},
+            onTap: () => {
+                  Navigator.pushNamed(context, AppRoutes.settingPage,  
+                 )
+              
+              
+              
+              },
           ),
           Gap(20),
           ListTile(
@@ -223,7 +254,8 @@ class NavDrawer extends ConsumerWidget {
             title: TextView(text: "Log out"),
             onTap: () => {
               logout(),
-              context.pushReplacementNamed(LoginPage.name),
+                  Navigator.pushReplacementNamed(context, AppRoutes.login,  
+                 )
             },
           ),
           Gap(40),

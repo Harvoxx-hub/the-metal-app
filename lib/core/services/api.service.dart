@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:metal/core/error/error.handle.dart';
@@ -39,12 +40,13 @@ class ApiService {
 
   Future<dynamic> get(String endpoint) async {
     try {
+         log('Startted Calling ||||| $endpoint', level: 1000, );
       final response = await _dio.get(
         '$baseUrl/$endpoint',
       );
       return _handleResponse(response);
     } catch (error) {
-      print('DioError: $error');
+          log('DioError ||||| $error', level: 1000, error: error );
       throw error;
     }
   }
@@ -52,13 +54,14 @@ class ApiService {
   Future<dynamic> patch(String endpoint,
       {Map<String, dynamic>? body, FormData? formData}) async {
     try {
+         log('Startted Calling ||||| $endpoint', level: 1000, );
       final response = await _dio.patch(
         '$baseUrl/$endpoint',
         data: formData ?? (body != null ? jsonEncode(body) : null),
       );
       return _handleResponse(response);
     } catch (error) {
-      print('DioError: $error');
+     log('DioError ||||| $error', level: 1000, error: error );
       throw error;
     }
   }
@@ -66,18 +69,22 @@ class ApiService {
   Future<dynamic> post(String endpoint,
       {Map<String, dynamic>? body, FormData? formData}) async {
     try {
+       log('Startted Calling ||||| $endpoint', level: 1000, );
       final response = await _dio.post(
         '$baseUrl/$endpoint',
         data: formData ?? jsonEncode(body),
       );
       return _handleResponse(response);
     } catch (error) {
-      print('DioError: $error');
+      log('DioError ||||| $error', level: 1000, error: error );
+      
       throw error;
     }
   }
 
   Future<Responses> _handleResponse(Response response) async {
+     log('Response ||||| $response', level: 1000, );
+
     final body = response.data;
     final data = Responses.fromJson(body);
     if (data.success) {

@@ -148,7 +148,7 @@ class BuySpark extends ConsumerWidget {
         BaseButton(
             buttonText: "Confirm",
             onPressed: () {
-              context.pop();
+             Navigator.pop(context);
               ref!.read(buySparkProvider.notifier).buySpark(
                     amount: double.parse(ammount!),
                     numberOfSpark: double.parse(ammount),
@@ -159,7 +159,7 @@ class BuySpark extends ConsumerWidget {
           text: "Not Now",
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          onTap: () => context.pop(),
+          onTap: () => Navigator.pop(context),
         ),
         Gap(21.h),
       ],

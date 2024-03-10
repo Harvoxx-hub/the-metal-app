@@ -104,7 +104,7 @@ class FeedBackPage extends StatelessWidget {
         BaseButton(
             buttonText: "Got it!",
             onPressed: () {
-              context.pop();
+         Navigator.pop(context);
             }),
         Gap(23.h),
       ],

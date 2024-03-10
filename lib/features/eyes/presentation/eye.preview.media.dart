@@ -11,6 +11,7 @@ import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/features/eyes/provider/upload.eyes.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -77,10 +78,8 @@ class _EyePreviewMediaState extends ConsumerState<EyePreviewMedia> {
     final eyeState = ref.watch(uploadEyesProvider);
     ref.listen<UploadEyeState>(uploadEyesProvider, (prev, current) {
       if (current.isSuccess) {
-        context.pop();
-        context.pop();
-        context.pop();
-        // context.pushReplacementNamed(DashboardPage.name);
+            Navigator.pushReplacementNamed(context,   AppRoutes.dashboardPage
+                 );
       }
     });
 

@@ -9,6 +9,7 @@ import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/dashboard.dart/widget/nav.drawer.dart';
 import 'package:metal/features/notification/notification.page.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 
 import '../../widgets/text_views.dart';
 
@@ -65,11 +66,12 @@ class _BaseScreenState extends State<BaseScreen> {
                 _key.currentState!.openDrawer();
               },
               onBackButtonPressed: () {
-                context.pop();
+            Navigator.pop(context);
               },
               onSkipButtonPressed: () {},
               onNotificationPressed: () {
-                context.pushNamed(NotificationPage.name);
+                Navigator.pushNamed(context, AppRoutes.notificationPage);
+            
               },
               headerText: widget.Header!,
               appBarEnabled: widget.appBarEnabled,
@@ -178,7 +180,7 @@ class _BaseScreenState extends State<BaseScreen> {
         children: [
           GestureDetector(
             onTap: () {
-              context.pop();
+    Navigator.pop(context);
             },
             child: Padding(
               padding: const EdgeInsets.only(left: 8.0),

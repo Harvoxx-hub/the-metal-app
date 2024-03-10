@@ -10,6 +10,7 @@ import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/profile/update.email/update.email.page.dart';
 import 'package:metal/features/profile/update.phone.number/update.phone.number.page.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/plain.button.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 
@@ -42,7 +43,10 @@ class _PersonalTabState extends ConsumerState<PersonalTab> {
           floatingLabel: "Email address",
           subLabel: "Edit",
           onSubLabel: () {
-            context.pushNamed(UpdateEmailPage.name);
+                              Navigator.pushNamed(context, AppRoutes.updateEmailPage,
+                );
+ 
+      
           },
         ),
         Gap(20.h),
@@ -51,7 +55,10 @@ class _PersonalTabState extends ConsumerState<PersonalTab> {
           floatingLabel: "Phone Number",
           subLabel: "Edit",
           onSubLabel: () {
-            context.pushNamed(UpdatePhoneNumberPage.name);
+                              Navigator.pushNamed(context, AppRoutes.updatePhoneNumberPage,
+                );
+ 
+ 
           },
         ),
         Gap(20.h),

@@ -10,6 +10,7 @@ import 'package:metal/features/eyes/presentation/view.eyes.dart';
 import 'package:metal/features/eyes/provider/get.all.eyes.notifier.dart';
 import 'package:metal/features/eyes/provider/get.current.eyes.notifier.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/shimmer.loading.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -76,7 +77,9 @@ class _StatusWidgetState extends ConsumerState<StatusWidget> {
           ProfileImage(
             onTap: () {
               if (status!.status.isNotEmpty) {
-                context.pushNamed(ViewEyes.name, extra: status.status);
+                Navigator.pushNamed(context, AppRoutes.viewEyes, arguments: status.status
+                );
+ 
               }
             },
           ),

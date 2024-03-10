@@ -8,17 +8,26 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 import 'package:metal/features/upgrade/provider/subscribe.metal.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
+enum PaymentType { metalPlan, Spark, push }
+enum PaymentState { success, failed }
+
 class MakePayment extends ConsumerStatefulWidget {
-  MakePayment({super.key, required this.metalPlanModel});
+  MakePayment({
+    required this.price,
+    required this.paymentType,
+    super.key,
+  });
   static const name = 'makePayment';
   static const route = '$name';
-  final MetalPlanModel metalPlanModel;
+  final PaymentType paymentType;
+  final double price;
 
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
@@ -39,19 +48,8 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
 
   @override
   Widget build(BuildContext context) {
-    final _subscribeState = ref.watch(subscribeMetalProvider);
-    ref.listen<SubscribeMetalState>(subscribeMetalProvider, (prev, current) {
-      if (current.isSuccess) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CustomDialog(content: _upgreadeDialog(context));
-          },
-        );
-
-        // context.pushReplacementNamed(DashboardPage.name);
-      }
-    });
+  
+  
 
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
@@ -80,11 +78,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
                       label: '0000 0000 0000 0000',
                       controller: _cardNumberController,
                       keyboardType: TextInputType.number,
-                      // autoValidate: _autoValidate,
-
-                      // validator: EmailValidator.validate(email),
                       radius: 10,
-                      // fillColor: AppColors.appGrey,
                     ),
                     Gap(20),
                     Row(
@@ -95,11 +89,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
                             label: '00/00',
                             controller: _cardNumberController,
                             keyboardType: TextInputType.datetime,
-                            // autoValidate: _autoValidate,
-
-                            // validator: EmailValidator.validate(email),
                             radius: 10,
-                            // fillColor: AppColors.appGrey,
                           ),
                         ),
                         Gap(20),
@@ -109,11 +99,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
                             label: '000',
                             controller: _cardNumberController,
                             keyboardType: TextInputType.number,
-                            // autoValidate: _autoValidate,
-
-                            // validator: EmailValidator.validate(email),
                             radius: 10,
-                            // fillColor: AppColors.appGrey,
                           ),
                         ),
                       ],
@@ -124,11 +110,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
                       label: 'Type the name on your debit card',
                       controller: _nameOnCardController,
                       keyboardType: TextInputType.name,
-                      // autoValidate: _autoValidate,
-
-                      // validator: EmailValidator.validate(email),
                       radius: 10,
-                      // fillColor: AppColors.appGrey,
                     ),
                     Gap(20),
                   ],
@@ -158,56 +140,16 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
             ),
             Gap(20),
             BaseButton(
-              loading: _subscribeState.isLoading,
-                buttonText: "Pay ${widget.metalPlanModel.price}.00 ",
+             //   loading: _subscribeState.isLoading,
+                buttonText: "Pay ${widget.price}.00 ",
                 onPressed: () {
-                  ref.read(subscribeMetalProvider.notifier).subscribeMetalPlan(widget.metalPlanModel.id);
+                  Navigator.pop(
+                    context,
+                    PaymentState.success
+                  );
                 })
           ],
         ));
   }
 
-  Widget _upgreadeDialog(BuildContext context) {
-    return Column(
-      children: [
-        Gap(38.h),
-        SvgPicture.asset(
-          Assets.icons.meltedMetalsSmileyXEyes.path,
-          height: 45,
-          width: 45,
-        ),
-        Gap(15.h),
-        TextView(
-          text: "Metal Plus Upgrade",
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-        ),
-        Gap(15.h),
-        TextView(
-          text:
-              "Woohoo! You have successfully upgraded to Metal Plus Monthly. Now you have:",
-          fontSize: 16,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
-        ),
-        Gap(15.h),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (var item in widget.metalPlanModel.metaData)
-              TextView(text: "- $item")
-          ],
-        ),
-        Gap(38.h),
-        BaseButton(
-            buttonText: "Go to dashboard",
-            onPressed: () {
-              context.pop();
-              context.pop();
-              context.pop();
-            }),
-        Gap(21.h),
-      ],
-    );
-  }
 }

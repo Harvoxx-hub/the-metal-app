@@ -13,6 +13,7 @@ import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/authentication/presentation/home.address/location.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
@@ -73,7 +74,8 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
 
     ref.listen<UpdateProfileState>(updateProfileProvider, (prev, current) {
       if (current.isSuccess) {
-        context.pushReplacementNamed(DashboardPage.name);
+        Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
+  
       }
     });
     return BaseScreen(
@@ -174,9 +176,6 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
     userData!.address = address;
 
     ref.read(updateProfileProvider.notifier).sendUserUpdate(userData);
-
-    // widget.onNextPress();
-
-    // context.pushNamed(LocationEnablePage.name);
+ 
   }
 }

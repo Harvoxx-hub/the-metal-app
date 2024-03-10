@@ -13,6 +13,7 @@ import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 
 import 'package:metal/res/res.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text.field/phone.number.input.dart';
@@ -38,12 +39,12 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
   Widget build(BuildContext context) {
     ref.listen<AccountSettingState>(accountSettingProvider, (prev, current) {
       if (current.isSuccess) {
-        context.pushReplacementNamed(VerificationPage.name,
-            extra: VerificationSentArgument(
+                Navigator.pushReplacementNamed(context, AppRoutes.verificationPage, arguments: VerificationSentArgument(
                 type: RouteFrom.AccountSetting,
                 code: current.data!['OTP'],
                 uuid: current.data!['UUID'],
-                phoneNumber: _phoneController.text));
+                phoneNumber: _phoneController.text) );
+     
       }
     });
 

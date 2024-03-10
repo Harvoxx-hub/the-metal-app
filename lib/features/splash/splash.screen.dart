@@ -10,6 +10,7 @@ import 'package:metal/features/authentication/presentation/welcome/presentation/
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/dashboard.dart/dashboard.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
 import '../onboarding/onboarding_page_view.dart';
@@ -29,16 +30,14 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   @override
   void initState() {
     Future.delayed(const Duration(seconds: 3), () {
-      // ref.read(authManagerProvider)
-      //   ..deleteAccessToken()
-      //   ..deleteRefreshToken()
-      //   ..deleteLoginState();
+       
 
       ref.read(authManagerProvider).getLoginState().then((value) {
         if (value == LoginState.loggedIn) {
           ref.read(authProvider.notifier).getCurrentUser();
         } else {
-          context.pushReplacementNamed(OnboardingPageView.route);
+          Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+ 
         }
       });
     });
@@ -50,11 +49,12 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     ref.listen<AuthState>(authProvider, (prev, current) {
       if (current.isSuccess) {
         current.data!.profile_updated ?? false
-            ? context.pushReplacementNamed(DashboardPage.name)
-            : context.pushReplacementNamed(WelcomePage.name);
+            ? Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage)
+            : Navigator.pushReplacementNamed(context, AppRoutes.welcomePage);
       }
       if (current.isError) {
-        context.pushReplacementNamed(OnboardingPageView.name);
+        Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+ 
       }
     });
     return Scaffold(

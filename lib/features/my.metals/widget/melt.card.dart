@@ -5,6 +5,7 @@ import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 
 import 'package:metal/features/my.metals/my.melted.user.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/card.with.shadow.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -17,7 +18,10 @@ class MeltCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardWithShadow(
         onTap: () {
-          context.pushNamed(MyMeltedUser.name, extra: user.id);
+                            Navigator.pushNamed(context, AppRoutes.myMeltedUser, arguments: user.id
+                );
+ 
+  
         },
         height: 105,
         child: Row(

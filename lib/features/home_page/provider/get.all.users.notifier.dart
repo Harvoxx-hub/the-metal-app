@@ -42,7 +42,10 @@ class GetUsersNotifier extends StateNotifier<GetAllUsersState> {
         filteredUsers.add(element);
       }
     });
-    state = GetAllUsersState.success(filteredUsers);
+    if (mounted) {
+        state = GetAllUsersState.success(filteredUsers);
+      }
+  
   }
 
   //remove user from list

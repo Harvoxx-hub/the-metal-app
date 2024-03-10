@@ -178,9 +178,9 @@ class _VideoPreviewState extends State<VideoPreview> {
                                       _videoFile != null
                                           ? {
                                               _videoPlayerController
-                                                  .pause(), // Pause the video
-                                              context.pop(
-                                                  _videoFile!) // Navigate back when the FAB is pressed
+                                                  .pause(),
+                                                  Navigator.pop(context, _videoFile!.path ) // Pause the video
+                                           // Navigate back when the FAB is pressed
                                             }
                                           : _recordVideo();
                                     }),

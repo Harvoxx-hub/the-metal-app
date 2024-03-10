@@ -11,6 +11,7 @@ import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/authentication/presentation/profile.setting/connection.option.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
@@ -71,6 +72,8 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
     userData!.description = _controller.text;
 
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
-    context.pushNamed(ConnectionOptionsPage.name);
+ 
+        Navigator.pushNamed(context, AppRoutes.connectionOptionsPage,  
+                 );
   }
 }

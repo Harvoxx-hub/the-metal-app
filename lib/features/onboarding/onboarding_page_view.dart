@@ -9,6 +9,7 @@ import 'package:metal/features/authentication/presentation/login/login.screen.da
 
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
+import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button_divider.dart';
@@ -102,8 +103,10 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
               BaseButton(
                 buttonText: 'Sign up with your email',
                 onPressed: () {
-                  context.pushNamed(AccountSetting.name);
-                  //  context.pushNamed(MainActivityPage.name);
+                                    Navigator.pushNamed(context, AppRoutes.accountSetting,
+                );
+ 
+                  
                 },
               ),
               const Gap(20),
@@ -136,7 +139,10 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                   const Gap(5),
                   TextView(
                     onTap: () {
-                      context.pushNamed(LoginPage.name);
+                                        Navigator.pushNamed(context, AppRoutes.login,
+                );
+ 
+ 
                     },
                     text: 'Log in',
                   ),

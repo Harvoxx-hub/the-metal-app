@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
-import 'package:metal/zim.manager/zim.notifier.dart';
+ 
 
 class PushUsersNotifier extends StateNotifier<PushUsersState> {
   PushUsersNotifier(
@@ -19,7 +19,7 @@ class PushUsersNotifier extends StateNotifier<PushUsersState> {
       final homeRepository = ref.watch(homeRepositoryProvider);
       final response = await homeRepository.pushUser(id);
 
-      state = PushUsersState.success(response.message);
+      state = PushUsersState.success(response.message!);
     } catch (e) {
       print(e.toString());
       state = PushUsersState.error(e.toString());

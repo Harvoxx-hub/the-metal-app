@@ -1,12 +1,12 @@
 class Responses {
-  final bool success;
-  final String message;
+   bool? success;
+    String? message;
   var data;
 
   Responses({
-    required this.success,
-    required this.message,
-    required this.data,
+      this.success,
+      this.message,
+      this.data,
   });
 
   factory Responses.fromJson(Map<String, dynamic> json) {

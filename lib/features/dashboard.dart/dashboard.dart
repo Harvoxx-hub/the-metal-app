@@ -194,8 +194,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         Gap(38.h),
         BaseButton(
             buttonText: "Complete your profile",
-            onPressed: () {
-              Navigator.pushNamed(
+            onPressed: () async {
+              await Navigator.pushNamed(
                 context,
                 AppRoutes.passionsPage,
               );

@@ -35,6 +35,7 @@ class PushMetal extends ConsumerWidget {
     ref.listen<PushUsersState>(pushUserProvider, (prev, current) {
       if (current.isSuccess) {
         ref.read(getAllUserProvider.notifier).removeUser(user.id!);
+         Navigator.pop(context);
  
       }
     });
@@ -137,7 +138,7 @@ class PushMetal extends ConsumerWidget {
                         OutilineButton(
                           buttonText: "Melt for free",
                           onPressed: () {
-                              Navigator.pushNamed(context,  AppRoutes.pushMetal, arguments:user);
+                              Navigator.pushNamed(context,  AppRoutes.meltMetal, arguments:user);
  
                           },
                         ),

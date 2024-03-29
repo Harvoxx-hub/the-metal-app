@@ -3,6 +3,8 @@ import 'package:metal/features/authentication/presentation/forget.password/creat
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.otp.screen.dart';
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
+import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
+import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
 import 'package:metal/features/splash/splash.screen.dart';
 import 'package:camera/camera.dart';
@@ -202,7 +204,7 @@ class AppRoutes {
       case referEarnSpark:
         return MaterialPageRoute(builder: (_) => ReferEarnSpark());
       case chatWindowsPage:
-        return MaterialPageRoute(builder: (_) => ChatWindowsPage(conversationID: settings.arguments as String));
+        return MaterialPageRoute(builder: (_) => ChatWindowsPage(argument:settings.arguments as ChatWindowArgument ,));
       case gamePage:
         return MaterialPageRoute(builder: (_) => GamePage());
       case gameRules:

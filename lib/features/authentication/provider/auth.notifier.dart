@@ -1,14 +1,11 @@
-import 'dart:developer';
-
-import 'package:flutter/services.dart';
+ 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:zego_zim/zego_zim.dart';
-import 'package:zego_zimkit/zego_zimkit.dart';
+ 
 
 class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier(
@@ -26,7 +23,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final response = await authenticationRepository.getCurrentUser();
       final userData = UserModel.fromJson(response.data);
       state = AuthState.success(userData);
-      await ZIMKit().connectUser(id: userData.phone!, name: userData.username!);
+    //  await ZIMKit().connectUser(id: userData.phone!, name: userData.username!);
     } catch (e) {
       print(e.toString());
       state = AuthState.error(e.toString());
@@ -48,7 +45,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   //update state with new user data
   Future<void> updateUserData(UserModel userData) async {
     state = AuthState.success(userData);
-    await ZIMKit().connectUser(id: userData.phone!, name: userData.username!);
+ //   await ZIMKit().connectUser(id: userData.phone!, name: userData.username!);
   }
 }
 

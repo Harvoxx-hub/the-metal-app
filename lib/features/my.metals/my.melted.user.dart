@@ -22,8 +22,7 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:metal/zim.manager/zim.notifier.dart';
-import 'package:zego_zimkit/zego_zimkit.dart';
+ 
 
 class MyMeltedUser extends ConsumerWidget {
   const MyMeltedUser(this.UserId, {super.key});
@@ -38,6 +37,7 @@ class MyMeltedUser extends ConsumerWidget {
     return BaseScreen(
       Header: "My melted metals",
       body: ProfileHeader(
+        eye: false,
           user: myMelt.data ?? UserModel(),
           child: Padding(
             padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
@@ -70,10 +70,12 @@ class MyMeltedUser extends ConsumerWidget {
                               ),
                               Gap(40),
                               EditField(
-                                text: "Go to Felix metal profile",
+                                text:
+                                    "Go to ${myMelt.data!.username} metal profile",
                                 ontap: () {
-                                  Navigator.pushNamed(context,  AppRoutes.upgradePage, arguments: myMelt.data);
-                                
+                                  Navigator.pushNamed(
+                                      context, AppRoutes.userProfilePage,
+                                      arguments: myMelt.data);
                                 },
                                 floatingLabel: " View profile",
                                 sufixIcon: SvgPicture.asset(
@@ -86,10 +88,9 @@ class MyMeltedUser extends ConsumerWidget {
                               EditField(
                                 text: "Send and receive messages ",
                                 ontap: () {
-                                                    Navigator.pushNamed(context, AppRoutes.chatWindowsPage, arguments: myMelt.data!.phone
-                );
- 
-                         
+                                  Navigator.pushNamed(
+                                      context, AppRoutes.chatWindowsPage,
+                                      arguments: myMelt.data!.phone);
                                 },
                                 floatingLabel: "Start a conversation",
                                 sufixIcon: Image.asset(
@@ -100,7 +101,8 @@ class MyMeltedUser extends ConsumerWidget {
                               ),
                               Gap(20),
                               EditField(
-                                text: "De-melt Felix from your metal list",
+                                text:
+                                    "De-melt ${myMelt.data!.username}  from your metal list",
                                 onSubLabel: () {},
                                 floatingLabel: "Remove from my list of metals",
                                 sufixIcon: SvgPicture.asset(
@@ -120,7 +122,8 @@ class MyMeltedUser extends ConsumerWidget {
                               ),
                               Gap(20),
                               EditField(
-                                text: "Block Felix from reaching you",
+                                text:
+                                    "Block ${myMelt.data!.username}  from reaching you",
                                 onSubLabel: () {},
                                 floatingLabel: "Block from viewing my profile",
                                 ontap: () {

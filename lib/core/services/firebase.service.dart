@@ -1,105 +1,103 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:io';
 
-// final firebaseServiceProvider = Provider<FirebaseService>((ref) {
-//   return FirebaseService(ref.read);
-// });
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:metal/core/model/responces.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
-// class FirebaseService {
-//   final ref;
+class FirebaseService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
-//   FirebaseService(this.ref);
+  Future<Responses> getData(String collectionName) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await _firestore.collection(collectionName).get();
+      List<Object?> data = querySnapshot.docs.map((doc) => doc.data()).toList();
+      return Responses(success: true, data: data);
+    } catch (e) {
+      print('Failed to get data: $e');
+      return Responses(success: false, message: 'Failed to get data');
+    }
+  }
 
-//   FirebaseFirestore get _firestore => FirebaseFirestore.instance;
-//   FirebaseAuth get _auth => FirebaseAuth.instance;
+  Future<Responses> addData(
+      String collectionName, Map<String, dynamic> data, String id) async {
+    try {
+      await _firestore.collection(collectionName).doc(id).set(data);
+      return Responses(success: true);
+    } catch (e) {
+      print('Failed to add data: $e');
+      return Responses(success: false, message: 'Failed to add data');
+    }
+  }
 
-//   // Method to create a new user account
+  Future<Responses> updateData(String collectionName, String documentId,
+      Map<String, dynamic> data) async {
+    try {
+      await _firestore.collection(collectionName).doc(documentId).update(data);
+      return Responses(success: true);
+    } catch (e) {
+      print('Failed to update data: $e');
+      return Responses(success: false, message: 'Failed to update data');
+    }
+  }
 
-//   // Method to send a message
-//   Future<void> sendMessage({
-//     required String senderId,
-//     required String receiverId,
-//     required String content,
-//   }) async {
-//     try {
-//       await _firestore.collection('messages').add({
-//         'senderId': senderId,
-//         'receiverId': receiverId,
-//         'content': content,
-//         'timestamp': FieldValue.serverTimestamp(),
-//       });
-//     } catch (e) {
-//       throw Exception('Failed to send message: $e');
-//     }
-//   }
+  Future<Responses> deleteData(String collectionName, String documentId) async {
+    try {
+      await _firestore.collection(collectionName).doc(documentId).delete();
+      return Responses(success: true);
+    } catch (e) {
+      print('Failed to delete data: $e');
+      return Responses(success: false, message: 'Failed to delete data');
+    }
+  }
 
-//   // Method to retrieve messages for a conversation
-//   Stream<List<Map<String, dynamic>>> getMessagesForConversation(
-//       String conversationId) {
-//     return _firestore
-//         .collection('messages')
-//         .where('conversationId', isEqualTo: conversationId)
-//         .orderBy('timestamp', descending: true)
-//         .snapshots()
-//         .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
-//   }
+  // Function to upload audio file to Firebase Storage
+  Future<String> uploadAudio(String audioFilePath) async {
+    try {
+      // Generate a unique filename for the audio file
+      String fileName =
+          DateTime.now().millisecondsSinceEpoch.toString() + '.mp3';
+      // Get a reference to the audio file in Firebase Storage
+      Reference ref = _storage.ref().child('audio/$fileName');
+      // Upload the audio file
+      TaskSnapshot uploadTask = await ref.putFile(File(audioFilePath));
+      // Get the download URL of the uploaded file
+      String downloadUrl = await uploadTask.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print('Failed to upload audio: $e');
+      throw e; // Propagate the exception for handling in the calling code
+    }
+  }
 
-//   Future<List<String>> getUsersChattedWith(String userId) async {
-//     try {
-//       List<String> usersChattedWith = [];
-//       QuerySnapshot conversationsSnapshot = await _firestore
-//           .collection('conversations')
-//           .where('participants.$userId', isEqualTo: true)
-//           .get();
+  Future<String?> checkConversationExists(
+      String senderId, String receiverId) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection("conversations")
+          .where("participantIds",
+              arrayContainsAny: [senderId, receiverId]).get();
 
-//       for (QueryDocumentSnapshot doc in conversationsSnapshot.docs) {
-//         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-//         data['participants'].keys.forEach((participantId) {
-//           if (participantId != userId &&
-//               !usersChattedWith.contains(participantId)) {
-//             usersChattedWith.add(participantId);
-//           }
-//         });
-//       }
+      if (querySnapshot.docs.isNotEmpty) {
+        for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+          print("Document data: ${doc.data()}");
 
-//       return usersChattedWith;
-//     } catch (e) {
-//       throw Exception('Failed to get users chatted with: $e');
-//     }
-//   }
-
-//   Future<void> startConversation({
-//     required String userId1,
-//     required String userId2,
-//   }) async {
-//     try {
-//       // Check if a conversation already exists between the two users
-//       QuerySnapshot existingConversationsSnapshot = await _firestore
-//           .collection('conversations')
-//           .where('participants.$userId1', isEqualTo: true)
-//           .where('participants.$userId2', isEqualTo: true)
-//           .get();
-
-//       if (existingConversationsSnapshot.docs.isNotEmpty) {
-//         // Conversation already exists
-//         return;
-//       }
-
-//       // Create a new conversation document
-//       DocumentReference newConversationRef =
-//           _firestore.collection('conversations').doc();
-//       await newConversationRef.set({
-//         'participants': {
-//           userId1: true,
-//           userId2: true,
-//         },
-//         // Add other metadata fields if needed
-//       });
-
-//       // You might also want to notify the users about the new conversation here
-//     } catch (e) {
-//       throw Exception('Failed to start conversation: $e');
-//     }
-//   }
-// }
+          print("Document data: ${doc.get("participantIds")}");
+          List<dynamic> participantsIds = doc.get("participantIds");
+          if (participantsIds.contains(senderId) &&
+              participantsIds.contains(receiverId)) {
+            // Conversation between sender and receiver exists
+            return doc.id; // Return the conversation ID
+          }
+        }
+      } else {
+        return null;
+      }
+    } catch (e) {
+      // Error occurred
+      print("Error checking conversation: $e");
+      throw e;
+    }
+  }
+}

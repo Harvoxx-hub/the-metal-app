@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
-
-import 'package:metal/core/utils/key_center.dart';
+ 
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:metal/route/routes.dart';
 
-import 'package:zego_zimkit/zego_zimkit.dart';
+ 
 import 'package:firebase_analytics/firebase_analytics.dart';
 
 void main() async {
@@ -23,11 +22,7 @@ void main() async {
   } catch (e) {
     print("Failed to initialize Firebase: $e");
   }
-//Create a ZIM SDK instance and pass in the AppID and AppSign.
-  ZIMKit().init(
-    appID: KeyCenter.appID, // your appid
-    appSign: KeyCenter.appSign, // your appSign
-  );
+
 
   runApp(const ProviderScope(
     overrides: [],
@@ -64,11 +59,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           return MaterialApp(
             title: 'Metal',
             key: _navKey,
-            // localizationsDelegates: [
-            //   GlobalMaterialLocalizations.delegate,
-            //   GlobalWidgetsLocalizations.delegate,
-            //   GlobalCupertinoLocalizations.delegate,
-            // ],
+          
             initialRoute: '/', // Set your initial route here
             onGenerateRoute: AppRoutes.generateRoute,
 
@@ -77,11 +68,5 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         });
   }
 
-// Future<void> _checkNetwork(ConnectivityResult event) async {
-//     if (event != ConnectivityResult.none) {
-//       /// When connection is active or reestablished init FCM
-//       /// if it's already inited nothing will happen
-//       FCMClient.instance.init(); // ignore: unawaited_futures
-//     }
-//   }
+ 
 }

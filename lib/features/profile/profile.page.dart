@@ -15,7 +15,6 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/tab/base.tab.dart';
-import 'package:metal/widgets/text_views.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({
@@ -69,10 +68,12 @@ class ProfileHeader extends StatelessWidget {
     super.key,
     required this.child,
     required this.user,
+    this.eye = true,
   });
 
   final Widget child;
   final UserModel user;
+  final bool eye;
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +92,7 @@ class ProfileHeader extends StatelessWidget {
             left: 0,
             right: 0,
             child: user.metal == null
-                ? ProfilePhoto(
+                ? const ProfilePhoto(
                     size: 170,
                     verfly: false,
                   )
@@ -101,20 +102,22 @@ class ProfileHeader extends StatelessWidget {
                     photourl: user.metal!.img!,
                   ),
           ),
-          Positioned(
-              top: 140,
-              right: 50.w,
-              child: GestureDetector(
-                onTap: () =>                   Navigator.pushNamed(context, AppRoutes.eyesIntro,
-                ),
- 
-    
-                child: SvgPicture.asset(
-                  Assets.icons.eye.path,
-                  height: 40,
-                  width: 40,
-                ),
-              )),
+          eye
+              ? Positioned(
+                  top: 140,
+                  right: 50.w,
+                  child: GestureDetector(
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.eyesIntro,
+                    ),
+                    child: SvgPicture.asset(
+                      Assets.icons.eye.path,
+                      height: 40,
+                      width: 40,
+                    ),
+                  ))
+              : SizedBox(),
         ],
       ),
     );

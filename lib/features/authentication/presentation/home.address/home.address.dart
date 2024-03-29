@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+ 
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/services/countries.service.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
-import 'package:metal/features/dashboard.dart/dashboard.dart';
+ 
 import 'package:metal/gen/assets.gen.dart';
 
-import 'package:metal/features/authentication/presentation/home.address/location.dart';
+ 
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/route/routes.dart';
 
@@ -53,7 +53,6 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
     setState(() {
       country = data;
     });
-    print(country.length);
   }
 
   Future<void> getState(String state) async {
@@ -74,8 +73,8 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
 
     ref.listen<UpdateProfileState>(updateProfileProvider, (prev, current) {
       if (current.isSuccess) {
-        Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
-  
+        Navigator.pushNamedAndRemoveUntil(
+            context, AppRoutes.dashboardPage, (route) => true);
       }
     });
     return BaseScreen(
@@ -175,7 +174,6 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
     address.house_address = _addressController.text;
     userData!.address = address;
 
-    ref.read(updateProfileProvider.notifier).sendUserUpdate(userData);
- 
+    ref.read(updateProfileProvider.notifier).completeUserUpdate(userData);
   }
 }

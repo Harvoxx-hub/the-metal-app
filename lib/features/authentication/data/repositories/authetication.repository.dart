@@ -102,6 +102,17 @@ class AuthenticationRepository implements IAuthenticationRepository {
       rethrow;
     }
   }
+  
+  @override
+  Future<Responses> completeUser(Map<String, dynamic> user) async {
+  try {
+      final response =
+          await _apiService.patch("user/complete-profile", body: user );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
 
 final authenticationRepositoryProvider = Provider((ref) {

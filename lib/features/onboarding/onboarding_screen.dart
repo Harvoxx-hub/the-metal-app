@@ -30,21 +30,21 @@ class _OnboardingWidgetState extends State<OnboardingWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Gap(128.h),
+          Gap(128),
           Image.asset(
             widget.imageUrl,
-            width: 172.w,
-            height: 172.h,
+            width: 172,
+            height: 172,
           ),
           TextView(
             text: widget.headerText,
-            fontSize: 36.sp,
+            fontSize: 36,
             fontWeight: FontWeight.normal,
           ),
           Gap(20),
           TextView(
             text: widget.descriptionText,
-            fontSize: 16.sp,
+            fontSize: 16,
             fontFamily: 'Merri_weather',
             fontWeight: FontWeight.normal,
           ),

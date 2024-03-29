@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
-import 'package:metal/zim.manager/zim.notifier.dart';
+ 
 
 class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
   MeltUsersNotifier(
@@ -24,7 +24,7 @@ class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
       final response = await homeRepository.meltUser(id);
      
 
-      state = MeltUsersState.success(response.message);
+      state = MeltUsersState.success(response.message!);
     } catch (e) {
       print(e.toString());
       state = MeltUsersState.error(e.toString());

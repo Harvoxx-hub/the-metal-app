@@ -22,7 +22,6 @@ class PersonalTab extends ConsumerStatefulWidget {
 }
 
 class _PersonalTabState extends ConsumerState<PersonalTab> {
- 
   @override
   Widget build(BuildContext context) {
     final userState = ref.watch(authProvider).data;
@@ -43,10 +42,10 @@ class _PersonalTabState extends ConsumerState<PersonalTab> {
           floatingLabel: "Email address",
           subLabel: "Edit",
           onSubLabel: () {
-                              Navigator.pushNamed(context, AppRoutes.updateEmailPage,
-                );
- 
-      
+            Navigator.pushNamed(
+              context,
+              AppRoutes.updateEmailPage,
+            );
           },
         ),
         Gap(20.h),
@@ -55,10 +54,10 @@ class _PersonalTabState extends ConsumerState<PersonalTab> {
           floatingLabel: "Phone Number",
           subLabel: "Edit",
           onSubLabel: () {
-                              Navigator.pushNamed(context, AppRoutes.updatePhoneNumberPage,
-                );
- 
- 
+            Navigator.pushNamed(
+              context,
+              AppRoutes.updatePhoneNumberPage,
+            );
           },
         ),
         Gap(20.h),
@@ -127,7 +126,12 @@ class _PersonalTabState extends ConsumerState<PersonalTab> {
           text: userState?.description ?? "Little Bio about me",
           floatingLabel: "Little Bio about me",
           subLabel: "Edit",
-          onSubLabel: () {},
+          onSubLabel: () {
+            Navigator.pushNamed(
+              context,
+              AppRoutes.moreAboutYouPage,
+            );
+          },
         ),
 
         Gap(20.h),

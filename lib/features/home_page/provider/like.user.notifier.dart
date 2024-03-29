@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
-import 'package:metal/zim.manager/zim.notifier.dart';
+ 
 
 class LikeUsersNotifier extends StateNotifier<LikeUsersState> {
   LikeUsersNotifier(
@@ -19,7 +19,7 @@ class LikeUsersNotifier extends StateNotifier<LikeUsersState> {
       final homeRepository = ref.watch(homeRepositoryProvider);
       final response = await homeRepository.likeUser(userToLike: id);
       if (mounted) {
-        state = LikeUsersState.success(response.message);
+        state = LikeUsersState.success(response.message!);
       }
     } catch (e) {
       print(e.toString());

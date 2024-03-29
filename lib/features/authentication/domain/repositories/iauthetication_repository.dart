@@ -30,6 +30,10 @@ abstract class IAuthenticationRepository {
     Map<String, dynamic>  user,
   );
 
+   Future<Responses> completeUser(
+    Map<String, dynamic>  user,
+  );
+
   //get user by
 
   //verifi

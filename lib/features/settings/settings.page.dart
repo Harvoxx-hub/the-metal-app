@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/my.metals/user.profile.dart';
+
 import 'package:metal/features/profile/profile.page.dart';
 import 'package:metal/features/profile/widget/edit.field.dart';
-import 'package:metal/features/settings/blocked.user.dart';
+
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/plain.button.dart';
@@ -35,6 +35,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       appBarState: AppBarState.HambugerWithHeader,
       body: SingleChildScrollView(
         child: ProfileHeader(
+            eye: false,
             user: user!,
             child: Padding(
               padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
@@ -162,7 +163,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               onTap: () {
                                 Navigator.pushNamed(
                                     context, AppRoutes.blockedUser);
-                                
                               }),
                         ),
                         const Gap(20),

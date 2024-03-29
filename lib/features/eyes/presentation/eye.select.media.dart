@@ -244,6 +244,7 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
         final image = await _cameraController.takePicture();
         // Do something with the captured image
             Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,  
+            arguments: image
                  );
       
       } catch (e) {
@@ -273,6 +274,7 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
           _isRecording = false;
         });
             Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,  
+            arguments: video
                  );
  
       } catch (e) {
@@ -289,6 +291,7 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
     if (pickedFile != null) {
       // User picked an image
           Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,  
+          arguments: pickedFile
                  );
      
     }

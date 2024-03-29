@@ -15,7 +15,7 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
     initMyProfile();
   }
   final Ref ref;
-    UserModel model = UserModel();
+  UserModel model = UserModel();
 //init my profile
   void initMyProfile() async {
     state = UpdateProfileState.success(UserModel());
@@ -37,7 +37,24 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
           .updateUser(getNonNullValues(userModel.toJson()));
       final userData = UserModel.fromJson(response.data);
       ref.read(authProvider.notifier).updateUserData(userData);
-       ref.read(authProvider.notifier).getUpdatedUser();
+      ref.read(authProvider.notifier).getUpdatedUser();
+      state = UpdateProfileState.success(userData);
+    } catch (e) {
+      print(e.toString());
+      state = UpdateProfileState.error(e.toString());
+    }
+  }
+
+  Future<void> completeUserUpdate(UserModel userModel) async {
+    try {
+      state = UpdateProfileState.loading();
+      final authenticationRepository =
+          ref.watch(authenticationRepositoryProvider);
+      final response = await authenticationRepository
+          .completeUser(getNonNullValues(userModel.toJson()));
+      final userData = UserModel.fromJson(response.data);
+
+      ref.read(authProvider.notifier).getUpdatedUser();
       state = UpdateProfileState.success(userData);
     } catch (e) {
       print(e.toString());

@@ -41,6 +41,6 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
 typedef GetMeltUsersState = BaseState<List<MeltUserModel>>;
 
 final getMeltUserProvider =
-    StateNotifierProvider.autoDispose<GetMeltUsersNotifier, GetMeltUsersState>(
+    StateNotifierProvider<GetMeltUsersNotifier, GetMeltUsersState>(
   (ref) => GetMeltUsersNotifier(GetMeltUsersState.initial(), ref),
 );

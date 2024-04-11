@@ -27,9 +27,10 @@ class MessageRepository implements IMessageRepository {
           .orderBy('lastUpdatedAt', descending: true)
           .snapshots()
           .map((snapshot) {
-        return snapshot.docs.map((doc) {
+        final list = snapshot.docs.map((doc) {
           return ConversationsModel.fromSnapshot(doc);
         }).toList();
+        return list;
       });
     } catch (e) {
       print("Error getting chat list: $e");
@@ -58,41 +59,67 @@ class MessageRepository implements IMessageRepository {
   }
 
   @override
-Future<Responses> sendMessage({
-  required MessageModel message,
-  String? conversationsId,
-}) async {
-  try {
-    String newConversationsId;
-    // Check if a conversation ID is provided
-    if (conversationsId == null) {
-      // If no conversation ID provided, check if a conversation exists between sender and recipient
-      final conversationExist = await _firebaseService.checkConversationExists(
-        message.senderId,
-        message.recipientId,
-      );
+  Future<Responses> sendMessage({
+    required MessageModel message,
+    String? conversationsId,
+  }) async {
+    try {
+      String newConversationsId;
+      // Check if a conversation ID is provided
+      if (conversationsId == null) {
+        // If no conversation ID provided, check if a conversation exists between sender and recipient
+        final conversationExist =
+            await _firebaseService.checkConversationExists(
+          message.senderId,
+          message.recipientId,
+        );
 
-      if (conversationExist == null) {
-        // If no conversation exists, create a new conversation
-        newConversationsId = await createConversation(message);
+        if (conversationExist == null) {
+          // If no conversation exists, create a new conversation
+          newConversationsId = await createConversation(message);
+        } else {
+          // If conversation exists, use its ID and create a new message in that conversation
+          newConversationsId = conversationExist;
+          createMessage(conversationExist, message);
+          updateConversation(
+              newConversationsId, message.message, message.timestamp);
+        }
       } else {
-        // If conversation exists, use its ID and create a new message in that conversation
-        newConversationsId = conversationExist;
-        createMessage(conversationExist, message);
+        // If conversation ID is provided, use it and create a new message in that conversation
+        newConversationsId = conversationsId;
+        updateConversation(
+            newConversationsId, message.message, message.timestamp);
+        createMessage(conversationsId, message);
       }
-    } else {
-      // If conversation ID is provided, use it and create a new message in that conversation
-      newConversationsId = conversationsId;
-      createMessage(conversationsId, message);
+      // Return a successful response with the new conversation ID
+      return Responses(success: true, data: newConversationsId);
+    } catch (e) {
+      // Handle any errors and rethrow them
+      print("Error sending message: $e");
+      throw e;
     }
-    // Return a successful response with the new conversation ID
-    return Responses(success: true, data: newConversationsId);
-  } catch (e) {
-    // Handle any errors and rethrow them
-    print("Error sending message: $e");
-    throw e;
   }
-}
+
+  Future<void> updateConversation(
+    String conversationId,
+    String lastMessage,
+    DateTime lastUpdatedAt,
+  ) async {
+    try {
+      // Get a reference to the conversation document
+      final conversationDocRef =
+          _firestore.collection('conversations').doc(conversationId);
+
+      // Update the fields in the conversation document
+      await conversationDocRef.update({
+        'lastMessage': lastMessage,
+        'lastUpdatedAt': lastUpdatedAt,
+      });
+    } catch (e) {
+      print('Error updating conversation: $e');
+      throw e;
+    }
+  }
 
   Future<String> createConversation(MessageModel messageModel) async {
     try {
@@ -107,6 +134,7 @@ Future<Responses> sendMessage({
       await _firebaseService
           .addData(_collectionName, conversations.toJson(), id)
           .then((value) async {
+        await createuserRoom(id, messageModel);
         await createMessage(id, messageModel);
       });
       return id;
@@ -125,6 +153,23 @@ Future<Responses> sendMessage({
           .collection('messages')
           .add(messageModel.toJson())
           .then((value) => print("i was here "));
+    } catch (e) {
+      print("Error creating message: $e");
+      throw e;
+    }
+  }
+
+  Future<void> createuserRoom(
+      String conversationId, MessageModel messageModel) async {
+    try {
+      await _firestore
+          .collection("users")
+          .doc(messageModel.senderId)
+          .collection('conversation')
+          .add({
+        "conversationId": conversationId,
+        "partnerId": messageModel.recipientId
+      }).then((value) => print("i was here "));
     } catch (e) {
       print("Error creating message: $e");
       throw e;

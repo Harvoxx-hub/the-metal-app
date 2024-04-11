@@ -12,6 +12,7 @@ import 'package:metal/features/authentication/presentation/profile.setting/passi
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/home_page/melt.metal.dart';
+import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/upgrade/widget/subscription.card.dart';
 import 'package:metal/features/verification/verification.video.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -79,6 +80,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       const ProfilePage(),
     ];
     final user = ref.watch(authProvider);
+    ref.watch(getMeltUserProvider);
     return BaseScreen(
       appBarState: AppBarState.Dashboard,
       body: user.isLoading

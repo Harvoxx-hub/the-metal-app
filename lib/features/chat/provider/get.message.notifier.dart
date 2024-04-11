@@ -21,10 +21,8 @@ class GetMessageNotifier extends StateNotifier<GetMessageState> {
         ..listen((messages) {
           print(messages
               .length); // This will print the length of the messages whenever new data arrives
-
-         
         });
-         state = GetMessageState.success(messages);
+      state = GetMessageState.success(messages);
     } catch (e) {
       print('Failed to Get Message: $e');
       state = GetMessageState.error('Failed to Get Message $e');

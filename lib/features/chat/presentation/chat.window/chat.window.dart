@@ -49,19 +49,25 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
   void _fetchMessages() async {
     try {
       final messageNotifier = ref.read(getMessageProvider.notifier);
+
       if (conversationId != null) {
         await messageNotifier.getMessage(conversationId!);
       }
 
       _messagesStream = ref.read(getMessageProvider).data ?? Stream.empty();
+
       setState(() {
-           _isMessagesStreamInitialized = true;
+        _isMessagesStreamInitialized = true;
       });
-   
     } catch (e) {
       print('Failed to fetch messages: $e');
     }
   }
+
+ 
+ 
+
+  
 
   void _updateconversationId(String id) {
     conversationId = id;
@@ -116,6 +122,7 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
                           } else {
                             final messages = snapshot.data ?? [];
                             return ListView.builder(
+                              reverse: true,
                               itemCount: messages.length,
                               itemBuilder: (context, index) {
                                 final message = messages[index];
@@ -129,18 +136,6 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
                         },
                       ),
                     ),
-              // Expanded(
-              //   child: ListView.builder(
-              //     itemCount: _messages.length,
-              //     itemBuilder: (context, index) {
-              //       return MessageBubble(
-              //         message: _messages[index],
-              //         // Add any additional parameters needed for customization
-              //       );
-              //     },
-              //   ),
-              // ),
-
               Align(
                 alignment: Alignment.bottomCenter,
                 child: ChatBottomSheet(
@@ -166,7 +161,7 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
         message: text,
         recipientId: widget.argument.user.id!);
 
-    ref.read(sendMessageProvider.notifier).sendMessage(message);
+    ref.read(sendMessageProvider.notifier).sendMessage(message, conversationId);
   }
 
   //   ZIMEventHandler.onReceivePeerMessage = null;

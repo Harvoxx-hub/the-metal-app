@@ -19,6 +19,7 @@ import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/shimmer.loading.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class ChatWindowsAppBar extends ConsumerStatefulWidget {
   const ChatWindowsAppBar({super.key, required this.meltUserModel});
@@ -67,14 +68,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         const Spacer(),
         GestureDetector(
           onTap: () {
-            Fluttertoast.showToast(
-                msg: "Error: Auth ID invalid",
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 3,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0);
+            actionButton(true);
           },
           child: SvgPicture.asset(
             Assets.icons.chatsWindowactiveVideoRecorder.path,
@@ -85,14 +79,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         Gap(15.w),
         GestureDetector(
           onTap: () {
-            Fluttertoast.showToast(
-                msg: "Error: Auth ID invalid",
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 3,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0);
+               actionButton(false);
           },
           child: SvgPicture.asset(
             Assets.icons.chatsWindowactiveFill.path,
@@ -220,4 +207,14 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
       ],
     );
   }
+
+  ZegoSendCallInvitationButton actionButton(bool isVideo) =>
+      ZegoSendCallInvitationButton(
+        isVideoCall: isVideo,
+        resourceID: "zegouikit_call",
+        invitees: [
+          ZegoUIKitUser(
+              id: widget.meltUserModel.phone?? "123456", name: widget.meltUserModel.name!),
+        ],
+      );
 }

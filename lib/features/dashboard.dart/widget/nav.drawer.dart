@@ -19,6 +19,7 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:provider/provider.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class NavDrawer extends ConsumerWidget {
   @override
@@ -290,5 +291,6 @@ class NavDrawer extends ConsumerWidget {
   void logout() {
     final authManager = AuthManager();
     authManager.saveLoginState(LoginState.loggedOut);
+     ZegoUIKitPrebuiltCallInvitationService().uninit();
   }
 }

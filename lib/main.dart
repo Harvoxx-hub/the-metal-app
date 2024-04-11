@@ -10,7 +10,9 @@ import 'package:metal/route/routes.dart';
 
  
 import 'package:firebase_analytics/firebase_analytics.dart';
-
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+ 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -23,11 +25,21 @@ void main() async {
     print("Failed to initialize Firebase: $e");
   }
 
+ /// 1.1.2: set navigator key to ZegoUIKitPrebuiltCallInvitationService
+  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(nav as GlobalKey<NavigatorState>);
 
-  runApp(const ProviderScope(
+  // call the useSystemCallingUI
+  ZegoUIKit().initLog().then((value) {
+    ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
+      [ZegoUIKitSignalingPlugin()],
+    );
+   runApp(const ProviderScope(
     overrides: [],
     child: MyApp(),
   ));
+  });
+
+ 
 }
 
 final _navKey = GlobalKey<NavigatorState>();

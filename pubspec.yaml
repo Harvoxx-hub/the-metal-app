@@ -88,13 +88,9 @@ dependencies:
   another_audio_recorder: ^1.1.0
   cloud_firestore: ^4.15.8
   firebase_storage: ^11.6.10
+  zego_uikit_prebuilt_call: ^4.7.3
+  zego_uikit_signaling_plugin: ^2.7.6
 
-  stream_video_flutter: ^0.3.6
-  stream_video_push_notification: ^0.3.6
-  stream_video: ^0.3.6
- 
-  
-  
 
 
 

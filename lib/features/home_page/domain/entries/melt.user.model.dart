@@ -3,8 +3,6 @@ import 'package:metal/features/authentication/domain/entries/metal.properties.mo
 
 part 'melt.user.model.g.dart';
 
- 
-
 @JsonSerializable(explicitToJson: true)
 class MeltUserModel {
   final String? name;
@@ -13,11 +11,13 @@ class MeltUserModel {
   final String? gender;
 
   final Metal? metal;
+  final String? phone;
 
   MeltUserModel({
     this.id,
     this.gender,
     this.metal,
+    this.phone,
     this.name,
   });
 

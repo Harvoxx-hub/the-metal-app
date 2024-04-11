@@ -92,7 +92,7 @@ dependencies:
   stream_video_flutter: ^0.3.6
   stream_video_push_notification: ^0.3.6
   stream_video: ^0.3.6
-  path: ^1.9.0
+ 
   
   
 

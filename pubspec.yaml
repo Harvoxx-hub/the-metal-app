@@ -90,6 +90,7 @@ dependencies:
   firebase_storage: ^11.6.10
   zego_uikit_prebuilt_call: ^4.7.3
   zego_uikit_signaling_plugin: ^2.7.6
+  package_info_plus: ^7.0.0
 
 
 

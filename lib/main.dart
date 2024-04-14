@@ -12,7 +12,9 @@ import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
- 
+final navKey = GlobalKey<NavigatorState>();
+
+NavigatorState? get nav => navKey.currentState;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -26,7 +28,7 @@ void main() async {
   }
 
  /// 1.1.2: set navigator key to ZegoUIKitPrebuiltCallInvitationService
-  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(nav as GlobalKey<NavigatorState>);
+  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navKey);
 
   // call the useSystemCallingUI
   ZegoUIKit().initLog().then((value) {
@@ -42,9 +44,7 @@ void main() async {
  
 }
 
-final _navKey = GlobalKey<NavigatorState>();
 
-NavigatorState? get nav => _navKey.currentState;
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
@@ -70,7 +70,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         builder: (BuildContext context, Widget? child) {
           return MaterialApp(
             title: 'Metal',
-            key: _navKey,
+            key: navKey,
           
             initialRoute: '/', // Set your initial route here
             onGenerateRoute: AppRoutes.generateRoute,

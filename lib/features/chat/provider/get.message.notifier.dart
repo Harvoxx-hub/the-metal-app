@@ -1,38 +1,47 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+
 import 'package:metal/features/chat/data/repositories/message.repository.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 
-class GetMessageNotifier extends StateNotifier<GetMessageState> {
-  GetMessageNotifier(this.ref) : super(GetMessageState.initial());
-
+class MessageListNotifier extends StateNotifier<MessageListState> {
+  MessageListNotifier(MessageListState state, this.ref, this.id)
+      : super(state) {
+    getMessageList();
+  }
   final Ref ref;
-
-//getStream of chatlist
-  Future<void> getMessage(String conversationId) async {
+  final String id;
+  StreamSubscription<List<MessageModel>>? _messageSubscription;
+ 
+  void getMessageList() async {
     try {
-      state = GetMessageState.loading();
-
+      state = MessageListState.loading();
       final messageRepository = ref.watch(messageRepositoryProvider);
 
-      final messages = messageRepository.getMessages(conversationId)
-        ..listen((messages) {
-          print(messages
-              .length); // This will print the length of the messages whenever new data arrives
-        });
-      state = GetMessageState.success(messages);
+      _messageSubscription =
+          messageRepository.getMessages(id).listen((messages) {
+        print(messages.length);
+        state = MessageListState.success(messages);
+      });
     } catch (e) {
-      print('Failed to Get Message: $e');
-      state = GetMessageState.error('Failed to Get Message $e');
+      print(e.toString());
+      state = MessageListState.error(e.toString());
     }
   }
+
+  @override
+  void dispose() {
+    _messageSubscription?.cancel();
+    super.dispose();
+  }
+// }
 }
 
-typedef GetMessageState = BaseState<Stream<List<MessageModel>>>;
+typedef MessageListState = BaseState<List<MessageModel>>;
 
-final getMessageProvider =
-    StateNotifierProvider.autoDispose<GetMessageNotifier, GetMessageState>(
-  (ref) => GetMessageNotifier(ref),
+final getMessageList = StateNotifierProvider.family
+    .autoDispose<MessageListNotifier, MessageListState, String>(
+  (ref, id) => MessageListNotifier(MessageListState.initial(), ref, id),
 );

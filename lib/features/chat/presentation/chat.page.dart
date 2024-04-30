@@ -5,14 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+ 
 import 'package:metal/features/chat/presentation/widget/chat.list.dart';
  
-import 'package:metal/features/chat/presentation/widget/profile.image.dart';
 import 'package:metal/features/chat/presentation/widget/status/status.widget.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/chat/presentation/chat.window/chat.window.dart';
-
+ 
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -65,7 +63,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                   children: [
                     EditFormField(
                       label: 'Search',
-                      // controller: _emailController,
+                     
                       keyboardType: TextInputType.emailAddress,
                       autoValidate: false,
                       prefixWidget: SvgPicture.asset(
@@ -73,9 +71,9 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                         height: 24,
                         width: 24,
                       ),
-                      // validator: EmailValidator.validate(email),
+                    
                       radius: 34,
-                      // fillColor: AppColors.appGrey,
+                  
                     ),
                     Gap(10.h),
                     TextView(

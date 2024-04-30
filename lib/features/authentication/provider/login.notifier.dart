@@ -36,19 +36,14 @@ class LoginNotifier extends StateNotifier<LoginStates> {
           .read(authProvider.notifier)
           .updateUserData(UserModel.fromJson(response.data));
       state = LoginStates.success(UserModel.fromJson(response.data));
-      // ignore: non_constant_identifier_names
     } catch (e) {
       AppError error = e as AppError;
-    
-        state = LoginStates.error(error.message, errorData: e.errorData);
-    
+
+      state = LoginStates.error(error.message, errorData: e.errorData);
     }
   }
-
-  //update state with new user data
 }
 
-// Define a type alias
 typedef LoginStates = BaseState<UserModel>;
 
 final loginProvider =

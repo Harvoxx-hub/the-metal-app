@@ -2,17 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
- 
+
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/services/countries.service.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
- 
-import 'package:metal/gen/assets.gen.dart';
 
- 
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/agree.click.dart';
@@ -33,9 +31,13 @@ class HomeAddressPage extends ConsumerStatefulWidget {
 class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
-  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _apartmentNoController = TextEditingController();
 
-  final TextEditingController _townController = TextEditingController();
+  final TextEditingController _houseNumberController = TextEditingController();
+
+  final TextEditingController _streetNameController = TextEditingController();
+
+  final TextEditingController _postalCodeController = TextEditingController();
   List<String> country = [];
   List<String> states = [];
 
@@ -43,7 +45,6 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     getCountries();
     super.initState();
   }
@@ -89,24 +90,53 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                 path: Assets.images.homeAddress.path,
                 title: "Let us know your home address",
                 subtitle:
-                    "Choose the data you wish to omit from your feed. The metals containing the highlighted details will be removed from your feed. This filtered information is intended solely for the purpose of fitting."),
+                    "Choose the data you wish to omit from your feed. The metals containing the highlighted details will be removed from your feed. This filtered information is intended solely for the purpose of Matching."),
             Gap(26.h),
             Form(
                 key: _form,
                 child: Column(
                   children: [
                     EditFormField(
-                      floatingLabel: 'House Address',
-                      label: 'Type here...',
-                      controller: _addressController,
-                      keyboardType: TextInputType.text,
+                      floatingLabel: 'Apartment number',
+                      label: 'Enter number.',
+                      controller: _apartmentNoController,
+                      keyboardType: TextInputType.number,
                       suffixWidget: CustomCheckWidget(
                         initialValue: false,
                         onChanged: (bool value) {
                           print('Value changed to $value');
                         },
                       ),
+                      radius: 10,
+                    ),
+                    Gap(16.h),
+                    EditFormField(
+                      floatingLabel: 'House number',
+                      label: 'Enter number.',
+                      controller: _houseNumberController,
+                      keyboardType: TextInputType.number,
+                      validator: Validators.validateInt(),
+                      suffixWidget: CustomCheckWidget(
+                        initialValue: false,
+                        onChanged: (bool value) {
+                          print('Value changed to $value');
+                        },
+                      ),
+                      radius: 10,
+                    ),
+                    Gap(16.h),
+                    EditFormField(
+                      floatingLabel: 'Street name',
+                      label: 'Enter street name.',
+                      controller: _streetNameController,
                       validator: Validators.validateString(),
+                      keyboardType: TextInputType.streetAddress,
+                      suffixWidget: CustomCheckWidget(
+                        initialValue: false,
+                        onChanged: (bool value) {
+                          print('Value changed to $value');
+                        },
+                      ),
                       radius: 10,
                     ),
                     Gap(16.h),
@@ -136,10 +166,10 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                     ),
                     Gap(16.h),
                     EditFormField(
-                      floatingLabel: 'Town',
-                      label: 'Type here...',
-                      controller: _townController,
-                      keyboardType: TextInputType.name,
+                      floatingLabel: 'Postal Code',
+                      label: 'Enter Postal Code',
+                      controller: _postalCodeController,
+                      keyboardType: TextInputType.text,
                       validator: Validators.validateString(),
                       suffixWidget: CustomCheckWidget(
                         initialValue: false,
@@ -150,6 +180,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                     ),
                     Gap(16.h),
                     BaseButton(
+                      loading: _updateProfile.isLoading,
                       buttonText: "Next",
                       onPressed: () {
                         if (_form.currentState!.validate()) {
@@ -168,10 +199,12 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
     final userData = ref.watch(updateProfileProvider).data;
     final Address address = Address();
 
-    address.town = _townController.text;
+    address.apartment_number = _apartmentNoController.text;
     address.state = _selectedState;
     address.country = _selectedCountries;
-    address.house_address = _addressController.text;
+    address.streetName = _streetNameController.text;
+    address.postalCode = _postalCodeController.text;
+    address.house_number = _houseNumberController.text;
     userData!.address = address;
 
     ref.read(updateProfileProvider.notifier).completeUserUpdate(userData);

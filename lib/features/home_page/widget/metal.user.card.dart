@@ -6,26 +6,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
 import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
+import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
 import 'package:metal/features/home_page/provider/like.user.notifier.dart';
 import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
+
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/home_page/melt.metal.dart';
-import 'package:metal/features/home_page/push.metal.dart';
+
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/res/style/text_styles.dart';
 import 'package:metal/route/routes.dart';
+import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
-
-class MyWidget extends StatelessWidget {
-  const MyWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
-}
 
 class MetalUserCard extends ConsumerStatefulWidget {
   const MetalUserCard({
@@ -45,7 +40,7 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
   void initState() {
     super.initState();
     liked = widget.user.liked;
-    _controller = ConfettiController(duration: const Duration(seconds: 10));
+    _controller = ConfettiController(duration: const Duration(seconds: 2));
   }
 
   @override
@@ -57,6 +52,7 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
 
   @override
   Widget build(BuildContext context) {
+    final _userState = ref.watch(authProvider).data;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 27.h),
       margin: EdgeInsets.only(bottom: 40.h, left: 20.w, right: 20.w),
@@ -94,7 +90,7 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
           Row(
             children: [
               TextView(
-                text: '@${widget.user.username}',
+                text: '@${widget.user.username}_${widget.user.metal!.title}',
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w700,
               ),
@@ -110,7 +106,8 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
           ),
           Gap(6.h),
           _buildSubItem('Gender', widget.user.gender!),
-          _buildSubItem('Age range', widget.user.age_range ?? ""),
+          _buildSubItem(
+              'Age range', getAgeRange(int.parse(widget.user.age_range!))),
           Gap(12.h),
           Container(
             padding: EdgeInsets.symmetric(
@@ -162,9 +159,24 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
             children: [
               GestureDetector(
                 onTap: () {
-                                    Navigator.pushNamed(context, AppRoutes.meltMetal, arguments: widget.user,
-                );
-  
+                  _userState!.completed_profile!
+                      ? {
+                          !widget.user.pushedMe
+                              ?  _meltUser()
+                              : Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.meltMetal,
+                                  arguments: widget.user,
+                                )
+                        }
+                      : showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CustomDialog(
+                              content: ComplecteProfileDialog(),
+                            );
+                          },
+                        );
                 },
                 child: Image.asset(Assets.images.melt.path),
               ),
@@ -184,22 +196,41 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
                 alignment: Alignment.bottomCenter,
                 child: GestureDetector(
                   onTap: () {
-                    _controller.play();
-                    setState(() {
-                      liked = true;
-                    });
-                    ref
-                        .read(likeUserProvider.notifier)
-                        .LikeUser(widget.user.id!);
+                    _userState!.completed_profile!
+                        ? {
+                            _controller.play(),
+                            setState(() {
+                              liked = true;
+                            }),
+                            ref
+                                .read(likeUserProvider.notifier)
+                                .LikeUser(widget.user.id!),
+                          }
+                        : showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return CustomDialog(
+                                content: ComplecteProfileDialog(),
+                              );
+                            },
+                          );
                   },
                   child: Image.asset(Assets.images.like.path),
                 ),
               ),
               GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(context,  AppRoutes.pushMetal, arguments:widget.user);
-                                
-               
+                  _userState!.completed_profile!
+                      ? Navigator.pushNamed(context, AppRoutes.pushMetal,
+                          arguments: widget.user)
+                      : showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CustomDialog(
+                              content: ComplecteProfileDialog(),
+                            );
+                          },
+                        );
                 },
                 child: Image.asset(Assets.images.pushMetalscreen.path),
               )
@@ -220,5 +251,41 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
             style: const TextStyle(fontWeight: FontWeight.w500),
           )
         ]));
+  }
+
+  String getAgeRange(int age) {
+    if (age >= 18 && age <= 23) {
+      return "18 - 23";
+    } else if (age >= 24 && age <= 29) {
+      return "24 - 29";
+    } else if (age >= 30 && age <= 35) {
+      return "30 - 35";
+    } else if (age >= 36 && age <= 41) {
+      return "36 - 41";
+    } else if (age >= 42 && age <= 47) {
+      return "42 - 47";
+    } else if (age >= 48 && age <= 53) {
+      return "48 - 53";
+    } else if (age >= 54 && age <= 59) {
+      return "54 - 59";
+    } else if (age >= 60 && age <= 65) {
+      return "60 - 65";
+    } else if (age >= 66 && age <= 71) {
+      return "66 - 71";
+    } else if (age >= 72 && age <= 77) {
+      return "72 - 77";
+    } else if (age >= 78 && age <= 83) {
+      return "78 - 83";
+    } else if (age >= 85 && age <= 90) {
+      return "85 - 90";
+    } else if (age >= 91 && age <= 100) {
+      return "91 - 100";
+    } else {
+      return "Age is not within any specified range";
+    }
+  }
+
+  void _meltUser() {
+    ref.watch(meltUserProvider(widget.user.id!));
   }
 }

@@ -1,16 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/eyes/presentation/eyes.intro.screen.dart';
+import 'package:metal/features/profile/provider/upload.profile.image.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/profile/tab.screen/discovery.tab.dart';
-import 'package:metal/features/profile/tab.screen/metal.plan.tab.dart';
-import 'package:metal/features/profile/tab.screen/personal.tab.dart';
+import 'package:metal/features/profile/presentation/tab.screen/discovery.tab.dart';
+import 'package:metal/features/profile/presentation/tab.screen/metal.plan.tab.dart';
+import 'package:metal/features/profile/presentation/tab.screen/personal.tab.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
@@ -29,9 +34,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).data;
+
     return SingleChildScrollView(
       child: ProfileHeader(
-          user: user!,
+          metal: user!.metal!,
+          profileUrl: user.profilePhoto,
           child: Padding(
             padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
             child: Container(
@@ -63,20 +70,23 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 }
 
-class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({
+class ProfileHeader extends ConsumerWidget {
+  const ProfileHeader( {
     super.key,
     required this.child,
-    required this.user,
+    this.metal,
     this.eye = true,
+    this.profileUrl,
   });
 
   final Widget child;
-  final UserModel user;
+  final Metal? metal;
+  final String ?profileUrl;
   final bool eye;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileImage = ref.watch(profileImageProvider);
     return SingleChildScrollView(
       child: Stack(
         children: [
@@ -91,15 +101,24 @@ class ProfileHeader extends StatelessWidget {
             top: 19,
             left: 0,
             right: 0,
-            child: user.metal == null
-                ? const ProfilePhoto(
-                    size: 170,
-                    verfly: false,
+            child: profileImage.isLoading
+                ? Center(
+                    child: CircularProgressIndicator(),
                   )
-                : ProfilePhoto(
-                    size: 170,
-                    verfly: false,
-                    photourl: user.metal!.img!,
+                : GestureDetector(
+                    onTap: () async {
+                      File? image = await pickImage(context);
+                      if (image != null) {
+                        ref
+                            .read(profileImageProvider.notifier)
+                            .UploadProfileImage(image);
+                      }
+                    },
+                    child: ProfilePhoto(
+                      size: 170,
+                      verfly: false,
+                      photourl: profileUrl ?? metal!.img!,
+                    ),
                   ),
           ),
           eye
@@ -121,6 +140,46 @@ class ProfileHeader extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<File?> pickImage(BuildContext context) async {
+    final ImagePicker _picker = ImagePicker();
+
+    // Show bottom sheet to choose between camera and gallery
+    final option = await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Camera'),
+                onTap: () {
+                  Navigator.pop(context, ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Gallery'),
+                onTap: () {
+                  Navigator.pop(context, ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (option != null) {
+      final pickedFile = await _picker.pickImage(source: option);
+      if (pickedFile != null) {
+        return File(pickedFile.path);
+      }
+    }
+
+    return null;
   }
 }
 

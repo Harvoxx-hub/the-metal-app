@@ -8,8 +8,8 @@ part of 'metal.plan.model.dart';
 
 MetalPlanModel _$MetalPlanModelFromJson(Map<String, dynamic> json) =>
     MetalPlanModel(
-      planName: json['planName'] as String,
-      id: json['id'] as String,
+      planeName: json['planeName'] as String,
+      id: json['id'] as String?,
       duration: json['duration'] as int,
       price: json['price'] as int,
       metaData:
@@ -20,7 +20,7 @@ Map<String, dynamic> _$MetalPlanModelToJson(MetalPlanModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'duration': instance.duration,
-      'planName': instance.planName,
+      'planeName': instance.planeName,
       'price': instance.price,
       'metaData': instance.metaData,
     };

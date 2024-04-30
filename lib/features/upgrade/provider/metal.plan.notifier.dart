@@ -34,6 +34,6 @@ class MetalPlanNotifier extends StateNotifier<MetalPlanState> {
 typedef MetalPlanState = BaseState<List<MetalPlanModel>>;
 
 final metalPlansProvider =
-    StateNotifierProvider<MetalPlanNotifier, MetalPlanState>(
+    StateNotifierProvider.autoDispose<MetalPlanNotifier, MetalPlanState>(
   (ref) => MetalPlanNotifier(MetalPlanState.initial(), ref),
 );

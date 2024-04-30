@@ -22,12 +22,14 @@ class GetUsersNotifier extends StateNotifier<GetAllUsersState> {
       state = GetAllUsersState.loading();
       final homeRepository = ref.watch(homeRepositoryProvider);
       final userData = ref.watch(authProvider).data;
-      final response = await homeRepository.getALLUser(userData!.distance);
+      final response = await homeRepository.getALLUser(userData!.distance!);
       final List<ALLUserModel> users = [];
       response.data.forEach((element) {
         users.add(ALLUserModel.fromJson(element));
       });
-      filterUsers(users);
+     if (mounted) {
+        state = GetAllUsersState.success(users);
+      }
     } catch (e) {
       print(e.toString());
       state = GetAllUsersState.error(e.toString());
@@ -35,18 +37,18 @@ class GetUsersNotifier extends StateNotifier<GetAllUsersState> {
   }
 
   //filter users if melted is true dont add to list
-  void filterUsers(List<ALLUserModel> users) {
-    final List<ALLUserModel> filteredUsers = [];
-    users.forEach((element) {
-      if (!element.melted) {
-        filteredUsers.add(element);
-      }
-    });
-    if (mounted) {
-        state = GetAllUsersState.success(filteredUsers);
-      }
+  // void filterUsers(List<ALLUserModel> users) {
+  //   final List<ALLUserModel> filteredUsers = [];
+  //   users.forEach((element) {
+  //     if (!element.melted) {
+  //       filteredUsers.add(element);
+  //     }
+  //   });
+  //   if (mounted) {
+  //       state = GetAllUsersState.success(filteredUsers);
+  //     }
   
-  }
+  // }
 
   //remove user from list
   void removeUser(String id) {

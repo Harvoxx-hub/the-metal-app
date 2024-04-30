@@ -9,8 +9,9 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 
 class ChatBottomSheet extends StatefulWidget {
-  const ChatBottomSheet({super.key, required this.onSend});
+  const ChatBottomSheet({super.key, required this.onSend, required this.onGameClick});
   final Function(String) onSend;
+  final Function() onGameClick;
   @override
   State<ChatBottomSheet> createState() => _ChatBottomSheetState();
 }
@@ -20,7 +21,7 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
+      padding:   EdgeInsets.only(bottom: 10.0,  left: 18.w, right: 18.w),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -47,9 +48,7 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
               ? Row(
                   children: [
                     GestureDetector(
-                      onTap: () =>  Navigator.pushNamed(context,  AppRoutes.gamePage, ),
-                      
-                   
+                      onTap: widget.onGameClick,
                       child: SvgPicture.asset(
                         Assets.icons.chatsEmptyStateGamingPad01.path,
                         height: 30,

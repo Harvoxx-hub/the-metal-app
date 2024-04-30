@@ -13,6 +13,7 @@ MeltUserModel _$MeltUserModelFromJson(Map<String, dynamic> json) =>
       metal: json['metal'] == null
           ? null
           : Metal.fromJson(json['metal'] as Map<String, dynamic>),
+      phone: json['phone'] as String?,
       name: json['name'] as String?,
     );
 
@@ -22,4 +23,5 @@ Map<String, dynamic> _$MeltUserModelToJson(MeltUserModel instance) =>
       'id': instance.id,
       'gender': instance.gender,
       'metal': instance.metal?.toJson(),
+      'phone': instance.phone,
     };

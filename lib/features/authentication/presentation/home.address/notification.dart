@@ -60,13 +60,11 @@ class _NotificationEnablePageState
             loading: _updateProfile.isLoading,
             buttonText: "Notify Me",
             onPressed: () {
-              _onNextPressed(_updateProfile.data!);
+          //    _onNextPressed(_updateProfile.data!);
             },
           ),
         ]));
   }
 
-  void _onNextPressed(UserModel user) {
-    ref.read(updateProfileProvider.notifier).sendUserUpdate(user);
-  }
+ 
 }

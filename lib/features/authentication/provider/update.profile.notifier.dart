@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
 
 import 'package:metal/core/state/base.state.dart';
@@ -36,11 +38,33 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
       final response = await authenticationRepository
           .updateUser(getNonNullValues(userModel.toJson()));
       final userData = UserModel.fromJson(response.data);
-      ref.read(authProvider.notifier).updateUserData(userData);
+
       ref.read(authProvider.notifier).getUpdatedUser();
       state = UpdateProfileState.success(userData);
     } catch (e) {
-      print(e.toString());
+      state = UpdateProfileState.error(e.toString());
+    }
+  }
+
+  Future<void> updateParticularInfor(UserModel userModel) async {
+    try {
+      final authenticationRepository =
+          ref.watch(authenticationRepositoryProvider);
+      final response = await authenticationRepository.UpdateParticualarInfo(
+          getNonNullValues(userModel.toJson()));
+      final userData = UserModel.fromJson(response.data);
+
+      ref.read(authProvider.notifier).getUpdatedUser();
+      Fluttertoast.showToast(
+          msg: "Profile Updated",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 3,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      state = UpdateProfileState.success(userData);
+    } catch (e) {
       state = UpdateProfileState.error(e.toString());
     }
   }
@@ -54,7 +78,7 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
           .completeUser(getNonNullValues(userModel.toJson()));
       final userData = UserModel.fromJson(response.data);
 
-      ref.read(authProvider.notifier).getUpdatedUser();
+      await ref.read(authProvider.notifier).getUpdatedUser();
       state = UpdateProfileState.success(userData);
     } catch (e) {
       print(e.toString());

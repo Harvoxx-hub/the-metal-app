@@ -85,7 +85,7 @@ class SparksPage extends ConsumerWidget {
 
                     _sparks.isLoading?
                     const CircularProgressIndicator():
-                    _sparks.data!.isEmpty?
+                    _sparks.data?.isEmpty ?? true?
                     Column(
                       children: [
 

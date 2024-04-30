@@ -10,8 +10,7 @@ import 'package:metal/res/colors/cr_colors.dart';
 
 class BlockedUser extends StatelessWidget {
   const BlockedUser({super.key});
-  static const name = 'blockedPage';
-  static const route = '$name';
+ 
 
   @override
   Widget build(BuildContext context) {

@@ -3,18 +3,19 @@ import 'package:metal/features/authentication/presentation/forget.password/creat
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.otp.screen.dart';
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
+import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
+import 'package:metal/features/settings/edit.page.dart';
 import 'package:metal/features/splash/splash.screen.dart';
 import 'package:camera/camera.dart';
- 
+
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
- 
+
 import 'package:metal/features/authentication/presentation/home.address/home.address.dart';
 import 'package:metal/features/authentication/presentation/home.address/location.dart';
 import 'package:metal/features/authentication/presentation/home.address/notification.dart';
- 
 
 import 'package:metal/features/authentication/presentation/profile.setting/about.you.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/choose.your.metal.dart';
@@ -45,11 +46,11 @@ import 'package:metal/features/my.metals/my.melted.metals.dart';
 import 'package:metal/features/my.metals/my.melted.user.dart';
 import 'package:metal/features/my.metals/user.profile.dart';
 import 'package:metal/features/notification/notification.page.dart';
- 
-import 'package:metal/features/profile/update.email/new.email.page.dart';
-import 'package:metal/features/profile/update.email/update.email.page.dart';
-import 'package:metal/features/profile/update.phone.number/new.phone.number.page.dart';
-import 'package:metal/features/profile/update.phone.number/update.phone.number.page.dart';
+
+import 'package:metal/features/profile/presentation/update.email/new.email.page.dart';
+import 'package:metal/features/profile/presentation/update.email/update.email.page.dart';
+import 'package:metal/features/profile/presentation/update.phone.number/new.phone.number.page.dart';
+import 'package:metal/features/profile/presentation/update.phone.number/update.phone.number.page.dart';
 import 'package:metal/features/refer.earn/refer.earn.dart';
 import 'package:metal/features/settings/blocked.user.dart';
 import 'package:metal/features/settings/settings.page.dart';
@@ -64,9 +65,6 @@ import 'package:metal/features/upgrade/make.payment.dart';
 import 'package:metal/features/upgrade/upgrade.page.dart';
 import 'package:metal/features/verification/verification.video.dart';
 import 'package:metal/features/verification/video.preview.dart';
-
- 
-
 
 class AppRoutes {
   static const String splash = '/';
@@ -117,8 +115,8 @@ class AppRoutes {
   static const String updateEmailPage = '/updateEmailPage';
   static const String newPhoneNumberPage = '/newPhoneNumberPage';
   static const String newEmailPage = '/newEmailPage';
-
- static Route<dynamic> generateRoute(RouteSettings settings) {
+  static const String editPage = '/editPage';
+  static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
         return MaterialPageRoute(builder: (_) => SplashPage());
@@ -135,7 +133,9 @@ class AppRoutes {
       case accountSetting:
         return MaterialPageRoute(builder: (_) => AccountSetting());
       case verificationPage:
-        return MaterialPageRoute(builder: (_) => VerificationPage(settings.arguments as VerificationSentArgument));
+        return MaterialPageRoute(
+            builder: (_) => VerificationPage(
+                settings.arguments as VerificationSentArgument));
       case welcomePage:
         return MaterialPageRoute(builder: (_) => WelcomePage());
       case createProfilePage:
@@ -161,13 +161,19 @@ class AppRoutes {
       case dashboardPage:
         return MaterialPageRoute(builder: (_) => DashboardPage());
       case viewEyes:
-        return MaterialPageRoute(builder: (_) => ViewEyes(eyes: settings.arguments as List<StatusModel>));
+        return MaterialPageRoute(
+            builder: (_) =>
+                ViewEyes(eyes: settings.arguments as List<StatusModel>));
       case eyesIntro:
         return MaterialPageRoute(builder: (_) => EyesIntro());
       case eyeSelectMedia:
         return MaterialPageRoute(builder: (_) => EyeSelectMedia());
+      case editPage:
+        return MaterialPageRoute(builder: (_) => EditPage());
       case eyePreviewMedia:
-        return MaterialPageRoute(builder: (_) => EyePreviewMedia(media: settings.arguments as XFile));
+        return MaterialPageRoute(
+            builder: (_) =>
+                EyePreviewMedia(media: settings.arguments as XFile));
       case settingPage:
         return MaterialPageRoute(builder: (_) => SettingPage());
       case verificationVideo:
@@ -175,28 +181,38 @@ class AppRoutes {
       case videoPreview:
         return MaterialPageRoute(builder: (_) => VideoPreview());
       case meltMetal:
-        return MaterialPageRoute(builder: (_) => MeltMetal(settings.arguments as ALLUserModel));
+        return MaterialPageRoute(
+            builder: (_) => MeltMetal(settings.arguments as ALLUserModel));
       case pushMetal:
-        return MaterialPageRoute(builder: (_) => PushMetal(user: settings.arguments as ALLUserModel));
+        return MaterialPageRoute(
+            builder: (_) =>
+                PushMetal(user: settings.arguments as ALLUserModel));
       case feedBackPage:
         return MaterialPageRoute(builder: (_) => FeedBackPage());
       case blockedUser:
-      MaterialPageRoute(builder: (_) => BlockedUser());
+        MaterialPageRoute(builder: (_) => BlockedUser());
       case notificationPage:
         return MaterialPageRoute(builder: (_) => NotificationPage());
       case userProfilePage:
-        return MaterialPageRoute(builder: (_) => UserProfilePage(user: settings.arguments as UserModel));
+        return MaterialPageRoute(
+            builder: (_) =>
+                UserProfilePage(user: settings.arguments as UserModel));
       case upgradePage:
         return MaterialPageRoute(builder: (_) => UpgradePage());
       case makePayment:
-    final   arguments = settings.arguments as List<dynamic>;
-        return MaterialPageRoute(builder: (_) => MakePayment(price:arguments [1] , paymentType: arguments [0]  ,));
+        final arguments = settings.arguments as List<dynamic>;
+        return MaterialPageRoute(
+            builder: (_) => MakePayment(
+                  price: arguments[1],
+                  paymentType: arguments[0],
+                ));
       case referEarn:
         return MaterialPageRoute(builder: (_) => ReferEarn());
       case myMeltedMetals:
         return MaterialPageRoute(builder: (_) => MyMeltedMetals());
       case myMeltedUser:
-        return MaterialPageRoute(builder: (_) => MyMeltedUser(settings.arguments as String));
+        return MaterialPageRoute(
+            builder: (_) => MyMeltedUser(settings.arguments as String));
       case sendSpark:
         return MaterialPageRoute(builder: (_) => SendSpark());
       case buySpark:
@@ -204,11 +220,15 @@ class AppRoutes {
       case referEarnSpark:
         return MaterialPageRoute(builder: (_) => ReferEarnSpark());
       case chatWindowsPage:
-        return MaterialPageRoute(builder: (_) => ChatWindowsPage(argument:settings.arguments as ChatWindowArgument ,));
+        return MaterialPageRoute(
+            builder: (_) => ChatWindowsPage(
+                  argument: settings.arguments as ChatWindowArgument,
+                ));
       case gamePage:
         return MaterialPageRoute(builder: (_) => GamePage());
       case gameRules:
-        return MaterialPageRoute(builder: (_) => GameRules(games: settings.arguments as String));
+        return MaterialPageRoute(
+            builder: (_) => GameRules(games: settings.arguments as GameModel));
       case updatePhoneNumberPage:
         return MaterialPageRoute(builder: (_) => UpdatePhoneNumberPage());
       case updateEmailPage:
@@ -226,12 +246,12 @@ class AppRoutes {
           ),
         );
     }
-      return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            body: Center(
-              child: Text('No route defined for ${settings.name}'),
-            ),
-          ),
-        );
+    return MaterialPageRoute(
+      builder: (_) => Scaffold(
+        body: Center(
+          child: Text('No route defined for ${settings.name}'),
+        ),
+      ),
+    );
   }
 }

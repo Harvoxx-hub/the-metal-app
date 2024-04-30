@@ -150,7 +150,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                             items: const [
                               "Male",
                               "Female",
-                              "Prefer not to say",
+                              "Both male and female",
                               "Others ",
                             ],
                             value: _whatImLookingFor,
@@ -162,14 +162,8 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                             floatingLabel: "I am looking to connect with",
                             hint: "Please Select",
                             prefixIcon: Assets.icons.user2.svg(width: 24)),
-                        Gap(16.h),
-                        CustomCheckWidget(
-                          title: 'Show my gender on my Profile',
-                          initialValue: false,
-                          onChanged: (bool value) {
-                            print('Value changed to $value');
-                          },
-                        ),
+                      
+                      
                         Gap(64.h),
                       ],
                     )),

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/profile/widget/edit.field.dart';
+import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -31,28 +31,25 @@ class _DiscoveryTabState extends ConsumerState<DiscoveryTab> {
   @override
   Widget build(BuildContext context) {
     final userState = ref.watch(authProvider).data;
-    
+
     return Column(
       children: [
         EditField(
           text: userState?.location?.address ?? "Location",
           floatingLabel: "Location",
-          subLabel: "Edit",
-          onSubLabel: () {
-          
-          },
+          onSubLabel: (value) {},
         ),
         Gap(20.h),
-      
-        EditField(
-          text: userState?.connection_option?.join(",") ??
-              "What are you looking for in a person?",
-          floatingLabel: "What are you looking for in a person?",
-          subLabel: "Edit",
-          onSubLabel: () {
-       
-          },
-        ),
+
+        // EditField(
+        //   text: userState?.connection_option?.join(",") ??
+        //       "What are you looking for in a person?",
+        //   floatingLabel: "What are you looking for in a person?",
+        //   subLabel: "Edit",
+        //   onSubLabel: () {
+
+        //   },
+        // ),
         Gap(20.h),
       ],
     );

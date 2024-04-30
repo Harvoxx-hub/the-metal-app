@@ -35,8 +35,7 @@ class PushMetal extends ConsumerWidget {
     ref.listen<PushUsersState>(pushUserProvider, (prev, current) {
       if (current.isSuccess) {
         ref.read(getAllUserProvider.notifier).removeUser(user.id!);
-         Navigator.pop(context);
- 
+        Navigator.pop(context);
       }
     });
     return BaseScreen(
@@ -131,15 +130,24 @@ class PushMetal extends ConsumerWidget {
                             ref
                                 .read(pushUserProvider.notifier)
                                 .pushUser(user.id!);
-                 
                           },
                         ),
                         Gap(16.h),
                         OutilineButton(
                           buttonText: "Melt for free",
                           onPressed: () {
-                              Navigator.pushNamed(context,  AppRoutes.meltMetal, arguments:user);
- 
+                            !user.pushedMe
+                                ? {
+                                    ref
+                                        .read(getAllUserProvider.notifier)
+                                        .removeUser(user.id!),
+                                    Navigator.pop(context)
+                                  }
+                                : Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.meltMetal,
+                                    arguments: user,
+                                  );
                           },
                         ),
                       ],

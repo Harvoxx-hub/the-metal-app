@@ -9,7 +9,7 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header1.dart';
 import 'package:metal/features/authentication/provider/verfication.notifier.dart';
 import 'package:metal/features/dashboard.dart/dashboard.dart';
-import 'package:metal/features/profile/widget/edit.field.dart';
+import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/upgrade/upgrade.page.dart';
 import 'package:metal/features/verification/provider/verification.notifier.dart';
 import 'package:metal/features/verification/video.preview.dart';
@@ -44,8 +44,6 @@ class _VerificationVideoState extends ConsumerState<VerificationVideo> {
             );
           },
         );
-Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
- 
       }
     });
     return BaseScreen(
@@ -64,11 +62,11 @@ Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
             ),
             Gap(24.h),
             EditField(
-                ontap: () {
+                onTap: () {
                   getVideoFile(context);
                 },
                 floatingLabel: "Full live video of yourself",
-                sufixIcon: Assets.icons.videoCamera.svg(width: 24, height: 24),
+                suffixIcon: Assets.icons.videoCamera.svg(width: 24, height: 24),
                 text: _videoFile == null
                     ? "Tap to take a live video of yourself"
                     : "MyVideo.MP4"),
@@ -113,9 +111,9 @@ Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
       context,
       AppRoutes.videoPreview,
     );
-     setState(() {
-            _videoFile =    File(file.toString());
-          });
+    setState(() {
+      _videoFile = File(file.toString());
+    });
   }
 
   void _onNextPressed() {
@@ -151,11 +149,11 @@ Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
             }),
         Gap(23.h),
         TextView(
-          text: "Not Now",
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          onTap: () => Navigator.pop(context),
-        ),
+            text: "Not Now",
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            onTap: () => Navigator.pushNamedAndRemoveUntil(
+                context, AppRoutes.dashboardPage, (route) => false)),
         Gap(21.h),
       ],
     );

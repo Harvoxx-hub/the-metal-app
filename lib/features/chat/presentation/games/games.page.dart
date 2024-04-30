@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/chat/presentation/games/games.rule.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -14,6 +17,7 @@ class GamePage extends StatelessWidget {
   const GamePage({super.key});
   static const name = 'gamePage';
   static const route = '$name';
+
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -24,7 +28,7 @@ class GamePage extends StatelessWidget {
               Column(
                 children: [
                   Container(
-                    height: 220.h,
+                    height: 220,
                     width: double.infinity,
                     decoration: BoxDecoration(
                         gradient: const LinearGradient(
@@ -45,21 +49,21 @@ class GamePage extends StatelessWidget {
                           Image.asset(Assets.images.chatVideoGameEmoji1.path),
                           TextView(
                             text: "Let’s Play",
-                            fontSize: 15.sp,
+                            fontSize: 15,
                             fontWeight: FontWeight.w400,
                             color: AppColors.metalWhite,
                           ),
                           TextView(
                             text: "GAME",
-                            fontSize: 28.sp,
+                            fontSize: 28,
                             fontWeight: FontWeight.w700,
                             color: AppColors.metalWhite,
                           ),
-                          Gap(13.h),
+                          Gap(13),
                           TextView(
                             text:
                                 "Break the conversation Ice using these starter games to discover yourselves better.",
-                            fontSize: 16.sp,
+                            fontSize: 14,
                             textAlign: TextAlign.center,
                             fontWeight: FontWeight.w400,
                             color: AppColors.metalWhite,
@@ -78,39 +82,14 @@ class GamePage extends StatelessWidget {
                   Gap(27.h),
                   Padding(
                     padding: const EdgeInsets.only(left: 25.0, right: 25.0),
-                    child: Column(
+                    child: Wrap(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            gameCard(
-                                title: "Two Truths and A lie",
-                                game: gameType.twoTruthAndALie,
-                                path: Assets.images.chatSmilingFaceEmoji1.path),
-                            gameCard(
-                                title: "Never Have I Ever",
-                                game: gameType.neverHaveIEver,
-                                path:
-                                    Assets.images.chatAstonishedFaceEmoji1.path)
-                          ],
-                        ),
-                        Gap(17.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            gameCard(
-                                title: "Name a Thing",
-                                game: gameType.nameAThing,
-                                path: Assets
-                                    .images.chatEmojiWomanRaisingHand1.path),
-                            gameCard(
-                                title: "Truth and Dare",
-                                game: gameType.truthAndDare,
-                                path: Assets
-                                    .images.chatPersonSayingMoreEmoji1.path)
-                          ],
-                        ),
-                      ],
+                        for (var element in gameData)
+                          gameCard(
+                            gameModel: element,
+
+  ),
+                    ],
                     ),
                   )
                 ],
@@ -124,40 +103,40 @@ class GamePage extends StatelessWidget {
 class gameCard extends StatelessWidget {
   const gameCard({
     super.key,
-    required this.title,
-    required this.path,
-    required this.game,
+    required this.gameModel,
+  
   });
 
-  final String title;
-  final String path;
-  final gameType game;
+  final GameModel gameModel;
+ 
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () =>  Navigator.pushNamed(context,  AppRoutes.gameRules, arguments: game.name ),
-      
- 
-      child: Container(
-        height: 162,
-        width: 150.w,
-        decoration: BoxDecoration(
-            color: AppColors.metalPinkColour.withOpacity(0.07),
-            borderRadius: BorderRadius.circular(20)),
-        padding: EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(path),
-            TextView(
-              text: title,
-              textAlign: TextAlign.center,
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w700,
-            ),
-          ],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GestureDetector(
+        onTap: () => Navigator.pushNamed(context, AppRoutes.gameRules,
+            arguments: gameModel),
+        child: Container(
+          height: 162,
+          width: 150,
+          decoration: BoxDecoration(
+              color: AppColors.metalPinkColour.withOpacity(0.07),
+              borderRadius: BorderRadius.circular(20)),
+          padding: EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(gameModel.emojiPart),
+              TextView(
+                text: gameModel.title,
+                textAlign: TextAlign.center,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+            ],
+          ),
         ),
       ),
     );

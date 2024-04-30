@@ -533,6 +533,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/flame.png
   AssetGenImage get flame => const AssetGenImage('assets/images/flame.png');
 
+  /// File path: assets/images/game.frame.png
+  AssetGenImage get gameFrame =>
+      const AssetGenImage('assets/images/game.frame.png');
+
   /// File path: assets/images/google.png
   AssetGenImage get google => const AssetGenImage('assets/images/google.png');
 
@@ -764,6 +768,7 @@ class $AssetsImagesGen {
         eyesEmoji,
         eyesImage,
         flame,
+        gameFrame,
         google,
         hamburgerHeartLocks,
         handshake,

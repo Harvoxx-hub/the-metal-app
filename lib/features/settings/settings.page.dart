@@ -8,8 +8,8 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
-import 'package:metal/features/profile/profile.page.dart';
-import 'package:metal/features/profile/widget/edit.field.dart';
+import 'package:metal/features/profile/presentation/profile.page.dart';
+import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
@@ -36,7 +36,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       body: SingleChildScrollView(
         child: ProfileHeader(
             eye: false,
-            user: user!,
+            metal: user!.metal,
             child: Padding(
               padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
               child: Container(
@@ -118,7 +118,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               fontWeight: FontWeight.w400,
                               color: Colors.blueAccent,
                               underline: true,
-                              onTap: () {}),
+                              onTap: () {
+                                Navigator.pushNamed(
+                                    context, AppRoutes.editPage);
+                              }),
                         ),
                         const Gap(20),
                         EditField(

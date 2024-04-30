@@ -12,9 +12,7 @@ import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/provider/verfication.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/authentication/presentation/welcome/presentation/welcome.page.dart';
-import 'package:metal/features/profile/update.email/new.email.page.dart';
-import 'package:metal/features/profile/update.phone.number/new.phone.number.page.dart';
+ 
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
 

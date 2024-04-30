@@ -15,11 +15,13 @@ class GetAllEyeNotifier extends StateNotifier<GetAllEyeState> {
   GetAllEyeNotifier(
     GetAllEyeState state,
     this.ref,
-  ) : super(state) {}
+  ) : super(state) {
+    getAlltEye();
+  }
   final Ref ref;
 
   //upoad eyes
-   // //get List of current eyes
+  // //get List of current eyes
   void getAlltEye() async {
     try {
       state = GetAllEyeState.loading();
@@ -35,7 +37,6 @@ class GetAllEyeNotifier extends StateNotifier<GetAllEyeState> {
       state = GetAllEyeState.error(e.toString());
     }
   }
-  
 }
 
 // Define a type alias

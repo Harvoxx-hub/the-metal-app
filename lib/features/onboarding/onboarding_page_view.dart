@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/web_utils.dart';
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 
 import 'package:metal/gen/assets.gen.dart';
@@ -103,10 +104,10 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
               BaseButton(
                 buttonText: 'Sign up with your email',
                 onPressed: () {
-                                    Navigator.pushNamed(context, AppRoutes.accountSetting,
-                );
- 
-                  
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.accountSetting,
+                  );
                 },
               ),
               const Gap(20),
@@ -139,10 +140,10 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                   const Gap(5),
                   TextView(
                     onTap: () {
-                                        Navigator.pushNamed(context, AppRoutes.login,
-                );
- 
- 
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.login,
+                      );
                     },
                     text: 'Log in',
                   ),
@@ -157,6 +158,9 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                     fontSize: 10,
                   ),
                   TextView(
+                    onTap: () {
+                      openLink("https://themetalapp.com/terms-and-conditions/");
+                    },
                     text: 'Terms',
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -167,6 +171,9 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                     fontWeight: FontWeight.normal,
                   ),
                   TextView(
+                    onTap: () {
+                      openLink("https://themetalapp.com/privacy/");
+                    },
                     text: 'Privacy Policy',
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -177,6 +184,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                     fontWeight: FontWeight.normal,
                   ),
                   TextView(
+                    onTap: () {},
                     text: 'Cookies Policy',
                     fontSize: 10,
                     fontWeight: FontWeight.bold,

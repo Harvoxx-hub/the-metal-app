@@ -9,6 +9,7 @@ import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/widgets/text_views.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 
@@ -64,11 +65,30 @@ class ReferEarnSpark extends ConsumerWidget {
                           title: "Refer \n& Earn",
                           path: Assets.images.refer.path,
                         ),
-                        Gap(15),
-                        // PhoneInput(
-                        //   phoneController: _phoneController,
-                        // ),
-                        Gap(getDeviceHeight(context) * 0.4),
+                        Gap(getDeviceHeight(context) * 0.15),
+                        Container(
+                          width: 200,
+                          padding: EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                              color: AppColors.metalTabBg,
+                              borderRadius: BorderRadius.circular(5)),
+                          child: Column(
+                            children: [
+                              TextView(
+                                text: "Your Referal Code",
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              Gap(8),
+                              TextView(
+                                text: userdata!.referralCode!,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                              )
+                            ],
+                          ),
+                        ),
+                        Gap(getDeviceHeight(context) * 0.15),
                         BaseButton(
                           buttonText: "Invite to Metal",
                           onPressed: () {
@@ -81,11 +101,14 @@ class ReferEarnSpark extends ConsumerWidget {
                         OutilineButton(
                           buttonText: "Copy invite Link ",
                           onPressed: () {
-                            Clipboard.setData(
-                                     ClipboardData(text: "Your Referal Code: ${userdata!.referralCode}"))
+                            Clipboard.setData(ClipboardData(
+                                    text:
+                                        "Your Referal Code: ${userdata!.referralCode}"))
                                 .then((_) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Your have coppied your Referal Code')));
+                                  const SnackBar(
+                                      content: Text(
+                                          'Your have coppied your Referal Code')));
                             });
                           },
                         ),

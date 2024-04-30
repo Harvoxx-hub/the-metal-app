@@ -27,6 +27,14 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
   Position? _currentPosition;
   @override
   Widget build(BuildContext context) {
+    final _updateProfile = ref.watch(updateProfileProvider);
+
+    ref.listen<UpdateProfileState>(updateProfileProvider, (prev, current) {
+      if (current.isSuccess) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, AppRoutes.dashboardPage, (route) => false);
+      }
+    });
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -53,10 +61,10 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
             ),
             Gap(70.h),
             BaseButton(
+              loading: _updateProfile.isLoading,
               buttonText: "Enable Location",
               onPressed: () {
-                _onNextPressed();
-          
+                _onNextPressed(_updateProfile.data);
               },
             ),
           ]),
@@ -93,7 +101,7 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
     return true;
   }
 
-  Future<void> _onNextPressed() async {
+  Future<void> _onNextPressed(user) async {
     await _getCurrentPosition();
     if (_currentPosition != null) {
       final userData = ref.watch(updateProfileProvider).data;
@@ -102,10 +110,13 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
         lng: _currentPosition!.longitude,
       );
       ref.read(updateProfileProvider.notifier).updateUserData(userData);
- 
-      Navigator.pushNamed(context, AppRoutes.notificationEnablePage);
+
+      updateProfile(user);
     }
- 
+  }
+
+  void updateProfile(UserModel user) {
+    ref.read(updateProfileProvider.notifier).sendUserUpdate(user);
   }
 
   Future<void> _getCurrentPosition() async {

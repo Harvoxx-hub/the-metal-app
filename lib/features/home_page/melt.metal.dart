@@ -4,20 +4,21 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
 import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
+import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
-import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+
 import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
-import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
+
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/chat/presentation/chat.window/chat.window.dart';
-import 'package:metal/features/my.metals/user.profile.dart';
+
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:provider/provider.dart';
 
 class MeltMetal extends ConsumerWidget {
   const MeltMetal(this.meltUserData, {super.key});
@@ -29,13 +30,7 @@ class MeltMetal extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final meltUser = ref.watch(meltUserProvider(meltUserData.id!));
 
-    ref.listen<MeltUsersState>(meltUserProvider(meltUserData.id!),
-        (prev, current) {
-      if (current.isSuccess) {
-        ref.read(getAllUserProvider.notifier).removeUser(meltUserData.id!);
- 
-      }
-    });
+     
     final user = ref.watch(authProvider);
     return BaseScreen(
       subAppBar: true,
@@ -96,24 +91,29 @@ class MeltMetal extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                //   meltItem("Chat", Assets.images.meltChat.path, () {
-                //         Navigator.pushNamed(context, AppRoutes.chatWindowsPage,  
-                //  );
-                //     context.pushNamed(ChatWindowsPage.name,
-                //         extra: meltUserData.phone);
-                //   }),
+                  meltItem("Chat", Assets.images.meltChat.path, () {
+                    Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
+                        arguments: ChatWindowArgument(
+                          user: MeltUserModel(
+                              gender: meltUserData.gender,
+                              name: meltUserData.username,
+                              metal: meltUserData.metal,
+                              phone: meltUserData.phone,
+                              id: meltUserData.id),
+                        ));
+                  }),
                   meltItem("Spark", Assets.images.meltSpark.path, () {
-                          Navigator.pushNamed(context, AppRoutes.sendSpark,  
-                 );
-                  
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.sendSpark,
+                    );
                   }),
                   meltItem("Profile", Assets.images.meltProfile.path, () {
-                          Navigator.pushNamed(context, AppRoutes.userProfilePage,  
-                 );
-                    
+                    Navigator.pushNamed(context, AppRoutes.userProfilePage,
+                        arguments: UserModel.fromJson(meltUserData.toJson()));
                   }),
                   meltItem("Dashboard", Assets.images.meltDashboard.path, () {
-                 Navigator.pop(context);
+                    Navigator.pop(context);
                   })
                 ],
               )

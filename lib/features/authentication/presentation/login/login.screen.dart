@@ -3,20 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:metal/base/page/base_page_state.dart';
-import 'package:metal/core/utils/input/validators/email_validator.dart';
+
 import 'package:metal/core/utils/input/validators/validators.dart';
-import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
+
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
-import 'package:metal/features/authentication/presentation/welcome/presentation/welcome.page.dart';
+
 import 'package:metal/features/authentication/provider/login.notifier.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
-import 'package:metal/features/authentication/presentation/signup/account.setting.dart';
-import 'package:metal/features/dashboard.dart/dashboard.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/agree.click.dart';
@@ -51,24 +49,24 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
     ref.listen<LoginStates>(loginProvider, (prev, current) {
       if (current.isSuccess) {
         current.data!.profile_updated ?? false
-       
-            ?  Navigator.pushNamed(context, AppRoutes.dashboardPage, )
- 
-            :   Navigator.pushNamed(context, AppRoutes.welcomePage, );
-            
-
-       
+            ? Navigator.pushNamed(
+                context,
+                AppRoutes.dashboardPage,
+              )
+            : Navigator.pushNamed(
+                context,
+                AppRoutes.welcomePage,
+              );
       }
       if (current.isError) {
-        //
+       
         if (current.errorMessage == "Account not activated") {
-                Navigator.pushNamed(context, AppRoutes.notificationEnablePage, arguments: VerificationSentArgument(
+          Navigator.pushNamed(context, AppRoutes.notificationEnablePage,
+              arguments: VerificationSentArgument(
                   type: RouteFrom.AccountSetting,
                   code: current.errorData!["OTP"],
                   uuid: current.errorData!["UUID"],
-                  phoneNumber: current.errorData!["phone"]) );
- 
-              
+                  phoneNumber: current.errorData!["phone"]));
         }
       }
     });
@@ -150,15 +148,15 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                         email: _emailController.text,
                         password: _passwordController.text,
                       );
-           
                 },
               ),
               Gap(31.h),
               TextView(
                 onTap: () {
-                     Navigator.pushNamed(context, AppRoutes.forgetPassword,  
-                 );
-            
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.forgetPassword,
+                  );
                 },
                 text: "Forgot Password?",
                 fontSize: 14.sp,
@@ -176,9 +174,10 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                   ),
                   TextView(
                     onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.accountSetting,  
-                 );
-                
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.accountSetting,
+                      );
                     },
                     text: "  Create account",
                     fontSize: 14.sp,

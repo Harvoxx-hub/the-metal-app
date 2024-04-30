@@ -30,7 +30,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  void getUpdatedUser() async {
+  Future getUpdatedUser() async {
     try {
       final authenticationRepository =
           ref.watch(authenticationRepositoryProvider);

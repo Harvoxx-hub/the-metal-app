@@ -4,7 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/profile/widget/edit.field.dart';
+import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 import 'package:metal/features/upgrade/domain/entries/subscribed.plan.model.dart';
 import 'package:metal/features/upgrade/provider/metal.plan.notifier.dart';
@@ -64,7 +64,7 @@ class _subscriptionContent extends StatelessWidget {
         EditField(
           text:
               "${subscribedPlanModel.planName}  - *${subscribedPlanModel.price}.00/month*",
-          onSubLabel: () {},
+          onSubLabel: (value) {},
           floatingLabel: "Current plan",
           subLabel: "Upgrade",
         ),

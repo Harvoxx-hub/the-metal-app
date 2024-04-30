@@ -18,12 +18,13 @@ import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdown.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
+ 
 import 'package:metal/widgets/text_views.dart';
 
 class PreferenceMetalPage extends ConsumerStatefulWidget {
   PreferenceMetalPage({Key? key}) : super(key: key);
-  static const name = 'PreferenceMetalPage';
-  static const route = '$name';
+  static const pageName = 'PreferenceMetalPage';
+  static const route = '/$pageName';
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -31,36 +32,37 @@ class PreferenceMetalPage extends ConsumerStatefulWidget {
 }
 
 class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
-  List<String>? seletedAgeRange;
-  List<String>? seletedReligion;
-  String? seletedEthnicity;
-  String? seletedEducation;
-  List<String>? seletedDemography;
-  bool _value = false;
+  List<String>? selectedAgeRange;
+  List<String>? selectedReligion;
+  List<String>? selectedEthnicity;
+  List<String>? selectedEducation;
+  List<String>? selectedDemography;
+  bool noSpecialPreference = false;
+
   @override
   Widget build(BuildContext context) {
-    final _metalProps = ref.watch(metalPropertiesProvider);
+    final metalProps = ref.watch(metalPropertiesProvider);
     return BaseScreen(
-        bgImage: Assets.images.bg2.path,
-        appBarEnabled: false,
-        Header: 'Preferences in Metal',
-        authFlow: true,
-        body: SingleChildScrollView(
-            child: Column(
+      bgImage: Assets.images.bg2.path,
+      appBarEnabled: false,
+      Header: 'Preferences in Metal',
+      authFlow: true,
+      body: SingleChildScrollView(
+        child: Column(
           children: [
             CreateProfileHeader2(
-                path: Assets.images.heartLocks1.path,
-                title:
-                    "Let us know what your special preferences are in a person",
-                subtitle: " "),
+              path: Assets.images.heartLocks1.path,
+              title: "Let us know what your special preferences are in a person",
+              subtitle: " ",
+            ),
             Gap(16.h),
             CustomCheckWidget(
               boarder: true,
               title: 'No Special Preference',
-              initialValue: false,
+              initialValue: noSpecialPreference,
               onChanged: (bool value) {
                 setState(() {
-                  _value = value;
+                  noSpecialPreference = value;
                 });
               },
             ),
@@ -78,10 +80,10 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
                 "45 - 60 years",
                 "Above 60 years",
               ],
-              value: seletedAgeRange,
+              value: selectedAgeRange,
               onChanged: (newValue) {
                 setState(() {
-                  seletedAgeRange = newValue;
+                  selectedAgeRange = newValue;
                 });
               },
               floatingLabel: "Age range",
@@ -94,11 +96,11 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
             ),
             Gap(15.h),
             MentalDropdownMutipleSelection(
-              items: _metalProps.data!.religion!,
-              value: seletedReligion,
+              items: metalProps.data!.religion!,
+              value: selectedReligion,
               onChanged: (newValue) {
                 setState(() {
-                  seletedReligion = newValue;
+                  selectedReligion = newValue;
                 });
               },
               floatingLabel: "Religion",
@@ -106,12 +108,12 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               prefixIcon: Assets.icons.christianity.svg(width: 24, height: 24),
             ),
             Gap(15.h),
-            MentalDropdown(
-              items:  _metalProps.data!.ethnicity!,
-              value: seletedEthnicity,
+            MentalDropdownMutipleSelection(
+              items: metalProps.data!.ethnicity!,
+              value: selectedEthnicity,
               onChanged: (newValue) {
                 setState(() {
-                  seletedEthnicity = newValue;
+                  selectedEthnicity = newValue;
                 });
               },
               floatingLabel: "Ethnicity",
@@ -123,12 +125,12 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               ),
             ),
             Gap(15.h),
-            MentalDropdown(
-              items:  _metalProps.data!.education!,
-              value: seletedEducation,
+            MentalDropdownMutipleSelection(
+              items: metalProps.data!.education!,
+              value: selectedEducation,
               onChanged: (newValue) {
                 setState(() {
-                  seletedEducation = newValue;
+                  selectedEducation = newValue;
                 });
               },
               floatingLabel: "Education",
@@ -141,11 +143,11 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
             ),
             Gap(15.h),
             MentalDropdownMutipleSelection(
-              items:  _metalProps.data!.demography!,
-              value: seletedDemography,
+              items: metalProps.data!.demography!,
+              value: selectedDemography,
               onChanged: (newValue) {
                 setState(() {
-                  seletedDemography = newValue;
+                  selectedDemography = newValue;
                 });
               },
               floatingLabel: "Demography",
@@ -158,34 +160,36 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
             ),
             Gap(15.h),
             BaseButton(
-              enabled: _value == true
+              enabled: noSpecialPreference == true
                   ? true
-                  : (seletedAgeRange != null &&
-                      seletedReligion != null &&
-                      seletedEthnicity != null &&
-                      seletedEducation != null &&
-                      seletedDemography != null),
+                  : (selectedAgeRange != null &&
+                      selectedReligion != null &&
+                      selectedEthnicity != null &&
+                      selectedEducation != null &&
+                      selectedDemography != null),
               buttonText: "Next",
               onPressed: _onNextPressed,
             ),
           ],
-        )));
+        ),
+      ),
+    );
   }
 
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
-    final Preferences preferences = Preferences();
-    preferences.age_range = seletedAgeRange!.join(',');
-    preferences.religion = seletedReligion!.join(',');
-    preferences.demography = seletedDemography!.join(',');
-    preferences.education = seletedEducation ?? "";
-    preferences.ethnicity = seletedEthnicity?? "";
+    final preferences = Preferences()
+      ..age_range = selectedAgeRange?.join(',')
+      ..religion = selectedReligion?.join(',')
+      ..demography = selectedDemography?.join(',')
+      ..education = selectedEducation?.join(',')
+      ..ethnicity = selectedEthnicity?.join(',');
     userData!.preferences = preferences;
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
 
-     Navigator.pushNamed(context,  AppRoutes.homeAddressPage, );
-
-
- 
+    Navigator.pushNamed(
+      context,
+      AppRoutes.homeAddressPage,
+    );
   }
 }

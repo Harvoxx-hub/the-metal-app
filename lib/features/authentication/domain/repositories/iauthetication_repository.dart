@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:metal/core/model/responces.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 
@@ -22,7 +24,11 @@ abstract class IAuthenticationRepository {
   );
 
   Future<Responses> getCurrentUser();
-
+  Future<Responses> getUserByID(
+    {
+      required String id
+    }
+  );
   // get metal properties
   Future<Responses> getMetalProperties();
 
@@ -33,6 +39,19 @@ abstract class IAuthenticationRepository {
    Future<Responses> completeUser(
     Map<String, dynamic>  user,
   );
+   Future<Responses> DeleteUser(
+    
+  );
+
+    Future<Responses> UpdateParticualarInfo(
+     Map<String, dynamic>  update,
+  );
+    Future<Responses> uploadProfileImage(
+     File  image,
+  );
+
+
+
 
   //get user by
 

@@ -24,60 +24,34 @@ class ChatListWidget extends ConsumerStatefulWidget {
 }
 
 class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
-  late Stream<List<ConversationsModel>> _conversationStream;
-  late bool _isConversationtreamInitialized;
   @override
   void initState() {
-    _isConversationtreamInitialized = false;
-
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _fetchMessages();
-    });
-
     super.initState();
-  }
-
-  void _fetchMessages() async {
-    try {
-      _conversationStream = ref.read(chatListProvider).data ?? Stream.empty();
-      setState(() {
-        _isConversationtreamInitialized = true;
-      });
-    } catch (e) {
-      print('Failed to fetch messages: $e');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final myMelt = ref.watch(getMeltUserProvider);
+    final chatList = ref.watch(chatListProvider);
 
     return Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextView(
-              text: "Messages",
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-            ),
-            Gap(10),
-            if (!_isConversationtreamInitialized)
-              Center(child: CircularProgressIndicator())
-            else
-              SizedBox(
-                height: getDeviceHeight(context) * 0.395,
-                child: StreamBuilder<List<ConversationsModel>>(
-                  stream: _conversationStream,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else {
-                     
-                      return snapshot.data == []
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          TextView(
+            text: "Messages",
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+          ),
+          Gap(10),
+          SizedBox(
+              height: getDeviceHeight(context) * 0.395,
+              child: chatList.isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : chatList.isError
+                      ? Center(
+                          child:
+                              Text('Error: ${chatList.errorData.toString()}'))
+                      : chatList.data == []
                           ? Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Center(
@@ -85,13 +59,13 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
                                   children: [
                                     Gap(30),
                                     Assets.images.emptyChat.image(),
-                                    Gap(20.h),
+                                    Gap(20),
                                     TextView(
                                       text: "You have no messages yet",
                                       fontSize: 16.sp,
                                       fontWeight: FontWeight.w500,
                                     ),
-                                    Gap(10.h),
+                                    Gap(10),
                                     TextView(
                                       text:
                                           "Tap on any of your metals to kickstart a conversation",
@@ -103,60 +77,26 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
                                 ),
                               ),
                             )
-                          : Expanded(
-                              child: ListView.builder(
-                                itemCount:  snapshot.data!.length,
-                                itemBuilder: (context, index) {
-                                  final message =  snapshot.data![index];
-                                  // Find the data in myMelt.data where id matches message.id
-                          
-                                  var matchedData =
-                                      myMelt.data!.firstWhere((element) {
-                                    return message.participantIds.contains(element.id);
-                                  });
+                          : ListView.builder(
+                              itemCount: chatList.data?.length ?? 0,
+                              itemBuilder: (context, index) {
+                                final message = chatList.data![index];
 
-                                  // Pass matchedData to chatListItem if it's not null
-                                  return matchedData != null
-                                      ? chatListItem(
-                                          data: matchedData,
-                                          conversationsModel: message,
-                                        )
-                                      : SizedBox();
-                                },
-                              ),
-                            );
-                    }
-                  },
-                ),
-              )
-          ],
-        ));
+                                var matchedData =
+                                    myMelt.data!.firstWhere((element) {
+                                  return message.participantIds
+                                      .contains(element.id);
+                                });
 
-    // : Padding(
-    //     padding: const EdgeInsets.all(16.0),
-    //     child: Center(
-    //       child: Column(
-    //         children: [
-    //           Gap(30),
-    //           Assets.images.emptyChat.image(),
-    //           Gap(20.h),
-    //           TextView(
-    //             text: "You have no messages yet",
-    //             fontSize: 16.sp,
-    //             fontWeight: FontWeight.w500,
-    //           ),
-    //           Gap(10.h),
-    //           TextView(
-    //             text:
-    //                 "Tap on any of your metals to kickstart a conversation",
-    //             fontSize: 13.sp,
-    //             fontWeight: FontWeight.w300,
-    //             textAlign: TextAlign.center,
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //   );
+                                return matchedData != null
+                                    ? chatListItem(
+                                        data: matchedData,
+                                        conversationsModel: message,
+                                      )
+                                    : SizedBox();
+                              },
+                            ))
+        ]));
   }
 }
 

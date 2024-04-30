@@ -1,13 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-const double kMaxWebContentWidth = 1264;
-
-const double kDefaultDesktopWebContentWidth = 500;
-
-const double kWidthTrashHoldForMobileLayout = 550;
-
-final kIsWebMobile = kIsWeb &&
-    (defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.android);
-
-final kUserMobileLayoutForWeb = !kIsWeb || kIsWebMobile;
+void openLink(String url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}

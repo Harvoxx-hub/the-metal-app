@@ -4,8 +4,10 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -13,15 +15,9 @@ enum gameType { nameAThing, truthAndDare, neverHaveIEver, twoTruthAndALie }
 
 class GameRules extends StatelessWidget {
   GameRules({super.key, required this.games});
-  final String games;
+  final GameModel games;
   static const name = 'gameRules';
   static const route = '$name';
-
-  String twoTruthAndALineTitle = "Two Truths and A lie";
-  String twoTruthAndALineSubTitle =
-      "Two Truths and a Lie is a fun and easy icebreaker game that's perfect for getting to know a new person. The objective of the game is to correctly identify which statement is the false one.";
-  String twoTruthAndALineExpain =
-      "Explain the Rules: Each player will share three statements about themselves, two of which are true and one is false. The other player must try to guess which statement is false. Select a player to go first: Discuss and agree on the player to go first. The first person to play will write three statements about themselves, and the other player will guess which statement is the lie. Respond: After the first player has written their statements, the other player must guess which statement they think is false. The first player will reveal which statement was the lie. The game then moves on to the other player, who will make their own three statements, and so on. The game continues by rotating turns Score: Record the scores in your chat to track the winner. Update the scores as you complete new rounds. You can keep score by awarding points to players who correctly guess the lie.";
 
   @override
   Widget build(BuildContext context) {
@@ -65,13 +61,13 @@ class GameRules extends StatelessWidget {
                             Image.asset(
                                 Assets.images.chatSmilingFaceEmoji1.path),
                             TextView(
-                              text: "Two Truths and A lie",
+                              text: games.title,
                               fontSize: 20.sp,
                               fontWeight: FontWeight.w600,
                             ),
                             Gap(13.h),
                             TextView(
-                              text: twoTruthAndALineSubTitle,
+                              text: games.about,
                               fontSize: 14.sp,
                               textAlign: TextAlign.center,
                               fontWeight: FontWeight.w500,
@@ -94,7 +90,7 @@ class GameRules extends StatelessWidget {
                         ),
                         Gap(15),
                         TextView(
-                          text: twoTruthAndALineExpain,
+                          text: games.rule,
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w400,
                         ),
@@ -102,8 +98,8 @@ class GameRules extends StatelessWidget {
                         BaseButton(
                             buttonText: "Start Game",
                             onPressed: () {
-                              context.pop();
-                              context.pop();
+                              Navigator.pop(context, games);
+                              Navigator.pop(context, games);
                             })
                       ],
                     ),

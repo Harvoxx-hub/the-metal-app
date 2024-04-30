@@ -62,7 +62,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     ref.watch(authManagerProvider);
-    return ScreenUtilInit(
+    return ScreenUtilInit( 
         useInheritedMediaQuery: true,
         designSize: const Size(375, 812),
         minTextAdapt: true,

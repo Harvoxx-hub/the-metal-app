@@ -47,11 +47,12 @@ class ProfilePhoto extends StatelessWidget {
                   ),
                   child: Center(
                     child: photourl != null
-                        ? Image.network(
-                            photourl!,
-                            height: size! * 0.7,
-                            width: size! * 0.7,
-                            fit: BoxFit.fill,
+                        ? CircleAvatar(
+                            radius: 48, // Image radius
+                            backgroundImage: NetworkImage(
+                              photourl!,
+                              scale: size! * 0.7,
+                            ),
                           )
                         : Image.asset(
                             Assets.images.silver.path,
@@ -70,10 +71,10 @@ class ProfilePhoto extends StatelessWidget {
             right: size! >= 57 ? size! / 1.3 : 0,
             child: verfly!
                 ? SvgPicture.asset(
-                  Assets.icons.checkVerified.path,
-                  height: 23,
-                  width: 23,
-                )
+                    Assets.icons.checkVerified.path,
+                    height: 23,
+                    width: 23,
+                  )
                 : SizedBox())
       ],
     );

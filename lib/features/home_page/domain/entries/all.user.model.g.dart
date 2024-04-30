@@ -24,7 +24,7 @@ ALLUserModel _$ALLUserModelFromJson(Map<String, dynamic> json) => ALLUserModel(
           : Metal.fromJson(json['metal'] as Map<String, dynamic>),
       verfied: json['verfied'] as bool? ?? false,
       liked: json['liked'] as bool? ?? false,
-      melted: json['melted'] as bool? ?? false,
+      pushedMe: json['pushedMe'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ALLUserModelToJson(ALLUserModel instance) =>
@@ -41,5 +41,5 @@ Map<String, dynamic> _$ALLUserModelToJson(ALLUserModel instance) =>
       'verfied': instance.verfied,
       'phone': instance.phone,
       'liked': instance.liked,
-      'melted': instance.melted,
+      'pushedMe': instance.pushedMe,
     };

@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:metal/core/state/base.state.dart';
 
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
- 
+import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
 
 class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
   MeltUsersNotifier(
@@ -11,7 +13,7 @@ class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
     this.ref,
     this.id,
   ) : super(state) {
-    meltUser();
+     meltUser();
   }
   final Ref ref;
   final String id;
@@ -22,17 +24,22 @@ class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
       state = MeltUsersState.loading();
       final homeRepository = ref.watch(homeRepositoryProvider);
       final response = await homeRepository.meltUser(id);
-     
 
+      ref.read(getAllUserProvider.notifier).removeUser(id);
+       Fluttertoast.showToast(
+          msg: "Melt Request Sent",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 3,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
       state = MeltUsersState.success(response.message!);
     } catch (e) {
       print(e.toString());
       state = MeltUsersState.error(e.toString());
     }
   }
- 
- 
-
 }
 
 // Define a type alias

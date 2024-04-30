@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
@@ -10,20 +12,19 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
   }
 
   final Ref ref;
+  StreamSubscription<List<ConversationsModel>>? _messageSubscription;
 
-//getStream of chatlist
   Future<void> getChatList() async {
     try {
       state = ChatListState.loading();
 
       final messageRepository = ref.watch(messageRepositoryProvider);
       final userData = ref.watch(authProvider).data;
-      final messages = messageRepository.getChatList(userData!.id!)
-        ..listen((messages) {
-          print(messages
-              .first.lastMessage); // This will print the length of the messages whenever new data arrives
-        });
-      state = ChatListState.success(messages);
+      _messageSubscription =
+          messageRepository.getChatList(userData!.id!).listen((event) {
+        print(event.length);
+        state = ChatListState.success(event);
+      });
     } catch (e) {
       print('Failed to Get Message: $e');
       state = ChatListState.error('Failed to Get Message $e');
@@ -31,7 +32,7 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
   }
 }
 
-typedef ChatListState = BaseState<Stream<List<ConversationsModel>>>;
+typedef ChatListState = BaseState<List<ConversationsModel>>;
 
 final chatListProvider =
     StateNotifierProvider.autoDispose<ChatListNotifier, ChatListState>(

@@ -75,7 +75,8 @@ class NavDrawer extends ConsumerWidget {
                             fontWeight: FontWeight.w500,
                           ),
                           TextView(
-                            text: "@${_authState.username!}",
+                            text:
+                                "@${_authState.username!}_${_authState.metal!.title!}",
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
                           ),
@@ -103,10 +104,11 @@ class NavDrawer extends ConsumerWidget {
             ),
             title: TextView(text: "My melted metals"),
             onTap: () => {
-                  Navigator.pushNamed(context, AppRoutes.myMeltedMetals,  
-                 )
- 
-              },
+              Navigator.pushNamed(
+                context,
+                AppRoutes.myMeltedMetals,
+              )
+            },
           ),
           Gap(20),
           ListTile(
@@ -124,12 +126,16 @@ class NavDrawer extends ConsumerWidget {
                 width: 24,
               )),
             ),
-            title: TextView(text: _authState.subscription == null? "Upgrade to Metal Plus":" Metal Plus" ),
+            title: TextView(
+                text: _authState.subscription == null
+                    ? "Upgrade to Metal Plus"
+                    : " Metal Plus"),
             onTap: () => {
-                  Navigator.pushNamed(context, AppRoutes.upgradePage,  
-                 )
-             
-              },
+              Navigator.pushNamed(
+                context,
+                AppRoutes.upgradePage,
+              )
+            },
           ),
           Gap(20),
           ListTile(
@@ -149,12 +155,11 @@ class NavDrawer extends ConsumerWidget {
             ),
             title: TextView(text: "Refer & Earn"),
             onTap: () => {
-
-                  Navigator.pushNamed(context, AppRoutes.referEarn,  
-                 )
- 
-              
-              },
+              Navigator.pushNamed(
+                context,
+                AppRoutes.referEarn,
+              )
+            },
           ),
           Gap(20),
           !_authState.isVerified!
@@ -178,10 +183,11 @@ class NavDrawer extends ConsumerWidget {
                       ),
                       title: TextView(text: "Verify your account"),
                       onTap: () => {
-                            Navigator.pushNamed(context, AppRoutes.verificationVideo,  
-                 ) 
-                        
-                        },
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.verificationVideo,
+                        )
+                      },
                     ),
                     Gap(20),
                   ],
@@ -204,12 +210,11 @@ class NavDrawer extends ConsumerWidget {
             ),
             title: TextView(text: "Let’s hear from you"),
             onTap: () => {
-    Navigator.pushNamed(context, AppRoutes.feedBackPage,  
-                 )
-
-  
-              
-              },
+              Navigator.pushNamed(
+                context,
+                AppRoutes.feedBackPage,
+              )
+            },
           ),
           Gap(20),
           ListTile(
@@ -229,12 +234,11 @@ class NavDrawer extends ConsumerWidget {
             ),
             title: TextView(text: "Settings"),
             onTap: () => {
-                  Navigator.pushNamed(context, AppRoutes.settingPage,  
-                 )
-              
-              
-              
-              },
+              Navigator.pushNamed(
+                context,
+                AppRoutes.settingPage,
+              )
+            },
           ),
           Gap(20),
           ListTile(
@@ -254,9 +258,9 @@ class NavDrawer extends ConsumerWidget {
             ),
             title: TextView(text: "Log out"),
             onTap: () => {
-              logout(),
-                  Navigator.pushReplacementNamed(context, AppRoutes.login,  
-                 )
+              logout(ref),
+              Navigator.pushNamedAndRemoveUntil(
+                  context, AppRoutes.login, (route) => false)
             },
           ),
           Gap(40),
@@ -288,9 +292,11 @@ class NavDrawer extends ConsumerWidget {
     );
   }
 
-  void logout() {
-    final authManager = AuthManager();
-    authManager.saveLoginState(LoginState.loggedOut);
-     ZegoUIKitPrebuiltCallInvitationService().uninit();
+  void logout(WidgetRef ref) {
+    ref.read(authManagerProvider).deleteAccessToken();
+    ref.read(authManagerProvider).deleteLoginState();
+    ref.read(authManagerProvider).deleteRefreshToken();
+
+    ZegoUIKitPrebuiltCallInvitationService().uninit();
   }
 }

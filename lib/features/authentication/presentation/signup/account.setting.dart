@@ -112,7 +112,7 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
                 )),
             TextView(
               text:
-                  'A verification code will be sent to this number. Message and data rates may apply. Learn what happens what your number changes',
+                  'A verification code will be sent to this number. Message and data rates may apply.',
               fontSize: 12.sp,
               fontWeight: FontWeight.w400,
               fontStyle: FontStyle.italic,

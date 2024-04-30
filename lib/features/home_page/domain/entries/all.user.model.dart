@@ -17,7 +17,7 @@ class ALLUserModel {
   final bool verfied;
   final String? phone;
   late final bool liked;
-  final bool melted;
+  final bool pushedMe;
 
   ALLUserModel({
     this.phone,
@@ -32,7 +32,7 @@ class ALLUserModel {
     this.metal,
     this.verfied = false,
     this.liked = false,
-    this.melted = false,
+    this.pushedMe = false,
   });
 
   factory ALLUserModel.fromJson(Map<String, dynamic> json) =>

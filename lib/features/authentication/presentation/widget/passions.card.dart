@@ -66,7 +66,7 @@ class PassionsCard extends StatelessWidget {
             Gap(8.w),
             TextView(
               text: model.title!,
-              fontSize: 16.sp,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
             const Spacer(),

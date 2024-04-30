@@ -4,15 +4,15 @@ part 'metal.plan.model.g.dart'; // This file will be generated
 
 @JsonSerializable()
 class MetalPlanModel {
-  final String id;
+  final String ?id;
   final int duration;
-  final String planName;
+  final String planeName;
   final int price;
   final List<String> metaData;
 
   MetalPlanModel({
-    required this.planName,
-    required this.id,
+    required this.planeName,
+      this.id,
     required this.duration,
     required this.price,
     required this.metaData,

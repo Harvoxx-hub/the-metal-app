@@ -89,7 +89,7 @@ class ReferEarn extends StatelessWidget {
                               ),
                               Gap(8),
                               TextView(
-                                text: "21",
+                                text: "0",
                                 fontSize: 24,
                                 fontWeight: FontWeight.w800,
                               )

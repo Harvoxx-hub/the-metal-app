@@ -51,7 +51,7 @@ class UpgradePage extends ConsumerWidget {
                       ],
                     ),
                     Gap(16.h),
-                    for (var i = 0; i < metalPlanState.data!.length; i++)
+                    for (var i = 0; i < (metalPlanState.data ?? []).length; i++)
                       subscriptionCard(
                         model: metalPlanState.data![i],
                       ),

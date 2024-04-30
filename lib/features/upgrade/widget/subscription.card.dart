@@ -5,8 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
-import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
+
 import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 import 'package:metal/features/upgrade/make.payment.dart';
 import 'package:metal/features/upgrade/provider/subscribe.metal.notifier.dart';
@@ -85,13 +84,13 @@ class subscriptionCard extends ConsumerWidget {
                 if (paymentState == PaymentState.success)
                   ref
                       .read(subscribeMetalProvider.notifier)
-                      .subscribeMetalPlan(model.id);
+                      .subscribeMetalPlan(model.id!);
               },
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextView(
-                      text: model.planName,
+                      text: model.planeName,
                       fontWeight: FontWeight.w400,
                       fontSize: 24,
                     ),

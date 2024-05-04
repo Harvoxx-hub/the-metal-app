@@ -15,6 +15,7 @@ import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
  
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+import 'package:metal/features/settings/provider/get.block.user.notifier.dart';
  
 import 'package:metal/gen/assets.gen.dart';
 
@@ -85,6 +86,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final user = ref.watch(authProvider);
     ref.watch(getMeltUserProvider);
     ref.watch(metalPropertiesProvider);
+    ref.watch(getBlockUserProvider);
     return BaseScreen(
       appBarState: AppBarState.Dashboard,
       body: user.isLoading

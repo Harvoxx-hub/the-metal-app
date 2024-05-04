@@ -30,8 +30,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
 
   @override
   void initState() {
-    // if (widget._converWidgetList.isEmpty) getMoreConverWidgetList();
-    // registerConverUpdate();
+   
     super.initState();
   }
 

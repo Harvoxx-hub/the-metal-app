@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
 
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
+import 'package:metal/features/chat/provider/check.conversation.notifier.dart';
 
 import 'package:metal/features/eyes/provider/get.current.eyes.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
@@ -62,6 +63,7 @@ class _StatusWidgetState extends ConsumerState<StatusWidget> {
   }
 
   Widget eyeWidget(String title, {MeltUserModel? status}) {
+
     return Column(
       children: [
         ProfileImage(
@@ -70,7 +72,7 @@ class _StatusWidgetState extends ConsumerState<StatusWidget> {
               Navigator.pushNamed(
                 context,
                 AppRoutes.chatWindowsPage,
-                arguments: ChatWindowArgument(user: status),
+                arguments: ChatWindowArgument(user: status, ),
               );
             }
           },

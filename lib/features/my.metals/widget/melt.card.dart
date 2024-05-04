@@ -18,10 +18,8 @@ class MeltCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardWithShadow(
         onTap: () {
-                            Navigator.pushNamed(context, AppRoutes.myMeltedUser, arguments: user.id
-                );
- 
-  
+          Navigator.pushNamed(context, AppRoutes.myMeltedUser,
+              arguments: user.id);
         },
         height: 105,
         child: Row(

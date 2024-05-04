@@ -12,7 +12,7 @@ import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/feedback/feedback.page.dart';
 import 'package:metal/features/my.metals/my.melted.metals.dart';
 import 'package:metal/features/refer.earn/refer.earn.dart';
-import 'package:metal/features/settings/settings.page.dart';
+import 'package:metal/features/settings/presentation%20/settings.page.dart';
 import 'package:metal/features/upgrade/upgrade.page.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';

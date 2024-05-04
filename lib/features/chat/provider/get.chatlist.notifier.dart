@@ -23,12 +23,20 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
       _messageSubscription =
           messageRepository.getChatList(userData!.id!).listen((event) {
         print(event.length);
-        state = ChatListState.success(event);
+        if (mounted) {
+          state = ChatListState.success(event);
+        }
       });
     } catch (e) {
       print('Failed to Get Message: $e');
       state = ChatListState.error('Failed to Get Message $e');
     }
+  }
+
+  @override
+  void dispose() {
+    _messageSubscription?.cancel();
+    super.dispose();
   }
 }
 

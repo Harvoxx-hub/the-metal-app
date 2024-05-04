@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/profile/presentation/widget/edit.field.dart';
+import 'package:metal/features/profile/presentation/widget/edit.profile.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/settings/widget/blocked.card.dart';
+import 'package:metal/features/settings/presentation%20/widget/blocked.card.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 
-class BlockedUser extends StatelessWidget {
-  const BlockedUser({super.key});
- 
+class EditPage extends ConsumerWidget {
+  const EditPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userState = ref.watch(authProvider).data;
+    final metalProperties = ref.watch(metalPropertiesProvider).data;
     return BaseScreen(
       appBarState: AppBarState.BackWithHeader,
-      Header: "Blocked Contact",
+      Header: "Make Changes to Profile",
       body: SingleChildScrollView(
         child: Stack(
           children: [
@@ -49,32 +57,21 @@ class BlockedUser extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 29, left: 9, right: 9),
               child: Container(
-                padding: const EdgeInsets.only(top: 55, left: 22, right: 22),
-                decoration: const BoxDecoration(
-                    color: AppColors.metalWhite,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(35),
-                    )),
-                child: Column(
-                  children: [
-                    SvgPicture.asset(
-                      Assets.icons.meltedMetalsSmileyXEyes.path,
-                      height: 90,
-                      width: 90,
-                    ),
-                    Gap(13),
-                    BlockedCard(),
-                    BlockedCard(),
-                    BlockedCard(),
-                    BlockedCard(),
-                    BlockedCard(),
-                  ],
-                ),
-              ),
+                  padding: const EdgeInsets.only(top: 55, left: 22, right: 22),
+                  decoration: const BoxDecoration(
+                      color: AppColors.metalWhite,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(35),
+                      )),
+                  child: EditProfile()),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void updateUser(UserModel user, ref) {
+    ref.watch(updateProfileProvider.notifier).updateParticularInfor(user);
   }
 }

@@ -77,7 +77,34 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
                                 ),
                               ),
                             )
-                          : ListView.builder(
+                          : myMelt.data!.length == 0?
+                          Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    Gap(30),
+                                    Assets.images.emptyChat.image(),
+                                    Gap(20),
+                                    TextView(
+                                      text: "You have no messages yet",
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    Gap(10),
+                                    TextView(
+                                      text:
+                                          "Tap on any of your metals to kickstart a conversation",
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.w300,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ):
+                          
+                          ListView.builder(
                               itemCount: chatList.data?.length ?? 0,
                               itemBuilder: (context, index) {
                                 final message = chatList.data![index];

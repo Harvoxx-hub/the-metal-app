@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/features/profile/presentation/widget/edit.address.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/dropdown/metal.dropdown.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -20,6 +22,7 @@ class EditField extends StatefulWidget {
     this.dropDownItems,
     this.editType = EditType.text,
     this.onTap,
+    this.outboundWidget = false
   }) : super(key: key);
 
   final String text;
@@ -29,8 +32,9 @@ class EditField extends StatefulWidget {
   final Widget? prefixIcon;
   final List<String>? dropDownItems;
   final EditType editType;
-  final Function(String?)? onSubLabel;
+  final Function(dynamic)? onSubLabel;
   final Function()? onTap;
+  final outboundWidget;
 
   @override
   State<EditField> createState() => _EditFieldState();
@@ -70,7 +74,31 @@ class _EditFieldState extends State<EditField> {
               fontWeight: FontWeight.w400,
               color: Colors.blueAccent,
               underline: true,
-              onTap: _toggleEdit,
+              onTap: widget.outboundWidget?   (){
+                showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return FutureBuilder(
+                  future:
+                      Future.delayed(Duration.zero), // Deferring the execution
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      return CustomDialog(
+                        content: EditAddress(
+                          onPress: (p0) {
+                               widget.onSubLabel?.call( p0);
+                          },
+                        ),
+                      );
+                    } else {
+                      // Return a placeholder widget while waiting
+                      return CircularProgressIndicator(); // Or any other placeholder
+                    }
+                  },
+                );
+              },
+            );
+              }: _toggleEdit,
             ),
           ],
         ),

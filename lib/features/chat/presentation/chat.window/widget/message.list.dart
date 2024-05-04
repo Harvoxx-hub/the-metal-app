@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/features/chat/presentation/chat.window/widget/bubble/message.bubble.dart';
+import 'package:metal/features/chat/provider/check.conversation.notifier.dart';
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
+import 'package:metal/widgets/text_views.dart';
 
 class MessageList extends ConsumerStatefulWidget {
   const MessageList(this.conversationId, {super.key});
@@ -37,6 +39,7 @@ class _MessageListState extends ConsumerState<MessageList> {
         }
       }
     });
+      
 
     final messages = ref.watch(getMessageList(conversationId ?? ""));
 
@@ -47,15 +50,17 @@ class _MessageListState extends ConsumerState<MessageList> {
                 ? Center(
                     child: CircularProgressIndicator(),
                   )
-                : ListView.builder(
-                    reverse: true,
-                    itemCount: messages.data?.length ?? 0,
-                    itemBuilder: (context, index) {
-                      final message = messages.data![index];
-                      return MessageBubble(
-                        message: message,
-                      );
-                    },
-                  )));
+                : messages.isError
+                    ? Center(child: TextView(text: "No message "))
+                    : ListView.builder(
+                        reverse: true,
+                        itemCount: messages.data?.length ?? 0,
+                        itemBuilder: (context, index) {
+                          final message = messages.data![index];
+                          return MessageBubble(
+                            message: message,
+                          );
+                        },
+                      )));
   }
 }

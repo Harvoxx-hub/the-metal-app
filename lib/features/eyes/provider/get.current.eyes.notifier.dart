@@ -37,8 +37,9 @@ class GetCurrentEyeNotifier extends StateNotifier<GetCurrentEyeState> {
       state = GetCurrentEyeState.loading();
       final eyeRepository = ref.watch(statusRepositoryProvider);
       final response = await eyeRepository.getCurrentUserStatus();
-
-      state = GetCurrentEyeState.success(StatusData.fromJson(response.data));
+      if (mounted) {
+        state = GetCurrentEyeState.success(StatusData.fromJson(response.data));
+      }
     } catch (e) {
       print(e.toString());
       state = GetCurrentEyeState.error(e.toString());

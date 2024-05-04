@@ -6,6 +6,8 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/profile/presentation/widget/profile.header.dart';
+import 'package:metal/features/settings/provider/get.block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/profile/presentation/profile.page.dart';
@@ -30,13 +32,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).data;
+    final blocked = ref.watch(getBlockUserProvider).data;
     return BaseScreen(
       Header: "Settings",
       appBarState: AppBarState.HambugerWithHeader,
       body: SingleChildScrollView(
         child: ProfileHeader(
             eye: false,
-            metal: user!.metal,
+            metal: user!.metal!,
             child: Padding(
               padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
               child: Container(
@@ -157,7 +160,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         ),
                         const Gap(20),
                         EditField(
-                          text: "20",
+                          text: blocked!.length.toString(),
                           floatingLabel: "*Blocked Contacts*",
                           prefixIcon: TextView(
                               text: "View",
@@ -171,7 +174,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         const Gap(20),
                         PlainButton(
                           buttonText: "Delete my account",
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushNamed(context, AppRoutes.delete);
+                          },
                           textColor: AppColors.metalWhite,
                           color: AppColors.metalRed,
                           leftIcon: SvgPicture.asset(

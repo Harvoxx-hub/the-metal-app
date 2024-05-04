@@ -7,7 +7,8 @@ import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
-import 'package:metal/features/settings/edit.page.dart';
+import 'package:metal/features/settings/presentation%20/delete.screen.dart';
+import 'package:metal/features/settings/presentation%20/edit.page.dart';
 import 'package:metal/features/splash/splash.screen.dart';
 import 'package:camera/camera.dart';
 
@@ -52,8 +53,8 @@ import 'package:metal/features/profile/presentation/update.email/update.email.pa
 import 'package:metal/features/profile/presentation/update.phone.number/new.phone.number.page.dart';
 import 'package:metal/features/profile/presentation/update.phone.number/update.phone.number.page.dart';
 import 'package:metal/features/refer.earn/refer.earn.dart';
-import 'package:metal/features/settings/blocked.user.dart';
-import 'package:metal/features/settings/settings.page.dart';
+import 'package:metal/features/settings/presentation%20/blocked.user.dart';
+import 'package:metal/features/settings/presentation%20/settings.page.dart';
 
 import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
 import 'package:metal/features/sparks_page/screens/refer.earn/refer.earn.dart';
@@ -116,6 +117,7 @@ class AppRoutes {
   static const String newPhoneNumberPage = '/newPhoneNumberPage';
   static const String newEmailPage = '/newEmailPage';
   static const String editPage = '/editPage';
+    static const String delete = '/deletePage';
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
@@ -190,7 +192,7 @@ class AppRoutes {
       case feedBackPage:
         return MaterialPageRoute(builder: (_) => FeedBackPage());
       case blockedUser:
-        MaterialPageRoute(builder: (_) => BlockedUser());
+        return MaterialPageRoute(builder: (_) => BlockedUser());
       case notificationPage:
         return MaterialPageRoute(builder: (_) => NotificationPage());
       case userProfilePage:
@@ -237,6 +239,8 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => NewPhoneNumberPage());
       case newEmailPage:
         return MaterialPageRoute(builder: (_) => NewEmailPage());
+              case delete:
+        return MaterialPageRoute(builder: (_) => DeleteScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
@@ -246,12 +250,6 @@ class AppRoutes {
           ),
         );
     }
-    return MaterialPageRoute(
-      builder: (_) => Scaffold(
-        body: Center(
-          child: Text('No route defined for ${settings.name}'),
-        ),
-      ),
-    );
+  
   }
 }

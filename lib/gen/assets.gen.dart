@@ -68,6 +68,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ageRange.svg
   SvgGenImage get ageRange => const SvgGenImage('assets/icons/ageRange.svg');
 
+  /// File path: assets/icons/alert-triangle.svg
+  SvgGenImage get alertTriangle =>
+      const SvgGenImage('assets/icons/alert-triangle.svg');
+
   /// File path: assets/icons/back.btn.svg
   SvgGenImage get backBtn => const SvgGenImage('assets/icons/back.btn.svg');
 
@@ -150,6 +154,12 @@ class $AssetsIconsGen {
   /// File path: assets/icons/currency-dollar.svg
   SvgGenImage get currencyDollar =>
       const SvgGenImage('assets/icons/currency-dollar.svg');
+
+  /// File path: assets/icons/delete1.svg
+  SvgGenImage get delete1 => const SvgGenImage('assets/icons/delete1.svg');
+
+  /// File path: assets/icons/delete2.svg
+  SvgGenImage get delete2 => const SvgGenImage('assets/icons/delete2.svg');
 
   /// File path: assets/icons/down.svg
   SvgGenImage get down => const SvgGenImage('assets/icons/down.svg');
@@ -345,6 +355,7 @@ class $AssetsIconsGen {
         user3,
         videoCamera,
         ageRange,
+        alertTriangle,
         backBtn,
         back,
         bookOpen01,
@@ -367,6 +378,8 @@ class $AssetsIconsGen {
         checked,
         christianity,
         currencyDollar,
+        delete1,
+        delete2,
         down,
         edit04,
         eye,

@@ -1,35 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/features/chat/domain/entries/conversations.model.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
+import 'package:metal/features/chat/provider/game.conversation.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
-class GameTile extends StatelessWidget {
-  const GameTile({super.key, required this.game});
-  final GameModel game;
+class GameTile extends ConsumerWidget {
+  GameTile({
+    Key? key,
+    required this.conversationsModel,
+  }) : super(key: key);
+
+  final ConversationsModel conversationsModel;
+  GameModel? game;
+
+  void setGame() {
+    for (var a in gameData) {
+      if (a.title == conversationsModel.game) {
+        game = a;
+      }
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    setGame();
+    if (game == null) {
+      return SizedBox();
+    }
+
     return Column(
       children: [
-        Gap(10),
+        const SizedBox(height: 10),
         Container(
-          padding: EdgeInsets.only(left: 18, right: 18),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
           height: 66,
           decoration: BoxDecoration(
             image: DecorationImage(
-                image: AssetImage(
-                  Assets.images.gameFrame.path,
-                ),
-                fit: BoxFit.fitWidth),
+              image: AssetImage(Assets.images.gameFrame.path),
+              fit: BoxFit.fitWidth,
+            ),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(game!.emojiPart),
-              Gap(20),
+              const SizedBox(width: 20),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -38,23 +58,34 @@ class GameTile extends StatelessWidget {
                   TextView(
                     text: game!.title,
                     fontWeight: FontWeight.bold,
-                  )
+                  ),
                 ],
               ),
               Spacer(),
-              Container(
-                height: 39,
-                width: 95,
-                decoration: BoxDecoration(
+              GestureDetector(
+                onTap: () {
+                  ref
+                      .read(gameConversationProvider.notifier)
+                      .updateGameConversation(
+                        conversationsModel.documentId!,
+                        "",
+                      );
+                },
+                child: Container(
+                  height: 39,
+                  width: 95,
+                  decoration: BoxDecoration(
                     color: AppColors.metalPinkColour,
-                    borderRadius: BorderRadius.circular(15)),
-                child: Center(
-                  child: TextView(
-                    text: "END GAME",
-                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Center(
+                    child: TextView(
+                      text: "END GAME",
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

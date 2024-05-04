@@ -3,13 +3,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/chat/presentation/games/games.page.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 
 class ChatBottomSheet extends StatefulWidget {
-  const ChatBottomSheet({super.key, required this.onSend, required this.onGameClick});
+  const ChatBottomSheet(
+      {super.key, required this.onSend, required this.onGameClick});
   final Function(String) onSend;
   final Function() onGameClick;
   @override
@@ -18,10 +20,11 @@ class ChatBottomSheet extends StatefulWidget {
 
 class _ChatBottomSheetState extends State<ChatBottomSheet> {
   final TextEditingController _chatController = TextEditingController();
+  final tooltipController = JustTheController();
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:   EdgeInsets.only(bottom: 10.0,  left: 18.w, right: 18.w),
+      padding: EdgeInsets.only(bottom: 10.0, left: 18.w, right: 18.w),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -56,10 +59,31 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                       ),
                     ),
                     Gap(17),
-                    SvgPicture.asset(
-                      Assets.icons.chatsEmptyStateMicrophone.path,
-                      height: 24,
-                      width: 24,
+                    JustTheTooltip(
+                      controller: tooltipController,
+                      content: const SizedBox(
+                        width: 180,
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            'Voice note features are enabled after 30 days of chatting with this metal. Please contact them through messages',
+                          ),
+                        ),
+                      ),
+                      child: Material(
+                        color: Colors.white,
+                        shape: CircleBorder(),
+                        child: GestureDetector(
+                          onTap: () {
+                            tooltipController.showTooltip();
+                          },
+                          child: SvgPicture.asset(
+                            Assets.icons.chatsEmptyStateMicrophone.path,
+                            height: 24,
+                            width: 24,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 )

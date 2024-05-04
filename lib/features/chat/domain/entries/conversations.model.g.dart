@@ -17,6 +17,7 @@ ConversationsModel _$ConversationsModelFromJson(Map<String, dynamic> json) =>
       participantIds: (json['participantIds'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
+      game: json['game'] as String,
     );
 
 Map<String, dynamic> _$ConversationsModelToJson(ConversationsModel instance) =>
@@ -27,4 +28,5 @@ Map<String, dynamic> _$ConversationsModelToJson(ConversationsModel instance) =>
       'lastUpdatedAt':
           const TimestampConverter().toJson(instance.lastUpdatedAt),
       'participantIds': instance.participantIds,
+      'game': instance.game,
     };

@@ -129,6 +129,7 @@ class MessageRepository implements IMessageRepository {
           initiatedAt: DateTime.now(),
           lastMessage: messageModel.message,
           lastUpdatedAt: DateTime.now(),
+          game: "",
           participantIds: [messageModel.recipientId, messageModel.senderId]);
 
       await _firebaseService
@@ -172,6 +173,59 @@ class MessageRepository implements IMessageRepository {
       }).then((value) => print("i was here "));
     } catch (e) {
       print("Error creating message: $e");
+      throw e;
+    }
+  }
+
+  @override
+  Stream<ConversationsModel> conversation(String conversationId) {
+    try {
+      return _firestore
+          .collection(_collectionName)
+          .doc(conversationId)
+          .snapshots()
+          .map((snapshot) => ConversationsModel.fromSnapshot(snapshot));
+    } catch (e) {
+      print("Error getting conversation: $e");
+      throw e;
+    }
+  }
+
+  @override
+  Future<String> checkConversationId(String id, String recipientId) async {
+    try {
+      final conversationExist = await _firebaseService.checkConversationExists(
+        id,
+        recipientId,
+      );
+
+      if (conversationExist == null) {
+        // If no conversation exists, create a new conversation
+        return "";
+      } else {
+        // If conversation exists, use its ID and create a new message in that conversation
+        return conversationExist;
+      }
+    } catch (e) {
+      print("Error getting conversation: $e");
+      throw e;
+    }
+  }
+  
+  @override
+  updateGame(String id, String gameTile) async {
+ try {
+      // Get a reference to the conversation document
+      final conversationDocRef =
+          _firestore.collection('conversations').doc(id);
+
+      // Update the fields in the conversation document
+      await conversationDocRef.update({
+        'lastMessage': "Started a game",
+        'game': gameTile,
+      });
+    } catch (e) {
+      print('Error updating conversation: $e');
       throw e;
     }
   }

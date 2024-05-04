@@ -14,17 +14,25 @@ class MessageListNotifier extends StateNotifier<MessageListState> {
   final Ref ref;
   final String id;
   StreamSubscription<List<MessageModel>>? _messageSubscription;
- 
+
   void getMessageList() async {
     try {
-      state = MessageListState.loading();
-      final messageRepository = ref.watch(messageRepositoryProvider);
+      if (id.isEmpty) {
+        print("Conversation Id missing");
+        state = MessageListState.error("No Message");
+      } else {
+        state = MessageListState.loading();
+        final messageRepository = ref.watch(messageRepositoryProvider);
 
-      _messageSubscription =
-          messageRepository.getMessages(id).listen((messages) {
-        print(messages.length);
-        state = MessageListState.success(messages);
-      });
+        _messageSubscription =
+            messageRepository.getMessages(id).listen((messages) {
+          print(messages.length);
+          if (mounted) {
+            state = MessageListState.success(messages);
+     }
+     
+        });
+      }
     } catch (e) {
       print(e.toString());
       state = MessageListState.error(e.toString());

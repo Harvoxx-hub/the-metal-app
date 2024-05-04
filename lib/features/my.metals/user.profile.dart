@@ -8,6 +8,7 @@ import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
  
 import 'package:metal/features/profile/presentation/profile.page.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
+import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 import 'package:metal/res/colors/cr_colors.dart';
  
 import 'package:metal/widgets/text_views.dart';
@@ -23,7 +24,7 @@ class UserProfilePage extends StatelessWidget {
       Header: "User Profile",
       body: ProfileHeader(
           eye: false,
-          metal: user.metal,
+          metal: user.metal!,
           child: Padding(
             padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
             child: Container(

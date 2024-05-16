@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
@@ -20,7 +17,7 @@ import 'package:metal/widgets/text.field/phone.number.input.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class AccountSetting extends ConsumerStatefulWidget {
-  AccountSetting({Key? key}) : super(key: key);
+  const AccountSetting({super.key});
   static const name = 'createAccount';
   static const route = '/$name';
 
@@ -39,16 +36,16 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
   Widget build(BuildContext context) {
     ref.listen<AccountSettingState>(accountSettingProvider, (prev, current) {
       if (current.isSuccess) {
-                Navigator.pushReplacementNamed(context, AppRoutes.verificationPage, arguments: VerificationSentArgument(
+        Navigator.pushReplacementNamed(context, AppRoutes.verificationPage,
+            arguments: VerificationSentArgument(
                 type: RouteFrom.AccountSetting,
                 code: current.data!['OTP'],
                 uuid: current.data!['UUID'],
-                phoneNumber: _phoneController.text) );
-     
+                phoneNumber: _phoneController.text));
       }
     });
 
-    final _accountSettingState = ref.watch(accountSettingProvider);
+    final accountSettingState = ref.watch(accountSettingProvider);
     return BaseScreen(
       bgImage: Assets.images.bg2.path,
       appBarEnabled: false,
@@ -58,24 +55,24 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Gap(43.h),
-            TextView(
+            const Gap(43),
+            const TextView(
               text: '👋　Hello',
-              fontSize: 20.sp,
+              fontSize: 20,
               fontWeight: FontWeight.w400,
             ),
-            TextView(
+            const TextView(
               text: 'Let’s set up your account.',
-              fontSize: 20.sp,
+              fontSize: 20,
               fontWeight: FontWeight.w400,
             ),
-            TextView(
+            const TextView(
               text: 'It takes only 3 minutes!',
-              fontSize: 14.sp,
+              fontSize: 14,
               fontStyle: FontStyle.italic,
               fontWeight: FontWeight.w300,
             ),
-            Gap(40.h),
+            const Gap(40),
             Form(
                 key: _form,
                 child: Column(
@@ -88,7 +85,7 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
                       validator: Validators.validateEmail(),
                       prefixWidget: Assets.icons.sms.svg(height: 24),
                     ),
-                    Gap(22.h),
+                    const Gap(22),
                     EditFormField(
                       floatingLabel: 'Password',
                       label: '**********',
@@ -97,11 +94,11 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
                       validator: Validators.validatePlainPassword(),
                       prefixWidget: Assets.icons.passwordIcon.svg(height: 24),
                     ),
-                    Gap(16.h),
+                    const Gap(16),
                     PhoneInput(
                       phoneController: _phoneController,
                     ),
-                    Gap(16.h),
+                    const Gap(16),
                     EditFormField(
                       floatingLabel: 'Referal Code (Optional)',
                       label: 'Referal Code',
@@ -113,15 +110,15 @@ class _AccountSettingtate extends ConsumerState<AccountSetting> {
             TextView(
               text:
                   'A verification code will be sent to this number. Message and data rates may apply.',
-              fontSize: 12.sp,
+              fontSize: 12,
               fontWeight: FontWeight.w400,
               fontStyle: FontStyle.italic,
               color: AppColors.metalBrownColourForText.withOpacity(0.5),
             ),
-            Gap(27.h),
+            const Gap(27),
             BaseButton(
               buttonText: "Continue",
-              loading: _accountSettingState.isLoading,
+              loading: accountSettingState.isLoading,
               onPressed: () {
                 ref.read(accountSettingProvider.notifier).signup(
                     email: _emailController.text,

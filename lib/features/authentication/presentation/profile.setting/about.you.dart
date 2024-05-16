@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
-import 'package:metal/features/authentication/presentation/profile.setting/more.about.you.dart';
-import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+ 
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
@@ -20,9 +17,9 @@ import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
 import '../../../../widgets/dropdown/metal.dropdown.dart';
 
 class AboutYouPage extends ConsumerStatefulWidget {
-  AboutYouPage({Key? key}) : super(key: key);
+  const AboutYouPage({super.key});
   static const name = 'aboutYou';
-  static const route = '$name';
+  static const route = name;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _AboutYouPageState();
@@ -35,7 +32,7 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
   List<String>? language;
   @override
   Widget build(BuildContext context) {
-    final _metalProps = ref.watch(metalPropertiesProvider);
+    final metalProps = ref.watch(metalPropertiesProvider);
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -49,9 +46,9 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
                   title: "Just a little more about you",
                   subtitle:
                       "The more we know you, the easier it is to match you!"),
-              Gap(40.h),
+              const Gap(40),
               MentalDropdown(
-                items: _metalProps.data!.marriageStatus!,
+                items: metalProps.data!.marriageStatus!,
                 onChanged: (String? value) {
                   setState(() {
                     maritalStatus = value;
@@ -62,9 +59,9 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
                 hint: "Please Select",
                 floatingLabel: "Marital Status",
               ),
-              Gap(22.h),
+              const Gap(22),
               MentalDropdown(
-                items: _metalProps.data!.religion!,
+                items: metalProps.data!.religion!,
                 onChanged: (String? value) {
                   setState(() {
                     religion = value;
@@ -76,9 +73,9 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
                 hint: "Please Select",
                 floatingLabel: "Religon",
               ),
-              Gap(22.h),
+              const Gap(22),
               MentalDropdown(
-                items: _metalProps.data!.profession!,
+                items: metalProps.data!.profession!,
                 onChanged: (String? value) {
                   setState(() {
                     profession = value;
@@ -89,9 +86,9 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
                 hint: "Please Select",
                 floatingLabel: "Profession",
               ),
-              Gap(22.h),
+              const Gap(22),
               MentalDropdownMutipleSelection(
-                items: _metalProps.data!.language!,
+                items: metalProps.data!.language!,
                 onChanged: (List? value) {
                   setState(() {
                     language = value!.cast<String>();
@@ -102,7 +99,7 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
                 hint: "Please Select",
                 floatingLabel: "language",
               ),
-              Gap(20),
+              const Gap(20),
               BaseButton(
                 enabled: language != null &&
                     language!.isNotEmpty &&
@@ -126,10 +123,10 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
     extraData.language = language!.join(',');
     userData!.extra_data = extraData;
 
-    
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
-    Navigator.pushNamed(context, AppRoutes.moreAboutYouPage,  
-                 );
- 
+    Navigator.pushNamed(
+      context,
+      AppRoutes.moreAboutYouPage,
+    );
   }
 }

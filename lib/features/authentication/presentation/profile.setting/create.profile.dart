@@ -1,22 +1,16 @@
 import 'package:bottom_picker/bottom_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/features/authentication/presentation/widget/create.profile.header1.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/choose.your.metal.dart';
 
-import 'package:metal/features/authentication/presentation/signup/account.setting.dart';
-import 'package:metal/features/authentication/presentation/widget/create.profile.header1.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
-import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
@@ -24,9 +18,9 @@ import 'package:metal/widgets/text.field/edit.from.field.dart';
 import '../../../../widgets/dropdown/metal.dropdown.dart';
 
 class CreateProfilePage extends ConsumerStatefulWidget {
-  CreateProfilePage({Key? key}) : super(key: key);
+  const CreateProfilePage({super.key});
   static const name = 'createProfile';
-  static const route = '$name';
+  static const route = name;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -59,13 +53,13 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Gap(45.h),
+                const Gap(45),
                 const CreateProfileHeader1(
                   title1: '👋 Hello',
                   title2: 'Let’s set up your profile',
                   title3: "it will only take a 3 minutes",
                 ),
-                Gap(24.h),
+                const Gap(24),
                 Form(
                     key: _form,
                     child: Column(
@@ -95,7 +89,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                           },
                           autoValidate: true,
                         ),
-                        Gap(16.h),
+                        const Gap(16),
                         EditFormField(
                           floatingLabel: 'User name',
                           label: "User name",
@@ -110,7 +104,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                           validator: Validators.validateString(),
                           autoValidate: true,
                         ),
-                        Gap(16.h),
+                        const Gap(16),
                         MentalDropdown(
                           items: const [
                             "Male",
@@ -128,7 +122,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                           hint: "Select Gender",
                           prefixIcon: Assets.icons.user2.svg(height: 24),
                         ),
-                        Gap(16.h),
+                        const Gap(16),
                         GestureDetector(
                           onTap: () {
                             showDataPicker();
@@ -145,7 +139,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                             bottomLabel: "Age cannot be changed",
                           ),
                         ),
-                        Gap(16.h),
+                        const Gap(16),
                         MentalDropdownMutipleSelection(
                             items: const [
                               "Male",
@@ -162,9 +156,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                             floatingLabel: "I am looking to connect with",
                             hint: "Please Select",
                             prefixIcon: Assets.icons.user2.svg(width: 24)),
-                      
-                      
-                        Gap(64.h),
+                        const Gap(64),
                       ],
                     )),
                 BaseButton(

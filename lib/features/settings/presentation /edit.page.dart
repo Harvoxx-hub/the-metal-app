@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
-import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/profile/presentation/widget/edit.profile.dart';
-import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/settings/presentation%20/widget/blocked.card.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 
 class EditPage extends ConsumerWidget {
@@ -32,17 +26,17 @@ class EditPage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 220.h,
+                  height: 220,
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                  decoration: const BoxDecoration(
+                      gradient: LinearGradient(
                         begin: Alignment(0.00, -1.00),
                         end: Alignment(0, 1),
                         colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
                       ),
                       borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(35.sp),
-                        bottomRight: Radius.circular(35.sp),
+                        bottomLeft: Radius.circular(35),
+                        bottomRight: Radius.circular(35),
                       )),
                   child: const Padding(
                     padding: EdgeInsets.only(left: 24.0, right: 24),
@@ -63,7 +57,7 @@ class EditPage extends ConsumerWidget {
                       borderRadius: BorderRadius.all(
                         Radius.circular(35),
                       )),
-                  child: EditProfile()),
+                  child: const EditProfile()),
             ),
           ],
         ),

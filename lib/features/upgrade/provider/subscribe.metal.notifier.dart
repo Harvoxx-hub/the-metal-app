@@ -1,17 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/upgrade/data/repositories/subscription.repository.dart';
-import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 import 'package:metal/features/upgrade/domain/entries/subscribed.plan.model.dart';
 
 class SubscribeMetalNotifier extends StateNotifier<SubscribeMetalState> {
   SubscribeMetalNotifier(
-    SubscribeMetalState state,
+    super.state,
     this.ref,
-  ) : super(state) {}
+  );
   final Ref ref;
 
   // get metal properties

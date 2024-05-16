@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
-import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 
-import 'package:metal/features/my.metals/my.melted.user.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/card.with.shadow.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class MeltCard extends StatelessWidget {
-  MeltCard({super.key, required this.user});
+  const MeltCard({super.key, required this.user});
   final MeltUserModel user;
 
   @override
@@ -26,25 +23,25 @@ class MeltCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ProfilePhoto(size: 56, verfly: false, photourl: user.metal!.img!),
-            Gap(23),
+            const Gap(23),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextView(
-                  text: user!.name!,
+                  text: user.name!,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
-                Gap(5),
+                const Gap(5),
                 TextView(
-                  text: "-  ${user!.gender}",
+                  text: "-  ${user.gender}",
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),
-                Gap(14),
+                const Gap(14),
 
                 ///TODO: add the melted for marriage
-                TextView(
+                const TextView(
                   text: "-  Melted for Marriage",
                   fontSize: 15,
                   fontWeight: FontWeight.w400,

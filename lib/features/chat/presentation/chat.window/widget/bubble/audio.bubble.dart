@@ -64,7 +64,7 @@
 //           ),
 
 //           Text(
-//             duration.toString().split('.')[0],
+//             duration.toString() lit('.')[0],
 //             style: TextStyle(
 //                 fontSize: 12, color: widget.message!.isSender ? Colors.white : null),
 //           ),

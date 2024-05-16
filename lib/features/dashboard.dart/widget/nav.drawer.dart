@@ -3,28 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
-import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/verification/verification.video.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/feedback/feedback.page.dart';
-import 'package:metal/features/my.metals/my.melted.metals.dart';
-import 'package:metal/features/refer.earn/refer.earn.dart';
-import 'package:metal/features/settings/presentation%20/settings.page.dart';
-import 'package:metal/features/upgrade/upgrade.page.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:provider/provider.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class NavDrawer extends ConsumerWidget {
+  const NavDrawer({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final _authState = ref.watch(authProvider).data;
+    final authState = ref.watch(authProvider).data;
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -41,7 +34,7 @@ class NavDrawer extends ConsumerWidget {
                         height: 19,
                         width: 21,
                       ),
-                      TextView(
+                      const TextView(
                         text: "Metal",
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -57,26 +50,26 @@ class NavDrawer extends ConsumerWidget {
                       )
                     ],
                   ),
-                  Gap(36),
+                  const Gap(36),
                   Row(
                     children: [
-                      ProfilePhoto(
+                      const ProfilePhoto(
                         verfly: false,
                         size: 51,
                       ),
                       // Image.asset(Assets.images.navBarProfile.path),
-                      Gap(19),
+                      const Gap(19),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TextView(
-                            text: _authState!.fullname!,
+                            text: authState!.fullname!,
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
                           ),
                           TextView(
                             text:
-                                "@${_authState.username!}_${_authState.metal!.title!}",
+                                "@${authState.username!}_${authState.metal!.title!}",
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
                           ),
@@ -86,14 +79,14 @@ class NavDrawer extends ConsumerWidget {
                   )
                 ],
               )),
-          Gap(51),
+          const Gap(51),
           ListTile(
             leading: Container(
               height: 46,
               width: 46,
               decoration: ShapeDecoration(
                 color: AppColors.metalPinkColour.withOpacity(0.06),
-                shape: OvalBorder(),
+                shape: const OvalBorder(),
               ),
               child: Center(
                   child: SvgPicture.asset(
@@ -102,7 +95,7 @@ class NavDrawer extends ConsumerWidget {
                 width: 24,
               )),
             ),
-            title: TextView(text: "My melted metals"),
+            title: const TextView(text: "My melted metals"),
             onTap: () => {
               Navigator.pushNamed(
                 context,
@@ -110,14 +103,14 @@ class NavDrawer extends ConsumerWidget {
               )
             },
           ),
-          Gap(20),
+          const Gap(20),
           ListTile(
             leading: Container(
               height: 46,
               width: 46,
               decoration: ShapeDecoration(
                 color: AppColors.metalPinkColour.withOpacity(0.06),
-                shape: OvalBorder(),
+                shape: const OvalBorder(),
               ),
               child: Center(
                   child: SvgPicture.asset(
@@ -127,7 +120,7 @@ class NavDrawer extends ConsumerWidget {
               )),
             ),
             title: TextView(
-                text: _authState.subscription == null
+                text: authState.subscription == null
                     ? "Upgrade to Metal Plus"
                     : " Metal Plus"),
             onTap: () => {
@@ -137,14 +130,14 @@ class NavDrawer extends ConsumerWidget {
               )
             },
           ),
-          Gap(20),
+          const Gap(20),
           ListTile(
             leading: Container(
               height: 46,
               width: 46,
               decoration: ShapeDecoration(
                 color: AppColors.metalPinkColour.withOpacity(0.06),
-                shape: OvalBorder(),
+                shape: const OvalBorder(),
               ),
               child: Center(
                   child: SvgPicture.asset(
@@ -153,7 +146,7 @@ class NavDrawer extends ConsumerWidget {
                 width: 24,
               )),
             ),
-            title: TextView(text: "Refer & Earn"),
+            title: const TextView(text: "Refer & Earn"),
             onTap: () => {
               Navigator.pushNamed(
                 context,
@@ -161,8 +154,8 @@ class NavDrawer extends ConsumerWidget {
               )
             },
           ),
-          Gap(20),
-          !_authState.isVerified!
+          const Gap(20),
+          !authState.isVerified!
               ? Column(
                   children: [
                     ListTile(
@@ -171,7 +164,7 @@ class NavDrawer extends ConsumerWidget {
                         width: 46,
                         decoration: ShapeDecoration(
                           color: AppColors.metalPinkColour.withOpacity(0.06),
-                          shape: OvalBorder(),
+                          shape: const OvalBorder(),
                         ),
                         child: Center(
                             child: SvgPicture.asset(
@@ -181,7 +174,7 @@ class NavDrawer extends ConsumerWidget {
                           width: 24,
                         )),
                       ),
-                      title: TextView(text: "Verify your account"),
+                      title: const TextView(text: "Verify your account"),
                       onTap: () => {
                         Navigator.pushNamed(
                           context,
@@ -189,17 +182,17 @@ class NavDrawer extends ConsumerWidget {
                         )
                       },
                     ),
-                    Gap(20),
+                    const Gap(20),
                   ],
                 )
-              : SizedBox(),
+              : const SizedBox(),
           ListTile(
             leading: Container(
               height: 46,
               width: 46,
               decoration: ShapeDecoration(
                 color: AppColors.metalPinkColour.withOpacity(0.06),
-                shape: OvalBorder(),
+                shape: const OvalBorder(),
               ),
               child: Center(
                   child: SvgPicture.asset(
@@ -208,7 +201,7 @@ class NavDrawer extends ConsumerWidget {
                 width: 24,
               )),
             ),
-            title: TextView(text: "Let’s hear from you"),
+            title: const TextView(text: "Let’s hear from you"),
             onTap: () => {
               Navigator.pushNamed(
                 context,
@@ -216,14 +209,14 @@ class NavDrawer extends ConsumerWidget {
               )
             },
           ),
-          Gap(20),
+          const Gap(20),
           ListTile(
             leading: Container(
               height: 46,
               width: 46,
               decoration: ShapeDecoration(
                 color: AppColors.metalPinkColour.withOpacity(0.06),
-                shape: OvalBorder(),
+                shape: const OvalBorder(),
               ),
               child: Center(
                   child: SvgPicture.asset(
@@ -232,7 +225,7 @@ class NavDrawer extends ConsumerWidget {
                 width: 24,
               )),
             ),
-            title: TextView(text: "Settings"),
+            title: const TextView(text: "Settings"),
             onTap: () => {
               Navigator.pushNamed(
                 context,
@@ -240,14 +233,14 @@ class NavDrawer extends ConsumerWidget {
               )
             },
           ),
-          Gap(20),
+          const Gap(20),
           ListTile(
             leading: Container(
               height: 46,
               width: 46,
               decoration: ShapeDecoration(
                 color: AppColors.metalPinkColour.withOpacity(0.06),
-                shape: OvalBorder(),
+                shape: const OvalBorder(),
               ),
               child: Center(
                   child: SvgPicture.asset(
@@ -256,21 +249,21 @@ class NavDrawer extends ConsumerWidget {
                 width: 24,
               )),
             ),
-            title: TextView(text: "Log out"),
+            title: const TextView(text: "Log out"),
             onTap: () => {
               logout(ref),
               Navigator.pushNamedAndRemoveUntil(
                   context, AppRoutes.login, (route) => false)
             },
           ),
-          Gap(40),
+          const Gap(40),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Expanded(
+                const Expanded(
                   child: TextView(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
@@ -278,8 +271,8 @@ class NavDrawer extends ConsumerWidget {
                       text:
                           "...when our eyes are closed, our hearts talk and create real, lasting communications."),
                 ),
-                Gap(19.w),
-                TextView(
+                Gap(19),
+                const TextView(
                   text: "V 1.10",
                   fontSize: 12,
                   fontWeight: FontWeight.w500,

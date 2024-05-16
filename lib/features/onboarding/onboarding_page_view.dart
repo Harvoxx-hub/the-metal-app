@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/core/utils/web_utils.dart';
-import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
@@ -15,10 +15,8 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button_divider.dart';
 
-import 'package:metal/widgets/dash.progress.indicator.dart';
 import 'package:metal/widgets/text_views.dart';
 
-import '../authentication/presentation/signup/account.setting.dart';
 import 'onboarding_screen.dart';
 
 class OnboardingPageView extends StatefulWidget {
@@ -34,17 +32,17 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
   final image1 = Assets.gifs.onboarding.path;
   final image2 = Assets.gifs.onboarding2.path;
   final image3 = Assets.gifs.onboarding3.path;
-  PageController _controller = PageController();
+  final PageController _controller = PageController();
   int currentPage = 0;
   late Timer _timer;
   @override
   void initState() {
     super.initState();
     // Start timer to move to the next page every 3 seconds
-    _timer = Timer.periodic(Duration(seconds: 3), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (currentPage < 2) {
         _controller.nextPage(
-            duration: Duration(milliseconds: 500), curve: Curves.ease);
+            duration: const Duration(milliseconds: 500), curve: Curves.ease);
       } else {
         _controller.jumpToPage(0);
       }
@@ -62,7 +60,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
           child: Column(
             children: [
               SizedBox(
-                height: 500,
+                height: getDeviceHeight(context) * 0.4,
                 child: PageView(
                   controller: _controller,
                   onPageChanged: (value) {
@@ -120,13 +118,13 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
               //     Image.asset(
               //       Assets.images.google.path,
               //       width: 39.w,
-              //       height: 39.h,
+              //       height: 39 ,
               //     ),
               //     const Gap(10),
               //     Image.asset(
               //       Assets.images.apple.path,
               //       width: 39.w,
-              //       height: 39.h,
+              //       height: 39 ,
               //     ),
               //   ],
               // ),
@@ -134,7 +132,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextView(
+                  const TextView(
                     text: 'Already have an account?',
                   ),
                   const Gap(5),
@@ -153,7 +151,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
               Wrap(
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  TextView(
+                  const TextView(
                     text: 'By tapping Sign up or Log in, you agree to our ',
                     fontSize: 10,
                   ),
@@ -165,7 +163,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),
-                  TextView(
+                  const TextView(
                     text: 'Learn how we process your data in our ',
                     fontSize: 10,
                     fontWeight: FontWeight.normal,
@@ -178,7 +176,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),
-                  TextView(
+                  const TextView(
                     text: ' and ',
                     fontSize: 10,
                     fontWeight: FontWeight.normal,
@@ -200,7 +198,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
 
   Widget buildDot(bool index) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 2.0),
+      margin: const EdgeInsets.symmetric(horizontal: 2.0),
       height: 6.0,
       width: 6.0,
       decoration: BoxDecoration(

@@ -7,9 +7,9 @@ import 'package:metal/features/eyes/domain/entries/status.model.dart';
 
 class GetCurrentEyeNotifier extends StateNotifier<GetCurrentEyeState> {
   GetCurrentEyeNotifier(
-    GetCurrentEyeState state,
+    super.state,
     this.ref,
-  ) : super(state) {
+  ) {
     getCurrentEye();
   }
   final Ref ref;
@@ -38,7 +38,11 @@ class GetCurrentEyeNotifier extends StateNotifier<GetCurrentEyeState> {
       final eyeRepository = ref.watch(statusRepositoryProvider);
       final response = await eyeRepository.getCurrentUserStatus();
       if (mounted) {
-        state = GetCurrentEyeState.success(StatusData.fromJson(response.data));
+        final List<StatusData> eyes = [];
+        response.data.forEach((element) {
+          eyes.add(StatusData.fromJson(element));
+        });
+        state = GetCurrentEyeState.success(eyes);
       }
     } catch (e) {
       print(e.toString());
@@ -48,7 +52,7 @@ class GetCurrentEyeNotifier extends StateNotifier<GetCurrentEyeState> {
 }
 
 // Define a type alias
-typedef GetCurrentEyeState = BaseState<StatusData>;
+typedef GetCurrentEyeState = BaseState<List<StatusData>>;
 
 final getCurrentEyesProvider = StateNotifierProvider.autoDispose<
     GetCurrentEyeNotifier, GetCurrentEyeState>(

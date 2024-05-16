@@ -6,9 +6,9 @@ import 'package:metal/features/settings/data/repositories/setting.repository.dar
 
 class GetBlockUsersNotifier extends StateNotifier<GetBlockUsersState> {
   GetBlockUsersNotifier(
-    GetBlockUsersState state,
+    super.state,
     this.ref,
-  ) : super(state) {
+  ) {
     getBlockUser();
   }
   final Ref ref;

@@ -3,14 +3,12 @@ import 'dart:math';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
 import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
-import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
 import 'package:metal/features/home_page/provider/like.user.notifier.dart';
 import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
 
@@ -52,14 +50,14 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
 
   @override
   Widget build(BuildContext context) {
-    final _userState = ref.watch(authProvider).data;
+    final userState = ref.watch(authProvider).data;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 27.h),
-      margin: EdgeInsets.only(bottom: 40.h, left: 20.w, right: 20.w),
-      // height: 100.h,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 27 ),
+      margin: const EdgeInsets.only(bottom: 40 , left: 20, right: 20),
+      // height: 100 ,
       decoration: BoxDecoration(
           color: AppColors.metalWhite,
-          borderRadius: BorderRadius.circular(13.sp),
+          borderRadius: BorderRadius.circular(13 ),
           boxShadow: [
             BoxShadow(
               blurRadius: 3,
@@ -73,13 +71,13 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
           Align(
             alignment: Alignment.center,
             child: Container(
-              height: 140.w,
-              width: 140.w,
+              height: 140,
+              width: 140,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.metalBlack.withOpacity(0.1)),
               child: ClipRRect(
-                  borderRadius: BorderRadius.circular(70.w),
+                  borderRadius: BorderRadius.circular(70),
                   child: Image.network(
                     widget.user.metal!.img!,
                     fit: BoxFit.cover,
@@ -91,10 +89,10 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
             children: [
               TextView(
                 text: '@${widget.user.username}_${widget.user.metal!.title}',
-                fontSize: 20.sp,
+                fontSize: 20 ,
                 fontWeight: FontWeight.w700,
               ),
-              Gap(10.w),
+              const Gap(10),
               widget.user.verfied
                   ? SvgPicture.asset(
                       Assets.icons.checkVerified.path,
@@ -104,46 +102,46 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
                   : const SizedBox.shrink(),
             ],
           ),
-          Gap(6.h),
+          const Gap(6 ),
           _buildSubItem('Gender', widget.user.gender!),
           _buildSubItem(
               'Age range', getAgeRange(int.parse(widget.user.age_range!))),
-          Gap(12.h),
+          const Gap(12 ),
           Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 7.w,
-              vertical: 4.w,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 7,
+              vertical: 4,
             ),
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(3.sp),
+                borderRadius: BorderRadius.circular(3 ),
                 color: AppColors.metalPinkColour60.withOpacity(0.2)),
             child: Text(
               'Ready to Melt with  ${widget.user.connection_option!.join(', ')}',
               style: TextStyles.text(weight: FontWeight.w500),
             ),
           ),
-          Gap(15.h),
+          const Gap(15 ),
           Text(
             'Interests: ${widget.user.passion!.join(', ')}',
             style: TextStyles.text(fontStyle: FontStyle.italic),
           ),
-          Gap(15.h),
-          Padding(
-            padding: EdgeInsets.only(right: 15.w),
-            child: const Divider(thickness: 1.5),
+          const Gap(15 ),
+          const Padding(
+            padding: EdgeInsets.only(right: 15),
+            child: Divider(thickness: 1.5),
           ),
-          Gap(8.h),
+          const Gap(8 ),
           Text(
             widget.user.description!,
             style: TextStyles.text(),
           ),
-          Gap(20.h),
+          const Gap(20 ),
           liked!
               ? Center(
                   child: Container(
-                    padding: EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8.0),
                     decoration: ShapeDecoration(
-                      color: Color(0xFF07840A).withOpacity(0.2),
+                      color: const Color(0xFF07840A).withOpacity(0.2),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(3)),
                     ),
@@ -152,14 +150,14 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
                     ),
                   ),
                 )
-              : SizedBox(),
-          Gap(20.h),
+              : const SizedBox(),
+          const Gap(20 ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment .spaceBetween,
             children: [
               GestureDetector(
                 onTap: () {
-                  _userState!.completed_profile!
+                  userState!.completed_profile!
                       ? {
                           !widget.user.pushedMe
                               ?  _meltUser()
@@ -172,7 +170,7 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
                       : showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return CustomDialog(
+                            return const CustomDialog(
                               content: ComplecteProfileDialog(),
                             );
                           },
@@ -196,7 +194,7 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
                 alignment: Alignment.bottomCenter,
                 child: GestureDetector(
                   onTap: () {
-                    _userState!.completed_profile!
+                    userState!.completed_profile!
                         ? {
                             _controller.play(),
                             setState(() {
@@ -209,7 +207,7 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
                         : showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return CustomDialog(
+                              return const CustomDialog(
                                 content: ComplecteProfileDialog(),
                               );
                             },
@@ -220,13 +218,13 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
               ),
               GestureDetector(
                 onTap: () {
-                  _userState!.completed_profile!
+                  userState!.completed_profile!
                       ? Navigator.pushNamed(context, AppRoutes.pushMetal,
                           arguments: widget.user)
                       : showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return CustomDialog(
+                            return const CustomDialog(
                               content: ComplecteProfileDialog(),
                             );
                           },
@@ -243,7 +241,7 @@ class _MetalUserCardState extends ConsumerState<MetalUserCard> {
 
   Text _buildSubItem(String key, String value) {
     return Text.rich(TextSpan(
-        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w300),
+        style: const TextStyle(fontSize: 15 , fontWeight: FontWeight.w300),
         text: '$key: ',
         children: [
           TextSpan(

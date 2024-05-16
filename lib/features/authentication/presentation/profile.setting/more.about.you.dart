@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
-import 'package:metal/features/authentication/presentation/profile.setting/connection.option.dart';
-import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+ 
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 
 class MoreAboutYouPage extends ConsumerStatefulWidget {
-  MoreAboutYouPage({Key? key}) : super(key: key);
+  const MoreAboutYouPage({super.key});
   static const name = 'moreAboutYou';
-  static const route = '$name';
+  static const route = name;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -27,7 +24,7 @@ class MoreAboutYouPage extends ConsumerStatefulWidget {
 }
 
 class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -43,7 +40,7 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
                   title:
                       "Anything more, you would love us to know about being an aluminium?",
                   subtitle: "This will be displayed to your matched metals."),
-              Gap(22.h),
+              const Gap(22),
               EditFormField(
                 floatingLabel: '',
                 label:
@@ -57,7 +54,7 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
 
                 // fillColor: AppColors.appGrey,
               ),
-              Gap(20),
+              const Gap(20),
               BaseButton(
                 buttonText: "Next",
                 onPressed: _onNextPressed,
@@ -72,8 +69,10 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
     userData!.description = _controller.text;
 
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
- 
-        Navigator.pushNamed(context, AppRoutes.connectionOptionsPage,  
-                 );
+
+    Navigator.pushNamed(
+      context,
+      AppRoutes.connectionOptionsPage,
+    );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
@@ -9,7 +8,6 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
 import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
-import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
 
 import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
 
@@ -23,7 +21,7 @@ import 'package:metal/widgets/text_views.dart';
 class MeltMetal extends ConsumerWidget {
   const MeltMetal(this.meltUserData, {super.key});
   static const name = 'meltMetal';
-  static const route = '$name';
+  static const route = name;
   final ALLUserModel meltUserData;
 
   @override
@@ -34,13 +32,13 @@ class MeltMetal extends ConsumerWidget {
     final user = ref.watch(authProvider);
     return BaseScreen(
       subAppBar: true,
-      appBarState: AppBarState.HambugerWithHeader,
+      appBarState: AppBarState .HambugerWithHeader,
       Header: "My melted metals",
       body: meltUser.isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(children: [
               const Gap(74),
-              TextView(
+              const TextView(
                 text: "It’s a melt🎉",
                 fontWeight: FontWeight.w600,
                 fontSize: 28,
@@ -56,7 +54,7 @@ class MeltMetal extends ConsumerWidget {
               Container(
                 child: Stack(
                   children: [
-                    Container(
+                    const SizedBox(
                       width: double.infinity,
                       height: 300,
                     ),
@@ -64,8 +62,8 @@ class MeltMetal extends ConsumerWidget {
                       left: 30,
                       child: Column(
                         children: [
-                          ProfilePhoto(size: 156, verfly: false),
-                          Gap(28),
+                          const ProfilePhoto(size: 156, verfly: false),
+                          const Gap(28),
                           username(
                             name: user.data!.username!,
                           ),
@@ -76,8 +74,8 @@ class MeltMetal extends ConsumerWidget {
                       right: 30,
                       child: Column(
                         children: [
-                          ProfilePhoto(size: 156, verfly: false),
-                          Gap(28),
+                          const ProfilePhoto(size: 156, verfly: false),
+                          const Gap(28),
                           username(
                             name: meltUserData.username!,
                           ),
@@ -89,7 +87,7 @@ class MeltMetal extends ConsumerWidget {
               ),
               const Gap(70),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment .spaceEvenly,
                 children: [
                   meltItem("Chat", Assets.images.meltChat.path, () {
                     Navigator.pushNamed(context, AppRoutes.chatWindowsPage,

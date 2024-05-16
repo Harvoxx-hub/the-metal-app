@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/authentication/presentation/home.address/notification.dart';
+
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:geolocator/geolocator.dart';
 
 class LocationEnablePage extends ConsumerStatefulWidget {
-  LocationEnablePage({Key? key}) : super(key: key);
+  const LocationEnablePage({super.key});
   static const name = 'location';
-  static const route = '$name';
+  static const route = name;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -27,7 +26,7 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
   Position? _currentPosition;
   @override
   Widget build(BuildContext context) {
-    final _updateProfile = ref.watch(updateProfileProvider);
+    final updateProfile = ref.watch(updateProfileProvider);
 
     ref.listen<UpdateProfileState>(updateProfileProvider, (prev, current) {
       if (current.isSuccess) {
@@ -46,25 +45,25 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
             Image.asset(
               Assets.images.location.path,
             ),
-            Gap(41.h),
-            TextView(
+            const Gap(41),
+            const TextView(
               text: "You’ll need to enable location in order to use Metal",
               fontWeight: FontWeight.w400,
               fontSize: 20,
             ),
-            Gap(10.h),
-            TextView(
+            const Gap(10),
+            const TextView(
               text:
                   "Your location would be used to show you potential metals near you",
               fontWeight: FontWeight.w400,
               fontSize: 16,
             ),
-            Gap(70.h),
+            const Gap(70),
             BaseButton(
-              loading: _updateProfile.isLoading,
+              loading: updateProfile.isLoading,
               buttonText: "Enable Location",
               onPressed: () {
-                _onNextPressed(_updateProfile.data);
+                _onNextPressed(updateProfile.data);
               },
             ),
           ]),

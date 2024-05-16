@@ -5,10 +5,10 @@ class DashWidget extends StatelessWidget {
   final int currentIndex;
 
   const DashWidget({
-    Key? key,
+    super.key,
     required this.items,
     required this.currentIndex,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class DashWidget extends StatelessWidget {
       child: Container(
         // Adjust width as needed
         height: 1, // Adjust height as needed
-        margin: EdgeInsets.symmetric(horizontal: 2), // Adjust spacing as needed
+        margin: const EdgeInsets.symmetric(horizontal: 2), // Adjust spacing as needed
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(

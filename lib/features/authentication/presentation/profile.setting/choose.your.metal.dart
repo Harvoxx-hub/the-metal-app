@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
-import 'package:metal/features/authentication/presentation/home.address/location.dart';
+import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/passions.dart';
-import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+ 
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
@@ -18,9 +16,9 @@ import 'package:metal/widgets/button/buttons.dart';
 import '../widget/choose.metal.card.dart';
 
 class ChooseYourMetalPage extends ConsumerStatefulWidget {
-  ChooseYourMetalPage({Key? key}) : super(key: key);
+  const ChooseYourMetalPage({super.key});
   static const name = 'ChooseYourMetal';
-  static const route = '$name';
+  static const route = name;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -102,9 +100,9 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
     userData!.metal = _selectedMetal;
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
 
-     Navigator.pushNamed(context, AppRoutes.locationEnablePage,  
-                 );
-
-   
+    Navigator.pushNamed(
+      context,
+      AppRoutes.locationEnablePage,
+    );
   }
 }

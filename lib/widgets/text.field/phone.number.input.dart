@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -20,18 +19,18 @@ class PhoneInput extends StatelessWidget {
         TextView(
           text: floatingLabel,
           fontWeight: FontWeight.w400,
-          fontSize: 14.sp,
+          fontSize: 14,
           color: AppColors.metalBrownColourForText,
           textAlign: TextAlign.left,
         ),
-        Gap(8),
+        const Gap(8),
         IntlPhoneField(
           dropdownIconPosition: IconPosition.trailing,
-          style: TextStyle(
+          style: const TextStyle(
               fontFamily: 'Plus_Jakarta',
               color: AppColors.metalBrownColourForText,
               fontWeight: FontWeight.w300,
-              fontSize: 16.sp,
+              fontSize: 16,
               fontStyle: FontStyle.normal),
           decoration: InputDecoration(
             labelText: '81033000333',
@@ -58,7 +57,7 @@ class PhoneInput extends StatelessWidget {
           ),
           initialCountryCode: 'US',
           controller: phoneController,
-          flagsButtonPadding: EdgeInsets.all(10),
+          flagsButtonPadding: const EdgeInsets.all(10),
           onChanged: (phone) {
             print(phone.completeNumber);
           },

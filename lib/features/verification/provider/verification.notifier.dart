@@ -2,18 +2,15 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/upgrade/data/repositories/subscription.repository.dart';
-import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 import 'package:metal/features/verification/data/repositories/verification.repository.dart';
 import 'package:video_compress/video_compress.dart';
 
 class VerificationNotifier extends StateNotifier<VerificationState> {
   VerificationNotifier(
-    VerificationState state,
+    super.state,
     this.ref,
-  ) : super(state) {}
+  );
   final Ref ref;
 
   // get metal properties
@@ -29,7 +26,7 @@ class VerificationNotifier extends StateNotifier<VerificationState> {
         includeAudio: true,
       );
       print(info!.filesize.toString());
-      final response = await verificationRepository.verification(info!.file!);
+      final response = await verificationRepository.verification(info.file!);
       ref.read(authProvider.notifier).getUpdatedUser();
 
       state = VerificationState.success(response.message!);

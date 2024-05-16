@@ -57,7 +57,7 @@ class FirebaseService {
     try {
       // Generate a unique filename for the audio file
       String fileName =
-          DateTime.now().millisecondsSinceEpoch.toString() + '.mp3';
+          '${DateTime.now().millisecondsSinceEpoch}.mp3';
       // Get a reference to the audio file in Firebase Storage
       Reference ref = _storage.ref().child('audio/$fileName');
       // Upload the audio file
@@ -67,7 +67,7 @@ class FirebaseService {
       return downloadUrl;
     } catch (e) {
       print('Failed to upload audio: $e');
-      throw e; // Propagate the exception for handling in the calling code
+      rethrow; // Propagate the exception for handling in the calling code
     }
   }
 
@@ -97,7 +97,8 @@ class FirebaseService {
     } catch (e) {
       // Error occurred
       print("Error checking conversation: $e");
-      throw e;
+      rethrow;
     }
+    return null;
   }
 }

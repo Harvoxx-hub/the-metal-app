@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomDialog extends StatelessWidget {
   final Widget content;
 
-  CustomDialog({required this.content});
+  const CustomDialog({super.key, required this.content});
 
   @override
   Widget build(BuildContext context) {

@@ -14,12 +14,12 @@ import 'package:metal/widgets/profile.photo.dart';
 
 class ProfileHeader extends ConsumerWidget {
   const ProfileHeader({
-    Key? key,
+    super.key,
     required this.child,
     required this.metal,
     this.eye = true,
     this.profileUrl,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final Metal metal;
@@ -32,9 +32,9 @@ class ProfileHeader extends ConsumerWidget {
     return SingleChildScrollView(
       child: Stack(
         children: [
-          Column(
+          const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               AppbarBackground(),
             ],
           ),
@@ -59,7 +59,7 @@ class ProfileHeader extends ConsumerWidget {
           if (eye)
             Positioned(
               top: 140,
-              right: 50.w,
+              right: 50,
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(
                   context,
@@ -78,7 +78,7 @@ class ProfileHeader extends ConsumerWidget {
   }
 
   Future<void> _pickImage(BuildContext context, WidgetRef ref) async {
-    final ImagePicker _picker = ImagePicker();
+    final ImagePicker picker = ImagePicker();
 
     final option = await showModalBottomSheet<ImageSource>(
       context: context,
@@ -103,7 +103,7 @@ class ProfileHeader extends ConsumerWidget {
     );
 
     if (option != null) {
-      final pickedFile = await _picker.pickImage(source: option);
+      final pickedFile = await picker.pickImage(source: option);
       if (pickedFile != null) {
         ref
             .read(profileImageProvider.notifier)

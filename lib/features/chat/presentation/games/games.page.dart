@@ -1,14 +1,10 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/chat/presentation/games/games.rule.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -16,7 +12,7 @@ import 'package:metal/widgets/text_views.dart';
 class GamePage extends StatelessWidget {
   const GamePage({super.key});
   static const name = 'gamePage';
-  static const route = '$name';
+  static const route = name;
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +26,15 @@ class GamePage extends StatelessWidget {
                   Container(
                     height: 220,
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                    decoration: const BoxDecoration(
+                        gradient: LinearGradient(
                           begin: Alignment(0.00, -1.00),
                           end: Alignment(0, 1),
                           colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
                         ),
                         borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(35.sp),
-                          bottomRight: Radius.circular(35.sp),
+                          bottomLeft: Radius.circular(35),
+                          bottomRight: Radius.circular(35),
                         )),
                     child: Padding(
                       padding: const EdgeInsets.only(left: 43.0, right: 43),
@@ -47,20 +43,20 @@ class GamePage extends StatelessWidget {
                           Image.asset(Assets
                               .images.chatStarStruckExcitedHappyEmoji1.path),
                           Image.asset(Assets.images.chatVideoGameEmoji1.path),
-                          TextView(
+                          const TextView(
                             text: "Let’s Play",
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
                             color: AppColors.metalWhite,
                           ),
-                          TextView(
+                          const TextView(
                             text: "GAME",
                             fontSize: 28,
                             fontWeight: FontWeight.w700,
                             color: AppColors.metalWhite,
                           ),
-                          Gap(13),
-                          TextView(
+                          const Gap(13),
+                          const TextView(
                             text:
                                 "Break the conversation Ice using these starter games to discover yourselves better.",
                             fontSize: 14,
@@ -72,14 +68,14 @@ class GamePage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Gap(31.h),
-                  TextView(
+                  const Gap(31),
+                  const TextView(
                     text: "Please choose one game at a time",
-                    fontSize: 15.sp,
+                    fontSize: 15,
                     fontStyle: FontStyle.italic,
                     fontWeight: FontWeight.w400,
                   ),
-                  Gap(27.h),
+                  const Gap(27),
                   Padding(
                     padding: const EdgeInsets.only(left: 25.0, right: 25.0),
                     child: Wrap(
@@ -87,9 +83,8 @@ class GamePage extends StatelessWidget {
                         for (var element in gameData)
                           gameCard(
                             gameModel: element,
-
-  ),
-                    ],
+                          ),
+                      ],
                     ),
                   )
                 ],
@@ -104,11 +99,9 @@ class gameCard extends StatelessWidget {
   const gameCard({
     super.key,
     required this.gameModel,
-  
   });
 
   final GameModel gameModel;
- 
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +116,7 @@ class gameCard extends StatelessWidget {
           decoration: BoxDecoration(
               color: AppColors.metalPinkColour.withOpacity(0.07),
               borderRadius: BorderRadius.circular(20)),
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,

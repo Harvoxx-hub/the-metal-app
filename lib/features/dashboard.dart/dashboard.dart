@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
- 
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
- 
+
 import 'package:gap/gap.dart';
- 
+
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
- 
+
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
- 
+
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/settings/provider/get.block.user.notifier.dart';
- 
+
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/features/profile/presentation/profile.page.dart';
@@ -32,10 +31,7 @@ import 'package:metal/widgets/text_views.dart';
 import '../home_page/home_page.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
-
   const DashboardPage({super.key});
-
- 
 
   @override
   ConsumerState<DashboardPage> createState() => _DashboardPageState();
@@ -58,7 +54,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         ? showDialog(
             context: context,
             builder: (BuildContext context) {
-              return CustomDialog(
+              return const CustomDialog(
                 content: ComplecteProfileDialog(),
               );
             },
@@ -80,7 +76,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final bottomNavPages = [
       const HomePage(),
       const SparksPage(),
-      ChatPage(),
+      const ChatPage(),
       const ProfilePage(),
     ];
     final user = ref.watch(authProvider);
@@ -90,7 +86,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return BaseScreen(
       appBarState: AppBarState.Dashboard,
       body: user.isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : Column(
@@ -141,23 +137,23 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Widget verifyDialog(BuildContext context) {
     return Column(
       children: [
-        Gap(38.h),
+        const Gap(38),
         Assets.images.checkVerified.image(),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text: "Confirmation",
           fontSize: 20,
           fontWeight: FontWeight.w500,
         ),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text:
               "Verifying your identity means telling other metals that you are authentic, and your information is accurate which helps to increase your chances for real connections and we can vouch that we know you. It takes a little fee!",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(38.h),
+        const Gap(38),
         BaseButton(
             buttonText: "Verifly Me",
             onPressed: () {
@@ -168,14 +164,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
               //  confirm(context);
             }),
-        Gap(23.h),
+        const Gap(23),
         TextView(
           text: "Skip for Now",
           fontSize: 16,
           fontWeight: FontWeight.w500,
           onTap: () => Navigator.pop(context),
         ),
-        Gap(21.h),
+        const Gap(21),
       ],
     );
   }

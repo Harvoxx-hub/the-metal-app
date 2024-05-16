@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
- 
+
 import 'package:gap/gap.dart';
- 
+
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
- 
-import 'package:metal/features/profile/presentation/profile.page.dart';
+
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
-import 'package:metal/res/colors/cr_colors.dart';
  
+import 'package:metal/res/colors/cr_colors.dart';
+
 import 'package:metal/widgets/text_views.dart';
 
 class UserProfilePage extends StatelessWidget {
   const UserProfilePage({super.key, required this.user});
   static const name = 'userProfilePage';
-  static const route = '$name';
+  static const route = name;
   final UserModel user;
   @override
   Widget build(BuildContext context) {
@@ -41,60 +40,60 @@ class UserProfilePage extends StatelessWidget {
                 child: Column(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: ShapeDecoration(
-                        color: Color(0x0CD9197B),
+                        color: const Color(0x0CD9197B),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5)),
                       ),
                       child: TextView(text: "@ ${user.username}"),
                     ),
-                    Gap(40),
+                    const Gap(40),
                     EditField(
                       text: user.fullname!,
                       floatingLabel: " First name & Last name",
                     ),
-                    Gap(20),
+                    const Gap(20),
                     EditField(
                       text: "@${user.username}",
                       floatingLabel: "Username",
                     ),
-                    Gap(20),
+                    const Gap(20),
                     EditField(
                       text: user.DOB!,
                       floatingLabel: "Date of Birth (DD-MM)",
                     ),
-                    Gap(20),
+                    const Gap(20),
                     EditField(
                       text: user.metal!.title!,
                       floatingLabel: "Metal that represents your value",
                     ),
-                    Gap(20),
+                    const Gap(20),
                     EditField(
                       text: user.passion!.join(", "),
                       floatingLabel: "Passion/Interests",
                     ),
-                    Gap(20),
+                    const Gap(20),
                     EditField(
                       text: user.extra_data!.marital_status!,
                       floatingLabel: "Marital status",
                     ),
-                    Gap(20),
+                    const Gap(20),
                     EditField(
                       text: user.extra_data!.religion!,
                       floatingLabel: "Religion",
                     ),
-                    Gap(20),
+                    const Gap(20),
                     EditField(
                       text: user.extra_data!.profession!,
                       floatingLabel: "Profession",
                     ),
-                    Gap(20),
+                    const Gap(20),
                     EditField(
                       text: user.connect_with!,
                       floatingLabel: "Interested in",
                     ),
-                    Gap(20),
+                    const Gap(20),
                   ],
                 ),
               ),

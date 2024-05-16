@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/home_page/provider/get.users.notifier.dart';
+
 import 'package:metal/features/sparks_page/provider/send.spark.notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
 
@@ -22,9 +21,9 @@ import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class SendSpark extends ConsumerStatefulWidget {
-  SendSpark({super.key});
+  const SendSpark({super.key});
   static const name = 'sendSpark';
-  static const route = '$name';
+  static const route = name;
 
   @override
   ConsumerState<SendSpark> createState() => _SendSparkState();
@@ -42,7 +41,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
   @override
   void initState() {
     // TODO: implement initState
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _userNameController.addListener(_userNameListener);
     });
     super.initState();
@@ -66,9 +65,9 @@ class _SendSparkState extends ConsumerState<SendSpark> {
   String SelectedUserId = "";
   @override
   Widget build(BuildContext context) {
-    final _users = ref.watch(getUserByNameProvider);
-    final _sendSparkProvider = ref.watch(sendSparkProvider);
-    final _currentUser = ref.watch(authProvider).data;
+    final users = ref.watch(getUserByNameProvider);
+    final sendSpark = ref.watch(sendSparkProvider);
+    final currentUser = ref.watch(authProvider).data;
     ref.listen<SendsparkState>(sendSparkProvider, (prev, current) {
       if (current.isSuccess) {
         confirm(context);
@@ -84,13 +83,13 @@ class _SendSparkState extends ConsumerState<SendSpark> {
               Column(
                 children: [
                   Container(
-                    height: 220.h,
+                    height: 220,
                     width: double.infinity,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                         color: AppColors.metalPinkColour,
                         borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(35.sp),
-                          bottomRight: Radius.circular(35.sp),
+                          bottomLeft: Radius.circular(35),
+                          bottomRight: Radius.circular(35),
                         )),
                   ),
 
@@ -99,14 +98,14 @@ class _SendSparkState extends ConsumerState<SendSpark> {
                 ],
               ),
               Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15.w),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   child: Container(
                     padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-                    margin: EdgeInsets.only(left: 10.w, right: 10.w),
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    margin: const EdgeInsets.only(left: 10, right: 10),
                     decoration: BoxDecoration(
                         color: AppColors.metalWhite,
-                        borderRadius: BorderRadius.circular(13.sp)),
+                        borderRadius: BorderRadius.circular(13)),
                     child: Form(
                       key: _form,
                       child: Column(
@@ -116,7 +115,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
                             title: "Send \nSparks",
                             path: Assets.images.sendSpark.path,
                           ),
-                          Gap(15),
+                          const Gap(15),
                           EditFormField(
                             floatingLabel: 'I want to send Sparks to',
                             label: 'Type name of recipient',
@@ -130,14 +129,14 @@ class _SendSparkState extends ConsumerState<SendSpark> {
                             validator: Validators.validateString(),
                             radius: 10,
                           ),
-                          _users.data == null
-                              ? Gap(15)
+                          users.data == null
+                              ? const Gap(15)
                               : Wrap(
                                   alignment: WrapAlignment.start,
                                   children: [
-                                    for (var user in _users.data!)
-                                    //TODO: Add a condition to check if the user is the current user
-                                   // _currentUser.
+                                    for (var user in users.data!)
+                                      //TODO: Add a condition to check if the user is the current user
+                                      // _currentUser.
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: TextView(
@@ -150,7 +149,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
                                       )
                                   ],
                                 ),
-                          Gap(15),
+                          const Gap(15),
                           EditFormField(
                             floatingLabel: 'Number of Sparks to send',
                             label: 'Number of sparks to send',
@@ -164,7 +163,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
                             radius: 10,
                             validator: Validators.validateAmount(),
                           ),
-                          Gap(15),
+                          const Gap(15),
                           EditFormField(
                             floatingLabel: 'Transfer Fee',
                             label: '0.00',
@@ -179,7 +178,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
                             enabled: false,
                             // validator: Validators.validateAmount(),
                           ),
-                          Gap(15),
+                          const Gap(15),
                           EditFormField(
                             floatingLabel: 'Total Sparks used ',
                             label: '0.00',
@@ -194,10 +193,10 @@ class _SendSparkState extends ConsumerState<SendSpark> {
                             enabled: false,
                             //  validator: Validators.validateAmount(),
                           ),
-                          Gap(15),
+                          const Gap(15),
                           BaseButton(
                             buttonText: "Send spark",
-                            loading: _sendSparkProvider.isLoading,
+                            loading: sendSpark.isLoading,
                             onPressed: () {
                               if (_form.currentState!.validate() &&
                                   SelectedUserId != "") {
@@ -236,15 +235,15 @@ class _SendSparkState extends ConsumerState<SendSpark> {
   ) {
     return Column(
       children: [
-        Gap(38.h),
+        const Gap(38),
         Image.asset(Assets.images.eyesEmoji.path),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text: "Confirmation",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
-        Gap(15.h),
+        const Gap(15),
         TextView(
           text:
               "Confirm you want to send *${_sparkNumberController.text} * to *@${_userNameController.text}",
@@ -252,7 +251,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(38.h),
+        const Gap(38),
         BaseButton(
             buttonText: "Confirm",
             onPressed: () {
@@ -261,32 +260,29 @@ class _SendSparkState extends ConsumerState<SendSpark> {
                   receiverId: SelectedUserId,
                   numberOfSparks: double.parse(_sparkNumberController.text));
             }),
-        Gap(23.h),
+        const Gap(23),
         TextView(
-          text: "Not Now",
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          onTap: () => Navigator.pop(context)
-        ),
-        Gap(21.h),
+            text: "Not Now",
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            onTap: () => Navigator.pop(context)),
+        const Gap(21),
       ],
     );
   }
 
-  
-
   Widget successDialog(BuildContext context) {
     return Column(
       children: [
-        Gap(38.h),
+        const Gap(38),
         Image.asset(Assets.images.partpoppercelebrationemoji.path),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text: "Success",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
-        Gap(15.h),
+        const Gap(15),
         TextView(
           text:
               "*${_sparkNumberController.text} sparks* successfully sent to *@${_userNameController.text}*",
@@ -294,11 +290,11 @@ class _SendSparkState extends ConsumerState<SendSpark> {
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(58.h),
+        const Gap(58),
         BaseButton(
             buttonText: "Go back to dashboard",
             onPressed: () {
-             Navigator.pop(context);
+              Navigator.pop(context);
             })
       ],
     );

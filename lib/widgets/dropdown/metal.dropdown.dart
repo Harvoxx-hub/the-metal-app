@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -11,7 +10,7 @@ class MentalDropdown extends StatefulWidget {
   final String? hint;
   final String? floatingLabel;
 
-  MentalDropdown({
+  const MentalDropdown({super.key, 
     required this.items,
     this.value,
     required this.onChanged,
@@ -36,16 +35,16 @@ class _MentalDropdownState extends State<MentalDropdown> {
             ? TextView(
                 text: widget.floatingLabel!,
                 fontWeight: FontWeight.w400,
-                fontSize: 14.sp,
+                fontSize: 14,
                 color: AppColors.metalBrownColourForText,
                 textAlign: TextAlign.left,
               )
-            : SizedBox(),
+            : const SizedBox(),
         const SizedBox(
           height: 8,
         ),
         Container(
-          padding: EdgeInsets.only(left: 10, right: 10),
+          padding: const EdgeInsets.only(left: 10, right: 10),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: AppColors.metalButtonStroke)),

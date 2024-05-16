@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
-import 'package:metal/features/sparks_page/screens/refer.earn/refer.earn.dart';
-import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
+ 
 import 'package:metal/features/sparks_page/screens/widget/spark.card.item.dart';
 import 'package:metal/gen/assets.gen.dart';
  
@@ -21,31 +17,31 @@ class SparkHeaderCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userData = ref.watch(authProvider); 
     return Container(
-      height: 229.h,
+      height: 229 ,
       width: double.infinity,
       padding: const EdgeInsets.all(23),
       decoration: BoxDecoration(
           color: AppColors.metalPinkColour,
-          borderRadius: BorderRadius.circular(10.sp),
-          boxShadow: [BoxShadow()]),
+          borderRadius: BorderRadius.circular(10 ),
+          boxShadow: const [BoxShadow()]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextView(
+          const TextView(
             text: "Sparks Balance ✨",
-            fontSize: 15.sp,
+            fontSize: 15 ,
             fontWeight: FontWeight.w600,
             color: AppColors.metalWhite,
           ),
           TextView(
             text: userData.data!.sparkBalance.toString(),
-            fontSize: 40.sp,
+            fontSize: 40 ,
             fontWeight: FontWeight.w700,
             color: AppColors.metalWhite,
           ),
-          Gap(16.h),
+          const Gap(16 ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment .spaceBetween,
             children: [
               SparkCardItem(
                 title: "Send Sparks",

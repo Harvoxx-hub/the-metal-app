@@ -3,16 +3,13 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
-import 'package:metal/core/utils/screen.size.dart';
+
 import 'package:metal/features/eyes/provider/upload.eyes.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
-import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:video_player/video_player.dart';
@@ -20,7 +17,7 @@ import 'package:video_player/video_player.dart';
 class EyePreviewMedia extends ConsumerStatefulWidget {
   const EyePreviewMedia({super.key, required this.media});
   static const name = 'EyePreviewMedia';
-  static const route = '$name';
+  static const route = name;
   final XFile media;
 
   @override
@@ -78,8 +75,7 @@ class _EyePreviewMediaState extends ConsumerState<EyePreviewMedia> {
     final eyeState = ref.watch(uploadEyesProvider);
     ref.listen<UploadEyeState>(uploadEyesProvider, (prev, current) {
       if (current.isSuccess) {
-            Navigator.pushReplacementNamed(context,   AppRoutes.dashboardPage
-                 );
+        Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
       }
     });
 
@@ -101,7 +97,7 @@ class _EyePreviewMediaState extends ConsumerState<EyePreviewMedia> {
                   ),
                 ),
                 const Spacer(),
-                TextView(
+                const TextView(
                   text: "Upload to eyes",
                   fontSize: 18,
                   color: Colors.white,

@@ -1,15 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/sparks_page/data/repositories/spark.repository.dart';
 
 class BuySparkNotifier extends StateNotifier<BuysparkState> {
   BuySparkNotifier(
-    BuysparkState state,
+    super.state,
     this.ref,
-  ) : super(state) {}
+  );
   final Ref ref;
 
   //buy spark

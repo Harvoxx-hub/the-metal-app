@@ -10,19 +10,19 @@ import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 import 'package:metal/features/settings/provider/get.block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
-import 'package:metal/features/profile/presentation/profile.page.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/plain.button.dart';
 import 'package:metal/widgets/custom.toggle.dart';
+import 'package:metal/widgets/shimmer.loading.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
   static const name = 'settingPage';
-  static const route = '$name';
+  static const route = name;
 
   @override
   ConsumerState<SettingPage> createState() => _SettingPageState();
@@ -32,7 +32,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).data;
-    final blocked = ref.watch(getBlockUserProvider).data;
+    final blocked = ref.watch(getBlockUserProvider);
     return BaseScreen(
       Header: "Settings",
       appBarState: AppBarState.HambugerWithHeader,
@@ -159,17 +159,20 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           ),
                         ),
                         const Gap(20),
-                        EditField(
-                          text: blocked!.length.toString(),
-                          floatingLabel: "*Blocked Contacts*",
-                          prefixIcon: TextView(
-                              text: "View",
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              onTap: () {
-                                Navigator.pushNamed(
-                                    context, AppRoutes.blockedUser);
-                              }),
+                        ShimmerLoading(
+                          isLoading: blocked.isLoading,
+                          child: EditField(
+                            text: blocked.data?.length.toString() ?? "0",
+                            floatingLabel: "*Blocked Contacts*",
+                            prefixIcon: TextView(
+                                text: "View",
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                      context, AppRoutes.blockedUser);
+                                }),
+                          ),
                         ),
                         const Gap(20),
                         PlainButton(

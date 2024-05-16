@@ -1,6 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
-import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 import 'package:metal/features/upgrade/domain/entries/subscribed.plan.model.dart';
 
 part 'user.model.g.dart';

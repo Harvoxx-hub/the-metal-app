@@ -11,9 +11,9 @@ import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class CreateNewPasswordPage extends ConsumerWidget {
-  CreateNewPasswordPage({Key? key}) : super(key: key);
+  CreateNewPasswordPage({super.key});
   static const name = 'createNewPassword';
-  static const route = '$name';
+  static const route = name;
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   final TextEditingController _passwordController = TextEditingController();
@@ -28,14 +28,14 @@ class CreateNewPasswordPage extends ConsumerWidget {
       Header: 'Create New Password',
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Gap(43.h),
-        TextView(
+        const TextView(
           text: '👋 Welcome Back',
-          fontSize: 22.sp,
+          fontSize: 22,
           fontWeight: FontWeight.w500,
         ),
-        TextView(
+        const TextView(
           text: 'Please use a password you can remember',
-          fontSize: 16.sp,
+          fontSize: 16,
           fontWeight: FontWeight.w400,
         ),
         Gap(40.h),
@@ -59,9 +59,7 @@ class CreateNewPasswordPage extends ConsumerWidget {
                 Gap(32.h),
                 BaseButton(
                   buttonText: 'Reset Password',
-                  onPressed: () {
-             
-                  },
+                  onPressed: () {},
                 ),
               ],
             )),

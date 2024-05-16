@@ -1,15 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:metal/core/services/auth.pref.service.dart';
 
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 
 class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
   AccountSettingNotifier(
-    AccountSettingState state,
+    super.state,
     this.ref,
-  ) : super(state) {}
+  );
   final Ref ref;
 
   //sign up

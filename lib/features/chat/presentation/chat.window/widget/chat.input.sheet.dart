@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/chat/presentation/games/games.page.dart';
-import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 
 class ChatBottomSheet extends StatefulWidget {
@@ -33,7 +30,7 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
             height: 42,
             width: 42,
           ),
-          Gap(8),
+          const Gap(8),
           Expanded(
             child: EditFormField(
               label: 'Your Message',
@@ -46,7 +43,7 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
               // fillColor: AppColors.appGrey,
             ),
           ),
-          Gap(17),
+          const Gap(17),
           isChatControllerEmpty()
               ? Row(
                   children: [
@@ -58,7 +55,7 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                         width: 30,
                       ),
                     ),
-                    Gap(17),
+                    const Gap(17),
                     JustTheTooltip(
                       controller: tooltipController,
                       content: const SizedBox(
@@ -72,7 +69,7 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                       ),
                       child: Material(
                         color: Colors.white,
-                        shape: CircleBorder(),
+                        shape: const CircleBorder(),
                         child: GestureDetector(
                           onTap: () {
                             tooltipController.showTooltip();
@@ -93,9 +90,9 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                     _chatController.clear();
                   },
                   child: Container(
-                    height: 40.h,
+                    height: 40,
                     width: 40.w,
-                    decoration: ShapeDecoration(
+                    decoration: const ShapeDecoration(
                       color: Color(0xFFD9197B),
                       shape: OvalBorder(),
                     ),

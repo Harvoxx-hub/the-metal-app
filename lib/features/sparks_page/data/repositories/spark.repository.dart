@@ -1,10 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/model/responces.dart';
 import 'package:metal/core/services/api.service.dart';
-import 'package:metal/core/services/auth.pref.service.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
 
-import 'package:metal/features/authentication/domain/repositories/iauthetication_repository.dart';
 import 'package:metal/features/sparks_page/domain/repositories/ispark.repository.dart';
 
 class SparkRepository implements ISparkRepository {

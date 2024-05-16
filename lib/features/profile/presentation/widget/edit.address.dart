@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/services/countries.service.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/core/utils/screen.size.dart';
+
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dropdown/metal.dropdown.dart';
@@ -42,7 +41,7 @@ class _EditAddressState extends State<EditAddress> {
     super.initState();
   }
 
-  CountriesService _countriesService = CountriesService();
+  final CountriesService _countriesService = CountriesService();
 
   Future<void> getCountries() async {
     final data = await _countriesService.getCountryNames();
@@ -64,13 +63,13 @@ class _EditAddressState extends State<EditAddress> {
       height: getDeviceHeight(context) / 1.5,
       child: SingleChildScrollView(
         child: Column(children: [
-          Gap(15.h),
-          TextView(
+          const Gap(15),
+          const TextView(
             text: "Edit Address",
             fontSize: 20,
             fontWeight: FontWeight.w500,
           ),
-          Gap(15.h),
+          const Gap(15),
           SingleChildScrollView(
               child: Form(
                   //   key: _form,
@@ -89,7 +88,7 @@ class _EditAddressState extends State<EditAddress> {
                 ),
                 radius: 10,
               ),
-              Gap(16.h),
+              const Gap(16),
               EditFormField(
                 floatingLabel: 'House number',
                 label: 'Enter number.',
@@ -104,7 +103,7 @@ class _EditAddressState extends State<EditAddress> {
                 ),
                 radius: 10,
               ),
-              Gap(16.h),
+              const Gap(16),
               EditFormField(
                 floatingLabel: 'Street name',
                 label: 'Enter street name.',
@@ -119,7 +118,7 @@ class _EditAddressState extends State<EditAddress> {
                 ),
                 radius: 10,
               ),
-              Gap(16.h),
+              const Gap(16),
               MentalDropdown(
                 items: country,
                 onChanged: (String? value) {
@@ -132,7 +131,7 @@ class _EditAddressState extends State<EditAddress> {
                 hint: "Please Select",
                 floatingLabel: "Country",
               ),
-              Gap(16.h),
+              const Gap(16),
               MentalDropdown(
                 items: states,
                 onChanged: (String? value) {
@@ -144,7 +143,7 @@ class _EditAddressState extends State<EditAddress> {
                 hint: "Please Select",
                 floatingLabel: "State",
               ),
-              Gap(16.h),
+              const Gap(16),
               EditFormField(
                 floatingLabel: 'Postal Code',
                 label: 'Enter Postal Code',
@@ -160,7 +159,7 @@ class _EditAddressState extends State<EditAddress> {
               ),
             ],
           ))),
-          Gap(38.h),
+          const Gap(38),
           BaseButton(
               buttonText: "Save",
               onPressed: () {
@@ -173,7 +172,7 @@ class _EditAddressState extends State<EditAddress> {
                     country: _selectedCountries);
                 widget.onPress(address);
               }),
-          Gap(23.h),
+          const Gap(23),
         ]),
       ),
     );

@@ -7,12 +7,13 @@ import 'package:metal/features/profile/presentation/tab.screen/discovery.tab.dar
 import 'package:metal/features/profile/presentation/tab.screen/metal.plan.tab.dart';
 import 'package:metal/features/profile/presentation/tab.screen/personal.tab.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
+ 
 import 'package:metal/res/colors/cr_colors.dart';
 
 import 'package:metal/widgets/tab/base.tab.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   ConsumerState<ProfilePage> createState() => _ProfilePageState();

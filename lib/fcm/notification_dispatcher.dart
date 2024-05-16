@@ -95,19 +95,15 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
       final repo = container.read(authenticationRepositoryProvider);
       final data = await repo.getUserByID(id: id);
       final meltUserData = UserModel.fromJson(data.data);
-      if (meltUserData != null) {
-        return MeltUserModel(
-            gender: meltUserData.gender,
-            name: meltUserData.username,
-            metal: meltUserData.metal,
-            phone: meltUserData.phone,
-            id: meltUserData.id);
-      } else {
-        throw Exception('Post not found for ID: $id');
-      }
-    } catch (e) {
+      return MeltUserModel(
+          gender: meltUserData.gender,
+          name: meltUserData.username,
+          metal: meltUserData.metal,
+          phone: meltUserData.phone,
+          id: meltUserData.id);
+        } catch (e) {
       print(e);
-      throw e; // Rethrow the exception to propagate it up the call stack if needed
+      rethrow; // Rethrow the exception to propagate it up the call stack if needed
     }
   }
 
@@ -134,6 +130,6 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
       print('!_isUserAuthorized()');
     }
 
-    return null;
+    return;
   }
 }

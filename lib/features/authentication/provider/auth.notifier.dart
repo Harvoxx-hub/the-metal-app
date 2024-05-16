@@ -9,9 +9,9 @@ import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier(
-    AuthState state,
+    super.state,
     this.ref,
-  ) : super(state) {}
+  );
   final Ref ref;
 
   //get current user

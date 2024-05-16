@@ -7,10 +7,10 @@ import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 
 class UnMeltUsersNotifier extends StateNotifier<UnMeltUsersState> {
   UnMeltUsersNotifier(
-    UnMeltUsersState state,
+    super.state,
     this.ref,
     this.id,
-  ) : super(state) {
+  ) {
     unmeltUser();
   }
   final Ref ref;

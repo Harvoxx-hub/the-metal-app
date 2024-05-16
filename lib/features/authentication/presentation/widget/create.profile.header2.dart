@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class CreateProfileHeader2 extends StatelessWidget {
@@ -24,18 +22,18 @@ class CreateProfileHeader2 extends StatelessWidget {
           height: 73,
           width: 73,
         ),
-        Gap(16.h),
+        const Gap(16),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextView(
               text: title,
-              fontSize: 20.sp,
+              fontSize: 20,
               fontWeight: FontWeight.w400,
             ),
             TextView(
               text: subtitle,
-              fontSize: 13.sp,
+              fontSize: 13,
               fontWeight: FontWeight.w300,
               fontStyle: FontStyle.italic,
             ),

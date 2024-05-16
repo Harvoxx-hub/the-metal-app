@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:gap/gap.dart';
-import 'package:metal/core/utils/screen.size.dart';
+ 
 
 import '../../widgets/text_views.dart';
 
@@ -13,7 +13,7 @@ class OnboardingWidget extends StatefulWidget {
   const OnboardingWidget({
     super.key,
     required this.imageUrl,
-    required this.headerText,
+    required this .headerText,
     required this.descriptionText,
   });
 
@@ -24,32 +24,28 @@ class OnboardingWidget extends StatefulWidget {
 class _OnboardingWidgetState extends State<OnboardingWidget> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: getDeviceHeight(context),
-      width: getDeviceWidth(context),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Gap(128),
-          Image.asset(
-            widget.imageUrl,
-            width: 172,
-            height: 172,
-          ),
-          TextView(
-            text: widget.headerText,
-            fontSize: 36,
-            fontWeight: FontWeight.normal,
-          ),
-          Gap(20),
-          TextView(
-            text: widget.descriptionText,
-            fontSize: 16,
-            fontFamily: 'Merri_weather',
-            fontWeight: FontWeight.normal,
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Gap(128),
+        Image.asset(
+          widget.imageUrl,
+          width: 172,
+          height: 172,
+        ),
+        TextView(
+          text: widget .headerText,
+          fontSize: 30,
+          fontWeight: FontWeight.normal,
+        ),
+        const Gap(20),
+        TextView(
+          text: widget.descriptionText,
+          fontSize: 16,
+          fontFamily: 'Merri_weather',
+          fontWeight: FontWeight.normal,
+        ),
+      ],
     );
   }
 }

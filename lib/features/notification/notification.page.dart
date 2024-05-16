@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
-import 'package:metal/features/notification/widget/melt.notification.item.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
   static const name = 'notificationPage';
-  static const route = '$name';
+  static const route = name;
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -23,21 +21,21 @@ class NotificationPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    height: 53.h,
+                    height: 53,
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                    decoration: const BoxDecoration(
+                        gradient: LinearGradient(
                           begin: Alignment(0.00, -1.00),
                           end: Alignment(0, 1),
                           colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
                         ),
                         borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(35.sp),
-                          bottomRight: Radius.circular(35.sp),
+                          bottomLeft: Radius.circular(35),
+                          bottomRight: Radius.circular(35),
                         )),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(left: 24.0, right: 24),
+                    padding: const EdgeInsets.only(left: 24.0, right: 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -47,7 +45,7 @@ class NotificationPage extends StatelessWidget {
                           width: 250,
                         ),
                         const Gap(46),
-                        TextView(
+                        const TextView(
                           textAlign: TextAlign.center,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,

@@ -5,14 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/screen.size.dart';
+
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/provider/verfication.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
- 
+
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
 
@@ -23,9 +23,9 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 enum RouteFrom { AccountSetting, UpdatePhoneNumber, UpdateEmail }
 
 class VerificationPage extends ConsumerStatefulWidget {
-  VerificationPage(this.argument, {Key? key}) : super(key: key);
+  VerificationPage(this.argument, {super.key});
   static const name = 'Verification';
-  static const route = '$name';
+  static const route = name;
   VerificationSentArgument argument;
 
   @override
@@ -45,7 +45,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
   }
 
   void startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (_secondsRemaining > 0) {
           _secondsRemaining--;
@@ -66,8 +66,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
   Widget build(BuildContext context) {
     ref.listen<VerficationState>(verficationProvider, (prev, current) {
       if (current.isSuccess) {
-                Navigator.pushReplacementNamed(context, AppRoutes.welcomePage);
- 
+        Navigator.pushReplacementNamed(context, AppRoutes.welcomePage);
       }
     });
 
@@ -81,24 +80,24 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Gap(43.h),
+            const Gap(43),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextView(
+                const TextView(
                   text: '👀',
-                  fontSize: 30.sp,
+                  fontSize: 30,
                   fontWeight: FontWeight.w400,
                 ),
-                TextView(
+                const TextView(
                   text: 'We just want to verify it is you',
-                  fontSize: 20.sp,
+                  fontSize: 20,
                   fontWeight: FontWeight.w400,
                 ),
                 TextView(
                   text:
                       'Please input the OTP code sent to \n*${widget.argument.phoneNumber}*',
-                  fontSize: 14.sp,
+                  fontSize: 14,
                   fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.w300,
                 ),
@@ -107,7 +106,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                 )
               ],
             ),
-            Gap(40.h),
+            const Gap(40),
             PinCodeTextField(
               controller: _otpController,
               appContext: context,
@@ -133,52 +132,52 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                 checkCode(value, context);
               },
             ),
-            Gap(36.h),
-            TextView(
+            const Gap(36),
+            const TextView(
               text: "Didn’t receive the code? ",
-              fontSize: 12.sp,
+              fontSize: 12,
               fontWeight: FontWeight.w400,
               textAlign: TextAlign.center,
               fontStyle: FontStyle.italic,
               color: AppColors.metalBrownColourForText,
             ),
-            TextView(
+            const TextView(
               text: " Tap to resend via SMS or Phone call",
-              fontSize: 12.sp,
+              fontSize: 12,
               fontWeight: FontWeight.w400,
               textAlign: TextAlign.center,
               fontStyle: FontStyle.italic,
               color: AppColors.metalBrownColourForText,
             ),
-            Gap(33.h),
+            const Gap(33),
             _secondsRemaining == 0
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SvgPicture.asset(
                         Assets.icons.verificationText.path,
-                        height: 50.h,
+                        height: 50,
                         width: 50.w,
                       ),
                       // Gap(10.w),
                       // SvgPicture.asset(
                       //   Assets.icons.verificationCall.path,
-                      //   height: 50.h,
+                      //   height: 50 ,
                       //   width: 50.w,
                       // ),
                     ],
                   )
-                : Gap(0),
-            Gap(23.h),
+                : const Gap(0),
+            const Gap(23),
             TextView(
               text:
                   "${formatDuration(Duration(seconds: _secondsRemaining))} Remaining",
-              fontSize: 12.sp,
+              fontSize: 12,
               fontWeight: FontWeight.w400,
               textAlign: TextAlign.center,
               color: AppColors.metalBrownColourForText,
             ),
-            Gap(27.h),
+            const Gap(27),
             BaseButton(
               buttonText: "Verify Code",
               loading: ref.watch(verficationProvider).isLoading,
@@ -197,19 +196,17 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
       if (widget.argument.type == RouteFrom.AccountSetting) {
         ref.read(verficationProvider.notifier).activateAccount(
               widget.argument.uuid!,
-        );
+            );
       }
       if (widget.argument.type == RouteFrom.UpdatePhoneNumber) {
         Navigator.pushReplacementNamed(context, AppRoutes.newPhoneNumberPage);
-      
       }
       if (widget.argument.type == RouteFrom.UpdateEmail) {
-                Navigator.pushReplacementNamed(context, AppRoutes.newEmailPage);
-        
+        Navigator.pushReplacementNamed(context, AppRoutes.newEmailPage);
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Invalid Code'),
           backgroundColor: Colors.red,
         ),

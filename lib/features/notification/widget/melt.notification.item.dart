@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -40,12 +39,12 @@ class MeltNotifcationItem extends StatelessWidget {
                   bottom: 0,
                   right: 0,
                   // alignment: Alignment.bottomRight,
-                  child: Image.asset(Assets.images.sparkNotification.path),
+                  child: Image.asset(Assets.images .sparkNotification.path),
                 )
               ],
             ),
             Gap(18.w),
-            Expanded(
+            const Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -73,7 +73,7 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'access_token': instance.access_token,
       'refresh_token': instance.refresh_token,
       'subscription': instance.subscription?.toJson(),
-      'sparkBalance': instance.sparkBalance,
+      'sparkBalance': instance .sparkBalance,
       'distance': instance.distance,
       'id': instance.id,
       'referralCode': instance.referralCode,

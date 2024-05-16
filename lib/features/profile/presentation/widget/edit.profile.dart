@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
@@ -16,24 +15,23 @@ class EditProfile extends ConsumerStatefulWidget {
 }
 
 class _EditProfileState extends ConsumerState<EditProfile> {
- 
   @override
   Widget build(BuildContext context) {
     final userState = ref.watch(authProvider).data;
     final metalProperties = ref.watch(metalPropertiesProvider).data;
-   
+
     return Column(
       children: [
         EditField(
           text: userState?.fullname ?? " Your name here",
           floatingLabel: "First name & Last name",
         ),
-        Gap(20.h),
+        const Gap(20),
         EditField(
           text: "@${userState?.username}" ?? "Username",
           floatingLabel: "Username",
         ),
-        Gap(20.h),
+        const Gap(20),
         EditField(
           text: userState?.email ?? "Email address",
           floatingLabel: "Email address",
@@ -45,7 +43,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             // );
           },
         ),
-        Gap(20.h),
+        const Gap(20),
         EditField(
           text: userState?.phone ?? "Phone Number",
           floatingLabel: "Phone Number",
@@ -57,12 +55,12 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             // );
           },
         ),
-        Gap(20.h),
+        const Gap(20),
         EditField(
           text: userState?.gender ?? "Gender",
           floatingLabel: "Gender",
           subLabel: "Edit",
-          dropDownItems: [
+          dropDownItems: const [
             "Male",
             "Female",
             "Prefer not to say",
@@ -73,7 +71,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             updateUser(UserModel(gender: value));
           },
         ),
-        Gap(20.h),
+        const Gap(20),
         EditField(
           text: userState?.metal?.title ?? "Metal that represents your value",
           floatingLabel: " Metal that represents your value",
@@ -84,25 +82,23 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           editType: EditType.dropdown,
           onSubLabel: (value) {
             {
-              if (value != null && metalProperties != null) {
+              if (value != null) {
                 // Find the metal object with the selected title
-                var selectedMetal = metalProperties!.metals!.firstWhere(
+                var selectedMetal = metalProperties.metals!.firstWhere(
                   (metal) => metal.title == value,
                 );
-                if (selectedMetal != null) {
-                  // Assign the selected metal object to the UserModel
-                  updateUser(UserModel(metal: selectedMetal));
-                }
-              }
+                // Assign the selected metal object to the UserModel
+                updateUser(UserModel(metal: selectedMetal));
+                            }
             }
           },
         ),
-        Gap(20.h),
+        const Gap(20),
         EditField(
           text: userState?.passion?.join(",") ?? "Passion/Interest",
           floatingLabel: "Passion/Interest",
           subLabel: "Edit",
-          dropDownItems: metalProperties!.passions!
+          dropDownItems: metalProperties.passions!
               .map((passion) => passion.title ?? "")
               .toList(),
           editType: EditType.dropdown,
@@ -110,7 +106,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             updateUser(UserModel(passion: [p0!]));
           },
         ),
-        Gap(20.h),
+        const Gap(20),
         EditField(
           text: userState?.extra_data?.marital_status ?? "Marital status",
           floatingLabel: "Marital status",
@@ -121,7 +117,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             updateUser(UserModel(extra_data: ExtraData(marital_status: p0)));
           },
         ),
-        Gap(20.h),
+        const Gap(20),
         EditField(
           text: userState?.extra_data?.religion ?? "Religion",
           floatingLabel: "Religion",
@@ -132,7 +128,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             updateUser(UserModel(extra_data: ExtraData(religion: p0)));
           },
         ),
-        Gap(20.h),
+        const Gap(20),
         EditField(
           text: userState!.address.toString(),
           floatingLabel: "Home address details",
@@ -144,9 +140,9 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           },
         ),
 
-        Gap(20.h),
+        const Gap(20),
         EditField(
-          text: userState?.extra_data?.profession ?? "Proffession",
+          text: userState.extra_data?.profession ?? "Proffession",
           floatingLabel: "Proffession",
           subLabel: "Edit",
           dropDownItems: metalProperties.profession,
@@ -156,7 +152,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           },
         ),
 
-        // Gap(20.h),
+        // Gap(20 ),
         // EditFormField(
         //   floatingLabel: 'Interested in',
         //   label: 'Interested in',
@@ -166,9 +162,9 @@ class _EditProfileState extends ConsumerState<EditProfile> {
         //   editButton: true,
         //   onEditTap: () {},
         // ),
-        Gap(20.h),
+        const Gap(20),
         EditField(
-          text: userState?.description ?? "Little Bio about me",
+          text: userState.description ?? "Little Bio about me",
           floatingLabel: "Little Bio about me",
           subLabel: "Edit",
           editType: EditType.text,
@@ -177,15 +173,12 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           },
         ),
 
-        Gap(20.h),
-       
+        const Gap(20),
       ],
     );
   }
 
-
   void updateUser(UserModel user) {
     ref.watch(updateProfileProvider.notifier).updateParticularInfor(user);
   }
-
 }

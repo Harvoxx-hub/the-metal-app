@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gap/gap.dart';
 import 'package:metal/features/chat/domain/entries/conversations.model.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/chat/provider/game.conversation.notifier.dart';
@@ -11,9 +9,9 @@ import 'package:metal/widgets/text_views.dart';
 
 class GameTile extends ConsumerWidget {
   GameTile({
-    Key? key,
+    super.key,
     required this.conversationsModel,
-  }) : super(key: key);
+  });
 
   final ConversationsModel conversationsModel;
   GameModel? game;
@@ -30,7 +28,7 @@ class GameTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     setGame();
     if (game == null) {
-      return SizedBox();
+      return const SizedBox();
     }
 
     return Column(
@@ -54,20 +52,20 @@ class GameTile extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextView(text: "Active Game:"),
+                  const TextView(text: "Active Game:"),
                   TextView(
                     text: game!.title,
                     fontWeight: FontWeight.bold,
                   ),
                 ],
               ),
-              Spacer(),
+              const Spacer(),
               GestureDetector(
                 onTap: () {
                   ref
                       .read(gameConversationProvider.notifier)
                       .updateGameConversation(
-                        conversationsModel.documentId!,
+                        conversationsModel.documentId,
                         "",
                       );
                 },
@@ -78,7 +76,7 @@ class GameTile extends ConsumerWidget {
                     color: AppColors.metalPinkColour,
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  child: Center(
+                  child: const Center(
                     child: TextView(
                       text: "END GAME",
                       color: Colors.white,

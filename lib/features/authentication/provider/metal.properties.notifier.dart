@@ -6,9 +6,9 @@ import 'package:metal/features/authentication/domain/entries/metal.properties.mo
 
 class MetalPropertiesNotifier extends StateNotifier<MetalPropertiesState> {
   MetalPropertiesNotifier(
-    MetalPropertiesState state,
+    super.state,
     this.ref,
-  ) : super(state) {
+  ) {
     getMetalProperties();
   }
   final Ref ref;

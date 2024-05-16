@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+ 
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 
@@ -24,7 +24,7 @@ import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
-  LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
   static const name = 'loginPage';
   static const route = '/$name';
 
@@ -45,7 +45,7 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
   Widget build(
     BuildContext context,
   ) {
-    final _LoginState = ref.watch(loginProvider);
+    final LoginState = ref.watch(loginProvider);
     ref.listen<LoginStates>(loginProvider, (prev, current) {
       if (current.isSuccess) {
         current.data!.profile_updated ?? false
@@ -80,23 +80,23 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Gap(52.h),
+              const Gap(52),
               Image.asset(
                 Assets.images.logo.path,
-                height: 53.h,
-                width: 53.w,
+                height: 53,
+                width: 53,
               ),
-              Gap(22.h),
-              TextView(
+              const Gap(22),
+              const TextView(
                   text: " 👋 Welcome Back",
-                  fontSize: 22.sp,
+                  fontSize: 22,
                   fontWeight: FontWeight.w500),
-              Gap(8.h),
-              TextView(
+              const Gap(8),
+              const TextView(
                   text: "Let’s log you in, you’ve been missed!",
-                  fontSize: 16.sp,
+                  fontSize: 16,
                   fontWeight: FontWeight.w400),
-              Gap(52.h),
+              const Gap(52),
               Form(
                   key: _form,
                   child: Column(
@@ -115,7 +115,7 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                         ),
                         validator: Validators.validateEmail(),
                       ),
-                      Gap(16.h),
+                      const Gap(16),
                       EditFormField(
                         floatingLabel: 'Password',
                         label: '*************',
@@ -129,7 +129,7 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                         ),
                         validator: Validators.validatePlainPassword(),
                       ),
-                      Gap(16.h),
+                      const Gap(16),
                       CustomCheckWidget(
                         title: 'Keep me logged in',
                         initialValue: false,
@@ -137,12 +137,12 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                           print('Value changed to $value');
                         },
                       ),
-                      Gap(64.h),
+                      const Gap(64),
                     ],
                   )),
               BaseButton(
                 buttonText: "Login",
-                loading: _LoginState.isLoading,
+                loading: LoginState.isLoading,
                 onPressed: () {
                   ref.read(loginProvider.notifier).login(
                         email: _emailController.text,
@@ -150,7 +150,7 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                       );
                 },
               ),
-              Gap(31.h),
+              const Gap(31),
               TextView(
                 onTap: () {
                   Navigator.pushNamed(
@@ -159,16 +159,16 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                   );
                 },
                 text: "Forgot Password?",
-                fontSize: 14.sp,
+                fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
-              Gap(14.sp),
+              const Gap(14),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextView(
+                  const TextView(
                     text: "Not a User?",
-                    fontSize: 14.sp,
+                    fontSize: 14,
                     fontWeight: FontWeight.w400,
                     color: AppColors.metaltext,
                   ),
@@ -180,7 +180,7 @@ class _GettingStartedPageState extends ConsumerState<LoginPage> {
                       );
                     },
                     text: "  Create account",
-                    fontSize: 14.sp,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
                   ),
                 ],

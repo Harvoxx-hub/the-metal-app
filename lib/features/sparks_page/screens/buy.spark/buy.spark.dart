@@ -3,12 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/sparks_page/provider/buy.spark.notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
+ 
+import 'package:metal/features/upgrade/payment.core.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
@@ -20,7 +23,7 @@ import 'package:metal/widgets/text_views.dart';
 class BuySpark extends ConsumerWidget {
   BuySpark({super.key});
   static const name = 'buySpark';
-  static const route = '$name';
+  static const route = name;
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   // final TextEditingController _sendSparkController = TextEditingController();
@@ -31,6 +34,11 @@ class BuySpark extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final buySpark = ref.watch(buySparkProvider);
+    ref.listen<BuysparkState>(buySparkProvider, (prev, current) {
+      if (current.isSuccess) {
+        Navigator.pop(context);
+      }
+    });
     return BaseScreen(
         appBarState: AppBarState.BackWithHeader,
         Header: "Buy Spark",
@@ -39,13 +47,13 @@ class BuySpark extends ConsumerWidget {
           Column(
             children: [
               Container(
-                height: 220.h,
+                height: 220,
                 width: double.infinity,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                     color: AppColors.metalPinkColour,
                     borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(35.sp),
-                      bottomRight: Radius.circular(35.sp),
+                      bottomLeft: Radius.circular(35),
+                      bottomRight: Radius.circular(35),
                     )),
               ),
 
@@ -54,13 +62,13 @@ class BuySpark extends ConsumerWidget {
             ],
           ),
           Padding(
-              padding: EdgeInsets.symmetric(vertical: 15.w),
+              padding: const EdgeInsets.symmetric(vertical: 15),
               child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-                  margin: EdgeInsets.only(left: 10.w, right: 10.w),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  margin: const EdgeInsets.only(left: 10, right: 10),
                   decoration: BoxDecoration(
                       color: AppColors.metalWhite,
-                      borderRadius: BorderRadius.circular(13.sp)),
+                      borderRadius: BorderRadius.circular(13)),
                   child: Form(
                     key: _form,
                     child: Column(
@@ -69,7 +77,7 @@ class BuySpark extends ConsumerWidget {
                           title: "Buy \n Sparks",
                           path: Assets.images.buySpark.path,
                         ),
-                        Gap(15),
+                        const Gap(15),
                         EditFormField(
                           floatingLabel: 'Number of sparks to buy',
                           label: 'Type number of sparks to buy',
@@ -85,7 +93,7 @@ class BuySpark extends ConsumerWidget {
                           // validator: EmailValidator.validate(email),
                           radius: 10,
                         ),
-                        Gap(15),
+                        const Gap(15),
                         EditFormField(
                           floatingLabel: 'Dollar equivalence',
                           label: 'Dollar equivalence',
@@ -99,7 +107,7 @@ class BuySpark extends ConsumerWidget {
                           ),
                           radius: 10,
                         ),
-                        Gap(15),
+                        const Gap(15),
                         BaseButton(
                           buttonText: "Buy",
                           loading: buySpark.isLoading,
@@ -126,12 +134,13 @@ class BuySpark extends ConsumerWidget {
 
   Widget confirmationDialog(BuildContext context,
       {String? ammount, WidgetRef? ref}) {
+    final userData = ref!.watch(authProvider).data;
     return Column(
       children: [
         Gap(38.h),
         Image.asset(Assets.images.eyesEmoji.path),
         Gap(15.h),
-        TextView(
+        const TextView(
           text: "Confirmation",
           fontSize: 20,
           fontWeight: FontWeight.w700,
@@ -148,11 +157,16 @@ class BuySpark extends ConsumerWidget {
         BaseButton(
             buttonText: "Confirm",
             onPressed: () {
-             Navigator.pop(context);
-              ref!.read(buySparkProvider.notifier).buySpark(
-                    amount: double.parse(ammount!),
-                    numberOfSpark: double.parse(ammount),
-                  );
+              Navigator.pop(context);
+              StripePaymentHandle().stripeMakePayment(
+                  amount: ammount.toString(),
+                  userModel: userData!,
+                  onSuccess: () {
+                    ref.read(buySparkProvider.notifier).buySpark(
+                          amount: double.parse(ammount!),
+                          numberOfSpark: double.parse(ammount),
+                        );
+                  });
             }),
         Gap(23.h),
         TextView(

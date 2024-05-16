@@ -24,7 +24,7 @@ class _PersonalTabState extends ConsumerState<PersonalTab> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        EditProfile(),
+        const EditProfile(),
         PlainButton(
           buttonText: "Delete my account",
           onPressed: () {

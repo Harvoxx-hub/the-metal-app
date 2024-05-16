@@ -7,8 +7,7 @@ import 'package:metal/features/chat/data/repositories/message.repository.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 
 class MessageListNotifier extends StateNotifier<MessageListState> {
-  MessageListNotifier(MessageListState state, this.ref, this.id)
-      : super(state) {
+  MessageListNotifier(super.state, this.ref, this.id) {
     getMessageList();
   }
   final Ref ref;

@@ -25,7 +25,7 @@ abstract class AppColors {
   static Color metalWhite60 = const Color(0xffffffff).withOpacity(0.6);
   static Color metalWhite75 = const Color(0xffffffff).withOpacity(0.75);
 
-  static Color metalGray = const Color(0xffDADADA80);
+  static Color metalGray = const Color(0xffdadada80);
   static const Color metaltext = Color(0xff071717);
 
   // metalBlack Color Swatch

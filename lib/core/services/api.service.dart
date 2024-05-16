@@ -47,7 +47,7 @@ class ApiService {
       return _handleResponse(response);
     } catch (error) {
           log('DioError ||||| $error', level: 1000, error: error );
-      throw error;
+      rethrow;
     }
   }
 
@@ -62,7 +62,7 @@ class ApiService {
       return _handleResponse(response);
     } catch (error) {
      log('DioError ||||| $error', level: 1000, error: error );
-      throw error;
+      rethrow;
     }
   }
 
@@ -78,7 +78,7 @@ class ApiService {
     } catch (error) {
       log('DioError ||||| $error', level: 1000, error: error );
       
-      throw error;
+      rethrow;
     }
   }
 

@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/screen.size.dart';
+
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
-import 'package:metal/features/authentication/domain/entries/passion.card.model.dart';
+import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
-import 'package:metal/features/authentication/presentation/profile.setting/about.you.dart';
-import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+ 
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
@@ -19,16 +18,16 @@ import '../../provider/metal.properties.notifier.dart';
 import '../widget/passions.card.dart';
 
 class PassionsPage extends ConsumerStatefulWidget {
-  PassionsPage({Key? key}) : super(key: key);
+  const PassionsPage({super.key});
   static const name = 'passions';
-  static const route = '$name';
+  static const route = name;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _PassionsPageState();
 }
 
 class _PassionsPageState extends ConsumerState<PassionsPage> {
-  List<String> _seletedPassion = [];
+  final List<String> _seletedPassion = [];
 
   @override
   Widget build(BuildContext context) {
@@ -48,11 +47,10 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
             Stack(
               children: [
                 ShimmerLoading(
-                      isLoading: metalProps.isLoading,
-                      child:
-                Container(
-                    height: getDeviceHeight(context) * 0.59,
-                    child:  GridView.builder(
+                    isLoading: metalProps.isLoading,
+                    child: SizedBox(
+                      height: getDeviceHeight(context) * 0.59,
+                      child: GridView.builder(
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount:
@@ -102,7 +100,9 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
     final userData = ref.watch(updateProfileProvider).data;
     userData!.passion = _seletedPassion;
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
-  Navigator.pushNamed(context,  AppRoutes.aboutYouPage, );
- 
+    Navigator.pushNamed(
+      context,
+      AppRoutes.aboutYouPage,
+    );
   }
 }

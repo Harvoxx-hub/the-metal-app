@@ -2,12 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
-import 'package:metal/features/upgrade/make.payment.dart';
+import 'package:metal/features/upgrade/payment.core.dart';
 import 'package:metal/features/upgrade/provider/subscribe.metal.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
@@ -44,6 +45,7 @@ class subscriptionCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final subState = ref.watch(subscribeMetalProvider);
+    final userData = ref.watch(authProvider).data;
     ref.listen<SubscribeMetalState>(subscribeMetalProvider, (prev, current) {
       if (current.isSuccess) {
         showDialog(
@@ -60,8 +62,8 @@ class subscriptionCard extends ConsumerWidget {
           isLoading: subState.isLoading,
           child: Container(
             width: double.infinity,
-            height: 172,
-            padding: EdgeInsets.all(16),
+            height: 180,
+            padding: const EdgeInsets.all(16),
             decoration: ShapeDecoration(
               gradient: pickRandomItem(gradient),
               shape: RoundedRectangleBorder(
@@ -78,13 +80,14 @@ class subscriptionCard extends ConsumerWidget {
             ),
             child: GestureDetector(
               onTap: () async {
-                final paymentState = await Navigator.pushNamed(
-                    context, AppRoutes.makePayment,
-                    arguments: [PaymentType.metalPlan, model.price.toDouble()]);
-                if (paymentState == PaymentState.success)
-                  ref
-                      .read(subscribeMetalProvider.notifier)
-                      .subscribeMetalPlan(model.id!);
+                StripePaymentHandle().stripeMakePayment(
+                    amount: model.price.toString(),
+                    userModel: userData!,
+                    onSuccess: () {
+                      ref
+                          .read(subscribeMetalProvider.notifier)
+                          .subscribeMetalPlan(model.id!);
+                    });
               },
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,13 +107,13 @@ class subscriptionCard extends ConsumerWidget {
                               TextView(text: "- $item")
                           ],
                         ),
-                        const Gap(10),
+                        const Spacer(),
                         Column(
                           children: [
                             TextView(
-                              text: model.price.toString(),
+                              text: "${model.price.toString()} USD",
                               fontWeight: FontWeight.w700,
-                              fontSize: 23,
+                              fontSize: 20,
                             ),
                           ],
                         )
@@ -136,40 +139,40 @@ class subscriptionCard extends ConsumerWidget {
   Widget _upgreadeDialog(BuildContext context) {
     return Column(
       children: [
-        Gap(38.h),
+        const Gap(38),
         SvgPicture.asset(
           Assets.icons.meltedMetalsSmileyXEyes.path,
           height: 45,
           width: 45,
         ),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text: "Metal Plus Upgrade",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text:
               "Woohoo! You have successfully upgraded to Metal Plus Monthly. Now you have:",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(15.h),
+        const Gap(15),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             for (var item in model.metaData) TextView(text: "- $item")
           ],
         ),
-        Gap(38.h),
+        const Gap(38),
         BaseButton(
             buttonText: "Go to dashboard",
             onPressed: () {
               Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
             }),
-        Gap(21.h),
+        const Gap(21),
       ],
     );
   }

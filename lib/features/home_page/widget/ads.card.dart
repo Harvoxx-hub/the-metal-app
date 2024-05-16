@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/res/style/text_styles.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -16,12 +14,12 @@ class AdsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 27.h),
-      margin: EdgeInsets.only(bottom: 40.h, left: 20.w, right: 20.w),
-      // height: 100.h,
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 27),
+      margin: EdgeInsets.only(bottom: 40, left: 20.w, right: 20.w),
+      // height: 100 ,
       decoration: BoxDecoration(
           color: AppColors.metalWhite,
-          borderRadius: BorderRadius.circular(13.sp),
+          borderRadius: BorderRadius.circular(13),
           boxShadow: [
             BoxShadow(
               blurRadius: 3,
@@ -33,16 +31,16 @@ class AdsCard extends StatelessWidget {
         children: [
           Image.asset(
             Assets.images.ads.path,
-            height: 314.h,
+            height: 314,
             width: 327.w,
           ),
           const Gap(10),
-          TextView(
+          const TextView(
             text: 'Don’t want to see AD’s?',
-            fontSize: 15.sp,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
-          Gap(6.h),
+          const Gap(6),
           BaseButton(
             buttonText: "Upgrade to Metal Plus",
             onPressed: () {},

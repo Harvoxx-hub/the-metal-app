@@ -8,9 +8,9 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 class ProfileImageNotifier extends StateNotifier<ProfileImageState> {
   ProfileImageNotifier(
-    ProfileImageState state,
+    super.state,
     this.ref,
-  ) : super(state) {}
+  );
   final Ref ref;
 
   // melt user

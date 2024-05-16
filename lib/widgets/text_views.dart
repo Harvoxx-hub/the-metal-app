@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../res/colors/cr_colors.dart';
 
@@ -19,7 +18,7 @@ class TextView extends StatelessWidget {
   final bool underline;
   final String boldSymbol;
 
-  TextView({
+  const TextView({super.key, 
     required this.text,
     this.textOverflow = TextOverflow.clip,
     this.textAlign = TextAlign.left,
@@ -45,7 +44,7 @@ class TextView extends StatelessWidget {
       color: color ?? AppColors.metalBlack,
       fontWeight: fontWeight,
       decoration: underline ? TextDecoration.underline : TextDecoration.none,
-      fontSize: fontSize.sp,
+      fontSize: fontSize,
       fontStyle: fontStyle,
     );
 

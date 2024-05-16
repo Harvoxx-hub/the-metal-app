@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+ 
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/res/colors/cr_colors.dart';
 
 class ProfileImage extends ConsumerWidget {
   const ProfileImage(
-      {super.key, this.imageUrl, this.height, this.width, this.onTap, this.id});
+      {super.key, this.imageUrl, this.height, this.width, this.onTap, this.id, });
   final String? imageUrl;
   final double? height;
   final String? id;
@@ -33,14 +31,14 @@ class ProfileImage extends ConsumerWidget {
           child: Center(
             child: imageUrl != null
                 ? ClipRRect(
-                    borderRadius: BorderRadius.circular(33.w),
+                    borderRadius: BorderRadius.circular(33),
                     child: Image.network(
                       imageUrl!,
                       fit: BoxFit.cover,
                     ),
                   )
                 : ClipRRect(
-                    borderRadius: BorderRadius.circular(33.w),
+                    borderRadius: BorderRadius.circular(33),
                     child: Image.network(
                       userdata!.metal!.img!,
                       fit: BoxFit.cover,

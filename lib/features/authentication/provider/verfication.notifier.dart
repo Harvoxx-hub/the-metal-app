@@ -7,9 +7,9 @@ import 'package:metal/features/authentication/data/repositories/authetication.re
 
 class VerficationNotifier extends StateNotifier<VerficationState> {
   VerficationNotifier(
-    VerficationState state,
+    super.state,
     this.ref,
-  ) : super(state) {}
+  );
   final Ref ref;
 
   void activateAccount(String UUID) async {

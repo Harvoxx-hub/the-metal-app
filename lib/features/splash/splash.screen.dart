@@ -1,19 +1,14 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
-import 'package:metal/features/authentication/presentation/welcome/presentation/welcome.page.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/dashboard.dart/dashboard.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
-import '../onboarding/onboarding_page_view.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -30,14 +25,11 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   @override
   void initState() {
     Future.delayed(const Duration(seconds: 3), () {
-       
-
       ref.read(authManagerProvider).getLoginState().then((value) {
         if (value == LoginState.loggedIn) {
           ref.read(authProvider.notifier).getCurrentUser();
         } else {
           Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
- 
         }
       });
     });
@@ -54,7 +46,6 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       }
       if (current.isError) {
         Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
- 
       }
     });
     return Scaffold(
@@ -73,18 +64,18 @@ class _SplashPageState extends ConsumerState<SplashPage> {
             children: [
               Image.asset(
                 Assets.gifs.logo.path,
-                width: 53.w,
-                height: 53.h,
+                width: 53,
+                height: 53,
               ),
-              Gap(10),
-              TextView(
+              const Gap(10),
+              const TextView(
                 text: 'Metal',
-                fontSize: 32.sp,
+                fontSize: 32,
               ),
-              Gap(10),
-              TextView(
+              const Gap(10),
+              const TextView(
                 text: '...True Friendship is built \n on real connections',
-                fontSize: 16.sp,
+                fontSize: 16,
                 textAlign: TextAlign.center,
               )
             ],

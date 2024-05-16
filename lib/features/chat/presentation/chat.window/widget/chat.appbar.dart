@@ -1,24 +1,16 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
-import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
-import 'package:metal/features/home_page/provider/get.user.by.phone.notifier.dart';
-import 'package:metal/features/home_page/provider/get.users.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
-import 'package:metal/widgets/shimmer.loading.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
@@ -35,7 +27,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 16, right: 16),
+      padding: const EdgeInsets.only(left: 16, right: 16),
       child: Row(
         children: [
           GestureDetector(
@@ -58,13 +50,13 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             children: [
               TextView(
                 text: "@${widget.meltUserModel.name! ?? ""}",
-                fontSize: 15.sp,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
-              Gap(3.h),
-              TextView(
+              const Gap(3),
+              const TextView(
                 text: "Active now",
-                fontSize: 12.sp,
+                fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: AppColors.metalBlack50,
               ),
@@ -73,9 +65,18 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           const Spacer(),
           JustTheTooltip(
             controller: tooltipController,
+            content: const SizedBox(
+              width: 180,
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  'Video call features are enabled after 30 days of chatting with this metal. Please contact them through messages',
+                ),
+              ),
+            ),
             child: Material(
               color: Colors.white,
-              shape: CircleBorder(),
+              shape: const CircleBorder(),
               child: GestureDetector(
                 onTap: () {
                   tooltipController.showTooltip();
@@ -84,15 +85,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                   Assets.icons.chatsWindowactiveVideoRecorder.path,
                   height: 30,
                   width: 30,
-                ),
-              ),
-            ),
-            content: SizedBox(
-              width: 180,
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Video call features are enabled after 30 days of chatting with this metal. Please contact them through messages',
                 ),
               ),
             ),
@@ -111,7 +103,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             ),
             child: Material(
               color: Colors.white,
-              shape: CircleBorder(),
+              shape: const CircleBorder(),
               child: GestureDetector(
                 onTap: () {
                   tooltipController.showTooltip();
@@ -150,59 +142,59 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: "View contact",
                 child: TextView(
                   text: 'View contact',
-                  fontSize: 15.sp,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: "View eyes",
                 child: TextView(
                   text: 'View eyes',
-                  fontSize: 15.sp,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: "Unmetal",
                 child: TextView(
                   text: 'Unmetal',
-                  fontSize: 15.sp,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: "Unblock from audio call",
                 child: TextView(
                   text: 'Unblock from audio call',
-                  fontSize: 15.sp,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: "Unblock from video call",
                 child: TextView(
                   text: 'Unblock from video call',
-                  fontSize: 15.sp,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: "Clear chat",
                 child: TextView(
                   text: 'Clear chat',
-                  fontSize: 15.sp,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: "Unblock",
                 child: TextView(
                   text: 'Unblock',
-                  fontSize: 15.sp,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -216,34 +208,34 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   Widget unmetalDialog(BuildContext context) {
     return Column(
       children: [
-        Gap(38.h),
-        TextView(
+        const Gap(38),
+        const TextView(
           text: "Want to Unmetal?",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text:
               "To Unmetal, we require a minimum of 30days and 10 sessions of conversations between you and @chi_aluminium",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text: "You have had *16 days* and *3 interactions*",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(38.h),
+        const Gap(38),
         BaseButton(
             buttonText: "Return to chat",
             onPressed: () {
               Navigator.pop(context);
             }),
-        Gap(23.h),
+        const Gap(23),
       ],
     );
   }

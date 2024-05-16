@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -23,7 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   final bool appBarEnabled; // New parameter to enable/disable the AppBar
 
-  CustomAppBar({
+  const CustomAppBar({super.key, 
     required this.appBarState,
     required this.onHamburgerPressed,
     required this.onBackButtonPressed,
@@ -35,12 +35,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize =>
-      appBarEnabled ? Size.fromHeight(kToolbarHeight) : Size.zero;
+      appBarEnabled ? const Size.fromHeight(kToolbarHeight) : Size.zero;
 
   @override
   Widget build(BuildContext context) {
     if (!appBarEnabled) {
-      return SizedBox.shrink(); // Return an empty widget if AppBar is disabled
+      return const SizedBox.shrink(); // Return an empty widget if AppBar is disabled
     }
 
     String leftIcon;
@@ -82,8 +82,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           padding: const EdgeInsets.only(left: 8.0),
           child: SvgPicture.asset(
             leftIcon,
-            height: 40.h,
-            width: 40.w,
+            height: 40,
+            width: 40,
           ),
         ),
       ),
@@ -92,9 +92,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Center(
         child: Text(
           headerText,
-          style: TextStyle(
+          style: const TextStyle(
             color: AppColors.metalWhite,
-            fontSize: 18.sp,
+            fontSize: 18,
             fontWeight: FontWeight.w400,
           ),
         ),
@@ -102,16 +102,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       actions: [
         rightIcon == null
-            ? SizedBox.shrink()
+            ? const SizedBox.shrink()
             : GestureDetector(
                 onTap: onRightIconTap,
                 child: SvgPicture.asset(
                   rightIcon,
-                  height: 40.h,
-                  width: 40.w,
+                  height: 40,
+                  width: 40,
                 ),
               ),
-        Gap(10),
+        const Gap(10),
       ],
     );
   }

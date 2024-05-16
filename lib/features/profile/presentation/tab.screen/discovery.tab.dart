@@ -1,14 +1,8 @@
-import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
-import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/widgets/text.field/edit.from.field.dart';
-import 'package:metal/widgets/text_views.dart';
-import 'package:range_slider_flutter/range_slider_flutter.dart';
 
 class DiscoveryTab extends ConsumerStatefulWidget {
   const DiscoveryTab({super.key});
@@ -39,7 +33,7 @@ class _DiscoveryTabState extends ConsumerState<DiscoveryTab> {
           floatingLabel: "Location",
           onSubLabel: (value) {},
         ),
-        Gap(20.h),
+        const Gap(20),
 
         // EditField(
         //   text: userState?.connection_option?.join(",") ??
@@ -50,7 +44,7 @@ class _DiscoveryTabState extends ConsumerState<DiscoveryTab> {
 
         //   },
         // ),
-        Gap(20.h),
+        const Gap(20),
       ],
     );
   }

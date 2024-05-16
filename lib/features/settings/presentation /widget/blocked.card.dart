@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/widgets/card.with.shadow.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -25,7 +24,7 @@ class BlockedCard extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const ProfilePhoto(size: 56, verfly: true),
-            Gap(23),
+            const Gap(23),
             TextView(
               text: name,
               fontSize: 16,

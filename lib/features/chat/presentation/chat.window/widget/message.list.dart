@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/features/chat/presentation/chat.window/widget/bubble/message.bubble.dart';
-import 'package:metal/features/chat/provider/check.conversation.notifier.dart';
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -45,13 +44,13 @@ class _MessageListState extends ConsumerState<MessageList> {
 
     return Expanded(
         child: Padding(
-            padding: EdgeInsets.only(left: 18, right: 18),
+            padding: const EdgeInsets.only(left: 18, right: 18),
             child: messages.isLoading
-                ? Center(
+                ? const Center(
                     child: CircularProgressIndicator(),
                   )
                 : messages.isError
-                    ? Center(child: TextView(text: "No message "))
+                    ? const Center(child: TextView(text: "No message "))
                     : ListView.builder(
                         reverse: true,
                         itemCount: messages.data?.length ?? 0,

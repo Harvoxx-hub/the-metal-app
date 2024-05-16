@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
@@ -11,7 +10,7 @@ class CustomCheckWidget extends StatefulWidget {
   final bool initialValue;
   final bool boarder;
 
-  CustomCheckWidget({
+  const CustomCheckWidget({super.key, 
     this.title,
     required this.onChanged,
     this.initialValue = false,
@@ -43,12 +42,12 @@ class _CustomCheckWidgetState extends State<CustomCheckWidget> {
             },
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: isChecked
                   ? ShapeDecoration(
-                      color: Color(0xFFFBF0F8),
+                      color: const Color(0xFFFBF0F8),
                       shape: RoundedRectangleBorder(
-                        side: BorderSide(width: 1, color: Color(0xFFFF5553)),
+                        side: const BorderSide(width: 1, color: Color(0xFFFF5553)),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       shadows: const [
@@ -63,7 +62,7 @@ class _CustomCheckWidgetState extends State<CustomCheckWidget> {
                   : ShapeDecoration(
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
-                        side: BorderSide(
+                        side: const BorderSide(
                             width: 1, color: AppColors.metalButtonStroke),
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -96,12 +95,12 @@ class _CustomCheckWidgetState extends State<CustomCheckWidget> {
                   widget.title != null
                       ? TextView(
                           text: widget.title!,
-                          fontSize: 13.sp,
+                          fontSize: 13,
                           color: AppColors.metalBrownColourForText
                               .withOpacity(0.5),
                           fontWeight: FontWeight.normal,
                         )
-                      : SizedBox(),
+                      : const SizedBox(),
                 ],
               ),
             ),
@@ -131,12 +130,12 @@ class _CustomCheckWidgetState extends State<CustomCheckWidget> {
                 widget.title != null
                     ? TextView(
                         text: widget.title!,
-                        fontSize: 13.sp,
+                        fontSize: 13,
                         color:
                             AppColors.metalBrownColourForText.withOpacity(0.5),
                         fontWeight: FontWeight.normal,
                       )
-                    : SizedBox(),
+                    : const SizedBox(),
               ],
             ),
           );

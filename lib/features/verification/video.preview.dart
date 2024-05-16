@@ -8,6 +8,7 @@ import 'package:gap/gap.dart';
  
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/screen.size.dart';
+ 
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/buttons.dart';
@@ -18,7 +19,7 @@ import 'package:video_player/video_player.dart';
 class VideoPreview extends StatefulWidget {
   const VideoPreview({super.key});
   static const name = 'VideoPreview';
-  static const route = '$name';
+  static const route = name;
 
   @override
   State<VideoPreview> createState() => _VideoPreviewState();
@@ -65,7 +66,7 @@ class _VideoPreviewState extends State<VideoPreview> {
   }
 
   void startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _secondsRemaining++;
       });
@@ -77,7 +78,7 @@ class _VideoPreviewState extends State<VideoPreview> {
     return Scaffold(
         body: Center(
       child: _isLoading
-          ? CircularProgressIndicator()
+          ? const CircularProgressIndicator()
           : Stack(
               fit: StackFit.expand,
               children: [
@@ -107,14 +108,14 @@ class _VideoPreviewState extends State<VideoPreview> {
                           Navigator.pop(context);
                         },
                       ),
-                      Spacer(),
-                      TextView(
+                      const Spacer(),
+                      const TextView(
                           text: 'Viedo Preview',
                           fontSize: 20,
                           color: Colors.white),
-                      Spacer(),
+                      const Spacer(),
                       _videoFile == null
-                          ? SizedBox()
+                          ? const SizedBox()
                           : IconButton(
                               icon: Assets.icons.refresh
                                   .svg(width: 24, height: 24),
@@ -147,7 +148,7 @@ class _VideoPreviewState extends State<VideoPreview> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Spacer(),
+                            const Spacer(),
                             _isRecording
                                 ? PlainButton(
                                     color: AppColors.metalBlack30,
@@ -184,7 +185,7 @@ class _VideoPreviewState extends State<VideoPreview> {
                                             }
                                           : _recordVideo();
                                     }),
-                            Spacer(),
+                            const Spacer(),
                           ],
                         ),
                         Gap(20.h),

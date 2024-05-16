@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppbarBackground extends StatelessWidget {
-  const AppbarBackground({Key? key}) : super(key: key);
+  const AppbarBackground({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 220.h,
+      height: 220,
       width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
           begin: Alignment(0.00, -1.00),
           end: Alignment(0, 1),
           colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
         ),
-        borderRadius: const BorderRadius.only(
+        borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(35),
           bottomRight: Radius.circular(35),
         ),

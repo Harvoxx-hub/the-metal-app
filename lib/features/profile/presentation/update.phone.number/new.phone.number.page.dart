@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -15,7 +13,7 @@ import 'package:metal/widgets/text_views.dart';
 class NewPhoneNumberPage extends StatelessWidget {
   NewPhoneNumberPage({super.key});
   static const name = 'newPhoneNumberPage';
-  static const route = '$name';
+  static const route = name;
   final TextEditingController _phoneController = TextEditingController();
 
   @override
@@ -30,17 +28,17 @@ class NewPhoneNumberPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 220.h,
+                  height: 220,
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                  decoration: const BoxDecoration(
+                      gradient: LinearGradient(
                         begin: Alignment(0.00, -1.00),
                         end: Alignment(0, 1),
                         colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
                       ),
                       borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(35.sp),
-                        bottomRight: Radius.circular(35.sp),
+                        bottomLeft: Radius.circular(35),
+                        bottomRight: Radius.circular(35),
                       )),
                   child: const Padding(
                     padding: EdgeInsets.only(left: 24.0, right: 24),
@@ -68,26 +66,26 @@ class NewPhoneNumberPage extends StatelessWidget {
                       height: 50,
                       width: 50,
                     ),
-                    Gap(22.h),
-                    TextView(
+                    const Gap(22),
+                    const TextView(
                       text: "Email address verified",
                       fontSize: 20,
                       fontWeight: FontWeight.w400,
                     ),
-                    Gap(5.h),
-                    TextView(
+                    const Gap(5),
+                    const TextView(
                       text:
                           "Please input the *new phone number* you are migrating to",
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                       textAlign: TextAlign.center,
                     ),
-                    Gap(35.h),
+                    const Gap(35),
                     PhoneInput(
                       floatingLabel: "New Phone number",
                       phoneController: _phoneController,
                     ),
-                    Gap(45.h),
+                    const Gap(45),
                     BaseButton(
                       buttonText: "Update  phone number",
                       onPressed: () {
@@ -99,7 +97,6 @@ class NewPhoneNumberPage extends StatelessWidget {
                             );
                           },
                         );
-               
                       },
                     ),
                   ],
@@ -115,32 +112,32 @@ class NewPhoneNumberPage extends StatelessWidget {
   Widget phoneUpdatedDialog(BuildContext context) {
     return Column(
       children: [
-        Gap(38.h),
+        const Gap(38),
         SvgPicture.asset(
           Assets.icons.profilePhone.path,
           height: 50,
           width: 50,
         ),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text: "Phone number updated",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text: "Your phone number has been updated successfully",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(38.h),
+        const Gap(38),
         BaseButton(
             buttonText: "OK. Got it! ",
             onPressed: () {
-             Navigator.pop(context);
+              Navigator.pop(context);
             }),
-        Gap(21.h),
+        const Gap(21),
       ],
     );
   }

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
-import 'package:metal/features/sparks_page/screens/refer.earn/refer.earn.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
+
+ 
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
@@ -18,12 +17,10 @@ import 'package:metal/widgets/button/outiline.button.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class ReferEarn extends StatelessWidget {
-  ReferEarn({super.key});
+  const ReferEarn({super.key});
   static const name = 'referEarn';
-  static const route = '$name';
-  static final GlobalKey<FormState> _form = GlobalKey<FormState>();
-
-  final TextEditingController _phoneController = TextEditingController();
+  static const route = name;
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +33,13 @@ class ReferEarn extends StatelessWidget {
               Column(
                 children: [
                   Container(
-                    height: 220.h,
+                    height: 220,
                     width: double.infinity,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                         color: AppColors.metalPinkColour,
                         borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(35.sp),
-                          bottomRight: Radius.circular(35.sp),
+                          bottomLeft: Radius.circular(35),
+                          bottomRight: Radius.circular(35),
                         )),
                   ),
 
@@ -51,36 +48,35 @@ class ReferEarn extends StatelessWidget {
                 ],
               ),
               Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15.w),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-                    margin: EdgeInsets.only(left: 10.w, right: 10.w),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    margin: const EdgeInsets.only(left: 10, right: 10),
                     decoration: BoxDecoration(
                         color: AppColors.metalWhite,
-                        borderRadius: BorderRadius.circular(13.sp)),
+                        borderRadius: BorderRadius.circular(13)),
                     child: Column(
                       children: [
                         SingleSparkHeaderCard(
                           title: "Refer \n& Earn",
                           path: Assets.images.refer.path,
                         ),
-                        Gap(56),
-                        SizedBox(
+                        const Gap(56),
+                        const SizedBox(
                           width: 218,
                           child: TextView(
                               textAlign: TextAlign.center,
                               text:
                                   "You’re doing great! Your counts are increasing. Invite more friends to earn more sparks with Metal."),
                         ),
-                        Gap(29),
+                        const Gap(29),
                         Container(
                           width: 200,
-                          padding: EdgeInsets.all(15),
+                          padding: const EdgeInsets.all(15),
                           decoration: BoxDecoration(
                               color: AppColors.metalTabBg,
                               borderRadius: BorderRadius.circular(5)),
-                          child: Column(
+                          child: const Column(
                             children: [
                               TextView(
                                 text: "Referral count",
@@ -104,7 +100,7 @@ class ReferEarn extends StatelessWidget {
                                 context, AppRoutes.referEarnSpark);
                           },
                         ),
-                        Gap(16.h),
+                        const Gap(16),
                         OutilineButton(
                           buttonText: "View last 30 days",
                           onPressed: () {},

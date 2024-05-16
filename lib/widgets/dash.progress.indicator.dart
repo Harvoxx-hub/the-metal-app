@@ -6,7 +6,7 @@ class DashProgressIndicator extends StatelessWidget {
   final int pageCount; // Total number of pages in onboarding
   final int currentPage; // Current page index
   final double? width;
-  DashProgressIndicator({
+  const DashProgressIndicator({super.key, 
     required this.pageCount,
     required this.currentPage,
     this.width,
@@ -22,7 +22,7 @@ class DashProgressIndicator extends StatelessWidget {
           return Container(
             width: 7.0,
             height: 7.0,
-            margin: EdgeInsets.symmetric(horizontal: 4.0),
+            margin: const EdgeInsets.symmetric(horizontal: 4.0),
             decoration: BoxDecoration(
               color: currentPage == index
                   ? AppColors.metalBrownColour

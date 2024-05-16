@@ -1,6 +1,5 @@
  
 import 'package:flutter/material.dart';
-import 'package:metal/res/res.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class ButtonDivider extends StatelessWidget {
@@ -8,7 +7,7 @@ class ButtonDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Row(
+    return  const Row(
       children: [
         Expanded(
           child: Divider(

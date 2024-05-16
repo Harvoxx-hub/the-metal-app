@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -22,7 +21,7 @@ class SparkCardItem extends StatelessWidget {
           Image.asset(path),
           TextView(
             text: title,
-            fontSize: 14.sp,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
             color: AppColors.metalWhite,
           )

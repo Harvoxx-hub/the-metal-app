@@ -1,17 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
-import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
-import 'package:metal/features/upgrade/provider/subscribe.metal.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
-import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -19,13 +12,13 @@ enum PaymentType { metalPlan, Spark, push }
 enum PaymentState { success, failed }
 
 class MakePayment extends ConsumerStatefulWidget {
-  MakePayment({
+  const MakePayment({
     required this.price,
     required this.paymentType,
     super.key,
   });
   static const name = 'makePayment';
-  static const route = '$name';
+  static const route = name;
   final PaymentType paymentType;
   final double price;
 
@@ -59,16 +52,16 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Gap(40),
+            const Gap(40),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment .spaceEvenly,
               children: [
                 Image.asset(Assets.images.paymentCard.path),
                 Image.asset(Assets.images.stripe.path),
                 Image.asset(Assets.images.squareLogo.path)
               ],
             ),
-            Gap(40),
+            const Gap(40),
             Form(
                 key: MakePayment._form,
                 child: Column(
@@ -80,7 +73,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
                       keyboardType: TextInputType.number,
                       radius: 10,
                     ),
-                    Gap(20),
+                    const Gap(20),
                     Row(
                       children: [
                         Expanded(
@@ -92,7 +85,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
                             radius: 10,
                           ),
                         ),
-                        Gap(20),
+                        const Gap(20),
                         Expanded(
                           child: EditFormField(
                             floatingLabel: 'CVV',
@@ -104,7 +97,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
                         ),
                       ],
                     ),
-                    Gap(20),
+                    const Gap(20),
                     EditFormField(
                       floatingLabel: 'Name On Card',
                       label: 'Type the name on your debit card',
@@ -112,7 +105,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
                       keyboardType: TextInputType.name,
                       radius: 10,
                     ),
-                    Gap(20),
+                    const Gap(20),
                   ],
                 )),
             CustomCheckWidget(
@@ -122,7 +115,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
                 print('Value changed to $value');
               },
             ),
-            Gap(20),
+            const Gap(20),
             CustomCheckWidget(
               title: "Securely save card details",
               initialValue: false,
@@ -130,15 +123,15 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
                 print('Value changed to $value');
               },
             ),
-            Gap(20),
-            TextView(
+            const Gap(20),
+            const TextView(
               text:
                   "We use available sparks balance first before other payment options",
               fontSize: 12,
               fontStyle: FontStyle.italic,
               fontWeight: FontWeight.w400,
             ),
-            Gap(20),
+            const Gap(20),
             BaseButton(
              //   loading: _subscribeState.isLoading,
                 buttonText: "Pay ${widget.price}.00 ",

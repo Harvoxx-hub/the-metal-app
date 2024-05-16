@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+ 
 
 import '../../res/colors/cr_colors.dart';
 
@@ -28,7 +28,7 @@ class PlainButton extends StatelessWidget {
 
   final Widget? rightIcon;
 
-  PlainButton({
+  const PlainButton({super.key, 
     required this.buttonText,
     required this.onPressed,
     this.textOverflow = TextOverflow.clip,
@@ -56,8 +56,8 @@ class PlainButton extends StatelessWidget {
     return GestureDetector(
       onTap: enabled ? onPressed : null, // Disable onTap if not enabled
       child: Container(
-        width: width!.w,
-        height: height!.h,
+        width: width,
+        height: height,
         decoration: ShapeDecoration(
           color: enabled // Use enabled state to determine gradient colors
               ? color
@@ -65,16 +65,16 @@ class PlainButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: thickBorder
-                ? BorderSide(color: Colors.black, width: 2.0)
+                ? const BorderSide(color: Colors.black, width: 2.0)
                 : BorderSide.none,
           ),
         ),
         child: loading
-            ? Center(
+            ? const Center(
                 child: SizedBox(
-                  height: 25.h,
-                  width: 25.w,
-                  child: const CircularProgressIndicator(
+                  height: 25,
+                  width: 25,
+                  child: CircularProgressIndicator(
                     color: AppColors.metalWhite,
                   ),
                 ),
@@ -88,7 +88,7 @@ class PlainButton extends StatelessWidget {
                       TextView(
                         text: lowerCase ? buttonText : buttonText.toUpperCase(),
                         fontWeight: fontWeight,
-                        fontSize: fontSize.sp,
+                        fontSize: fontSize,
                         color: outlined ? color : textColor,
                         textAlign: textAlign,
                       ),

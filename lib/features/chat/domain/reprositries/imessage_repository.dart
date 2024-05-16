@@ -1,5 +1,4 @@
 import 'package:metal/core/model/responces.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/chat/domain/entries/conversations.model.dart';
 
 import '../entries/message.model.dart';

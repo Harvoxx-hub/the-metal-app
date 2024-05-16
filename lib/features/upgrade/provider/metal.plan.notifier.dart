@@ -1,14 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/upgrade/data/repositories/subscription.repository.dart';
 import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 
 class MetalPlanNotifier extends StateNotifier<MetalPlanState> {
   MetalPlanNotifier(
-    MetalPlanState state,
+    super.state,
     this.ref,
-  ) : super(state) {
+  ) {
     getMetalPlans();
   }
   final Ref ref;

@@ -3,12 +3,10 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/screen.size.dart';
-import 'package:metal/features/eyes/presentation/eye.preview.media.dart';
+ 
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
@@ -20,7 +18,7 @@ import 'package:image_picker/image_picker.dart';
 class EyeSelectMedia extends StatefulWidget {
   const EyeSelectMedia({super.key});
   static const name = 'EyeSelectMedia';
-  static const route = '$name';
+  static const route = name;
 
   @override
   State<EyeSelectMedia> createState() => _EyeSelectMediaState();
@@ -73,16 +71,10 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
       // orElse: () => null, // Handle case where back camera is not available
     );
 
-    if (back != null) {
-      _cameraController = CameraController(back, ResolutionPreset.max);
-      await _cameraController.initialize();
-      setState(() => _isLoading = false);
-    } else {
-      // Handle case where back camera is not found
-      setState(() => _isLoading = false);
-      // You can show a message or handle this situation according to your app's logic
+    _cameraController = CameraController(back, ResolutionPreset.max);
+    await _cameraController.initialize();
+    setState(() => _isLoading = false);
     }
-  }
 
   void startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -141,7 +133,7 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
                     child: Column(
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment .spaceEvenly,
                           children: [
                             GestureDetector(
                               onTap: () {
@@ -193,7 +185,7 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
                             const Spacer(),
                           ],
                         ),
-                        Gap(20.h),
+                        const Gap(20 ),
                         Container(
                             height: 100,
                             decoration: BoxDecoration(
@@ -284,10 +276,10 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
   }
 
   Future pickImageOrVideo() async {
-    final ImagePicker _picker = ImagePicker();
+    final ImagePicker picker = ImagePicker();
 
     // Show options for picking an image or a video
-    final pickedFile = await _picker.pickMedia();
+    final pickedFile = await picker.pickMedia();
     if (pickedFile != null) {
       // User picked an image
           Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,  

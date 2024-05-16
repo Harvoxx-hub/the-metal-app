@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -10,13 +8,12 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
-import 'package:metal/widgets/text.field/phone.number.input.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class NewEmailPage extends StatelessWidget {
   NewEmailPage({super.key});
   static const name = 'newEmailPage';
-  static const route = '$name';
+  static const route = name;
   final TextEditingController _email2Controller = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   @override
@@ -31,17 +28,17 @@ class NewEmailPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 220.h,
+                  height: 220,
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                  decoration: const BoxDecoration(
+                      gradient: LinearGradient(
                         begin: Alignment(0.00, -1.00),
                         end: Alignment(0, 1),
                         colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
                       ),
                       borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(35.sp),
-                        bottomRight: Radius.circular(35.sp),
+                        bottomLeft: Radius.circular(35),
+                        bottomRight: Radius.circular(35),
                       )),
                   child: const Padding(
                     padding: EdgeInsets.only(left: 24.0, right: 24),
@@ -69,21 +66,21 @@ class NewEmailPage extends StatelessWidget {
                       height: 50,
                       width: 50,
                     ),
-                    Gap(22.h),
-                    TextView(
+                    const Gap(22),
+                    const TextView(
                       text: "Email address verified",
                       fontSize: 20,
                       fontWeight: FontWeight.w400,
                     ),
-                    Gap(5.h),
-                    TextView(
+                    const Gap(5),
+                    const TextView(
                       text:
                           "Please input the *new phone number* you are migrating to",
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                       textAlign: TextAlign.center,
                     ),
-                    Gap(35.h),
+                    const Gap(35),
                     EditFormField(
                       floatingLabel: 'New Email address',
                       label: 'New Email address',
@@ -99,7 +96,7 @@ class NewEmailPage extends StatelessWidget {
 
                       // fillColor: AppColors.appGrey,
                     ),
-                    Gap(22.h),
+                    const Gap(22),
                     EditFormField(
                       floatingLabel: 'Confirm New Email address',
                       label: 'New Email address',
@@ -115,7 +112,7 @@ class NewEmailPage extends StatelessWidget {
 
                       // fillColor: AppColors.appGrey,
                     ),
-                    Gap(45.h),
+                    const Gap(45),
                     BaseButton(
                       buttonText: "Update  Email",
                       onPressed: () {
@@ -127,7 +124,6 @@ class NewEmailPage extends StatelessWidget {
                             );
                           },
                         );
-                 
                       },
                     ),
                   ],
@@ -143,32 +139,32 @@ class NewEmailPage extends StatelessWidget {
   Widget phoneUpdatedDialog(BuildContext context) {
     return Column(
       children: [
-        Gap(38.h),
+        const Gap(38),
         SvgPicture.asset(
           Assets.icons.profileMail01.path,
           height: 50,
           width: 50,
         ),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text: "Email updated",
           fontSize: 20,
           fontWeight: FontWeight.w500,
         ),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text: "Your email address has been updated successfully",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(38.h),
+        const Gap(38),
         BaseButton(
             buttonText: "OK. Got it! ",
             onPressed: () {
               Navigator.pop(context);
             }),
-        Gap(21.h),
+        const Gap(21),
       ],
     );
   }

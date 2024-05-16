@@ -1,28 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
-import 'package:metal/features/authentication/presentation/home.address/home.address.dart';
-import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+ 
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
-import 'package:metal/widgets/dropdown/metal.dropdown.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
  
 import 'package:metal/widgets/text_views.dart';
 
 class PreferenceMetalPage extends ConsumerStatefulWidget {
-  PreferenceMetalPage({Key? key}) : super(key: key);
+  const PreferenceMetalPage({super.key});
   static const pageName = 'PreferenceMetalPage';
   static const route = '/$pageName';
 
@@ -55,7 +52,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               title: "Let us know what your special preferences are in a person",
               subtitle: " ",
             ),
-            Gap(16.h),
+            const Gap(16 ),
             CustomCheckWidget(
               boarder: true,
               title: 'No Special Preference',
@@ -66,13 +63,13 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
                 });
               },
             ),
-            Gap(16.h),
-            TextView(
+            const Gap(16 ),
+            const TextView(
               text: "If you have special preferences, please select below.",
               fontSize: 14,
               fontWeight: FontWeight.w300,
             ),
-            Gap(15.h),
+            const Gap(15 ),
             MentalDropdownMutipleSelection(
               items: const [
                 "18 - 30 years",
@@ -94,7 +91,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
                 width: 24,
               ),
             ),
-            Gap(15.h),
+            const Gap(15 ),
             MentalDropdownMutipleSelection(
               items: metalProps.data!.religion!,
               value: selectedReligion,
@@ -107,7 +104,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               hint: "Please Select",
               prefixIcon: Assets.icons.christianity.svg(width: 24, height: 24),
             ),
-            Gap(15.h),
+            const Gap(15 ),
             MentalDropdownMutipleSelection(
               items: metalProps.data!.ethnicity!,
               value: selectedEthnicity,
@@ -124,7 +121,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
                 width: 24,
               ),
             ),
-            Gap(15.h),
+            const Gap(15 ),
             MentalDropdownMutipleSelection(
               items: metalProps.data!.education!,
               value: selectedEducation,
@@ -141,7 +138,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
                 width: 24,
               ),
             ),
-            Gap(15.h),
+            const Gap(15 ),
             MentalDropdownMutipleSelection(
               items: metalProps.data!.demography!,
               value: selectedDemography,
@@ -158,7 +155,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
                 width: 24,
               ),
             ),
-            Gap(15.h),
+            const Gap(15 ),
             BaseButton(
               enabled: noSpecialPreference == true
                   ? true
@@ -189,7 +186,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
 
     Navigator.pushNamed(
       context,
-      AppRoutes.homeAddressPage,
+      AppRoutes .homeAddressPage,
     );
   }
 }

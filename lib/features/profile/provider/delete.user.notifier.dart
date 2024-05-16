@@ -5,9 +5,9 @@ import 'package:metal/features/authentication/data/repositories/authetication.re
  
 class DeleteUsersNotifier extends StateNotifier<DeleteUsersState> {
   DeleteUsersNotifier(
-    DeleteUsersState state,
+    super.state,
     this.ref,
-  ) : super(state) {}
+  );
   final Ref ref;
 
   // melt user

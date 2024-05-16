@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+ 
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
 // ignore: must_be_immutable
 class EditFormField extends StatefulWidget {
   EditFormField(
-      {Key? key,
+      {super.key,
       this.label = '',
       this.hint = '',
       this.floatingLabel = '',
@@ -59,8 +59,7 @@ class EditFormField extends StatefulWidget {
       this.prefixWidget,
       this.editButton = false,
       this.onEditTap,
-      this.labelColor})
-      : super(key: key);
+      this.labelColor});
 
   final TextCapitalization? textCapitalization;
   final String? label;
@@ -140,7 +139,7 @@ class _EditFormFieldState extends State<EditFormField> {
                       TextView(
                         text: widget.floatingLabel!,
                         fontWeight: FontWeight.w400,
-                        fontSize: 14.sp,
+                        fontSize: 14,
                         color: AppColors.metalBrownColourForText,
                         textAlign: TextAlign.left,
                       ),
@@ -149,8 +148,8 @@ class _EditFormFieldState extends State<EditFormField> {
                       ),
                     ],
                   )
-                : SizedBox(),
-            Spacer(),
+                : const SizedBox(),
+            const Spacer(),
             widget.editButton != false
                 ? TextView(
                     text: "Edit",
@@ -160,7 +159,7 @@ class _EditFormFieldState extends State<EditFormField> {
                     underline: true,
                     onTap: widget.onEditTap,
                   )
-                : SizedBox(),
+                : const SizedBox(),
           ],
         ),
         TextFormField(
@@ -184,7 +183,7 @@ class _EditFormFieldState extends State<EditFormField> {
               fontFamily: 'Plus_Jakarta',
               color: widget.labelColor ?? AppColors.metalBrownColourForText,
               fontWeight: FontWeight.w300,
-              fontSize: widget.fontSize.sp,
+              fontSize: widget.fontSize.toDouble(),
               fontStyle: FontStyle.normal),
           autocorrect: widget.autocorrect!,
           minLines: widget.minLines,
@@ -214,32 +213,32 @@ class _EditFormFieldState extends State<EditFormField> {
                         color: widget.focusedColorBorder != null
                             ? widget.focusedColorBorder!
                             : AppColors.metalButtonStroke),
-                    borderRadius: BorderRadius.circular(widget.radius.r),
+                    borderRadius: BorderRadius.circular(widget.radius),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
                         color: widget.focusedColorBorder != null
                             ? widget.focusedColorBorder!
                             : AppColors.metalPinkColour),
-                    borderRadius: BorderRadius.circular(widget.radius.r),
+                    borderRadius: BorderRadius.circular(widget.radius),
                   ),
                   border: OutlineInputBorder(
                     borderSide: BorderSide(
                         color: widget.focusedColorBorder != null
                             ? widget.focusedColorBorder!
                             : AppColors.metalWhite),
-                    borderRadius: BorderRadius.circular(widget.radius.r),
+                    borderRadius: BorderRadius.circular(widget.radius),
                   ),
                   errorBorder: OutlineInputBorder(
                     borderSide: const BorderSide(color: Colors.red),
-                    borderRadius: BorderRadius.circular(widget.radius.r),
+                    borderRadius: BorderRadius.circular(widget.radius),
                   ),
                   hintText: widget.hint,
                   hintStyle: widget.hintStyle ??
-                      TextStyle(
+                      const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w300,
-                          fontSize: 14.sp,
+                          fontSize: 14,
                           fontStyle: FontStyle.normal),
                   labelText: widget.label,
                   labelStyle: widget.labelStyle ??
@@ -248,11 +247,11 @@ class _EditFormFieldState extends State<EditFormField> {
                           color: widget.labelColor ??
                               AppColors.metalBrownColourForText,
                           fontWeight: FontWeight.w300,
-                          fontSize: 16.sp,
+                          fontSize: 16,
                           fontStyle: FontStyle.normal),
                   prefixIcon: widget.prefixWidget != null
                       ? Padding(
-                          padding: EdgeInsets.only(left: 16.w, right: 16.w),
+                          padding: const EdgeInsets.only(left: 16, right: 16),
                           child: widget.prefixWidget!)
                       : (widget.prefixIcon != null
                           ? IconButton(
@@ -263,7 +262,7 @@ class _EditFormFieldState extends State<EditFormField> {
                               ))
                           : null),
                   suffixIcon: Padding(
-                    padding: EdgeInsets.only(left: 16.w, right: 16.w),
+                    padding: const EdgeInsets.only(left: 16, right: 16),
                     child: widget.suffixWidget ??
                         (widget.keyboardType == TextInputType.visiblePassword
                             ? GestureDetector(
@@ -289,12 +288,12 @@ class _EditFormFieldState extends State<EditFormField> {
             ? TextView(
                 text: widget.bottomLabel!,
                 fontWeight: FontWeight.w300,
-                fontSize: 13.sp,
+                fontSize: 13,
                 fontStyle: FontStyle.italic,
                 color: AppColors.metalBrownColourForText,
                 textAlign: TextAlign.left,
               )
-            : SizedBox(),
+            : const SizedBox(),
       ],
     );
   }

@@ -1,23 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 
 enum gameType { nameAThing, truthAndDare, neverHaveIEver, twoTruthAndALie }
 
 class GameRules extends StatelessWidget {
-  GameRules({super.key, required this.games});
+  const GameRules({super.key, required this.games});
   final GameModel games;
   static const name = 'gameRules';
-  static const route = '$name';
+  static const route = name;
 
   @override
   Widget build(BuildContext context) {
@@ -30,17 +26,17 @@ class GameRules extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    height: 220.h,
+                    height: 220,
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                    decoration: const BoxDecoration(
+                        gradient: LinearGradient(
                           begin: Alignment(0.00, -1.00),
                           end: Alignment(0, 1),
                           colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
                         ),
                         borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(35.sp),
-                          bottomRight: Radius.circular(35.sp),
+                          bottomLeft: Radius.circular(35),
+                          bottomRight: Radius.circular(35),
                         )),
                     child: Padding(
                       padding: const EdgeInsets.only(left: 9.0, right: 9),
@@ -62,13 +58,13 @@ class GameRules extends StatelessWidget {
                                 Assets.images.chatSmilingFaceEmoji1.path),
                             TextView(
                               text: games.title,
-                              fontSize: 20.sp,
+                              fontSize: 20,
                               fontWeight: FontWeight.w600,
                             ),
-                            Gap(13.h),
+                            const Gap(13),
                             TextView(
                               text: games.about,
-                              fontSize: 14.sp,
+                              fontSize: 14,
                               textAlign: TextAlign.center,
                               fontWeight: FontWeight.w500,
                             ),
@@ -77,24 +73,24 @@ class GameRules extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Gap(43.h),
+                  const Gap(43),
                   Padding(
                     padding: const EdgeInsets.only(left: 23.0, right: 23.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextView(
+                        const TextView(
                           text: "Here's how to play:",
-                          fontSize: 15.sp,
+                          fontSize: 15,
                           fontWeight: FontWeight.w700,
                         ),
-                        Gap(15),
+                        const Gap(15),
                         TextView(
                           text: games.rule,
-                          fontSize: 15.sp,
+                          fontSize: 15,
                           fontWeight: FontWeight.w400,
                         ),
-                        Gap(27.h),
+                        const Gap(27),
                         BaseButton(
                             buttonText: "Start Game",
                             onPressed: () {
@@ -110,7 +106,7 @@ class GameRules extends StatelessWidget {
                   //   child: Column(
                   //     children: [
                   //       Row(
-                  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //         mainAxisAlignment: MainAxisAlignment aceBetween,
                   //         children: [
                   //           gameCard(
                   //               title: "Two Truths and A lie",
@@ -123,9 +119,9 @@ class GameRules extends StatelessWidget {
                   //                   Assets.images.chatAstonishedFaceEmoji1.path)
                   //         ],
                   //       ),
-                  //       Gap(17.h),
+                  //       Gap(17 ),
                   //       Row(
-                  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //         mainAxisAlignment: MainAxisAlignment aceBetween,
                   //         children: [
                   //           gameCard(
                   //               title: "Name a Thing",

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+ 
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+ 
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
+ 
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/dashboard.dart/widget/nav.drawer.dart';
-import 'package:metal/features/notification/notification.page.dart';
+ 
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 
@@ -29,7 +30,7 @@ class BaseScreen extends StatefulWidget {
   final bool authFlow;
   // New parameter to indicate loading state
 
-  BaseScreen({
+  const BaseScreen({super.key, 
     this.bgImage,
     required this.body,
     this.subAppBar = false,
@@ -57,7 +58,7 @@ class _BaseScreenState extends State<BaseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _key,
-      drawer: NavDrawer(),
+      drawer: const NavDrawer(),
       backgroundColor: AppColors.metalWhite,
       appBar: widget.appBarEnabled
           ? CustomAppBar(
@@ -103,7 +104,7 @@ class _BaseScreenState extends State<BaseScreen> {
                               child: Column(
                                 children: [
                                   _authAppbar(context),
-                                  Gap(10.h),
+                                  const Gap(10),
 
                                   Expanded(
                                       child: widget
@@ -148,17 +149,17 @@ class _BaseScreenState extends State<BaseScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 53.h,
+                  height: 53,
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                  decoration: const BoxDecoration(
+                      gradient: LinearGradient(
                         begin: Alignment(0.00, -1.00),
                         end: Alignment(0, 1),
                         colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
                       ),
                       borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(35.sp),
-                        bottomRight: Radius.circular(35.sp),
+                        bottomLeft: Radius.circular(35),
+                        bottomRight: Radius.circular(35),
                       )),
                 ),
                 child
@@ -193,7 +194,7 @@ class _BaseScreenState extends State<BaseScreen> {
           ),
           TextView(
             text: widget.Header!,
-            fontSize: 20.sp,
+            fontSize: 20,
             fontWeight: FontWeight.normal,
           ),
           Container()

@@ -61,7 +61,7 @@ class Validators {
   }
 
   /// validates users input to email address
-  static final _pattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
+  static const _pattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
   static final _regExp = RegExp(_pattern);
 
   static String? Function(String?)? validateEmail({String? error}) {
@@ -268,7 +268,7 @@ class Validators {
   static bool _hasSpecialCharacter(String value) {
     var specialChars = "<>@!#\$%^&*()_+[]{}?:;|'\"\\,./~`-=";
     for (int i = 0; i < specialChars.length; i++) {
-      if (value.indexOf(specialChars[i]) > -1) {
+      if (value.contains(specialChars[i])) {
         return true;
       }
     }

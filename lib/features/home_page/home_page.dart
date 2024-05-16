@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
@@ -23,27 +22,27 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
-    final _allUsers = ref.watch(getAllUserProvider);
-   // final _currentUser = ref.watch(authProvider);
-    if (_allUsers.isLoading) {
+    final allUsers = ref.watch(getAllUserProvider);
+    // final _currentUser = ref.watch(authProvider);
+    if (allUsers.isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
       );
     } else {
-      return _allUsers.data != null && _allUsers.data!.isNotEmpty
+      return allUsers.data != null && allUsers.data!.isNotEmpty
           ? SingleChildScrollView(
               child: Stack(
                 children: [
                   Column(
                     children: [
                       Container(
-                        height: 220.h,
+                        height: 220,
                         width: double.infinity,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                             color: AppColors.metalPinkColour,
                             borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(35.sp),
-                              bottomRight: Radius.circular(35.sp),
+                              bottomLeft: Radius.circular(35),
+                              bottomRight: Radius.circular(35),
                             )),
                       ),
 
@@ -52,10 +51,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ],
                   ),
                   Padding(
-                      padding: EdgeInsets.symmetric(vertical: 15.w),
+                      padding: EdgeInsets.symmetric(vertical: 15),
                       child: Column(
                         children: [
-                          for (var user in _allUsers.data!)
+                          for (var user in allUsers.data!)
                             MetalUserCard(
                               user: user,
                             ),
@@ -76,7 +75,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     width: 250,
                   ),
                   const Gap(46),
-                  TextView(
+                  const TextView(
                     textAlign: TextAlign.center,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,

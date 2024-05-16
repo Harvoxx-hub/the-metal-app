@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -23,13 +22,13 @@ class CreateProfileHeader1 extends StatelessWidget {
           fontSize: 20,
           fontWeight: FontWeight.w400,
         ),
-        Gap(3),
+        const Gap(3),
         TextView(
           text: title2,
           fontSize: 20,
           fontWeight: FontWeight.w400,
         ),
-        Gap(3),
+        const Gap(3),
         TextView(
           text: title3,
           fontSize: 14,

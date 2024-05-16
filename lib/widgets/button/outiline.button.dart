@@ -27,7 +27,7 @@ class OutilineButton extends StatelessWidget {
 
   final Widget? rightIcon;
 
-  OutilineButton({
+  const OutilineButton({super.key, 
     required this.buttonText,
     required this.onPressed,
     this.textOverflow = TextOverflow.clip,
@@ -53,12 +53,12 @@ class OutilineButton extends StatelessWidget {
     return GestureDetector(
       onTap: enabled ? onPressed : null, // Disable onTap if not enabled
       child: Container(
-        width: width!.w,
-        height: height!.h,
+        width: width,
+        height: height,
         decoration: ShapeDecoration(
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
-              side: BorderSide(color: Colors.black, width: 2.0)),
+              side: const BorderSide(color: Colors.black, width: 2.0)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -69,7 +69,7 @@ class OutilineButton extends StatelessWidget {
                 TextView(
                   text: lowerCase ? buttonText : buttonText.toUpperCase(),
                   fontWeight: fontWeight,
-                  fontSize: fontSize.sp,
+                  fontSize: fontSize,
                   color: AppColors.metalBlack,
                   textAlign: textAlign,
                 ),

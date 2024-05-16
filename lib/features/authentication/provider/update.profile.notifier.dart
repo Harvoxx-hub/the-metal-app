@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:metal/core/services/auth.pref.service.dart';
 
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
-import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
   UpdateProfileNotifier(
-    UpdateProfileState state,
+    super.state,
     this.ref,
-  ) : super(state) {
+  ) {
     initMyProfile();
   }
   final Ref ref;

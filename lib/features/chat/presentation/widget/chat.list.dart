@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/screen.size.dart';
+
 import 'package:metal/features/chat/domain/entries/conversations.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
-import 'package:metal/features/chat/presentation/widget/profile.image.dart';
 import 'package:metal/features/chat/provider/get.chatlist.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
-import 'package:metal/widgets/shimmer.loading.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class ChatListWidget extends ConsumerStatefulWidget {
@@ -37,16 +34,16 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          TextView(
+          const TextView(
             text: "Messages",
-            fontSize: 16.sp,
+            fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
-          Gap(10),
+          const Gap(10),
           SizedBox(
               height: getDeviceHeight(context) * 0.395,
               child: chatList.isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator())
                   : chatList.isError
                       ? Center(
                           child:
@@ -57,19 +54,19 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
                               child: Center(
                                 child: Column(
                                   children: [
-                                    Gap(30),
+                                    const Gap(30),
                                     Assets.images.emptyChat.image(),
-                                    Gap(20),
-                                    TextView(
+                                    const Gap(20),
+                                    const TextView(
                                       text: "You have no messages yet",
-                                      fontSize: 16.sp,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.w500,
                                     ),
-                                    Gap(10),
-                                    TextView(
+                                    const Gap(10),
+                                    const TextView(
                                       text:
                                           "Tap on any of your metals to kickstart a conversation",
-                                      fontSize: 13.sp,
+                                      fontSize: 13,
                                       fontWeight: FontWeight.w300,
                                       textAlign: TextAlign.center,
                                     ),
@@ -77,52 +74,51 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
                                 ),
                               ),
                             )
-                          : myMelt.data!.length == 0?
-                          Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    Gap(30),
-                                    Assets.images.emptyChat.image(),
-                                    Gap(20),
-                                    TextView(
-                                      text: "You have no messages yet",
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.w500,
+                          : myMelt.data!.isEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Center(
+                                    child: Column(
+                                      children: [
+                                        const Gap(30),
+                                        Assets.images.emptyChat.image(),
+                                        const Gap(20),
+                                        const TextView(
+                                          text: "You have no messages yet",
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        const Gap(10),
+                                        const TextView(
+                                          text:
+                                              "Tap on any of your metals to kickstart a conversation",
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w300,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
                                     ),
-                                    Gap(10),
-                                    TextView(
-                                      text:
-                                          "Tap on any of your metals to kickstart a conversation",
-                                      fontSize: 13.sp,
-                                      fontWeight: FontWeight.w300,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ):
-                          
-                          ListView.builder(
-                              itemCount: chatList.data?.length ?? 0,
-                              itemBuilder: (context, index) {
-                                final message = chatList.data![index];
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount: chatList.data?.length ?? 0,
+                                  itemBuilder: (context, index) {
+                                    final message = chatList.data![index];
 
-                                var matchedData =
-                                    myMelt.data!.firstWhere((element) {
-                                  return message.participantIds
-                                      .contains(element.id);
-                                });
+                                    var matchedData =
+                                        myMelt.data!.firstWhere((element) {
+                                      return message.participantIds
+                                          .contains(element.id);
+                                    });
 
-                                return matchedData != null
-                                    ? chatListItem(
-                                        data: matchedData,
-                                        conversationsModel: message,
-                                      )
-                                    : SizedBox();
-                              },
-                            ))
+                                    return matchedData != null
+                                        ? chatListItem(
+                                            data: matchedData,
+                                            conversationsModel: message,
+                                          )
+                                        : const SizedBox();
+                                  },
+                                ))
         ]));
   }
 }
@@ -149,8 +145,8 @@ class chatListItem extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            ProfilePhoto(),
-            Gap(16),
+            const ProfilePhoto(),
+            const Gap(16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -166,7 +162,7 @@ class chatListItem extends StatelessWidget {
                 ),
               ],
             ),
-            Spacer(),
+            const Spacer(),
             TextView(
               text: formatChatTime(conversationsModel.lastUpdatedAt),
               fontWeight: FontWeight.w300,

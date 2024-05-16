@@ -1,5 +1,4 @@
 import 'package:metal/core/model/responces.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
 
 abstract class ISettingRepository {
   Future<Responses> blockUser(String id, String userName);

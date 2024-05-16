@@ -3,9 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
-import 'package:metal/features/authentication/domain/entries/passion.card.model.dart';
 
-import 'package:metal/res/colors/cr_colors.dart';
 
 import 'package:metal/widgets/text_views.dart';
 
@@ -28,9 +26,9 @@ class PassionsCard extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         decoration: selected
             ? ShapeDecoration(
-                color: Color(0xFFFBF0F8),
+                color: const Color(0xFFFBF0F8),
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 1, color: Color(0xFFFF5553)),
+                  side: const BorderSide(width: 1, color: Color(0xFFFF5553)),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 shadows: const [

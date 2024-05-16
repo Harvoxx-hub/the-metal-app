@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
+
 import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
 import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
 import 'package:metal/features/home_page/provider/push.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/home_page/melt.metal.dart';
 
-import 'package:metal/features/upgrade/make.payment.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 
@@ -24,7 +21,7 @@ import 'package:metal/widgets/text_views.dart';
 class PushMetal extends ConsumerWidget {
   const PushMetal({super.key, required this.user});
   static const name = 'pushMetal';
-  static const route = '$name';
+  static const route = name;
 
   final ALLUserModel user;
 
@@ -47,13 +44,13 @@ class PushMetal extends ConsumerWidget {
               Column(
                 children: [
                   Container(
-                    height: 220.h,
+                    height: 220,
                     width: double.infinity,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                         color: AppColors.metalPinkColour,
                         borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(35.sp),
-                          bottomRight: Radius.circular(35.sp),
+                          bottomLeft: Radius.circular(35),
+                          bottomRight: Radius.circular(35),
                         )),
                   ),
 
@@ -62,61 +59,60 @@ class PushMetal extends ConsumerWidget {
                 ],
               ),
               Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15.w),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-                    margin: EdgeInsets.only(left: 10.w, right: 10.w),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    margin: const EdgeInsets.only(left: 10, right: 10),
                     decoration: BoxDecoration(
                         color: AppColors.metalWhite,
-                        borderRadius: BorderRadius.circular(13.sp)),
+                        borderRadius: BorderRadius.circular(13)),
                     child: Column(
                       children: [
-                        Gap(28),
+                        const Gap(28),
                         Image.asset(Assets.images.pushMelt.path),
-                        Gap(20),
+                        const Gap(20),
                         TextView(
                           textAlign: TextAlign.center,
                           text: "Push my profile to \n @${user.username}",
-                          fontSize: 15.sp,
+                          fontSize: 15,
                           fontWeight: FontWeight.w700,
                         ),
-                        Gap(16),
+                        const Gap(16),
                         SizedBox(
-                          width: 288.w,
+                          width: 288,
                           child: TextView(
                             text:
                                 "Pushing would get your profile noticed by @ ${user.username}t. You will be ranked top in her dashboard view, which indicates that you are ready to melt!",
-                            fontSize: 15.sp,
+                            fontSize: 15,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        Gap(19),
-                        TextView(
+                        const Gap(19),
+                        const TextView(
                           text:
                               "Push is a paid feature and it is \nfor a specific metal per time",
                           fontSize: 15,
                           fontWeight: FontWeight.w400,
                           textAlign: TextAlign.center,
                         ),
-                        Gap(29),
+                        const Gap(29),
                         Container(
                           width: 200,
-                          padding: EdgeInsets.all(15),
+                          padding: const EdgeInsets.all(15),
                           decoration: BoxDecoration(
                               color: AppColors.metalTabBg,
                               borderRadius: BorderRadius.circular(5)),
-                          child: Column(
+                          child: const Column(
                             children: [
                               TextView(
                                 text: "Price per push",
-                                fontSize: 16.sp,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
                               Gap(8),
                               TextView(
                                 text: "2.00",
-                                fontSize: 24.sp,
+                                fontSize: 24,
                                 fontWeight: FontWeight.w800,
                               )
                             ],
@@ -132,7 +128,7 @@ class PushMetal extends ConsumerWidget {
                                 .pushUser(user.id!);
                           },
                         ),
-                        Gap(16.h),
+                        const Gap(16),
                         OutilineButton(
                           buttonText: "Melt for free",
                           onPressed: () {

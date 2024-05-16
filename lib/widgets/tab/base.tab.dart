@@ -4,7 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 
 class BaseTab extends StatefulWidget {
-  const BaseTab({Key? key, required this.tabs}) : super(key: key);
+  const BaseTab({super.key, required this.tabs});
   final List<BaseTabModel> tabs;
 
   @override
@@ -64,8 +64,7 @@ class _BaseTabiewState extends State<BaseTab>
         Center(
           child: [
             for (final tab in widget.tabs)
-              Container(
-                width: 1.sw,
+              SizedBox(
                 child: tab.child,
               ),
           ][_tabController.index],

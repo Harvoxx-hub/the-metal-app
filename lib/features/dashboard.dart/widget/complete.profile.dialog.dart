@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
@@ -11,25 +10,25 @@ class ComplecteProfileDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Column(
+    return Column(
       children: [
-        Gap(38.h),
+        const Gap(38),
         Assets.images.meltProfile.image(),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text: "Complecte Profile Setup",
           fontSize: 20,
           fontWeight: FontWeight.w500,
         ),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text:
               "Complete your profile and let your personality shine! Show other users who you are and let the melting begin! 🔥 Your complete profile is the key to connecting with others and sparking meaningful conversations. Don't miss out on the fun, complete your profile now!",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(38.h),
+        const Gap(38),
         BaseButton(
             buttonText: "Complete your profile",
             onPressed: () async {
@@ -39,16 +38,15 @@ class ComplecteProfileDialog extends StatelessWidget {
               );
               Navigator.pop(context);
             }),
-        Gap(23.h),
+        const Gap(23),
         TextView(
           text: "Skip for Now",
           fontSize: 16,
           fontWeight: FontWeight.w500,
           onTap: () => Navigator.pop(context),
         ),
-        Gap(21.h),
+        const Gap(21),
       ],
     );
   }
-
-  }
+}

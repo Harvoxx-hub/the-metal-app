@@ -10,7 +10,7 @@ import 'package:video_player/video_player.dart';
 class ViewEyes extends StatefulWidget {
   ViewEyes({super.key, required this.eyes});
   static const name = 'viewEyes';
-  static const route = '$name';
+  static const route = name;
 
   List<StatusModel> eyes;
 
@@ -39,12 +39,12 @@ class _ViewEyesState extends State<ViewEyes> {
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    ProfileImage(
+                    const ProfileImage(
                       height: 50,
                       width: 50,
                     ),
-                    Gap(10),
-                    Column(
+                    const Gap(10),
+                    const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextView(
@@ -59,7 +59,7 @@ class _ViewEyesState extends State<ViewEyes> {
                         ),
                       ],
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Assets.icons.srMenuVerticalLite.svg()
                   ],
                 ),
@@ -100,7 +100,7 @@ Widget _buildMediaWidget(StatusModel eye) {
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
 
-  const VideoPlayerWidget({Key? key, required this.videoUrl}) : super(key: key);
+  const VideoPlayerWidget({super.key, required this.videoUrl});
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();

@@ -5,7 +5,6 @@ import 'package:metal/features/authentication/presentation/forget.password/forgo
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
-import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
 import 'package:metal/features/settings/presentation%20/delete.screen.dart';
 import 'package:metal/features/settings/presentation%20/edit.page.dart';
@@ -60,7 +59,6 @@ import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
 import 'package:metal/features/sparks_page/screens/refer.earn/refer.earn.dart';
 import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 
-import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 
 import 'package:metal/features/upgrade/make.payment.dart';
 import 'package:metal/features/upgrade/upgrade.page.dart';
@@ -117,15 +115,15 @@ class AppRoutes {
   static const String newPhoneNumberPage = '/newPhoneNumberPage';
   static const String newEmailPage = '/newEmailPage';
   static const String editPage = '/editPage';
-    static const String delete = '/deletePage';
+  static const String delete = '/deletePage';
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
-        return MaterialPageRoute(builder: (_) => SplashPage());
+        return MaterialPageRoute(builder: (_) => const SplashPage());
       case onboarding:
-        return MaterialPageRoute(builder: (_) => OnboardingPageView());
+        return MaterialPageRoute(builder: (_) => const OnboardingPageView());
       case login:
-        return MaterialPageRoute(builder: (_) => LoginPage());
+        return MaterialPageRoute(builder: (_) => const LoginPage());
       case forgetPassword:
         return MaterialPageRoute(builder: (_) => ForgetPasswordPage());
       case forgetPasswordOTP:
@@ -133,55 +131,55 @@ class AppRoutes {
       case createNewPassword:
         return MaterialPageRoute(builder: (_) => CreateNewPasswordPage());
       case accountSetting:
-        return MaterialPageRoute(builder: (_) => AccountSetting());
+        return MaterialPageRoute(builder: (_) => const AccountSetting());
       case verificationPage:
         return MaterialPageRoute(
             builder: (_) => VerificationPage(
                 settings.arguments as VerificationSentArgument));
       case welcomePage:
-        return MaterialPageRoute(builder: (_) => WelcomePage());
+        return MaterialPageRoute(builder: (_) => const WelcomePage());
       case createProfilePage:
-        return MaterialPageRoute(builder: (_) => CreateProfilePage());
+        return MaterialPageRoute(builder: (_) => const CreateProfilePage());
       case preferenceMetalPage:
-        return MaterialPageRoute(builder: (_) => PreferenceMetalPage());
+        return MaterialPageRoute(builder: (_) => const PreferenceMetalPage());
       case passionsPage:
-        return MaterialPageRoute(builder: (_) => PassionsPage());
+        return MaterialPageRoute(builder: (_) => const PassionsPage());
       case moreAboutYouPage:
-        return MaterialPageRoute(builder: (_) => MoreAboutYouPage());
+        return MaterialPageRoute(builder: (_) => const MoreAboutYouPage());
       case connectionOptionsPage:
-        return MaterialPageRoute(builder: (_) => ConnectionOptionsPage());
+        return MaterialPageRoute(builder: (_) => const ConnectionOptionsPage());
       case chooseYourMetalPage:
-        return MaterialPageRoute(builder: (_) => ChooseYourMetalPage());
+        return MaterialPageRoute(builder: (_) => const ChooseYourMetalPage());
       case aboutYouPage:
-        return MaterialPageRoute(builder: (_) => AboutYouPage());
+        return MaterialPageRoute(builder: (_) => const AboutYouPage());
       case notificationEnablePage:
-        return MaterialPageRoute(builder: (_) => NotificationEnablePage());
+        return MaterialPageRoute(builder: (_) => const NotificationEnablePage());
       case locationEnablePage:
-        return MaterialPageRoute(builder: (_) => LocationEnablePage());
+        return MaterialPageRoute(builder: (_) => const LocationEnablePage());
       case homeAddressPage:
-        return MaterialPageRoute(builder: (_) => HomeAddressPage());
+        return MaterialPageRoute(builder: (_) => const HomeAddressPage());
       case dashboardPage:
-        return MaterialPageRoute(builder: (_) => DashboardPage());
+        return MaterialPageRoute(builder: (_) => const DashboardPage());
       case viewEyes:
         return MaterialPageRoute(
             builder: (_) =>
                 ViewEyes(eyes: settings.arguments as List<StatusModel>));
       case eyesIntro:
-        return MaterialPageRoute(builder: (_) => EyesIntro());
+        return MaterialPageRoute(builder: (_) => const EyesIntro());
       case eyeSelectMedia:
-        return MaterialPageRoute(builder: (_) => EyeSelectMedia());
+        return MaterialPageRoute(builder: (_) => const EyeSelectMedia());
       case editPage:
-        return MaterialPageRoute(builder: (_) => EditPage());
+        return MaterialPageRoute(builder: (_) => const EditPage());
       case eyePreviewMedia:
         return MaterialPageRoute(
             builder: (_) =>
                 EyePreviewMedia(media: settings.arguments as XFile));
       case settingPage:
-        return MaterialPageRoute(builder: (_) => SettingPage());
+        return MaterialPageRoute(builder: (_) => const SettingPage());
       case verificationVideo:
-        return MaterialPageRoute(builder: (_) => VerificationVideo());
+        return MaterialPageRoute(builder: (_) => const VerificationVideo());
       case videoPreview:
-        return MaterialPageRoute(builder: (_) => VideoPreview());
+        return MaterialPageRoute(builder: (_) => const VideoPreview());
       case meltMetal:
         return MaterialPageRoute(
             builder: (_) => MeltMetal(settings.arguments as ALLUserModel));
@@ -190,17 +188,17 @@ class AppRoutes {
             builder: (_) =>
                 PushMetal(user: settings.arguments as ALLUserModel));
       case feedBackPage:
-        return MaterialPageRoute(builder: (_) => FeedBackPage());
+        return MaterialPageRoute(builder: (_) => const FeedBackPage());
       case blockedUser:
-        return MaterialPageRoute(builder: (_) => BlockedUser());
+        return MaterialPageRoute(builder: (_) => const BlockedUser());
       case notificationPage:
-        return MaterialPageRoute(builder: (_) => NotificationPage());
+        return MaterialPageRoute(builder: (_) => const NotificationPage());
       case userProfilePage:
         return MaterialPageRoute(
             builder: (_) =>
                 UserProfilePage(user: settings.arguments as UserModel));
       case upgradePage:
-        return MaterialPageRoute(builder: (_) => UpgradePage());
+        return MaterialPageRoute(builder: (_) => const UpgradePage());
       case makePayment:
         final arguments = settings.arguments as List<dynamic>;
         return MaterialPageRoute(
@@ -209,25 +207,25 @@ class AppRoutes {
                   paymentType: arguments[0],
                 ));
       case referEarn:
-        return MaterialPageRoute(builder: (_) => ReferEarn());
+        return MaterialPageRoute(builder: (_) => const ReferEarn());
       case myMeltedMetals:
-        return MaterialPageRoute(builder: (_) => MyMeltedMetals());
+        return MaterialPageRoute(builder: (_) => const MyMeltedMetals());
       case myMeltedUser:
         return MaterialPageRoute(
             builder: (_) => MyMeltedUser(settings.arguments as String));
       case sendSpark:
-        return MaterialPageRoute(builder: (_) => SendSpark());
+        return MaterialPageRoute(builder: (_) => const SendSpark());
       case buySpark:
         return MaterialPageRoute(builder: (_) => BuySpark());
       case referEarnSpark:
-        return MaterialPageRoute(builder: (_) => ReferEarnSpark());
+        return MaterialPageRoute(builder: (_) => const ReferEarnSpark());
       case chatWindowsPage:
         return MaterialPageRoute(
             builder: (_) => ChatWindowsPage(
                   argument: settings.arguments as ChatWindowArgument,
                 ));
       case gamePage:
-        return MaterialPageRoute(builder: (_) => GamePage());
+        return MaterialPageRoute(builder: (_) => const GamePage());
       case gameRules:
         return MaterialPageRoute(
             builder: (_) => GameRules(games: settings.arguments as GameModel));
@@ -239,7 +237,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => NewPhoneNumberPage());
       case newEmailPage:
         return MaterialPageRoute(builder: (_) => NewEmailPage());
-              case delete:
+      case delete:
         return MaterialPageRoute(builder: (_) => DeleteScreen());
       default:
         return MaterialPageRoute(
@@ -250,6 +248,5 @@ class AppRoutes {
           ),
         );
     }
-  
   }
 }

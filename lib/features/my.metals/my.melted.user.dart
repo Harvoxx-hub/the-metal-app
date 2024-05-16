@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
@@ -15,10 +13,10 @@ import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
+ 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
-import 'package:metal/features/profile/presentation/profile.page.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
@@ -59,16 +57,16 @@ class MyMeltedUser extends ConsumerWidget {
                         child: Column(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               decoration: ShapeDecoration(
-                                color: Color(0x0CD9197B),
+                                color: const Color(0x0CD9197B),
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5)),
                               ),
                               child:
                                   TextView(text: "@${myMelt.data!.username}"),
                             ),
-                            Gap(40),
+                            const Gap(40),
                             EditField(
                               text:
                                   "Go to ${myMelt.data!.username} metal profile",
@@ -84,7 +82,7 @@ class MyMeltedUser extends ConsumerWidget {
                                 width: 21,
                               ),
                             ),
-                            Gap(20),
+                            const Gap(20),
                             EditField(
                               text: "Send and receive messages ",
                               onTap: () {
@@ -106,7 +104,7 @@ class MyMeltedUser extends ConsumerWidget {
                                 width: 21,
                               ),
                             ),
-                            Gap(20),
+                            const Gap(20),
                             EditField(
                               text:
                                   "De-melt ${myMelt.data!.username}  from your metal list",
@@ -127,7 +125,7 @@ class MyMeltedUser extends ConsumerWidget {
                                 );
                               },
                             ),
-                            Gap(20),
+                            const Gap(20),
                             EditField(
                               text:
                                   "Block ${myMelt.data!.username}  from reaching you",
@@ -161,27 +159,27 @@ class MyMeltedUser extends ConsumerWidget {
   Widget _blockDialog(BuildContext context, UserModel data, WidgetRef ref) {
     return Column(
       children: [
-        Gap(38.h),
+        const Gap(38),
         SvgPicture.asset(
           Assets.icons.meltedMetalsSmileyXEyes.path,
           height: 45,
           width: 45,
         ),
-        Gap(15.h),
+        const Gap(15),
         TextView(
           text: "Block  ${data.username} ",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text:
               "Blocked metals cannot call or send you messages. This Metal will not be notified",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(38.h),
+        const Gap(38),
         BaseButton(
             buttonText: "Block  ${data.username}",
             onPressed: () {
@@ -191,14 +189,14 @@ class MyMeltedUser extends ConsumerWidget {
               Navigator.pop(context);
               Navigator.pop(context);
             }),
-        Gap(23.h),
+        const Gap(23),
         TextView(
           text: "Cancel",
           fontSize: 16,
           fontWeight: FontWeight.w500,
           onTap: () => Navigator.pop(context),
         ),
-        Gap(21.h),
+        const Gap(21),
       ],
     );
   }
@@ -207,26 +205,26 @@ class MyMeltedUser extends ConsumerWidget {
     // ref.watch(unmeltUserProvider(data.id!));
     return Column(
       children: [
-        Gap(38.h),
+        const Gap(38),
         SvgPicture.asset(
           Assets.icons.meltedMetalsTrash01.path,
           height: 45,
           width: 45,
         ),
-        Gap(15.h),
+        const Gap(15),
         TextView(
           text: "De-melt  ${data.username}",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
-        Gap(15.h),
-        TextView(
+        const Gap(15),
+        const TextView(
           text: "De-melted metals will have to request to melt with you again",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(38.h),
+        const Gap(38),
         BaseButton(
             buttonText: "De-melt  ${data.username}",
             onPressed: () {
@@ -234,14 +232,14 @@ class MyMeltedUser extends ConsumerWidget {
               Navigator.pop(context);
               Navigator.pop(context);
             }),
-        Gap(23.h),
+        const Gap(23),
         TextView(
           text: "Cancel",
           fontSize: 16,
           fontWeight: FontWeight.w500,
           onTap: () => Navigator.pop(context),
         ),
-        Gap(21.h),
+        const Gap(21),
       ],
     );
   }

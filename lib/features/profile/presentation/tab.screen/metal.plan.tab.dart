@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 import 'package:metal/features/upgrade/domain/entries/subscribed.plan.model.dart';
 import 'package:metal/features/upgrade/provider/metal.plan.notifier.dart';
-import 'package:metal/features/upgrade/provider/subscribe.metal.notifier.dart';
-import 'package:metal/features/upgrade/upgrade.page.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/buttons.dart';
@@ -42,7 +39,6 @@ class _MetalPlanTabState extends ConsumerState<MetalPlanTab> {
 
 class _subscriptionContent extends StatelessWidget {
   const _subscriptionContent({
-    super.key,
     required this.subscribedPlanModel,
   });
 
@@ -108,7 +104,7 @@ class _subscriptionContent extends StatelessWidget {
         const Gap(46),
         BaseButton(buttonText: "Extend Plan", onPressed: () {}),
         const Gap(38),
-        TextView(
+        const TextView(
             textAlign: TextAlign.start,
             fontStyle: FontStyle.italic,
             fontSize: 14,
@@ -121,7 +117,6 @@ class _subscriptionContent extends StatelessWidget {
 
 class _noSubscriptionContent extends StatelessWidget {
   const _noSubscriptionContent({
-    super.key,
     required this.metalPlans,
   });
 
@@ -137,7 +132,7 @@ class _noSubscriptionContent extends StatelessWidget {
           width: 200,
         ),
         const Gap(46),
-        TextView(
+        const TextView(
           textAlign: TextAlign.center,
           fontSize: 14,
           fontWeight: FontWeight.w500,

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:gap/gap.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/services/countries.service.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 
-import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 
@@ -19,9 +19,9 @@ import 'package:metal/widgets/dropdown/metal.dropdown.dart';
 import 'package:metal/widgets/text.field/text.field.dart';
 
 class HomeAddressPage extends ConsumerStatefulWidget {
-  HomeAddressPage({Key? key}) : super(key: key);
+  const HomeAddressPage({super.key});
   static const name = 'homeAdress';
-  static const route = '$name';
+  static const route = name;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -41,7 +41,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
   List<String> country = [];
   List<String> states = [];
 
-  CountriesService _countriesService = CountriesService();
+  final CountriesService _countriesService = CountriesService();
 
   @override
   void initState() {
@@ -70,7 +70,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
   Widget build(BuildContext context) {
     getCountries();
 
-    final _updateProfile = ref.watch(updateProfileProvider);
+    final updateProfile = ref.watch(updateProfileProvider);
 
     ref.listen<UpdateProfileState>(updateProfileProvider, (prev, current) {
       if (current.isSuccess) {
@@ -91,7 +91,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                 title: "Let us know your home address",
                 subtitle:
                     "Choose the data you wish to omit from your feed. The metals containing the highlighted details will be removed from your feed. This filtered information is intended solely for the purpose of Matching."),
-            Gap(26.h),
+            const Gap(26),
             Form(
                 key: _form,
                 child: Column(
@@ -109,7 +109,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       ),
                       radius: 10,
                     ),
-                    Gap(16.h),
+                    const Gap(16),
                     EditFormField(
                       floatingLabel: 'House number',
                       label: 'Enter number.',
@@ -124,7 +124,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       ),
                       radius: 10,
                     ),
-                    Gap(16.h),
+                    const Gap(16),
                     EditFormField(
                       floatingLabel: 'Street name',
                       label: 'Enter street name.',
@@ -139,7 +139,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       ),
                       radius: 10,
                     ),
-                    Gap(16.h),
+                    const Gap(16),
                     MentalDropdown(
                       items: country,
                       onChanged: (String? value) {
@@ -152,7 +152,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       hint: "Please Select",
                       floatingLabel: "Country",
                     ),
-                    Gap(16.h),
+                    const Gap(16),
                     MentalDropdown(
                       items: states,
                       onChanged: (String? value) {
@@ -164,7 +164,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       hint: "Please Select",
                       floatingLabel: "State",
                     ),
-                    Gap(16.h),
+                    const Gap(16),
                     EditFormField(
                       floatingLabel: 'Postal Code',
                       label: 'Enter Postal Code',
@@ -178,9 +178,9 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                         },
                       ),
                     ),
-                    Gap(16.h),
+                    const Gap(16),
                     BaseButton(
-                      loading: _updateProfile.isLoading,
+                      loading: updateProfile.isLoading,
                       buttonText: "Next",
                       onPressed: () {
                         if (_form.currentState!.validate()) {
@@ -188,7 +188,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                         }
                       },
                     ),
-                    Gap(64.h),
+                    const Gap(64),
                   ],
                 )),
           ],

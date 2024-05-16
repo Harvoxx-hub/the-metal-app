@@ -4,14 +4,12 @@ import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
-import 'package:metal/features/sparks_page/data/repositories/spark.repository.dart';
-import 'package:metal/features/sparks_page/domain/entries/spark.model.dart';
 
 class GetUsersNotifier extends StateNotifier<GetAllUsersState> {
   GetUsersNotifier(
-    GetAllUsersState state,
+    super.state,
     this.ref,
-  ) : super(state) {
+  ) {
     getAllUsers();
   }
   final Ref ref;

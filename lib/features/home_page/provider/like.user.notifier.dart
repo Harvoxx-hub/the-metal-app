@@ -7,9 +7,9 @@ import 'package:metal/features/home_page/data/repositories/home.repository.dart'
 
 class LikeUsersNotifier extends StateNotifier<LikeUsersState> {
   LikeUsersNotifier(
-    LikeUsersState state,
+    super.state,
     this.ref,
-  ) : super(state) {}
+  );
   final Ref ref;
 
   // melt user

@@ -83,7 +83,7 @@ class FCMClient {
       print('fcm token: $token');
       _isInit = true;
 
-      if (token != null)
+      if (token != null) {
         // container
         //     .read(authenticationNotifierProvider.notifier)
         //     .updateToken(token);
@@ -94,6 +94,7 @@ class FCMClient {
         //     .read(authenticationNotifierProvider.notifier)
         //     .updateToken(event);
       });
+      }
 
       return token;
     });

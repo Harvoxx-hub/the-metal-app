@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/profile/presentation/widget/edit.address.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -11,19 +10,18 @@ import 'package:metal/widgets/text_views.dart';
 enum EditType { text, dropdown }
 
 class EditField extends StatefulWidget {
-  const EditField({
-    Key? key,
-    required this.text,
-    this.floatingLabel,
-    this.subLabel,
-    this.onSubLabel,
-    this.suffixIcon,
-    this.prefixIcon,
-    this.dropDownItems,
-    this.editType = EditType.text,
-    this.onTap,
-    this.outboundWidget = false
-  }) : super(key: key);
+  const EditField(
+      {super.key,
+      required this.text,
+      this.floatingLabel,
+      this.subLabel,
+      this.onSubLabel,
+      this.suffixIcon,
+      this.prefixIcon,
+      this.dropDownItems,
+      this.editType = EditType.text,
+      this.onTap,
+      this.outboundWidget = false});
 
   final String text;
   final String? floatingLabel;
@@ -63,7 +61,7 @@ class _EditFieldState extends State<EditField> {
               TextView(
                 text: widget.floatingLabel!,
                 fontWeight: FontWeight.w400,
-                fontSize: 14.sp,
+                fontSize: 14,
                 color: AppColors.metalBrownColourForText,
                 textAlign: TextAlign.left,
               ),
@@ -74,31 +72,34 @@ class _EditFieldState extends State<EditField> {
               fontWeight: FontWeight.w400,
               color: Colors.blueAccent,
               underline: true,
-              onTap: widget.outboundWidget?   (){
-                showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return FutureBuilder(
-                  future:
-                      Future.delayed(Duration.zero), // Deferring the execution
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      return CustomDialog(
-                        content: EditAddress(
-                          onPress: (p0) {
-                               widget.onSubLabel?.call( p0);
-                          },
-                        ),
+              onTap: widget.outboundWidget
+                  ? () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return FutureBuilder(
+                            future: Future.delayed(
+                                Duration.zero), // Deferring the execution
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) {
+                                return CustomDialog(
+                                  content: EditAddress(
+                                    onPress: (p0) {
+                                      widget.onSubLabel?.call(p0);
+                                    },
+                                  ),
+                                );
+                              } else {
+                                // Return a placeholder widget while waiting
+                                return const CircularProgressIndicator(); // Or any other placeholder
+                              }
+                            },
+                          );
+                        },
                       );
-                    } else {
-                      // Return a placeholder widget while waiting
-                      return CircularProgressIndicator(); // Or any other placeholder
                     }
-                  },
-                );
-              },
-            );
-              }: _toggleEdit,
+                  : _toggleEdit,
             ),
           ],
         ),

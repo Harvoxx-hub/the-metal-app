@@ -1,14 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/model/responces.dart';
-import 'package:metal/core/services/api.service.dart';
-import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/core/services/firebase.service.dart';
 import 'package:metal/core/utils/uuid_center.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
 
-import 'package:metal/features/authentication/domain/repositories/iauthetication_repository.dart';
 import 'package:metal/features/chat/domain/entries/conversations.model.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/domain/reprositries/imessage_repository.dart';
@@ -34,7 +29,7 @@ class MessageRepository implements IMessageRepository {
       });
     } catch (e) {
       print("Error getting chat list: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -54,7 +49,7 @@ class MessageRepository implements IMessageRepository {
       });
     } catch (e) {
       print("Error getting messages: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -96,7 +91,7 @@ class MessageRepository implements IMessageRepository {
     } catch (e) {
       // Handle any errors and rethrow them
       print("Error sending message: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -117,7 +112,7 @@ class MessageRepository implements IMessageRepository {
       });
     } catch (e) {
       print('Error updating conversation: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -141,7 +136,7 @@ class MessageRepository implements IMessageRepository {
       return id;
     } catch (e) {
       print("Error creating conversation: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -156,7 +151,7 @@ class MessageRepository implements IMessageRepository {
           .then((value) => print("i was here "));
     } catch (e) {
       print("Error creating message: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -173,7 +168,7 @@ class MessageRepository implements IMessageRepository {
       }).then((value) => print("i was here "));
     } catch (e) {
       print("Error creating message: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -187,7 +182,7 @@ class MessageRepository implements IMessageRepository {
           .map((snapshot) => ConversationsModel.fromSnapshot(snapshot));
     } catch (e) {
       print("Error getting conversation: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -208,7 +203,7 @@ class MessageRepository implements IMessageRepository {
       }
     } catch (e) {
       print("Error getting conversation: $e");
-      throw e;
+      rethrow;
     }
   }
   
@@ -226,7 +221,7 @@ class MessageRepository implements IMessageRepository {
       });
     } catch (e) {
       print('Error updating conversation: $e');
-      throw e;
+      rethrow;
     }
   }
 }

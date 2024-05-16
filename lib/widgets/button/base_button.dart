@@ -28,7 +28,8 @@ class BaseButton extends StatelessWidget {
 
   final Widget? rightIcon;
 
-  BaseButton({
+  const BaseButton({
+    super.key,
     required this.buttonText,
     required this.onPressed,
     this.textOverflow = TextOverflow.clip,
@@ -56,33 +57,37 @@ class BaseButton extends StatelessWidget {
     return GestureDetector(
       onTap: enabled ? onPressed : null, // Disable onTap if not enabled
       child: Container(
-        width: width!.w,
-        height: height!.h,
+        width: width,
+        height: height,
         decoration: ShapeDecoration(
           gradient: LinearGradient(
-            begin: Alignment(1.00, -0.03),
-            end: Alignment(-1, 0.03),
+            begin: const Alignment(1.00, -0.03),
+            end: const Alignment(-1, 0.03),
             colors: enabled // Use enabled state to determine gradient colors
-                ? [Color(0xFFCE0D87), Color(0xFFFF5553), Color(0xFFD2128B)]
+                ? [
+                    const Color(0xFFCE0D87),
+                    const Color(0xFFFF5553),
+                    const Color(0xFFD2128B)
+                  ]
                 : [
-                    Color(0xFFCE0D87).withOpacity(0.3),
-                    Color(0xFFFF5553).withOpacity(0.3),
-                    Color(0xFFD2128B).withOpacity(0.3)
+                    const Color(0xFFCE0D87).withOpacity(0.3),
+                    const Color(0xFFFF5553).withOpacity(0.3),
+                    const Color(0xFFD2128B).withOpacity(0.3)
                   ],
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: thickBorder
-                ? BorderSide(color: Colors.black, width: 2.0)
+                ? const BorderSide(color: Colors.black, width: 2.0)
                 : BorderSide.none,
           ),
         ),
         child: loading
-            ? Center(
+            ? const Center(
                 child: SizedBox(
-                  height: 25.h,
-                  width: 25.w,
-                  child: const CircularProgressIndicator(
+                  height: 25,
+                  width: 25,
+                  child: CircularProgressIndicator(
                     color: AppColors.metalWhite,
                   ),
                 ),
@@ -96,7 +101,7 @@ class BaseButton extends StatelessWidget {
                       TextView(
                         text: lowerCase ? buttonText : buttonText.toUpperCase(),
                         fontWeight: fontWeight,
-                        fontSize: fontSize.sp,
+                        fontSize: fontSize,
                         color: outlined ? color : textColor,
                         textAlign: textAlign,
                       ),

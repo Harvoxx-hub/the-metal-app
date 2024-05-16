@@ -28,9 +28,9 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class ChatWindowsPage extends ConsumerStatefulWidget {
-  ChatWindowsPage({super.key, required this.argument}) {}
+  const ChatWindowsPage({super.key, required this.argument});
   static const name = 'chatWindowsPage';
-  static const route = '$name';
+  static const route = name;
 
   final ChatWindowArgument argument;
 
@@ -94,26 +94,25 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
               color: AppColors.metalWhite),
           child: Column(
             children: [
-              Gap(20.h),
+              const Gap(20),
               ChatWindowsAppBar(
                 key: widget.key,
                 meltUserModel: widget.argument.user,
               ),
               conversationData == null
-                  ? SizedBox()
+                  ? const SizedBox()
                   : GameTile(
                       conversationsModel: conversationData!,
                     ),
               checkId
                   ? MessageList(conversationId)
-                  : Expanded(
+                  : const Expanded(
                       child: Center(
                         child: CircularProgressIndicator(),
                       ),
                     ),
               ChatBottomSheet(
                 onSend: (p0) {
-                  print(p0);
                   sendTextMessage(p0);
                 },
                 onGameClick: () async {
@@ -124,10 +123,11 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
                   setState(() {
                     game = gameModel as GameModel?;
                   });
-                  if (game != null)
+                  if (game != null) {
                     ref
                         .read(gameConversationProvider.notifier)
-                        .updateGameConversation(conversationId!, game!.title!);
+                        .updateGameConversation(conversationId!, game!.title);
+                  }
                 },
               )
             ],
@@ -165,7 +165,7 @@ class dateDivider extends StatelessWidget {
           thickness: 1.5,
         )),
         Gap(10.w),
-        TextView(text: "Today"),
+        const TextView(text: "Today"),
         Gap(10.w),
         const Expanded(
             child: Divider(

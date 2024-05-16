@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
+
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
+
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:share_plus/share_plus.dart';
@@ -17,9 +18,9 @@ import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
 
 class ReferEarnSpark extends ConsumerWidget {
-  ReferEarnSpark({super.key});
+  const ReferEarnSpark({super.key});
   static const name = 'referEarnSpark';
-  static const route = '$name';
+  static const route = name;
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   // final TextEditingController _phoneController = TextEditingController();
@@ -36,13 +37,13 @@ class ReferEarnSpark extends ConsumerWidget {
               Column(
                 children: [
                   Container(
-                    height: 220.h,
+                    height: 220,
                     width: double.infinity,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                         color: AppColors.metalPinkColour,
                         borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(35.sp),
-                          bottomRight: Radius.circular(35.sp),
+                          bottomLeft: Radius.circular(35),
+                          bottomRight: Radius.circular(35),
                         )),
                   ),
 
@@ -51,14 +52,14 @@ class ReferEarnSpark extends ConsumerWidget {
                 ],
               ),
               Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15.w),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   child: Container(
                     padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-                    margin: EdgeInsets.only(left: 10.w, right: 10.w),
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    margin: const EdgeInsets.only(left: 10, right: 10),
                     decoration: BoxDecoration(
                         color: AppColors.metalWhite,
-                        borderRadius: BorderRadius.circular(13.sp)),
+                        borderRadius: BorderRadius.circular(13)),
                     child: Column(
                       children: [
                         SingleSparkHeaderCard(
@@ -68,18 +69,18 @@ class ReferEarnSpark extends ConsumerWidget {
                         Gap(getDeviceHeight(context) * 0.15),
                         Container(
                           width: 200,
-                          padding: EdgeInsets.all(15),
+                          padding: const EdgeInsets.all(15),
                           decoration: BoxDecoration(
                               color: AppColors.metalTabBg,
                               borderRadius: BorderRadius.circular(5)),
                           child: Column(
                             children: [
-                              TextView(
+                              const TextView(
                                 text: "Your Referal Code",
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
-                              Gap(8),
+                              const Gap(8),
                               TextView(
                                 text: userdata!.referralCode!,
                                 fontSize: 24,
@@ -93,17 +94,17 @@ class ReferEarnSpark extends ConsumerWidget {
                           buttonText: "Invite to Metal",
                           onPressed: () {
                             Share.share(
-                                "Hey there! 👋 I'm using Metal App Plus, if you sign up using my referral code  and download the app from Https://metalapp.com, we both get [mention any benefits or rewards for using the referral code: ${userdata!.referralCode}. Give it a try and let's explore Metal App together! 🚀",
+                                "Hey there! 👋 I'm using Metal App Plus, if you sign up using my referral code  and download the app from Https://metalapp.com, we both get [mention any benefits or rewards for using the referral code: ${userdata.referralCode}. Give it a try and let's explore Metal App together! 🚀",
                                 subject: 'Join me at Metal');
                           },
                         ),
-                        Gap(16.h),
+                        const Gap(16),
                         OutilineButton(
                           buttonText: "Copy invite Link ",
                           onPressed: () {
                             Clipboard.setData(ClipboardData(
                                     text:
-                                        "Your Referal Code: ${userdata!.referralCode}"))
+                                        "Your Referal Code: ${userdata.referralCode}"))
                                 .then((_) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

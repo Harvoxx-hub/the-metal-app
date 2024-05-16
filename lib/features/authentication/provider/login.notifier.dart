@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/error/error.handle.dart';
+ 
 import 'package:metal/core/services/auth.pref.service.dart';
 
 import 'package:metal/core/state/base.state.dart';
@@ -10,9 +11,9 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 class LoginNotifier extends StateNotifier<LoginStates> {
   LoginNotifier(
-    LoginStates state,
+    super.state,
     this.ref,
-  ) : super(state) {}
+  );
   final Ref ref;
 
   //login user

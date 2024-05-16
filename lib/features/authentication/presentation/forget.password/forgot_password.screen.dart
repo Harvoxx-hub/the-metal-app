@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:metal/base/page/base_page_state.dart';
-import 'package:metal/features/authentication/presentation/forget.password/forgot_password.otp.screen.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
@@ -16,9 +13,9 @@ import 'package:metal/widgets/text.field/phone.number.input.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class ForgetPasswordPage extends ConsumerWidget {
-  ForgetPasswordPage({Key? key}) : super(key: key);
+  ForgetPasswordPage({super.key});
   static const name = 'forgetPasswordPage';
-  static const route = '$name';
+  static const route = name;
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
@@ -32,21 +29,21 @@ class ForgetPasswordPage extends ConsumerWidget {
       appBarEnabled: false,
       Header: 'Forgot Password',
       body: Column(children: [
-        Gap(52.h),
-        TextView(
+        const Gap(52),
+        const TextView(
           text:
               'Forgetting password is common and you are not alone. Let us help you recover your password.',
           fontSize: 13,
           fontWeight: FontWeight.w300,
         ),
-        Gap(52.h),
-        TextView(
+        const Gap(52),
+        const TextView(
           text:
               'Kindly enter the phone number or email address associated with *your* account and we`ll send you instructions on how to reset your password. ',
           fontSize: 13,
           fontWeight: FontWeight.w300,
         ),
-        Gap(40.h),
+        const Gap(40),
         Form(
             key: _form,
             child: Column(
@@ -66,16 +63,15 @@ class ForgetPasswordPage extends ConsumerWidget {
 
                   // fillColor: AppColors.appGrey,
                 ),
-                Gap(22.h),
+                const Gap(22),
                 PhoneInput(
                   phoneController: _phoneController,
                 ),
-                Gap(32.h),
+                const Gap(32),
                 BaseButton(
                   buttonText: 'Send Instructions',
                   onPressed: () {
                     Navigator.pushNamed(context, AppRoutes.forgetPasswordOTP);
-                
                   },
                 ),
               ],

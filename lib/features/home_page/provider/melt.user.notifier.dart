@@ -9,10 +9,10 @@ import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
 
 class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
   MeltUsersNotifier(
-    MeltUsersState state,
+    super.state,
     this.ref,
     this.id,
-  ) : super(state) {
+  ) {
      meltUser();
   }
   final Ref ref;

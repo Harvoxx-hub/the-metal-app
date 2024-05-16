@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +5,6 @@ import 'package:gap/gap.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
 
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
-import 'package:metal/features/chat/provider/check.conversation.notifier.dart';
 
 import 'package:metal/features/eyes/provider/get.current.eyes.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
@@ -27,11 +25,11 @@ class _StatusWidgetState extends ConsumerState<StatusWidget> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+        scrollDirection: Axis .horizontal,
         child: Row(
           children: [
             myStatus(),
-            Gap(10),
+            const Gap(10),
             meltStatus(),
           ],
         ));

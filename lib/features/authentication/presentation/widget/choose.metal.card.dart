@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 
@@ -27,9 +25,9 @@ class ChooseMetalCard extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         decoration: selected
             ? ShapeDecoration(
-                color: Color(0xFFFBF0F8),
+                color: const Color(0xFFFBF0F8),
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 1, color: Color(0xFFFF5553)),
+                  side: const BorderSide(width: 1, color: Color(0xFFFF5553)),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 shadows: const [
@@ -74,7 +72,7 @@ class ChooseMetalCard extends StatelessWidget {
             ),
             TextView(
               text: model.desc!,
-              fontSize: 13.sp,
+              fontSize: 13,
               fontWeight: FontWeight.w400,
               color: AppColors.metalBrownColourForText.withOpacity(0.5),
             ),

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/chat/data/repositories/message.repository.dart';
-import 'package:metal/features/chat/domain/entries/conversations.model.dart';
 
 class CheckConversationNotifier extends StateNotifier<CheckConversationState> {
   CheckConversationNotifier(this.ref, this.id)

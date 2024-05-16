@@ -11,6 +11,16 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
 
+class $AssetsEnvGen {
+  const $AssetsEnvGen();
+
+  /// File path: assets/env/.env
+  String get env => 'assets/env/.env';
+
+  /// List of all assets
+  List<String> get values => [env];
+}
+
 class $AssetsGifsGen {
   const $AssetsGifsGen();
 
@@ -449,7 +459,7 @@ class $AssetsImagesGen {
   AssetGenImage get activeMessage =>
       const AssetGenImage('assets/images/active.message.png');
 
-  /// File path: assets/images/active.spark.png
+  /// File path: assets/images/active ark.png
   AssetGenImage get activeSpark =>
       const AssetGenImage('assets/images/active.spark.png');
 
@@ -480,7 +490,7 @@ class $AssetsImagesGen {
   /// File path: assets/images/bg.2.png
   AssetGenImage get bg2 => const AssetGenImage('assets/images/bg.2.png');
 
-  /// File path: assets/images/buy.spark.png
+  /// File path: assets/images/buy ark.png
   AssetGenImage get buySpark =>
       const AssetGenImage('assets/images/buy.spark.png');
 
@@ -581,7 +591,7 @@ class $AssetsImagesGen {
   AssetGenImage get inactiveMessage =>
       const AssetGenImage('assets/images/inactive.message.png');
 
-  /// File path: assets/images/inactive.spark.png
+  /// File path: assets/images/inactive ark.png
   AssetGenImage get inactiveSpark =>
       const AssetGenImage('assets/images/inactive.spark.png');
 
@@ -648,7 +658,7 @@ class $AssetsImagesGen {
   AssetGenImage get meltProfile =>
       const AssetGenImage('assets/images/melt.profile.png');
 
-  /// File path: assets/images/melt.spark.png
+  /// File path: assets/images/melt ark.png
   AssetGenImage get meltSpark =>
       const AssetGenImage('assets/images/melt.spark.png');
 
@@ -721,7 +731,7 @@ class $AssetsImagesGen {
   AssetGenImage get rocketEmoji1 =>
       const AssetGenImage('assets/images/rocket emoji 1.png');
 
-  /// File path: assets/images/send.spark.png
+  /// File path: assets/images/send ark.png
   AssetGenImage get sendSpark =>
       const AssetGenImage('assets/images/send.spark.png');
 
@@ -851,6 +861,7 @@ class $AssetsJsonGen {
 class Assets {
   Assets._();
 
+  static const $AssetsEnvGen env = $AssetsEnvGen();
   static const $AssetsGifsGen gifs = $AssetsGifsGen();
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();

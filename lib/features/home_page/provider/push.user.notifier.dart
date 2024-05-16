@@ -7,9 +7,9 @@ import 'package:metal/features/home_page/data/repositories/home.repository.dart'
 
 class PushUsersNotifier extends StateNotifier<PushUsersState> {
   PushUsersNotifier(
-    PushUsersState state,
+    super.state,
     this.ref,
-  ) : super(state) {}
+  );
   final Ref ref;
 
   // melt user

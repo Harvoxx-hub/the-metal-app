@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:intl/intl.dart';
 import 'package:metal/features/sparks_page/domain/entries/spark.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -9,9 +8,9 @@ import 'package:metal/widgets/text_views.dart';
 enum SparkHistoryType { Purchase, Sent, Referred }
 
 class SparkHistoryItem extends StatelessWidget {
-  SparkHistoryItem({
+  const SparkHistoryItem({
     super.key,
-    required this.sparkModel,
+    required this .sparkModel,
   });
   final SparkModel sparkModel;
 
@@ -41,7 +40,7 @@ class SparkHistoryItem extends StatelessWidget {
             height: 24,
             width: 24,
           ),
-          Gap(15),
+          const Gap(15),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -65,7 +64,7 @@ class SparkHistoryItem extends StatelessWidget {
               )
             ],
           ),
-          Spacer(),
+          const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

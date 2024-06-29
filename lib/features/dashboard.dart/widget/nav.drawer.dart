@@ -104,32 +104,32 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(20),
-          ListTile(
-            leading: Container(
-              height: 46,
-              width: 46,
-              decoration: ShapeDecoration(
-                color: AppColors.metalPinkColour.withOpacity(0.06),
-                shape: const OvalBorder(),
-              ),
-              child: Center(
-                  child: SvgPicture.asset(
-                Assets.icons.rocketLaunch.path,
-                height: 24,
-                width: 24,
-              )),
-            ),
-            title: TextView(
-                text: authState.subscription == null
-                    ? "Upgrade to Metal Plus"
-                    : " Metal Plus"),
-            onTap: () => {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.upgradePage,
-              )
-            },
-          ),
+          // ListTile(
+          //   leading: Container(
+          //     height: 46,
+          //     width: 46,
+          //     decoration: ShapeDecoration(
+          //       color: AppColors.metalPinkColour.withOpacity(0.06),
+          //       shape: const OvalBorder(),
+          //     ),
+          //     child: Center(
+          //         child: SvgPicture.asset(
+          //       Assets.icons.rocketLaunch.path,
+          //       height: 24,
+          //       width: 24,
+          //     )),
+          //   ),
+          //   title: TextView(
+          //       text: authState.subscription == null
+          //           ? "Upgrade to Metal Plus"
+          //           : " Metal Plus"),
+          //   onTap: () => {
+          //     Navigator.pushNamed(
+          //       context,
+          //       AppRoutes.upgradePage,
+          //     )
+          //   },
+          // ),
           const Gap(20),
           ListTile(
             leading: Container(

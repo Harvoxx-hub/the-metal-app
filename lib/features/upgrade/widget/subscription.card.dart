@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,12 +11,16 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 import 'package:metal/features/upgrade/payment.core.dart';
 import 'package:metal/features/upgrade/provider/subscribe.metal.notifier.dart';
+import 'package:metal/features/upgrade/widget/paywall.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/shimmer.loading.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:purchases_flutter/models/customer_info_wrapper.dart';
+import 'package:purchases_flutter/models/offering_wrapper.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 class subscriptionCard extends ConsumerWidget {
   subscriptionCard({
@@ -24,6 +29,7 @@ class subscriptionCard extends ConsumerWidget {
   });
 
   final MetalPlanModel model;
+  //  final Offering offering;
 
   List<Gradient> gradient = [
     const LinearGradient(
@@ -41,6 +47,66 @@ class subscriptionCard extends ConsumerWidget {
       colors: [Color(0xFFFF9ECC), Color(0xFFFFDAE0), Color(0xFF45C9EB)],
     ),
   ];
+
+  void perfomMagic(context) async {
+    // setState(() {
+    //   _isLoading = true;
+    // });
+
+    CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+    print(customerInfo.toString());
+    try {
+      Offerings offerings = await Purchases.getOfferings();
+      if (offerings.current != null &&
+          offerings.current!.availablePackages.isNotEmpty) {
+        // Display packages for sale
+        print(offerings.toString());
+      }
+    } on PlatformException catch (e) {
+      print(e.message);
+      // optional error handling
+    }
+    // if (customerInfo.entitlements.all["Metal Plus Monthly"] != null &&
+    //     customerInfo.entitlements.all["Metal Plus Monthly"]?.isActive == true) {
+    //   print("Have sub");
+    //   // appData.currentData = WeatherData.generateData();
+
+    //   // setState(() {
+    //   //   _isLoading = false;
+    //   // });
+    // } else {
+    //   Offerings? offerings;
+    //   try {
+    //     offerings = await Purchases.getOfferings();
+    //   } on PlatformException catch (e) {
+    //     print(e.message);
+    //   }
+
+    //   if (offerings == null || offerings.current == null) {
+    //     // offerings are empty, show a message to your user
+    //   } else {
+    //     // current offering is available, show paywall
+    //     await showModalBottomSheet(
+    //       useRootNavigator: true,
+    //       isDismissible: true,
+    //       isScrollControlled: true,
+    //       backgroundColor: Colors.amber,
+    //       shape: const RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+    //       ),
+    //       context: context,
+    //       builder: (BuildContext context) {
+    //         return StatefulBuilder(
+    //             builder: (BuildContext context, StateSetter setModalState) {
+    //           return Paywall(
+    //             offering: offerings!.current!,
+    //           );
+    //         });
+    //       },
+    //     );
+    //   }
+    // }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -80,14 +146,16 @@ class subscriptionCard extends ConsumerWidget {
             ),
             child: GestureDetector(
               onTap: () async {
-                StripePaymentHandle().stripeMakePayment(
-                    amount: model.price.toString(),
-                    userModel: userData!,
-                    onSuccess: () {
-                      ref
-                          .read(subscribeMetalProvider.notifier)
-                          .subscribeMetalPlan(model.id!);
-                    });
+                // StripePaymentHandle().stripeMakePayment(
+                //   context: context,
+                //     amount: model.price.toString(),
+                //     userModel: userData!,
+                //     onSuccess: () {
+                //       ref
+                //           .read(subscribeMetalProvider.notifier)
+                //           .subscribeMetalPlan(model.id!);
+                //     });
+                perfomMagic(context);
               },
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

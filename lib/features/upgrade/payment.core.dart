@@ -10,41 +10,104 @@ import 'package:metal/features/authentication/domain/entries/user.model.dart';
 class StripePaymentHandle {
   Map<String, dynamic>? paymentIntent;
 
-  Future<void> stripeMakePayment(
-      {required String amount,
-      required UserModel userModel,
-      required Function() onSuccess}) async {
+  Future<void> stripeMakePayment({
+    required String amount,
+    required UserModel userModel,
+    required Function() onSuccess,
+    required BuildContext context,
+  }) async {
     try {
-      paymentIntent = await createPaymentIntent(amount, 'USD');
-      await Stripe.instance
-          .initPaymentSheet(
-              paymentSheetParameters: SetupPaymentSheetParameters(
-                  billingDetails: BillingDetails(
-                    name: userModel.fullname,
-                    email: userModel.email,
-                    phone: userModel.phone,
-                  ),
-                  paymentIntentClientSecret: paymentIntent![
-                      'client_secret'], //Gotten from payment intent
-                  style: ThemeMode.dark,
-                  merchantDisplayName: 'Metal APP'))
-          .then((value) {});
-
-      //STEP 3: Display Payment sheet
-      displayPaymentSheet(onSuccess);
+      await initPaymentSheet(amount, userModel);
     } catch (e) {
       print(e.toString());
       Fluttertoast.showToast(msg: e.toString());
     }
   }
 
-  displayPaymentSheet(onSuccess) async {
+  Future<Map<String, dynamic>> createPaymentIntent(
+      String amount, String currency) async {
     try {
-      // 3. display the payment sheet.
-      await Stripe.instance.presentPaymentSheet();
+      Map<String, dynamic> body = {
+        'amount': calculateAmount(amount),
+        'currency': currency,
+      };
 
-      Fluttertoast.showToast(msg: 'Payment succesfully completed');
-      onSuccess();
+      Dio dio = Dio();
+      dio.options.headers['Authorization'] =
+          'Bearer ${dotenv.env['Secret-key']}';
+      dio.options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+
+      Response response = await dio.post(
+        'https://api.stripe.com/v1/payment_intents',
+        data: body,
+      );
+
+      return json.decode(response.toString());
+    } catch (err) {
+      throw Exception(err.toString());
+    }
+  }
+
+  String calculateAmount(String amount) {
+    final calculatedAmount = (int.parse(amount)) * 100;
+    return calculatedAmount.toString();
+  }
+
+  Future<void> initPaymentSheet(String amount, UserModel user) async {
+    try {
+      paymentIntent = await createPaymentIntent(amount, 'USD');
+
+      final billingDetails = BillingDetails(
+        name: user.fullname,
+        email: user.email,
+        phone: user.phone,
+      );
+
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: paymentIntent!['client_secret'],
+          merchantDisplayName: 'The Metal App',
+          primaryButtonLabel: 'Pay now',
+          applePay: PaymentSheetApplePay(
+            merchantCountryCode: 'CA',
+            cartItems: [
+              ApplePayCartSummaryItem.recurring(
+                label: 'Subscription',
+                amount: amount,
+                intervalUnit: ApplePayIntervalUnit.year,
+                intervalCount: 1,
+              ),
+            ],
+            request: PaymentRequestType.recurring(
+              description: 'subscription',
+              managementUrl: 'https://themetalapp.com/',
+              billing: ImmediateCartSummaryItem(
+                label: 'Subscription',
+                amount: amount,
+                isPending: false,
+              ),
+            ),
+          ),
+          // googlePay: PaymentSheetGooglePay(
+          //   merchantCountryCode: 'CA',
+          //   testEnv: true,
+          // ),
+          
+          style: ThemeMode.dark,
+          billingDetails: billingDetails,
+        ),
+      );
+      confirmPayment();
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> confirmPayment() async {
+    try {
+      await Stripe.instance.presentPaymentSheet();
+      Fluttertoast.showToast(msg: 'Payment successfully completed');
     } on Exception catch (e) {
       if (e is StripeException) {
         Fluttertoast.showToast(
@@ -53,41 +116,5 @@ class StripePaymentHandle {
         Fluttertoast.showToast(msg: 'Unforeseen error: $e');
       }
     }
-  }
-
-//create Payment
-  createPaymentIntent(String amount, String currency) async {
-    try {
-      // Request body
-      Map<String, dynamic> body = {
-        'amount': calculateAmount(amount),
-        'currency': currency,
-      };
-
-      // Initialize Dio
-      Dio dio = Dio();
-
-      // Add the authorization header
-      dio.options.headers['Authorization'] =
-          'Bearer ${dotenv.env['Secret-key']}';
-      dio.options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-
-      // Make post request using Dio
-      Response response = await dio.post(
-        'https://api.stripe.com/v1/payment_intents',
-        data: body,
-      );
-
-      // Decode and return the response
-      return json.decode(response.toString());
-    } catch (err) {
-      throw Exception(err.toString());
-    }
-  }
-
-//calculate Amount
-  calculateAmount(String amount) {
-    final calculatedAmount = (int.parse(amount)) * 100;
-    return calculatedAmount.toString();
   }
 }

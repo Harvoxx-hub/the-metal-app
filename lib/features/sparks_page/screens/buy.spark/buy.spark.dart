@@ -7,10 +7,11 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
- 
+
 import 'package:metal/features/sparks_page/provider/buy.spark.notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
- 
+import 'package:metal/features/upgrade/payment.config.dart';
+
 import 'package:metal/features/upgrade/payment.core.dart';
 import 'package:metal/gen/assets.gen.dart';
 
@@ -19,6 +20,7 @@ import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
+ 
 
 class BuySpark extends ConsumerWidget {
   BuySpark({super.key});
@@ -26,10 +28,7 @@ class BuySpark extends ConsumerWidget {
   static const route = name;
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
-  // final TextEditingController _sendSparkController = TextEditingController();
   final TextEditingController _sparkNumberController = TextEditingController();
-  // final TextEditingController _transferFeeController = TextEditingController();
-  // final TextEditingController _TotalSparkController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -64,7 +63,8 @@ class BuySpark extends ConsumerWidget {
           Padding(
               padding: const EdgeInsets.symmetric(vertical: 15),
               child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   margin: const EdgeInsets.only(left: 10, right: 10),
                   decoration: BoxDecoration(
                       color: AppColors.metalWhite,
@@ -108,6 +108,7 @@ class BuySpark extends ConsumerWidget {
                           radius: 10,
                         ),
                         const Gap(15),
+                        
                         BaseButton(
                           buttonText: "Buy",
                           loading: buySpark.isLoading,
@@ -137,15 +138,15 @@ class BuySpark extends ConsumerWidget {
     final userData = ref!.watch(authProvider).data;
     return Column(
       children: [
-        Gap(38.h),
+        Gap(38),
         Image.asset(Assets.images.eyesEmoji.path),
-        Gap(15.h),
+        Gap(15),
         const TextView(
           text: "Confirmation",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
-        Gap(15.h),
+        Gap(15),
         TextView(
           text:
               "Confirm you want to buy *$ammount sparks* with Dollar equivalence of *$ammount*",
@@ -153,30 +154,39 @@ class BuySpark extends ConsumerWidget {
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(38.h),
+        Gap(38),
         BaseButton(
             buttonText: "Confirm",
             onPressed: () {
               Navigator.pop(context);
-              StripePaymentHandle().stripeMakePayment(
-                  amount: ammount.toString(),
-                  userModel: userData!,
-                  onSuccess: () {
-                    ref.read(buySparkProvider.notifier).buySpark(
-                          amount: double.parse(ammount!),
-                          numberOfSpark: double.parse(ammount),
-                        );
-                  });
+              // StripePaymentHandle().stripeMakePayment(
+              //     context: context,
+              //     amount: ammount.toString(),
+              //     userModel: userData!,
+              //     onSuccess: () {
+              //       ref.read(buySparkProvider.notifier).buySpark(
+              //             amount: double.parse(ammount!),
+              //             numberOfSpark: double.parse(ammount),
+              //           );
+              //     });
             }),
-        Gap(23.h),
+        Gap(23),
         TextView(
           text: "Not Now",
           fontSize: 16,
           fontWeight: FontWeight.w500,
           onTap: () => Navigator.pop(context),
         ),
-        Gap(21.h),
+        Gap(21),
       ],
     );
+  }
+
+  void onGooglePayResult(paymentResult) {
+    debugPrint(paymentResult.toString());
+  }
+
+  void onApplePayResult(paymentResult) {
+    debugPrint(paymentResult.toString());
   }
 }

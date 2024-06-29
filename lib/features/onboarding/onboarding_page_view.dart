@@ -60,7 +60,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
           child: Column(
             children: [
               SizedBox(
-                height: getDeviceHeight(context) * 0.4,
+                height: getDeviceHeight(context) * 0.55,
                 child: PageView(
                   controller: _controller,
                   onPageChanged: (value) {

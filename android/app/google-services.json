@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:266202752447:android:fc7f82137ff3664dc16d0a",
+        "mobilesdk_app_id": "1:266202752447:android:de77fa6581ebba47c16d0a",
         "android_client_info": {
-          "package_name": "com.bwh.metal"
+          "package_name": "com.bwh.metal_app"
         }
       },
       "oauth_client": [],

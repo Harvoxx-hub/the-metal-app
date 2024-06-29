@@ -49,11 +49,11 @@ class SparkHeaderCard extends ConsumerWidget {
                 onTap: () =>  Navigator.pushNamed(context, AppRoutes.sendSpark)
  
               ),
-              SparkCardItem(
-                  title: "Buy Sparks",
-                  onTap: () =>  Navigator.pushNamed(context, AppRoutes.buySpark),
+              // SparkCardItem(
+              //     title: "Buy Sparks",
+              //     onTap: () =>  Navigator.pushNamed(context, AppRoutes.buySpark),
            
-                  path: Assets.images.buySpark.path),
+              //     path: Assets.images.buySpark.path),
               SparkCardItem(
                   title: "Refer & Earn",
                   onTap: () =>   Navigator.pushNamed(context, AppRoutes.referEarnSpark),

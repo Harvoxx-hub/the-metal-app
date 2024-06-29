@@ -7,7 +7,7 @@ import 'package:metal/features/profile/presentation/tab.screen/discovery.tab.dar
 import 'package:metal/features/profile/presentation/tab.screen/metal.plan.tab.dart';
 import 'package:metal/features/profile/presentation/tab.screen/personal.tab.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
- 
+
 import 'package:metal/res/colors/cr_colors.dart';
 
 import 'package:metal/widgets/tab/base.tab.dart';
@@ -44,8 +44,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 BaseTab(
                   tabs: [
                     BaseTabModel(child: const PersonalTab(), title: 'Personal'),
-                    BaseTabModel(
-                        child: const MetalPlanTab(), title: 'Metal Plan'),
+                    // BaseTabModel(
+                    //     child: const MetalPlanTab(), title: 'Metal Plan'),
                     BaseTabModel(
                         child: const DiscoveryTab(), title: 'Discovery'),
                   ],

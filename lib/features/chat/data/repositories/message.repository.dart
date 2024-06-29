@@ -61,7 +61,7 @@ class MessageRepository implements IMessageRepository {
     try {
       String newConversationsId;
       // Check if a conversation ID is provided
-      if (conversationsId == null) {
+      if (conversationsId == null || conversationsId.isEmpty) {
         // If no conversation ID provided, check if a conversation exists between sender and recipient
         final conversationExist =
             await _firebaseService.checkConversationExists(
@@ -206,13 +206,12 @@ class MessageRepository implements IMessageRepository {
       rethrow;
     }
   }
-  
+
   @override
   updateGame(String id, String gameTile) async {
- try {
+    try {
       // Get a reference to the conversation document
-      final conversationDocRef =
-          _firestore.collection('conversations').doc(id);
+      final conversationDocRef = _firestore.collection('conversations').doc(id);
 
       // Update the fields in the conversation document
       await conversationDocRef.update({

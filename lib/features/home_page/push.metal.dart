@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
 import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
@@ -28,10 +30,14 @@ class PushMetal extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final push = ref.watch(pushUserProvider);
+    final userData = ref.watch(authProvider);
 
     ref.listen<PushUsersState>(pushUserProvider, (prev, current) {
       if (current.isSuccess) {
         ref.read(getAllUserProvider.notifier).removeUser(user.id!);
+        Fluttertoast.showToast(
+          msg: "Your Profile has been pushed to @${user.username}",
+        );
         Navigator.pop(context);
       }
     });
@@ -61,7 +67,8 @@ class PushMetal extends ConsumerWidget {
               Padding(
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     margin: const EdgeInsets.only(left: 10, right: 10),
                     decoration: BoxDecoration(
                         color: AppColors.metalWhite,
@@ -102,18 +109,25 @@ class PushMetal extends ConsumerWidget {
                           decoration: BoxDecoration(
                               color: AppColors.metalTabBg,
                               borderRadius: BorderRadius.circular(5)),
-                          child: const Column(
+                          child: Column(
                             children: [
-                              TextView(
+                              const TextView(
                                 text: "Price per push",
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
-                              Gap(8),
-                              TextView(
-                                text: "2.00",
+                              const Gap(8),
+                              const TextView(
+                                text: "2.00 Spark",
                                 fontSize: 24,
                                 fontWeight: FontWeight.w800,
+                              ),
+                              const Gap(8),
+                              TextView(
+                                text:
+                                    "Balance Spark: ${userData.data!.sparkBalance!} ",
+                                fontSize: 12,
+                                fontWeight: FontWeight.w300,
                               )
                             ],
                           ),
@@ -123,9 +137,15 @@ class PushMetal extends ConsumerWidget {
                           loading: push.isLoading,
                           buttonText: "Pay to Push",
                           onPressed: () {
-                            ref
-                                .read(pushUserProvider.notifier)
-                                .pushUser(user.id!);
+                            print(userData.data!.sparkBalance!);
+                            userData.data!.sparkBalance! >= 2.0
+                                ? ref
+                                    .read(pushUserProvider.notifier)
+                                    .pushUser(user.id!)
+                                : Fluttertoast.showToast(
+                                    msg:
+                                        "Spark Balance is low, refer to earn sparks",
+                                  );
                           },
                         ),
                         const Gap(16),

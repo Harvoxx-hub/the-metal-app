@@ -21,7 +21,7 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 10.0, left: 18.w, right: 18.w),
+      padding: EdgeInsets.only(bottom: 10.0, left: 18, right: 18),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -91,7 +91,7 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                   },
                   child: Container(
                     height: 40,
-                    width: 40.w,
+                    width: 40,
                     decoration: const ShapeDecoration(
                       color: Color(0xFFD9197B),
                       shape: OvalBorder(),

@@ -38,13 +38,13 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               width: 32,
             ),
           ),
-          Gap(3.w),
+          Gap(3),
           ProfileImage(
             width: 42,
             height: 42,
             imageUrl: widget.meltUserModel.metal!.img! ?? "",
           ),
-          Gap(3.w),
+          Gap(3),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -89,7 +89,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               ),
             ),
           ),
-          Gap(15.w),
+          Gap(15),
           JustTheTooltip(
             controller: tooltipController2,
             content: const SizedBox(
@@ -116,8 +116,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               ),
             ),
           ),
-          Gap(15.w),
-          Gap(15.w),
+          Gap(15),
+          Gap(15),
           PopupMenuButton(
             color: Colors.white,
             child: SvgPicture.asset(

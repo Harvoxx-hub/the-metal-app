@@ -32,15 +32,20 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Needed for recording videos.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs access to location when in the background.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your app needs access to your location for providing location-based services.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Needed for recording videos.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs access to the photo library to be able to share images on the app.</string>
+<string>Metal App needs access to your camera to allow users to record videos for their profiles and to send video messages.</string>
+
+<key>NSLocationAlwaysUsageDescription</key>
+<string>Metal App needs access to your location in the background to provide location-based matches and notifications.</string>
+
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Metal App needs access to your location while you are using the app to provide location-based matches and enhance your dating experience.</string>
+
+<key>NSMicrophoneUsageDescription</key>
+<string>Metal App needs access to your microphone to allow users to record audio for video messages and voice notes.</string>
+
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Metal App needs access to your photo library to allow users to upload and share images on their profiles and in chats.</string>
+
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

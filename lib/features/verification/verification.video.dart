@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header1.dart';
- 
+
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/verification/provider/verification.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -31,14 +31,17 @@ class _VerificationVideoState extends ConsumerState<VerificationVideo> {
 
     ref.listen<VerificationState>(verficationVideoProvider, (prev, current) {
       if (current.isSuccess) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CustomDialog(
-              content: verifyDialog(context),
-            );
-          },
-        );
+        // showDialog(
+        //   context: context,
+        //   builder: (BuildContext context) {
+        //     return CustomDialog(
+        //       content: verifyDialog(context),
+        //     );
+        //   },
+        // );
+
+        Navigator.pushNamedAndRemoveUntil(
+            context, AppRoutes.dashboardPage, (route) => false);
       }
     });
     return BaseScreen(

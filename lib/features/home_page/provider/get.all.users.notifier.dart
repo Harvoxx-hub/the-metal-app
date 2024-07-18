@@ -10,7 +10,7 @@ class GetUsersNotifier extends StateNotifier<GetAllUsersState> {
     super.state,
     this.ref,
   ) {
-    getAllUsers();
+   // getAllUsers();
   }
   final Ref ref;
 

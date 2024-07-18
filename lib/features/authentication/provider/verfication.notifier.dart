@@ -20,11 +20,11 @@ class VerficationNotifier extends StateNotifier<VerficationState> {
       final response = await authenticationRepository.activateAccount(
         UUID,
       );
-      final tokenManager = ref.read(authManagerProvider);
-      await tokenManager.saveAccessToken(response.data['access_token']);
-      await tokenManager.saveRefreshToken(response.data['refresh_token']);
+     
+      await AuthManager.saveAccessToken(response.data['access_token']);
+      await AuthManager.saveRefreshToken(response.data['refresh_token']);
 
-      await tokenManager.saveLoginState(LoginState.loggedIn);
+      await AuthManager.saveLoginState(LoginState.loggedIn);
       state = VerficationState.success("");
     } catch (e) {
       print(e);

@@ -92,13 +92,13 @@ class ForgetPasswordOTPPage extends ConsumerWidget {
             SvgPicture.asset(
               Assets.icons.verificationText.path,
               height: 50,
-              width: 50.w,
+              width: 50,
             ),
-            Gap(10.w),
+            Gap(10),
             SvgPicture.asset(
               Assets.icons.verificationCall.path,
               height: 50,
-              width: 50.w,
+              width: 50,
             ),
           ],
         ),

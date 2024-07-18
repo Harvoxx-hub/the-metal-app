@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:fluttertoast/fluttertoast.dart';
 
 enum Status {
   initial,
@@ -28,6 +31,7 @@ class BaseState<T> {
   }
 
   factory BaseState.error(String errorMessage, {Map? errorData}) {
+    log('Error ||||| errorMessage', level: 1000);
     return BaseState<T>(
         status: Status.error, errorMessage: errorMessage, errorData: errorData);
   }

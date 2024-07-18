@@ -6,6 +6,7 @@ import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+ 
 import 'package:metal/features/profile/presentation/widget/edit.profile.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 

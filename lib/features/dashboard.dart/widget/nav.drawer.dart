@@ -286,9 +286,9 @@ class NavDrawer extends ConsumerWidget {
   }
 
   void logout(WidgetRef ref) {
-    ref.read(authManagerProvider).deleteAccessToken();
-    ref.read(authManagerProvider).deleteLoginState();
-    ref.read(authManagerProvider).deleteRefreshToken();
+    AuthManager.deleteAccessToken();
+   AuthManager.deleteLoginState();
+ AuthManager.deleteRefreshToken();
 
     ZegoUIKitPrebuiltCallInvitationService().uninit();
   }

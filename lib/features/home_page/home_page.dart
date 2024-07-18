@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/state/base.state.dart';
+import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
+import 'package:metal/features/home_page/provider/get.thoughts.explore.dart';
+import 'package:metal/features/home_page/provider/get.thoughts.for.you.dart';
+import 'package:metal/features/home_page/provider/send.thoughts.dart';
 import 'package:metal/features/home_page/widget/thought_card.dart';
 import 'package:metal/gen/assets.gen.dart';
-
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/plain.button.dart';
-import 'package:metal/widgets/dialog/custom.dialog.dart';
-import 'package:metal/widgets/profile.photo.dart';
+import 'package:metal/widgets/shimmer/custom_shimmer_loader.dart';
+import 'package:metal/widgets/shimmer/feed_shimmer_widget.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
-import 'widget/metal.user.card.dart';
-
 class HomePage extends ConsumerStatefulWidget {
-  const HomePage({
-    super.key,
-  });
+  const HomePage({super.key});
 
   @override
   ConsumerState<HomePage> createState() => _HomePageState();
@@ -28,137 +25,226 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   int tabIndex = 0;
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final allUsers = ref.watch(getAllUserProvider);
+    final sendThoughtState = ref.watch(sendThoughtProvider);
+    final getThoughtForYouState = ref.watch(getThoughtForYouProvider);
+    final getThoughtExploreState = ref.watch(getThoughtExploreProvider);
 
-    if (allUsers.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    } else {
-      return allUsers.data != null && allUsers.data!.isNotEmpty
-          ? Column(
-              children: [
-                Container(
-                  height: 50,
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: AppColors.metalPinkColour,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(35),
-                      bottomRight: Radius.circular(35),
-                    ),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                    child: TextView(
-                      text: "Share Your Thought Anonymously",
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+    return RefreshIndicator(
+      onRefresh: _refreshData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: AppColors.metalPinkColour,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(35),
+                  bottomRight: Radius.circular(35),
                 ),
-                const Gap(20),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
+              ),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                child: TextView(
+                  text: "Share Your Thought Anonymously",
+                  fontSize: 14,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const Gap(20),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          const TextView(
-                            text: "Feeds",
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          const Spacer(),
-                          feed_tab_item(
-                            selected: tabIndex == 0,
-                            onPress: () {
-                              setState(() {
-                                tabIndex = 0;
-                              });
-                            },
-                            title: "Explore",
-                          ),
-                          const Gap(20),
-                          feed_tab_item(
-                            selected: tabIndex == 1,
-                            onPress: () {
-                              setState(() {
-                                tabIndex = 1;
-                              });
-                            },
-                            title: "For You",
-                          ),
-                        ],
+                      const TextView(
+                        text: "Feeds",
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
                       ),
-                      EditFormField(
-                        floatingLabel: '',
-                        label: "Write your thoughts",
-                        //  controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        suffixWidget: PlainButton(
-                          width: 70,
-                          buttonText: "Post",
-                          onPressed: () {},
-                        ),
+                      const Spacer(),
+                      FeedTabItem(
+                        selected: tabIndex == 0,
+                        onPress: () {
+                          setState(() {
+                            tabIndex = 0;
+                          });
+                        },
+                        title: "Explore",
                       ),
-
-                      // Expanded widget should be placed in a flexible container
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height * 0.639,
-                        ),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: 10,
-                          itemBuilder: (context, index) {
-                            return PostCard();
-                          },
-                        ),
+                      const Gap(20),
+                      FeedTabItem(
+                        selected: tabIndex == 1,
+                        onPress: () {
+                          setState(() {
+                            tabIndex = 1;
+                          });
+                        },
+                        title: "For You",
                       ),
                     ],
                   ),
-                ),
-              ],
-            )
-          : Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      Assets.gifs.empty.path,
-                      height: 250,
-                      width: 250,
+                  EditFormField(
+                    floatingLabel: '',
+                    label: "Write your thoughts",
+                    controller: _controller,
+                    keyboardType: TextInputType.text,
+                    suffixWidget: PlainButton(
+                      loading: sendThoughtState.isLoading,
+                      width: 70,
+                      buttonText: "Post",
+                      onPressed: sendMessage,
                     ),
-                    const Gap(46),
-                    const TextView(
-                      textAlign: TextAlign.center,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      text: "No metal users found that match your preference",
-                    ),
-                    const Gap(20),
-                  ],
-                ),
+                  ),
+                  const Gap(20),
+                  tabIndex == 0
+                      ? buildExploreTab(getThoughtExploreState)
+                      : buildForYouTab(getThoughtForYouState),
+                ],
               ),
-            );
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _refreshData() async {
+    ref.refresh(getThoughtForYouProvider);
+    ref.refresh(getThoughtExploreProvider);
+  }
+
+  void sendMessage() {
+    ref.read(sendThoughtProvider.notifier).sendThought(_controller.text);
+    _controller.text = "";
+  }
+
+  Widget buildExploreTab(BaseState<List<ThoughtModel>> getThoughtExploreState) {
+    switch (getThoughtExploreState.status) {
+      case Status.loading:
+        return CustomShimmerLoader(
+          itemType: ShimmerItemType.list,
+          loaderWidget: PostCardShimmer(),
+        );
+      case Status.success:
+        if (getThoughtExploreState.data!.isEmpty) {
+          return const Center(
+            child: TextView(
+              text: "No Thoughts In Your Explore Feed",
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          );
+        } else {
+          return ListView.builder(
+            itemCount: getThoughtExploreState.data!.length,
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
+            itemBuilder: (context, index) {
+              return ThoughtCard(
+                thoughtModel: getThoughtExploreState.data![index],
+                melted: false,
+              );
+            },
+          );
+        }
+      case Status.error:
+        return Center(
+          child: Column(
+            children: [
+              TextView(
+                text: "Error loading thoughts",
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+              const Gap(10),
+              PlainButton(
+                buttonText: "Retry",
+                onPressed: _refreshData,
+              ),
+            ],
+          ),
+        );
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget buildForYouTab(BaseState<List<ThoughtModel>> getThoughtForYouState) {
+    switch (getThoughtForYouState.status) {
+      case Status.loading:
+        return CustomShimmerLoader(
+          itemType: ShimmerItemType.list,
+          loaderWidget: PostCardShimmer(),
+        );
+      case Status.success:
+        if (getThoughtForYouState.data!.isEmpty) {
+          return const Center(
+            child: TextView(
+              text: "No thoughts in your For-You feed, Connect with Other metal to get thoughts",
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          );
+        } else {
+          return ListView.builder(
+            itemCount: getThoughtForYouState.data!.length,
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
+            itemBuilder: (context, index) {
+              return ThoughtCard(
+                thoughtModel: getThoughtForYouState.data![index],
+                melted: true,
+              );
+            },
+          );
+        }
+      case Status.error:
+        return Center(
+          child: Column(
+            children: [
+              TextView(
+                text:  "Error loading thoughts",
+                fontSize: 14,
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+              const Gap(10),
+              PlainButton(
+                buttonText: "Retry",
+                onPressed: _refreshData,
+              ),
+            ],
+          ),
+        );
+      default:
+        return const SizedBox.shrink();
     }
   }
 }
 
-class feed_tab_item extends StatelessWidget {
-  const feed_tab_item({
+class FeedTabItem extends StatelessWidget {
+  const FeedTabItem({
     super.key,
     required this.selected,
     required this.title,
     required this.onPress,
   });
+
   final bool selected;
   final String title;
   final Function() onPress;
@@ -170,11 +256,10 @@ class feed_tab_item extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-            color: selected ? AppColors.metalPinkColour40 : null,
-            border: selected
-                ? null
-                : Border.all(color: AppColors.metalBlack, width: 1.0),
-            borderRadius: BorderRadius.circular(20)),
+          color: selected ? AppColors.metalPinkColour40 : null,
+          border: selected ? null : Border.all(color: AppColors.metalBlack, width: 1.0),
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: TextView(
           text: title,
           fontSize: 14,
@@ -184,4 +269,3 @@ class feed_tab_item extends StatelessWidget {
     );
   }
 }
-

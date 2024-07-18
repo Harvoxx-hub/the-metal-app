@@ -4,7 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
- 
+
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/my.metals/widget/melt.card.dart';
@@ -21,8 +21,8 @@ class MyMeltedMetals extends ConsumerWidget {
     final myMelt = ref.watch(getMeltUserProvider);
     return BaseScreen(
         subAppBar: true,
-        appBarState: AppBarState .HambugerWithHeader,
-        Header: "My melted metals",
+        appBarState: AppBarState.HambugerWithHeader,
+        Header: "metals Profile",
         body: SingleChildScrollView(
           child: myMelt.isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -30,7 +30,7 @@ class MyMeltedMetals extends ConsumerWidget {
                   ? Column(
                       children: [
                         Image.asset(
-                          Assets.images .heartLocks1.path,
+                          Assets.images.heartLocks1.path,
                           height: 138,
                           width: 138,
                         ),

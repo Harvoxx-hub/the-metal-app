@@ -11,7 +11,8 @@ class MentalDropdownMutipleSelection extends StatefulWidget {
   final String? hint;
   final String? floatingLabel;
 
-  const MentalDropdownMutipleSelection({super.key, 
+  const MentalDropdownMutipleSelection({
+    super.key,
     required this.items,
     this.value,
     required this.onChanged,
@@ -47,8 +48,9 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
         Container(
           padding: const EdgeInsets.only(left: 10, right: 10),
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.metalButtonStroke)),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.metalButtonStroke),
+          ),
           child: Column(
             children: [
               ListTile(
@@ -58,7 +60,7 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
                   children: <Widget>[
                     Expanded(
                       child: TextView(
-                        text: widget.value == null
+                        text: (widget.value == null || widget.value!.isEmpty)
                             ? widget.hint!
                             : widget.value!.join(','),
                       ),
@@ -103,8 +105,9 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
                           value
                               ? widget.onChanged([...widget.value ?? [], item])
                               : widget.onChanged(
-                                  widget.value == null ? [] : widget.value!
-                                    ..remove(item));
+                                  widget.value == null
+                                      ? []
+                                      : widget.value!..remove(item));
                         },
                       ),
                     ],
@@ -117,7 +120,7 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
     );
   }
 
-  String ListToString(List<String> data) {
+  String listToString(List<String> data) {
     return data.join(',');
   }
 }

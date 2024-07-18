@@ -459,7 +459,7 @@ class $AssetsImagesGen {
   AssetGenImage get activeMessage =>
       const AssetGenImage('assets/images/active.message.png');
 
-  /// File path: assets/images/active ark.png
+  /// File path: assets/images/active.spark.png
   AssetGenImage get activeSpark =>
       const AssetGenImage('assets/images/active.spark.png');
 
@@ -490,7 +490,7 @@ class $AssetsImagesGen {
   /// File path: assets/images/bg.2.png
   AssetGenImage get bg2 => const AssetGenImage('assets/images/bg.2.png');
 
-  /// File path: assets/images/buy ark.png
+  /// File path: assets/images/buy.spark.png
   AssetGenImage get buySpark =>
       const AssetGenImage('assets/images/buy.spark.png');
 
@@ -591,7 +591,7 @@ class $AssetsImagesGen {
   AssetGenImage get inactiveMessage =>
       const AssetGenImage('assets/images/inactive.message.png');
 
-  /// File path: assets/images/inactive ark.png
+  /// File path: assets/images/inactive.spark.png
   AssetGenImage get inactiveSpark =>
       const AssetGenImage('assets/images/inactive.spark.png');
 
@@ -658,7 +658,7 @@ class $AssetsImagesGen {
   AssetGenImage get meltProfile =>
       const AssetGenImage('assets/images/melt.profile.png');
 
-  /// File path: assets/images/melt ark.png
+  /// File path: assets/images/melt.spark.png
   AssetGenImage get meltSpark =>
       const AssetGenImage('assets/images/melt.spark.png');
 
@@ -731,7 +731,7 @@ class $AssetsImagesGen {
   AssetGenImage get rocketEmoji1 =>
       const AssetGenImage('assets/images/rocket emoji 1.png');
 
-  /// File path: assets/images/send ark.png
+  /// File path: assets/images/send.spark.png
   AssetGenImage get sendSpark =>
       const AssetGenImage('assets/images/send.spark.png');
 

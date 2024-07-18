@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+ 
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 
@@ -179,6 +180,6 @@ class _EditProfileState extends ConsumerState<EditProfile> {
   }
 
   void updateUser(UserModel user) {
-    ref.watch(updateProfileProvider.notifier).updateParticularInfor(user);
+    ref.watch(updateProfileProvider.notifier).updateParticularInfo(user);
   }
 }

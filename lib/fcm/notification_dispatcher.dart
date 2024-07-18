@@ -110,7 +110,7 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
   final container = ProviderContainer();
 
   Future<bool> _isUserAuthorized() async =>
-      await container.read(authManagerProvider).getLoginState() ==
+      await AuthManager.getLoginState() ==
       LoginState.loggedIn;
 
   Future<void> handleNavigation(NotificationPayloadModel? model) async {

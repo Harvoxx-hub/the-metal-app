@@ -24,9 +24,9 @@ class DeleteScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen<DeleteUsersState>(deleteUserProvider, (prev, current) {
       if (current.isSuccess) {
-        ref.read(authManagerProvider).deleteAccessToken();
-        ref.read(authManagerProvider).deleteLoginState();
-        ref.read(authManagerProvider).deleteRefreshToken();
+       AuthManager.deleteAccessToken();
+       AuthManager.deleteLoginState();
+        AuthManager.deleteRefreshToken();
 
         ZegoUIKitPrebuiltCallInvitationService().uninit();
         Navigator.pushNamedAndRemoveUntil(
@@ -108,9 +108,9 @@ class DeleteScreen extends ConsumerWidget {
                     BaseButton(
                       buttonText: 'Create a new Metal account',
                       onPressed: () {
-                        ref.read(authManagerProvider).deleteAccessToken();
-                        ref.read(authManagerProvider).deleteLoginState();
-                        ref.read(authManagerProvider).deleteRefreshToken();
+                      AuthManager.deleteAccessToken();
+                       AuthManager.deleteLoginState();
+                       AuthManager.deleteRefreshToken();
 
                         ZegoUIKitPrebuiltCallInvitationService().uninit();
                         Navigator.pushNamedAndRemoveUntil(

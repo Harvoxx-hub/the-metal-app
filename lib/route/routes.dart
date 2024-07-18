@@ -5,6 +5,7 @@ import 'package:metal/features/authentication/presentation/forget.password/forgo
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
+import 'package:metal/features/my.metals/melted.user.agurment.dart';
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
 import 'package:metal/features/settings/presentation%20/delete.screen.dart';
 import 'package:metal/features/settings/presentation%20/edit.page.dart';
@@ -40,8 +41,7 @@ import 'package:metal/features/eyes/presentation/eyes.intro.screen.dart';
 import 'package:metal/features/eyes/presentation/view.eyes.dart';
 import 'package:metal/features/feedback/feedback.page.dart';
 import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
-import 'package:metal/features/home_page/melt.metal.dart';
-import 'package:metal/features/home_page/push.metal.dart';
+ 
 import 'package:metal/features/my.metals/my.melted.metals.dart';
 import 'package:metal/features/my.metals/my.melted.user.dart';
 import 'package:metal/features/my.metals/user.profile.dart';
@@ -180,13 +180,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const VerificationVideo());
       case videoPreview:
         return MaterialPageRoute(builder: (_) => const VideoPreview());
-      case meltMetal:
-        return MaterialPageRoute(
-            builder: (_) => MeltMetal(settings.arguments as ALLUserModel));
-      case pushMetal:
-        return MaterialPageRoute(
-            builder: (_) =>
-                PushMetal(user: settings.arguments as ALLUserModel));
+     
       case feedBackPage:
         return MaterialPageRoute(builder: (_) => const FeedBackPage());
       case blockedUser:
@@ -212,7 +206,8 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const MyMeltedMetals());
       case myMeltedUser:
         return MaterialPageRoute(
-            builder: (_) => MyMeltedUser(settings.arguments as String));
+            builder: (_) => MyMeltedUser(
+               meltedUserAgurment:  settings.arguments as MeltedUserAgurment,));
       case sendSpark:
         return MaterialPageRoute(builder: (_) => const SendSpark());
       case buySpark:

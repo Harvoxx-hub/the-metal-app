@@ -16,6 +16,7 @@ class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
     required String email,
     required String password,
     required String phoneNumber,
+    String? referal
   }) async {
     state = AccountSettingState.loading();
     try {
@@ -25,11 +26,11 @@ class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
         email: email,
         password: password,
         phoneNumber: phoneNumber,
+        referal: referal
       );
- 
       state = AccountSettingState.success(response.data);
     } catch (e) {
-      print(e.toString());
+      
       state = AccountSettingState.error(e.toString());
     }
   }

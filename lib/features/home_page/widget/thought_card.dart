@@ -2,21 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
+import 'package:metal/features/my.metals/melted.user.agurment.dart';
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
+
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
 import '../domain/entries/all.user.model.dart';
 
-class PostCard extends StatelessWidget {
+class ThoughtCard extends ConsumerWidget {
+  final ThoughtModel thoughtModel;
+  final bool melted;
+
+  const ThoughtCard({
+    super.key,
+    required this.thoughtModel,
+    required this.melted,
+  });
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userdata = ref.watch(authProvider).data;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -39,89 +54,98 @@ class PostCard extends StatelessWidget {
                 ProfilePhoto(
                   verfly: false,
                   size: 40,
+                  photourl: thoughtModel.userData!.metal!.img!,
                 ),
-                SizedBox(width: 10.0),
+                const SizedBox(width: 10.0),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
                         TextView(
-                          text: 'Chioma Cliton_gold',
+                          text: thoughtModel.userData!.username!,
                         ),
-                        SizedBox(width: 5.0),
+                        const SizedBox(width: 5.0),
                         Assets.icons.checkVerified.svg(height: 16),
                       ],
                     ),
                     Text(
-                      '22/24/24',
+                      formatToWhatsAppChatTime(thoughtModel.created_at!),
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),
-                Spacer(),
-                    IconButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      backgroundColor: Colors.white,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SafeArea(
-                          child: Wrap(
-                            children: <Widget>[
-                              ListTile(
-                                title: const Text('Block Metal'),
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return CustomDialog(
-                                          content: _blockDialog(
-                                              context, widget.user, ref));
-                                    },
-                                  );
-                                },
-                              ),
-                              ListTile(
-                                  title: const Text('Block and Report'),
-                                  onTap: () => showDialog(
+                const Spacer(),
+                if (userdata!.id != thoughtModel.user)
+                  IconButton(
+                      onPressed: () {
+                        showModalBottomSheet(
+                          backgroundColor: Colors.white,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return SafeArea(
+                              child: Wrap(
+                                children: <Widget>[
+                                  ListTile(
+                                    title: const Text('Block Metal'),
+                                    onTap: () {
+                                      showDialog(
                                         context: context,
                                         builder: (BuildContext context) {
                                           return CustomDialog(
-                                              content: _blockAndReportDialog(
-                                                  context, widget.user, ref));
+                                              content: _blockDialog(
+                                                  context, thoughtModel, ref));
                                         },
-                                      )),
-                            ],
-                          ),
+                                      );
+                                    },
+                                  ),
+                                  ListTile(
+                                      title: const Text('Block and Report'),
+                                      onTap: () => showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return CustomDialog(
+                                                  content:
+                                                      _blockAndReportDialog(
+                                                          context,
+                                                          thoughtModel,
+                                                          ref));
+                                            },
+                                          )),
+                                ],
+                              ),
+                            );
+                          },
                         );
                       },
-                    );
-                  },
-                  icon: Icon(Icons.more_vert))
-          
+                      icon: const Icon(Icons.more_vert))
               ],
             ),
             const SizedBox(height: 10.0),
-            const TextView(
-              text:
-                  'I term myself an Aluminium because I am light and emotional. I like to be cared for as I have some tendencies to get rusty. It would be great to connect with you! Let’s melt!',
+            TextView(
+              text: thoughtModel.thought!,
             ),
             const SizedBox(height: 10.0),
             Row(
               children: [
-                BaseButton(
-                  onPressed: () {},
-                  width: 110,
-                  height: 32,
-                  fontSize: 15,
-                  buttonText: "View Metal",
-                ),
-                Spacer(),
-                Image.asset(
-                  Assets.images.melt.path,
-                  scale: 2,
-                )
+                !melted == true
+                    ? BaseButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, AppRoutes.myMeltedUser,
+                              arguments: MeltedUserAgurment(
+                                  userId: thoughtModel.user!, melted: melted));
+                        },
+                        width: 110,
+                        height: 32,
+                        fontSize: 15,
+                        buttonText: "View Metal",
+                      )
+                    : SizedBox(),
+                const Spacer(),
+                // Image.asset(
+                //   Assets.images.melt.path,
+                //   scale: 2,
+                // )
               ],
             ),
           ],
@@ -130,7 +154,7 @@ class PostCard extends StatelessWidget {
     );
   }
 
-    Widget _blockDialog(BuildContext context, ALLUserModel data, WidgetRef ref) {
+  Widget _blockDialog(BuildContext context, ThoughtModel data, WidgetRef ref) {
     return Column(
       children: [
         const Gap(38),
@@ -141,7 +165,7 @@ class PostCard extends StatelessWidget {
         ),
         const Gap(15),
         TextView(
-          text: "Block  ${data.username} ",
+          text: "Block  ${data.userData!.username} ",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
@@ -155,12 +179,12 @@ class PostCard extends StatelessWidget {
         ),
         const Gap(38),
         BaseButton(
-            buttonText: "Block  ${data.username}",
+            buttonText: "Block  ${data.userData!.username}",
             onPressed: () {
               ref
                   .read(blockUserProvider.notifier)
-                  .BlockUser(data.username!, data.id!);
-              ref.read(getAllUserProvider.notifier).removeUser(data.id!);
+                  .BlockUser(data.userData!.username!, data.user!);
+              ref.read(getAllUserProvider.notifier).removeUser(data.user!);
               Navigator.pop(context);
               Navigator.pop(context);
             }),
@@ -177,7 +201,7 @@ class PostCard extends StatelessWidget {
   }
 
   Widget _blockAndReportDialog(
-      BuildContext context, ALLUserModel data, WidgetRef ref) {
+      BuildContext context, ThoughtModel data, WidgetRef ref) {
     TextEditingController _controller = TextEditingController();
     return Column(
       children: [
@@ -189,7 +213,7 @@ class PostCard extends StatelessWidget {
         ),
         const Gap(15),
         TextView(
-          text: "Block and Report  ${data.username} ",
+          text: "Block and Report  ${data.userData!.username} ",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
@@ -213,12 +237,12 @@ class PostCard extends StatelessWidget {
         ),
         const Gap(38),
         BaseButton(
-            buttonText: "Block ${data.username}",
+            buttonText: "Block ${data.userData!.username}",
             onPressed: () {
               ref
                   .read(blockUserProvider.notifier)
-                  .BlockUser(data.username!, data.id!);
-              ref.read(getAllUserProvider.notifier).removeUser(data.id!);
+                  .BlockUser(data.userData!.username!, data.user!);
+              ref.read(getAllUserProvider.notifier).removeUser(data.user!);
               Navigator.pop(context);
               Navigator.pop(context);
             }),
@@ -233,5 +257,4 @@ class PostCard extends StatelessWidget {
       ],
     );
   }
-
 }

@@ -120,6 +120,49 @@ class HomeRepository implements IHomeRepository {
       rethrow;
     }
   }
+  
+  @override
+  Future<Responses> getThoughtById(String id) async {
+      try {
+      final response = await _apiService.get("user/thoughts-by-user/$id");
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+  
+  @override
+  Future<Responses> getThoughtExplore() async {
+     try {
+      final response = await _apiService.get("user/thought-explore");
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+  
+  @override
+  Future<Responses> getThoughtForYou() async {
+      try {
+      final response = await _apiService.get("user/thoughts-for-you");
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+  
+  @override
+  Future<Responses> sendThought(String thought) async {
+   try {
+      final response = await _apiService.post("user/post-thought", body: {
+        "thought": thought,
+      });
+
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
 
 final homeRepositoryProvider = Provider((ref) {

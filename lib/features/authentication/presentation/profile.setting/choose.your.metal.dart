@@ -7,6 +7,7 @@ import 'package:metal/features/authentication/domain/entries/metal.properties.mo
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+ 
 import 'package:metal/gen/assets.gen.dart';
  
 import 'package:metal/route/routes.dart';

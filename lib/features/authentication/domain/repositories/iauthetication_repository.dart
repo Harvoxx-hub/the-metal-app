@@ -7,6 +7,7 @@ abstract class IAuthenticationRepository {
     required String email,
     required String password,
     required String phoneNumber,
+    String? referal
   });
 
   Future<Responses> logIn({

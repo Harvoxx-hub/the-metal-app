@@ -49,7 +49,9 @@ class AuthenticationRepository implements IAuthenticationRepository {
   Future<Responses> signUp(
       {required String email,
       required String password,
-      required String phoneNumber}) async {
+      required String phoneNumber,
+      String? referal,
+      }) async {
     try {
       String? token = await FCMClient.instance.init();
       final response = await _apiService.post(
@@ -58,7 +60,8 @@ class AuthenticationRepository implements IAuthenticationRepository {
           "email": email,
           "password": password,
           "phone": phoneNumber,
-          "fcmToken": token ?? ""
+          "fcmToken": token ?? "",
+          "reff_By": referal?? "",
         },
       );
       return response;

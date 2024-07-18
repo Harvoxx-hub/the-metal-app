@@ -1,12 +1,7 @@
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
+
 import 'package:metal/core/services/auth.pref.service.dart';
 
 import 'package:metal/firebase_options.dart';
@@ -15,9 +10,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/route/routes.dart';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:metal/store.config.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
@@ -39,13 +33,12 @@ void main() async {
   //   );
   // }
 
-  WidgetsFlutterBinding.ensureInitialized();
-
   // await _configureSDK();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await AuthManager.ensureInitialized();
   try {
     await Firebase.initializeApp();
     FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
@@ -54,55 +47,26 @@ void main() async {
   }
 
   ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navKey);
+  await SentryFlutter.init(
+    (options) {
+      options.dsn =
+          'https://db967fb52e009f50806bff1ee19d3588@o4507616949370880.ingest.us.sentry.io/4507616953499648';
 
-  ZegoUIKit().initLog().then((value) {
-    ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
-      [ZegoUIKitSignalingPlugin()],
-    );
-    runApp(const ProviderScope(
-      overrides: [],
-      child: MyApp(),
-    ));
-  });
+      options.tracesSampleRate = 1.0;
+
+      options.profilesSampleRate = 1.0;
+    },
+    appRunner: () => ZegoUIKit().initLog().then((value) {
+      ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
+        [ZegoUIKitSignalingPlugin()],
+      );
+      runApp(const ProviderScope(
+        overrides: [],
+        child: MyApp(),
+      ));
+    }),
+  );
 }
-
-// Future<void> _configureSDK() async {
-//   // Enable debug logs before calling `configure`.
-//   await Purchases.setLogLevel(LogLevel.debug);
-
-//   PurchasesConfiguration configuration;
-//   if (StoreConfig.isForAmazonAppstore()) {
-//     configuration = AmazonConfiguration(StoreConfig.instance.apiKey)
-//       ..appUserID = null
-//       ..observerMode = false;
-//   } else {
-//     configuration = PurchasesConfiguration(StoreConfig.instance.apiKey)
-//       ..appUserID = null
-//       ..observerMode = false;
-//   }
-//   await Purchases.configure(configuration);
-//   _logIn("1234542");
- 
-//     //   await RevenueCatUI.presentPaywallIfNeeded("Metal Plus Monthly");
-//   // log(paywall.toString());
-// }
-
-// _logIn(String newAppUserID) async {
-//   /*
-//       How to login and identify your users with the Purchases SDK.
-
-//       Read more about Identifying Users here: https://docs.revenuecat.com/docs/user-ids
-//     */
-
-//   try {
-//     await Purchases.logIn(newAppUserID);
-//     String appUserID = await Purchases.appUserID;
-//   print(appUserID);
-//          await RevenueCatUI.presentPaywall();
-//   } on PlatformException catch (e) {
-//     print(e.message);
-//   }
-// }
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
@@ -119,7 +83,6 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(authManagerProvider);
     return MaterialApp(
       title: 'Metal',
       key: navKey,

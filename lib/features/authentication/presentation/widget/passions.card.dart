@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+ 
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
@@ -61,7 +61,7 @@ class PassionsCard extends StatelessWidget {
               height: 20,
               width: 20,
             ),
-            Gap(8.w),
+            Gap(8),
             TextView(
               text: model.title!,
               fontSize: 16,

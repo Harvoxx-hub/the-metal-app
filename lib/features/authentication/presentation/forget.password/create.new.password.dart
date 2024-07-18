@@ -27,7 +27,7 @@ class CreateNewPasswordPage extends ConsumerWidget {
       appBarEnabled: false,
       Header: 'Create New Password',
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Gap(43.h),
+        Gap(43),
         const TextView(
           text: '👋 Welcome Back',
           fontSize: 22,
@@ -38,7 +38,7 @@ class CreateNewPasswordPage extends ConsumerWidget {
           fontSize: 16,
           fontWeight: FontWeight.w400,
         ),
-        Gap(40.h),
+        Gap(40),
         Form(
             key: _form,
             child: Column(
@@ -49,14 +49,14 @@ class CreateNewPasswordPage extends ConsumerWidget {
                   controller: _passwordController,
                   keyboardType: TextInputType.visiblePassword,
                 ),
-                Gap(22.h),
+                Gap(22),
                 EditFormField(
                   floatingLabel: 'Retype New Password',
                   label: 'Retype new password',
                   controller: _confirmController,
                   keyboardType: TextInputType.visiblePassword,
                 ),
-                Gap(32.h),
+                Gap(32),
                 BaseButton(
                   buttonText: 'Reset Password',
                   onPressed: () {},

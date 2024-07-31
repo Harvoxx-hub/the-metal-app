@@ -14,8 +14,8 @@ class ApiService {
 
   ApiService()
       : _dio = Dio(BaseOptions(
-          connectTimeout: const Duration(seconds: 7),
-          receiveTimeout: const Duration(seconds: 3),
+          connectTimeout: const Duration(seconds: 60),
+          receiveTimeout: const Duration(seconds: 60),
         )) {
     _dio.interceptors.addAll([
       PrettyDioLogger(
@@ -29,16 +29,15 @@ class ApiService {
       ),
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          options.headers['Authorization'] = 'Bearer ${await AuthManager.getAccessToken()}';
+          options.headers['Authorization'] =
+              'Bearer ${await AuthManager.getAccessToken()}';
           log('Started Calling ||||| ${options.path}', level: 1000);
           handler.next(options);
         },
         onError: (DioError e, handler) async {
-         
           handler.next(e);
         },
         onResponse: (response, handler) {
-          
           handler.next(response);
         },
       ),
@@ -54,7 +53,8 @@ class ApiService {
     }
   }
 
-  Future<dynamic> patch(String endpoint, {Map<String, dynamic>? body, FormData? formData}) async {
+  Future<dynamic> patch(String endpoint,
+      {Map<String, dynamic>? body, FormData? formData}) async {
     try {
       final response = await _dio.patch(
         '$baseUrl/$endpoint',
@@ -66,7 +66,8 @@ class ApiService {
     }
   }
 
-  Future<dynamic> post(String endpoint, {Map<String, dynamic>? body, FormData? formData}) async {
+  Future<dynamic> post(String endpoint,
+      {Map<String, dynamic>? body, FormData? formData}) async {
     try {
       final response = await _dio.post(
         '$baseUrl/$endpoint',
@@ -84,10 +85,9 @@ class ApiService {
     if (data.success!) {
       return data;
     } else {
-       Fluttertoast.showToast(
-          msg: data.message.toString(),
-
-        );
+      Fluttertoast.showToast(
+        msg: data.message.toString(),
+      );
       throw data;
     }
   }

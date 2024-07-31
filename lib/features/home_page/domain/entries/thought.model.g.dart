@@ -7,7 +7,7 @@ part of 'thought.model.dart';
 // **************************************************************************
 
 ThoughtModel _$ThoughtModelFromJson(Map<String, dynamic> json) => ThoughtModel(
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
       user: json['user'] as String?,
       thought: json['thought'] as String?,
       created_at: json['created_at'] as String?,

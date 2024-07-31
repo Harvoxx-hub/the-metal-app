@@ -16,7 +16,8 @@ import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class MetalDetailsTab extends ConsumerStatefulWidget {
-  const MetalDetailsTab({super.key,required this.melted,  required this.userModel});
+  const MetalDetailsTab(
+      {super.key, required this.melted, required this.userModel});
   final UserModel userModel;
   final bool melted;
   @override
@@ -45,53 +46,53 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
                   width: 21,
                 ),
               ),
-           if(widget.melted)   Column(
-                children: [
-                  const Gap(20),
-                  EditField(
-                    text: "Send and receive messages ",
-                    onTap: () {
-                      Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
-                          arguments: ChatWindowArgument(
-                            user: MeltUserModel(
-                                gender: widget.userModel.gender,
-                                name: widget.userModel.username,
-                                metal: widget.userModel.metal,
-                                phone: widget.userModel.phone,
-                                id: widget.userModel.id),
-                          ));
-                    },
-                    floatingLabel: "Start a conversation",
-                    suffixIcon: Image.asset(
-                      Assets.images.inactiveMessage.path,
-                      height: 21,
-                      width: 21,
+              if (widget.melted)
+                Column(
+                  children: [
+                    const Gap(20),
+                    // EditField(
+                    //   text: "Send and receive messages ",
+                    //   onTap: () {
+                    //     Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
+                    //         arguments: ChatWindowArgument(
+                    //           user: MeltUserModel(
+                    //               gender: widget.userModel.gender,
+                    //               name: widget.userModel.username,
+                    //               metal: widget.userModel.metal,
+                    //               phone: widget.userModel.phone,
+                    //               id: widget.userModel.id),
+                    //         ));
+                    //   },
+                    //   floatingLabel: "Start a conversation",
+                    //   suffixIcon: Image.asset(
+                    //     Assets.images.inactiveMessage.path,
+                    //     height: 21,
+                    //     width: 21,
+                    //   ),
+                    // ),
+                    const Gap(20),
+                    EditField(
+                      text:
+                          "De-melt ${widget.userModel.username}  from your metal list",
+                      floatingLabel: "Remove from my list of metals",
+                      suffixIcon: SvgPicture.asset(
+                        Assets.icons.meltedMetalsTrash01.path,
+                        height: 21,
+                        width: 21,
+                      ),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CustomDialog(
+                                content: _ceMeltDialog(
+                                    context, widget.userModel, ref));
+                          },
+                        );
+                      },
                     ),
-                  ),
-                  const Gap(20),
-                  EditField(
-                    text:
-                        "De-melt ${widget.userModel.username}  from your metal list",
-                    floatingLabel: "Remove from my list of metals",
-                    suffixIcon: SvgPicture.asset(
-                      Assets.icons.meltedMetalsTrash01.path,
-                      height: 21,
-                      width: 21,
-                    ),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return CustomDialog(
-                              content:
-                                  _ceMeltDialog(context, widget.userModel, ref));
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-             
+                  ],
+                ),
               const Gap(20),
               EditField(
                 text: "Block ${widget.userModel.username}  from reaching you",
@@ -112,7 +113,6 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
                   width: 21,
                 ),
               ),
-           
             ],
           ),
         ),

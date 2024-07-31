@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+import 'package:metal/features/home_page/provider/get.thoughts.explore.dart';
+import 'package:metal/features/home_page/provider/get.thoughts.for.you.dart';
 import 'package:metal/features/settings/data/repositories/setting.repository.dart';
+import 'package:metal/features/settings/provider/get.block.user.notifier.dart';
 
 class BlockUsersNotifier extends StateNotifier<BlockUsersState> {
   BlockUsersNotifier(
@@ -27,11 +31,13 @@ class BlockUsersNotifier extends StateNotifier<BlockUsersState> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 16.0);
+      ref.watch(getMeltUserProvider.notifier).updateMelt();
+      ref.read(getThoughtForYouProvider.notifier).getThoughtUpdate();
+      ref.read(getThoughtExploreProvider.notifier).getThoughtUpdate();
       if (mounted) {
         state = BlockUsersState.success(response.message!);
       }
     } catch (e) {
-      print(e.toString());
       state = BlockUsersState.error(e.toString());
     }
   }
@@ -41,11 +47,15 @@ class BlockUsersNotifier extends StateNotifier<BlockUsersState> {
       state = BlockUsersState.loading();
       final repo = ref.watch(settingRepositoryProvider);
       final response = await repo.unBlockUser(id);
+
+      ref.watch(getMeltUserProvider.notifier).updateMelt();
+      ref.read(getThoughtForYouProvider.notifier).getThoughtUpdate();
+      ref.read(getThoughtExploreProvider.notifier).getThoughtUpdate();
+      ref.read(getBlockUserProvider.notifier).getBlockUser();
       if (mounted) {
         state = BlockUsersState.success(response.message!);
       }
     } catch (e) {
-      print(e.toString());
       state = BlockUsersState.error(e.toString());
     }
   }

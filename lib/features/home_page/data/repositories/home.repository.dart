@@ -51,10 +51,11 @@ class HomeRepository implements IHomeRepository {
   }
 
   @override
-  Future<Responses> meltUser(String userToMelt) async {
+  Future<Responses> meltUser(String userToMelt, String conversationId) async {
     try {
       final response = await _apiService.post("melt/melt", body: {
         "userToMelt": userToMelt,
+        "conversationId":conversationId
       });
 
       return response;

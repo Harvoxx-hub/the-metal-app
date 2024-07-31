@@ -9,7 +9,7 @@ part of 'spark.model.dart';
 SparkModel _$SparkModelFromJson(Map<String, dynamic> json) => SparkModel(
       type: json['type'] as String?,
       amount: json['amount'] as String?,
-      numberOfSparks: json['numberOfSparks'] as int?,
+      numberOfSparks: (json['numberOfSparks'] as num?)?.toInt(),
       receiver: json['receiver'] as String?,
       date: json['date'] as String?,
       time: json['time'] as String?,

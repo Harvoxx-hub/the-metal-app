@@ -32,6 +32,8 @@ class UserModel {
   String? id;
   String? referralCode;
   String? profilePhoto;
+  String? fcmToken;
+  String? conversationId;
 
   UserModel(
       {this.profile_updated,
@@ -58,6 +60,8 @@ class UserModel {
       this.distance,
       this.sparkBalance,
       this.id,
+      this.conversationId,
+      this.fcmToken,
       this.profilePhoto,
       this.completed_profile});
 

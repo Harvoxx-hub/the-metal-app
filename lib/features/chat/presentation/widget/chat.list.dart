@@ -90,7 +90,7 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
       child: Center(
         child: Column(
           children: [
-            const Gap(30),
+            const Gap(10),
             Assets.images.emptyChat.image(),
             const Gap(20),
             const TextView(
@@ -131,7 +131,6 @@ class chatListItem extends StatelessWidget {
           AppRoutes.chatWindowsPage,
           arguments: ChatWindowArgument(
             user: data,
-            conversationId: conversationsModel.documentId,
           ),
         );
       },
@@ -139,13 +138,15 @@ class chatListItem extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            const ProfilePhoto(),
+            ProfilePhoto(
+              photourl: data.metal!.img,
+            ),
             const Gap(16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextView(
-                  text: data.name ?? "Unknown",
+                  text: data.username ?? "Unknown",
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),

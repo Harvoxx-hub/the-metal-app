@@ -32,6 +32,23 @@ class getThoughtForYouNotifier extends StateNotifier<GetThoughtForYouState> {
       state = GetThoughtForYouState.error(e.toString());
     }
   }
+
+  void getThoughtUpdate() async {
+    try {
+   
+      final homeRepository = ref.watch(homeRepositoryProvider);
+      final response = await homeRepository.getThoughtForYou();
+      final List<ThoughtModel> thoughts = [];
+      for (var thought in response.data) {
+        thoughts.add(ThoughtModel.fromJson(thought));
+      }
+      if (mounted) {
+        state = GetThoughtForYouState.success(thoughts);
+      }
+    } catch (e) {
+      print(e.toString()); 
+    }
+  }
 }
 
 // Define a type alias

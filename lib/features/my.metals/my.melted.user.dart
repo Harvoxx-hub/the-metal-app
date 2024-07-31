@@ -37,10 +37,14 @@ class MyMeltedUser extends ConsumerStatefulWidget {
 
 class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
   bool melted = false;
+  String? conversationId;
   @override
   void initState() {
     // TODO: implement initState
     melted = widget.meltedUserAgurment.melted;
+    conversationId = widget.meltedUserAgurment.conversationID.isEmpty
+        ? null
+        : widget.meltedUserAgurment.conversationID;
     super.initState();
   }
 
@@ -49,11 +53,11 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
     BuildContext context,
   ) {
     final myMelt = ref.watch(getUserProvider(widget.meltedUserAgurment.userId));
-    final meltState = ref.watch(meltUserProvider(widget.meltedUserAgurment.userId));
-    ref.listen<MeltUsersState>(meltUserProvider(widget.meltedUserAgurment.userId),
-        (prev, current) {
+    final meltState = ref.watch(meltUserProvider);
+    ref.listen<MeltUsersState>(meltUserProvider, (prev, current) {
       if (current.isSuccess) {
         melted = true;
+        conversationId = current.data;
         setState(() {});
       }
     });
@@ -92,12 +96,11 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                               loading: meltState.isLoading,
                               onPressed: () {
                                 ref
-                                    .read(meltUserProvider(widget.meltedUserAgurment.userId)
-                                        .notifier)
-                                    .meltUser();
+                                    .read(meltUserProvider.notifier)
+                                    .meltUser(widget.meltedUserAgurment.userId);
                               },
                               fontSize: 15,
-                              buttonText: "Metal",
+                              buttonText: "Melt",
                             )
                           : Row(
                               children: [
@@ -123,6 +126,9 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                             user: MeltUserModel(
                                                 gender: myMelt.data!.gender,
                                                 name: myMelt.data!.username,
+                                                username: myMelt.data!.username,
+                                                fcmToken: myMelt.data!.fcmToken,
+                                                conversationId: conversationId!,
                                                 metal: myMelt.data!.metal,
                                                 phone: myMelt.data!.phone,
                                                 id: myMelt.data!.id),

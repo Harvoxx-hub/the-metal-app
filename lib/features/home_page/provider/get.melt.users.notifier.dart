@@ -12,7 +12,6 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
     getMeltUsers();
   }
   final Ref ref;
-  
 
   //get melt users
   void getMeltUsers() async {
@@ -25,10 +24,23 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
         users.add(MeltUserModel.fromJson(user));
       }
       state = GetMeltUsersState.success(users);
-      
     } catch (e) {
       print(e.toString());
       state = GetMeltUsersState.error(e.toString());
+    }
+  }
+
+  void updateMelt() async {
+    try {
+      final homeRepository = ref.watch(homeRepositoryProvider);
+      final response = await homeRepository.getMeltedUsers();
+      final List<MeltUserModel> users = [];
+      for (var user in response.data) {
+        users.add(MeltUserModel.fromJson(user));
+      }
+      state = GetMeltUsersState.success(users);
+    } catch (e) {
+      print(e.toString());
     }
   }
 }

@@ -47,6 +47,8 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       distance: json['distance'] as String?,
       sparkBalance: (json['sparkBalance'] as num?)?.toDouble(),
       id: json['id'] as String?,
+      conversationId: json['conversationId'] as String?,
+      fcmToken: json['fcmToken'] as String?,
       profilePhoto: json['profilePhoto'] as String?,
       completed_profile: json['completed_profile'] as bool?,
     );
@@ -78,6 +80,8 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'id': instance.id,
       'referralCode': instance.referralCode,
       'profilePhoto': instance.profilePhoto,
+      'fcmToken': instance.fcmToken,
+      'conversationId': instance.conversationId,
     };
 
 Address _$AddressFromJson(Map<String, dynamic> json) => Address(

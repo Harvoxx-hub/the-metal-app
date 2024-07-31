@@ -23,8 +23,8 @@ class _MyThoughtTabState extends ConsumerState<MyThoughtTab> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.id != null)
-        ref.read(getThoughtByUserProvider.notifier).getThought(id: widget.id);
+  
+        ref.read(getThoughtByUserProvider.notifier).getThought( id: widget.id);
     });
     super.initState();
   }
@@ -64,7 +64,7 @@ class _MyThoughtTabState extends ConsumerState<MyThoughtTab> {
             shrinkWrap: true,
             physics: const ClampingScrollPhysics(),
             itemBuilder: (context, index) {
-              return ThoughtCard(thoughtModel: getThoughtState.data![index], melted: true,);
+              return ThoughtCard(thoughtModel: getThoughtState.data![index], );
             },
           );
         }

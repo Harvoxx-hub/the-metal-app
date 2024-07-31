@@ -48,11 +48,11 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
           context,
           AppRoutes.verificationPage,
           arguments: VerificationSentArgument(
-            type: RouteFrom.AccountSetting,
-            code: current.data!['OTP'],
-            uuid: current.data!['UUID'],
-            phoneNumber: _phoneController.text,
-          ),
+              type: RouteFrom.AccountSetting,
+              code: current.data!['OTP'],
+              uuid: current.data!['UUID'],
+              phoneNumber: _phoneController.text,
+              email: _emailController.text),
         );
       }
     });
@@ -102,6 +102,7 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
                   EditFormField(
                     floatingLabel: 'Password',
                     label: '**********',
+                    obscureText: true,
                     controller: _passwordController,
                     keyboardType: TextInputType.visiblePassword,
                     validator: Validators.validatePlainPassword(),

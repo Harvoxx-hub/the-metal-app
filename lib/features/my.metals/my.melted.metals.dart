@@ -11,18 +11,36 @@ import 'package:metal/features/my.metals/widget/melt.card.dart';
 
 import 'package:metal/widgets/text_views.dart';
 
-class MyMeltedMetals extends ConsumerWidget {
+class MyMeltedMetals extends ConsumerStatefulWidget {
   const MyMeltedMetals({super.key});
   static const name = 'meltedPage';
   static const route = name;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyMeltedMetals> createState() => _MyMeltedMetalsState();
+}
+
+class _MyMeltedMetalsState extends ConsumerState<MyMeltedMetals> {
+  @override
+  void initState() {
+    //
+
+    Future.delayed(const Duration(seconds: 1), () {
+      ref.read(getMeltUserProvider.notifier).updateMelt();
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
     final myMelt = ref.watch(getMeltUserProvider);
+
     return BaseScreen(
         subAppBar: true,
         appBarState: AppBarState.HambugerWithHeader,
-        Header: "metals Profile",
+        Header: "melted metal",
         body: SingleChildScrollView(
           child: myMelt.isLoading
               ? const Center(child: CircularProgressIndicator())

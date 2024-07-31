@@ -7,6 +7,8 @@ import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
+import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+ 
 import 'package:metal/features/my.metals/melted.user.agurment.dart';
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -18,20 +20,37 @@ import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
-import '../domain/entries/all.user.model.dart';
-
-class ThoughtCard extends ConsumerWidget {
+class ThoughtCard extends ConsumerStatefulWidget {
   final ThoughtModel thoughtModel;
-  final bool melted;
 
   const ThoughtCard({
     super.key,
     required this.thoughtModel,
-    required this.melted,
   });
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ThoughtCard> createState() => _ThoughtCardState();
+}
+
+class _ThoughtCardState extends ConsumerState<ThoughtCard> {
+  bool melted = false;
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
     final userdata = ref.watch(authProvider).data;
+    final meltedUsers = ref.watch(getMeltUserProvider).data;
+
+    if (meltedUsers?.any((file) => file.id == widget.thoughtModel.user) ??
+        false) {
+      melted = true;
+    }
+    if(userdata!.id == widget.thoughtModel.user){
+melted = true;
+    }
+
+  
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -49,106 +68,95 @@ class ThoughtCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                ProfilePhoto(
-                  verfly: false,
-                  size: 40,
-                  photourl: thoughtModel.userData!.metal!.img!,
-                ),
-                const SizedBox(width: 10.0),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        TextView(
-                          text: thoughtModel.userData!.username!,
-                        ),
-                        const SizedBox(width: 5.0),
-                        Assets.icons.checkVerified.svg(height: 16),
-                      ],
-                    ),
-                    Text(
-                      formatToWhatsAppChatTime(thoughtModel.created_at!),
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                if (userdata!.id != thoughtModel.user)
-                  IconButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                          backgroundColor: Colors.white,
-                          context: context,
-                          builder: (BuildContext context) {
-                            return SafeArea(
-                              child: Wrap(
-                                children: <Widget>[
-                                  ListTile(
-                                    title: const Text('Block Metal'),
-                                    onTap: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return CustomDialog(
-                                              content: _blockDialog(
-                                                  context, thoughtModel, ref));
-                                        },
-                                      );
-                                    },
-                                  ),
-                                  ListTile(
-                                      title: const Text('Block and Report'),
-                                      onTap: () => showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return CustomDialog(
-                                                  content:
-                                                      _blockAndReportDialog(
-                                                          context,
-                                                          thoughtModel,
-                                                          ref));
-                                            },
-                                          )),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      icon: const Icon(Icons.more_vert))
-              ],
+            GestureDetector(
+              onTap: (){
+                  Navigator.pushNamed(context, AppRoutes.myMeltedUser,
+                              arguments: MeltedUserAgurment(
+                                  userId: widget.thoughtModel.user!,
+                                  conversationID: "",
+                                  melted: melted)
+                                  );
+              },
+              child: Row(
+                children: [
+                  ProfilePhoto(
+                    verfly: false,
+                    size: 40,
+                    photourl: widget.thoughtModel.userData!.metal!.img!,
+                  ),
+                  const SizedBox(width: 10.0),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          TextView(
+                            text: widget.thoughtModel.userData!.username!,
+                          ),
+                          const SizedBox(width: 5.0),
+                          Assets.icons.checkVerified.svg(height: 16),
+                        ],
+                      ),
+                      Text(
+                        formatToWhatsAppChatTime(widget.thoughtModel.created_at!),
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  if (userdata!.id != widget.thoughtModel.user || melted)
+                    IconButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            backgroundColor: Colors.white,
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SafeArea(
+                                child: Wrap(
+                                  children: <Widget>[
+                                    ListTile(
+                                      title: const Text('Block Metal'),
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return CustomDialog(
+                                                content: _blockDialog(context,
+                                                    widget.thoughtModel, ref));
+                                          },
+                                        );
+                                      },
+                                    ),
+                                    ListTile(
+                                        title: const Text('Block and Report'),
+                                        onTap: () => showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return CustomDialog(
+                                                    content:
+                                                        _blockAndReportDialog(
+                                                            context,
+                                                            widget.thoughtModel,
+                                                            ref));
+                                              },
+                                            )),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        
+                        },
+                        icon: const Icon(Icons.more_vert))
+                ],
+              ),
             ),
             const SizedBox(height: 10.0),
             TextView(
-              text: thoughtModel.thought!,
+              text: widget.thoughtModel.thought!,
             ),
             const SizedBox(height: 10.0),
-            Row(
-              children: [
-                !melted == true
-                    ? BaseButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, AppRoutes.myMeltedUser,
-                              arguments: MeltedUserAgurment(
-                                  userId: thoughtModel.user!, melted: melted));
-                        },
-                        width: 110,
-                        height: 32,
-                        fontSize: 15,
-                        buttonText: "View Metal",
-                      )
-                    : SizedBox(),
-                const Spacer(),
-                // Image.asset(
-                //   Assets.images.melt.path,
-                //   scale: 2,
-                // )
-              ],
-            ),
-          ],
+           ],
         ),
       ),
     );

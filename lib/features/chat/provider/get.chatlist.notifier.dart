@@ -33,6 +33,8 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
     }
   }
 
+  
+
   @override
   void dispose() {
     _messageSubscription?.cancel();

@@ -188,7 +188,7 @@ class _VideoPreviewState extends State<VideoPreview> {
                             const Spacer(),
                           ],
                         ),
-                        Gap(20.h),
+                        Gap(20),
                         Container(
                             height: 100,
                             decoration: BoxDecoration(

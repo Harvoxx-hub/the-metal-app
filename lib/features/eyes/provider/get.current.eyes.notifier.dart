@@ -14,33 +14,16 @@ class GetCurrentEyeNotifier extends StateNotifier<GetCurrentEyeState> {
   }
   final Ref ref;
 
-  // //get List of current eyes
-  // void getCurrentEye() async {
-  //   try {
-  //     state = GetCurrentEyeState.loading();
-  //     final eyeRepository = ref.watch(statusRepositoryProvider);
-  //     final response = await eyeRepository.getCurrentUserStatus();
-  //     final List<StatusData> eyes = [];
-  //     response.data.forEach((element) {
-  //       eyes.add(StatusData.fromJson(element));
-  //     });
-  //     state = GetCurrentEyeState.success(eyes);
-  //   } catch (e) {
-  //     print(e.toString());
-  //     state = GetCurrentEyeState.error(e.toString());
-  //   }
-  // }
-
-  //get List of current eyes
   void getCurrentEye() async {
     try {
       state = GetCurrentEyeState.loading();
       final eyeRepository = ref.watch(statusRepositoryProvider);
       final response = await eyeRepository.getCurrentUserStatus();
       if (mounted) {
-        final List<StatusData> eyes = [];
-        response.data.forEach((element) {
-          eyes.add(StatusData.fromJson(element));
+        final List<StatusModel> eyes = [];
+        final status = response.data["status"];
+        status.forEach((element) {
+          eyes.add(StatusModel.fromJson(element));
         });
         state = GetCurrentEyeState.success(eyes);
       }
@@ -52,9 +35,9 @@ class GetCurrentEyeNotifier extends StateNotifier<GetCurrentEyeState> {
 }
 
 // Define a type alias
-typedef GetCurrentEyeState = BaseState<List<StatusData>>;
+typedef GetCurrentEyeState = BaseState<List<StatusModel>>;
 
-final getCurrentEyesProvider = StateNotifierProvider.autoDispose<
-    GetCurrentEyeNotifier, GetCurrentEyeState>(
+final getCurrentEyesProvider =
+    StateNotifierProvider<GetCurrentEyeNotifier, GetCurrentEyeState>(
   (ref) => GetCurrentEyeNotifier(GetCurrentEyeState.initial(), ref),
 );

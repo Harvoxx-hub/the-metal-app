@@ -50,6 +50,10 @@ abstract class IAuthenticationRepository {
      File  image,
   );
 
+   Future<Responses> sendFeedback(
+     String  feedback,
+  );
+
 
 
 

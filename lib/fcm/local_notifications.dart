@@ -2,9 +2,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 /// Wrapper for [FlutterLocalNotificationsPlugin]
 class LocalNotifications {
-  // todo starter: change android notification settings
-  static const _androidChannelId = 'channel';
-  static const _androidChannelName = 'Notifications';
+  // Android notification settings
+  static const _androidChannelId = 'high_importance_channel';
+  static const _androidChannelName = 'High Importance Notifications';
+  static const _androidChannelDescription = 'This channel is used for important notifications.';
 
   static int _lastNotificationId = 0;
 
@@ -27,17 +28,26 @@ class LocalNotifications {
   Future<void> init({
     DidReceiveNotificationResponseCallback? onDidReceiveNotificationResponse,
     String androidDefaultIcon = '@mipmap/ic_launcher',
-  }) =>
-      _localNotifications.initialize(
-        InitializationSettings(
-          android: AndroidInitializationSettings(androidDefaultIcon),
-          iOS: const DarwinInitializationSettings(),
-        ),
-        onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
-      );
+  }) async {
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      _androidChannelId, // id
+      _androidChannelName, // name
+      description: _androidChannelDescription, // description
+      importance: Importance.high,
+    );
 
- 
- 
+    await _localNotifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+
+    await _localNotifications.initialize(
+      InitializationSettings(
+        android: AndroidInitializationSettings(androidDefaultIcon),
+        iOS: const DarwinInitializationSettings(),
+      ),
+      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+    );
+  }
+
   Future<void> show({
     int id = 0,
     String? title,
@@ -62,10 +72,8 @@ class LocalNotifications {
     _lastNotificationId = id;
   }
 
- 
   Future<void> cancel(int id, {String? tag}) =>
       _localNotifications.cancel(id, tag: tag);
 
- 
   Future<void> cancelAll() => _localNotifications.cancelAll();
 }

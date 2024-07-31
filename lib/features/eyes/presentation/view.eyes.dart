@@ -23,6 +23,7 @@ class _ViewEyesState extends State<ViewEyes> {
   PageController pageController = PageController(
     viewportFraction: 0.8,
   );
+  String data = "";
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +45,7 @@ class _ViewEyesState extends State<ViewEyes> {
                       width: 50,
                     ),
                     const Gap(10),
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextView(
@@ -53,7 +54,7 @@ class _ViewEyesState extends State<ViewEyes> {
                         ),
                         Gap(10),
                         TextView(
-                          text: "Yesterday, 3:00PM",
+                          text: data,
                           color: Colors.white,
                           fontSize: 12,
                         ),
@@ -69,12 +70,15 @@ class _ViewEyesState extends State<ViewEyes> {
                   onPageChanged: (value) {
                     setState(() {
                       currentPage = value;
+                         data = widget.eyes[value].getFormattedDate();
                     });
                   },
                   controller: pageController,
                   itemCount: widget.eyes.length,
                   itemBuilder: (context, index) {
                     final eye = widget.eyes[index];
+                    
+
                     return _buildMediaWidget(eye);
                   },
                 ),

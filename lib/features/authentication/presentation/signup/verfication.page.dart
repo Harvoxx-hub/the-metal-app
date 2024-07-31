@@ -96,7 +96,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                 ),
                 TextView(
                   text:
-                      'Please input the OTP code sent to \n*${widget.argument.phoneNumber}*',
+                      'Please input the OTP code sent to \n*${widget.argument.email}*',
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.w300,
@@ -142,7 +142,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
               color: AppColors.metalBrownColourForText,
             ),
             const TextView(
-              text: " Tap to resend via SMS or Phone call",
+              text: " Tap to resend the OTP",
               fontSize: 12,
               fontWeight: FontWeight.w400,
               textAlign: TextAlign.center,
@@ -157,7 +157,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                       SvgPicture.asset(
                         Assets.icons.verificationText.path,
                         height: 50,
-                        width: 50.w,
+                        width: 50,
                       ),
                       // Gap(10.w),
                       // SvgPicture.asset(

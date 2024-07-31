@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/widgets/card.with.shadow.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -17,7 +18,7 @@ class BlockedCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CardWithShadow(
         onTap: () {
-       //   ref.read(blockUserProvider.notifier).unBlockUser(id);
+       ref.read(blockUserProvider.notifier).unBlockUser(id);
         },
         height: 105,
         child: Row(

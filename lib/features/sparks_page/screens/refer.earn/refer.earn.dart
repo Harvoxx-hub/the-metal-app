@@ -100,7 +100,7 @@ class ReferEarnSpark extends ConsumerWidget {
                         ),
                         const Gap(16),
                         OutilineButton(
-                          buttonText: "Copy invite Link ",
+                          buttonText: "Copy invite Code ",
                           onPressed: () {
                             Clipboard.setData(ClipboardData(
                                     text:

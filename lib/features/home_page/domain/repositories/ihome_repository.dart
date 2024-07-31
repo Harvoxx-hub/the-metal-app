@@ -13,7 +13,7 @@ abstract class IHomeRepository {
 
   Future<Responses> getALLUser(String distance);
 
-  Future<Responses> meltUser(String userToMelt);
+  Future<Responses> meltUser(String userToMelt, String conversationId);
   Future<Responses> sendThought(String thought);
   Future<Responses> getThoughtForYou();
  Future<Responses> getThoughtExplore();

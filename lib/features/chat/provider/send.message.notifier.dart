@@ -21,7 +21,7 @@ class SendMessageNotifier extends StateNotifier<SendMessageState> {
       final messageRepository = ref.watch(messageRepositoryProvider);
       final response = await messageRepository.sendMessage(
         message: message,
-        conversationsId: conversationsId
+        conversationsId: conversationsId!
       );
 
       if (response.success!) {

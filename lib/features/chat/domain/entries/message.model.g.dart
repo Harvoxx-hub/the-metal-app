@@ -12,6 +12,8 @@ MessageModel _$MessageModelFromJson(Map<String, dynamic> json) => MessageModel(
       senderId: json['senderId'] as String,
       type: $enumDecode(_$MessageTypeEnumMap, json['type']),
       content: json['content'] as String?,
+      userName: json['userName'] as String?,
+      fcmToken: json['fcmToken'] as String?,
       timestamp:
           const TimestampConverter().fromJson(json['timestamp'] as Timestamp),
       state: $enumDecode(_$MessageStateEnumMap, json['state']),
@@ -24,6 +26,8 @@ Map<String, dynamic> _$MessageModelToJson(MessageModel instance) =>
       'recipientId': instance.recipientId,
       'type': _$MessageTypeEnumMap[instance.type]!,
       'content': instance.content,
+      'userName': instance.userName,
+      'fcmToken': instance.fcmToken,
       'timestamp': const TimestampConverter().toJson(instance.timestamp),
       'state': _$MessageStateEnumMap[instance.state]!,
     };

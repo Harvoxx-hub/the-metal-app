@@ -34,19 +34,19 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
   final image3 = Assets.gifs.onboarding3.path;
   final PageController _controller = PageController();
   int currentPage = 0;
-  late Timer _timer;
+  
   @override
   void initState() {
     super.initState();
-    // Start timer to move to the next page every 3 seconds
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (currentPage < 2) {
-        _controller.nextPage(
-            duration: const Duration(milliseconds: 500), curve: Curves.ease);
-      } else {
-        _controller.jumpToPage(0);
-      }
-    });
+    
+    //  Timer.periodic(const Duration(seconds: 3), (timer) {
+    //   if (currentPage < 2) {
+    //     _controller.nextPage(
+    //         duration: const Duration(milliseconds: 500), curve: Curves.ease);
+    //   } else {
+    //     _controller.jumpToPage(0);
+    //   }
+    // });
   }
 
   @override
@@ -54,143 +54,142 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
     return BaseScreen(
       appBarEnabled: false,
       bgImage: Assets.images.bg2.path,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 15.0, right: 15),
-          child: Column(
-            children: [
-              SizedBox(
-                height: getDeviceHeight(context) * 0.55,
-                child: PageView(
-                  controller: _controller,
-                  onPageChanged: (value) {
-                    setState(() {
-                      currentPage = value;
-                    });
-                    print(currentPage);
-                  },
-                  children: [
-                    OnboardingWidget(
-                      headerText: 'Find your special someone',
-                      descriptionText:
-                          'A true love, a companion, a listening ear, a mentor, a father or a daughter? We got you!',
-                      imageUrl: image1,
-                    ),
-                    OnboardingWidget(
-                      headerText: 'Interact from around the world',
-                      descriptionText:
-                          'Irrespective of your location, you can get to interact with new contacts and friends',
-                      imageUrl: image2,
-                    ),
-                    OnboardingWidget(
-                      headerText: 'Let your hearts talk',
-                      descriptionText:
-                          'With our exciting Metal features, get to have meaningful blind conversations and connect your hearts.',
-                      imageUrl: image3,
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                children: [
-                  buildDot(currentPage == 0),
-                  buildDot(currentPage == 1),
-                  buildDot(currentPage == 2),
-                ],
-              ),
-              const Gap(38),
-              BaseButton(
-                buttonText: 'Sign up with your email',
-                onPressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    AppRoutes.accountSetting,
-                  );
+      body: Padding(
+        padding: const EdgeInsets.only(left: 15.0, right: 15),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 500,
+              child: PageView(
+                controller: _controller,
+                onPageChanged: (value) {
+                  setState(() {
+                    currentPage = value;
+                  });
+                  print(currentPage);
                 },
-              ),
-              const Gap(20),
-              const ButtonDivider(),
-              // const Gap(20),
-              // Row(
-              //   crossAxisAlignment: CrossAxisAlignment.center,
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     Image.asset(
-              //       Assets.images.google.path,
-              //       width: 39.w,
-              //       height: 39 ,
-              //     ),
-              //     const Gap(10),
-              //     Image.asset(
-              //       Assets.images.apple.path,
-              //       width: 39.w,
-              //       height: 39 ,
-              //     ),
-              //   ],
-              // ),
-              const Gap(20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const TextView(
-                    text: 'Already have an account?',
+                  OnboardingWidget(
+                    headerText: 'Find your special someone',
+                    descriptionText:
+                        'A true love, a companion, a listening ear, a mentor, a father or a daughter? We got you!',
+                    imageUrl: image1,
                   ),
-                  const Gap(5),
-                  TextView(
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        AppRoutes.login,
-                      );
-                    },
-                    text: 'Log in',
+                  OnboardingWidget(
+                    headerText: 'Interact from around the world',
+                    descriptionText:
+                        'Irrespective of your location, you can get to interact with new contacts and friends',
+                    imageUrl: image2,
+                  ),
+                  OnboardingWidget(
+                    headerText: 'Let your hearts talk',
+                    descriptionText:
+                        'With our exciting Metal features, get to have meaningful blind conversations and connect your hearts.',
+                    imageUrl: image3,
                   ),
                 ],
               ),
-              const Gap(20),
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  const TextView(
-                    text: 'By tapping Sign up or Log in, you agree to our ',
-                    fontSize: 10,
-                  ),
-                  TextView(
-                    onTap: () {
-                      openLink("https://themetalapp.com/terms-and-conditions/");
-                    },
-                    text: 'Terms',
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  const TextView(
-                    text: 'Learn how we process your data in our ',
-                    fontSize: 10,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  TextView(
-                    onTap: () {
-                      openLink("https://themetalapp.com/privacy/");
-                    },
-                    text: 'Privacy Policy',
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  const TextView(
-                    text: ' and ',
-                    fontSize: 10,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  TextView(
-                    onTap: () {},
-                    text: 'Cookies Policy',
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ],
-              )
-            ],
-          ),
+            ),
+            Row(
+              children: [
+                buildDot(currentPage == 0),
+                buildDot(currentPage == 1),
+                buildDot(currentPage == 2),
+              ],
+            ),
+            const Gap(38),
+            BaseButton(
+              buttonText: 'Sign up with your email',
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.accountSetting,
+                );
+              },
+            ),
+            const Gap(20),
+            const ButtonDivider(),
+            // const Gap(20),
+            // Row(
+            //   crossAxisAlignment: CrossAxisAlignment.center,
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     Image.asset(
+            //       Assets.images.google.path,
+            //       width: 39.w,
+            //       height: 39 ,
+            //     ),
+            //     const Gap(10),
+            //     Image.asset(
+            //       Assets.images.apple.path,
+            //       width: 39.w,
+            //       height: 39 ,
+            //     ),
+            //   ],
+            // ),
+            const Gap(20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const TextView(
+                  text: 'Already have an account?',
+                ),
+                const Gap(5),
+                TextView(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.login,
+                    );
+                  },
+                  text: 'Log in',
+                ),
+              ],
+            ),
+            const Gap(20),
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                const TextView(
+                  text: 'By tapping Sign up or Log in, you agree to our ',
+                  fontSize: 10,
+                ),
+                TextView(
+                  onTap: () {
+                    openLink("https://themetalapp.com/terms-and-conditions/");
+                  },
+                  text: 'Terms',
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                const TextView(
+                  text: 'Learn how we process your data in our ',
+                  fontSize: 10,
+                  fontWeight: FontWeight.normal,
+                ),
+                TextView(
+                  onTap: () {
+                    openLink("https://themetalapp.com/privacy/");
+                  },
+                  text: 'Privacy Policy',
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                const TextView(
+                  text: ' and ',
+                  fontSize: 10,
+                  fontWeight: FontWeight.normal,
+                ),
+                TextView(
+                  onTap: () {},
+                  text: 'Cookies Policy',
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ],
+            )
+          ],
         ),
       ),
     );

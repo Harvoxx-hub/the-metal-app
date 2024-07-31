@@ -14,12 +14,14 @@ class MeltCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return CardWithShadow(
         onTap: () {
           Navigator.pushNamed(context, AppRoutes.myMeltedUser,
               arguments: MeltedUserAgurment(
                                 userId: user.id!,
-                                melted: true
+                                melted: true,
+                                conversationID: user.conversationId!
                               ));
         },
         height: 105,
@@ -32,7 +34,7 @@ class MeltCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextView(
-                  text: user.name!,
+                  text: user.username!,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -45,8 +47,8 @@ class MeltCard extends StatelessWidget {
                 const Gap(14),
 
                 ///TODO: add the melted for marriage
-                const TextView(
-                  text: "-  Melted for Marriage",
+                  TextView(
+                  text: "- ${user.metal!.title}",
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),

@@ -53,7 +53,7 @@ class _StatusWidgetState extends ConsumerState<StatusWidget> {
           for (final metal in myMelt.data ?? [])
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
-              child: eyeWidget(metal.name!, status: metal),
+              child: eyeWidget(metal.username, status: metal),
             ),
         ],
       ),

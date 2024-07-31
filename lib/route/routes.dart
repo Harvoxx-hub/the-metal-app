@@ -40,7 +40,6 @@ import 'package:metal/features/eyes/presentation/eye.select.media.dart';
 import 'package:metal/features/eyes/presentation/eyes.intro.screen.dart';
 import 'package:metal/features/eyes/presentation/view.eyes.dart';
 import 'package:metal/features/feedback/feedback.page.dart';
-import 'package:metal/features/home_page/domain/entries/all.user.model.dart';
  
 import 'package:metal/features/my.metals/my.melted.metals.dart';
 import 'package:metal/features/my.metals/my.melted.user.dart';
@@ -182,7 +181,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const VideoPreview());
      
       case feedBackPage:
-        return MaterialPageRoute(builder: (_) => const FeedBackPage());
+        return MaterialPageRoute(builder: (_) =>   FeedBackPage());
       case blockedUser:
         return MaterialPageRoute(builder: (_) => const BlockedUser());
       case notificationPage:

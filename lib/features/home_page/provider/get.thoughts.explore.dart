@@ -32,6 +32,24 @@ class GetThoughtExploreNotifier extends StateNotifier<GetThoughtExploreState> {
       state = GetThoughtExploreState.error(e.toString());
     }
   }
+
+   void getThoughtUpdate() async {
+    try {
+      state = GetThoughtExploreState.loading();
+      final homeRepository = ref.watch(homeRepositoryProvider);
+      final response = await homeRepository.getThoughtExplore();
+      final List<ThoughtModel> thoughts = [];
+      for (var thought in response.data) {
+        thoughts.add(ThoughtModel.fromJson(thought));
+      }
+      if (mounted) {
+        state = GetThoughtExploreState.success(thoughts);
+      }
+    } catch (e) {
+      print(e.toString());
+      state = GetThoughtExploreState.error(e.toString());
+    }
+  }
 }
 
 // Define a type alias

@@ -46,21 +46,25 @@ class _HomePageState extends ConsumerState<HomePage> {
         child: Column(
           children: [
             Container(
+              height: 53,
               width: double.infinity,
               decoration: const BoxDecoration(
-                color: AppColors.metalPinkColour,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(35),
-                  bottomRight: Radius.circular(35),
-                ),
-              ),
+                  gradient: LinearGradient(
+                    begin: Alignment(0.00, -1.00),
+                    end: Alignment(0, 1),
+                    colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
+                  ),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(35),
+                    bottomRight: Radius.circular(35),
+                  )),
               child: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 child: TextView(
                   text: "Share Your Thought Anonymously",
-                  fontSize: 14,
+                  fontSize: 18,
                   color: Colors.white,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
@@ -73,7 +77,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     children: [
                       const TextView(
                         text: "Feeds",
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
                       const Spacer(),
@@ -129,6 +133,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void sendMessage() {
+    FocusScope.of(context).unfocus();
     ref.read(sendThoughtProvider.notifier).sendThought(_controller.text);
     _controller.text = "";
   }
@@ -142,12 +147,21 @@ class _HomePageState extends ConsumerState<HomePage> {
         );
       case Status.success:
         if (getThoughtExploreState.data!.isEmpty) {
-          return const Center(
-            child: TextView(
-              text: "No Thoughts In Your Explore Feed",
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
+          return Column(
+            children: [
+              Image.asset(
+                Assets.gifs.empty.path,
+                height: 250,
+                width: 250,
+              ),
+              const Gap(46),
+              const TextView(
+                textAlign: TextAlign.center,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                text: "No Explore Thought was found",
+              ),
+            ],
           );
         } else {
           return ListView.builder(
@@ -157,7 +171,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             itemBuilder: (context, index) {
               return ThoughtCard(
                 thoughtModel: getThoughtExploreState.data![index],
-                melted: false,
+           
               );
             },
           );
@@ -166,10 +180,13 @@ class _HomePageState extends ConsumerState<HomePage> {
         return Center(
           child: Column(
             children: [
+              Gap(10),
+              Assets.icons.alertTriangle.svg(height: 100),
+              const Gap(30),
               TextView(
                 text: "Error loading thoughts",
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
               ),
               const Gap(10),
               PlainButton(
@@ -193,12 +210,22 @@ class _HomePageState extends ConsumerState<HomePage> {
         );
       case Status.success:
         if (getThoughtForYouState.data!.isEmpty) {
-          return const Center(
-            child: TextView(
-              text: "No thoughts in your For-You feed, Connect with Other metal to get thoughts",
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
+          return Column(
+            children: [
+              Image.asset(
+                Assets.gifs.empty.path,
+                height: 250,
+                width: 250,
+              ),
+              const Gap(46),
+              const TextView(
+                textAlign: TextAlign.center,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                text:
+                    "No thoughts in your For-You feed, Connect with Other metal to get thoughts",
+              ),
+            ],
           );
         } else {
           return ListView.builder(
@@ -208,7 +235,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             itemBuilder: (context, index) {
               return ThoughtCard(
                 thoughtModel: getThoughtForYouState.data![index],
-                melted: true,
+              
               );
             },
           );
@@ -217,11 +244,13 @@ class _HomePageState extends ConsumerState<HomePage> {
         return Center(
           child: Column(
             children: [
+              Gap(10),
+              Assets.icons.alertTriangle.svg(height: 100),
+              const Gap(30),
               TextView(
-                text:  "Error loading thoughts",
-                fontSize: 14,
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
+                text: "Error loading thoughts",
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
               ),
               const Gap(10),
               PlainButton(
@@ -254,15 +283,17 @@ class FeedTabItem extends StatelessWidget {
     return GestureDetector(
       onTap: onPress,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: selected ? AppColors.metalPinkColour40 : null,
-          border: selected ? null : Border.all(color: AppColors.metalBlack, width: 1.0),
+          border: selected
+              ? null
+              : Border.all(color: AppColors.metalBlack, width: 1.0),
           borderRadius: BorderRadius.circular(20),
         ),
         child: TextView(
           text: title,
-          fontSize: 14,
+          fontSize: 11,
           fontWeight: FontWeight.w400,
         ),
       ),

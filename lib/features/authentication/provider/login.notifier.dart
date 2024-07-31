@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
- 
 
 import 'package:metal/core/services/auth.pref.service.dart';
 
@@ -30,16 +29,22 @@ class LoginNotifier extends StateNotifier<LoginStates> {
         password: password,
       );
 
-      await AuthManager.saveAccessToken(response.data['access_token']);
-      await AuthManager.saveRefreshToken(response.data['refresh_token']);
-      await AuthManager.saveLoginState(LoginState.loggedIn);
-      ref
-          .read(authProvider.notifier)
-          .updateUserData(UserModel.fromJson(response.data));
-      state = LoginStates.success(UserModel.fromJson(response.data));
+      if (response.action == "ENTER OTP") {
+        state = LoginStates.action( action: response.data);
+      } else {
+        await AuthManager.saveAccessToken(response.data['access_token']);
+        await AuthManager.saveRefreshToken(response.data['refresh_token']);
+        await AuthManager.saveLoginState(LoginState.loggedIn);
+        ref
+            .read(authProvider.notifier)
+            .updateUserData(UserModel.fromJson(response.data));
+        state = LoginStates.success(UserModel.fromJson(response.data));
+      }
     } catch (e) {
-      state = LoginStates.error(e.toString(), );
-       }
+      state = LoginStates.error(
+        e.toString(),
+      );
+    }
   }
 }
 

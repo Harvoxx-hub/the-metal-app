@@ -167,6 +167,21 @@ class AuthenticationRepository implements IAuthenticationRepository {
       rethrow;
     }
   }
+  
+  @override
+  Future<Responses> sendFeedback(String feedback) async {
+      try {
+      final response = await _apiService.post(
+        'user/send-feedback',
+        body: {
+          "feedback": feedback
+        }
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
 
 final authenticationRepositoryProvider = Provider((ref) {

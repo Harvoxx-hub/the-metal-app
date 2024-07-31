@@ -41,45 +41,28 @@ class ChatWindowsPage extends ConsumerStatefulWidget {
 class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
   GameModel? game;
   String? conversationId;
-  bool checkId = false;
 
   @override
   void initState() {
-    conversationId = widget.argument.conversationId;
+    conversationId = widget.argument.user.conversationId;
 
     super.initState();
   }
 
   UserModel? currentUserData;
   ConversationsModel? conversationData;
-  void _updateconversationId(String id) {
-    setState(() {
-      conversationId = id;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<CheckConversationState>(
-        checkConversationProvider(widget.argument.user.id!), (prev, current) {
-      if (current.isSuccess) {
-        if (conversationId == null) {
-          _updateconversationId(current.data!);
-        }
-        checkId = true;
-        setState(() {});
-      }
-    });
     currentUserData = ref.watch(authProvider).data;
-    conversationId != null
-        ? conversationData =
-            ref.watch(getConverationProvider(conversationId!)).data
-        : null;
+
+    conversationData = ref.watch(getConverationProvider(conversationId!)).data;
+
     ref.listen<SendMessageState>(sendMessageProvider, (prev, current) {
       if (current.isSuccess) {
-        if (conversationId == null) {
-          _updateconversationId(current.data!);
-        }
+        // if (conversationId == null) {
+        //   _updateconversationId(current.data!);
+        // }
       }
     });
     return BaseScreen(
@@ -104,13 +87,7 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
                   : GameTile(
                       conversationsModel: conversationData!,
                     ),
-              checkId
-                  ? MessageList(conversationId)
-                  : const Expanded(
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
+              MessageList(conversationId),
               ChatBottomSheet(
                 onSend: (p0) {
                   sendTextMessage(p0);
@@ -143,6 +120,8 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
         type: MessageType.text,
         timestamp: DateTime.now(),
         state: MessageState.sending,
+        fcmToken: widget.argument.user.fcmToken,
+        userName: widget.argument.user.username,
         message: text,
         recipientId: widget.argument.user.id!);
 

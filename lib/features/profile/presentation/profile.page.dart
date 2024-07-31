@@ -46,7 +46,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   tabs: [
                    
                     BaseTabModel(
-                        child: const MyThoughtTab(), title: 'My Thought'),
+                        child: const MyThoughtTab(), title: 'Thoughts'),
                          BaseTabModel(child: const PersonalTab(), title: 'Personal'),
                     BaseTabModel(
                         child: const DiscoveryTab(), title: 'Discovery'),

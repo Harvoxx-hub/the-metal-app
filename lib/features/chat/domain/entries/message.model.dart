@@ -15,6 +15,8 @@ class MessageModel {
   final String recipientId;
   final MessageType type;
   String? content;
+   String? userName;
+    String? fcmToken;
   @TimestampConverter()
   final DateTime timestamp;
   final MessageState state;
@@ -25,6 +27,8 @@ class MessageModel {
     required this.senderId,
     required this.type,
     this.content,
+    this.userName,
+    this.fcmToken,
     required this.timestamp,
     required this.state,
   });

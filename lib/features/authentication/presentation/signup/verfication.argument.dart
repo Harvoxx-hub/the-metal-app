@@ -6,10 +6,12 @@ class VerificationSentArgument {
     this.code,
     this.uuid,
     this.phoneNumber,
+    this.email
   });
 
   final RouteFrom type;
   final int? code;
   final String? phoneNumber;
+    final String? email;
   final String? uuid;
 }

@@ -1,16 +1,10 @@
-// todo starter: uncomment code when google services files are added (.json and .plist)
-
-// todo starter: also enable google gms plugin at [android/app/build.gradle]
-// todo starter: enable firebase messaging implementation at [android/app/build.gradle]
-// todo starter: uncomment code at SAApp.kt
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/fcm/local_notifications.dart';
- 
 import 'package:synchronized/synchronized.dart';
 
 import 'abstract_notification_dispatcher.dart';
@@ -18,18 +12,13 @@ import 'models/notification_payload_model.dart';
 
 final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
- 
 class FCMClient {
   FCMClient._();
-
- 
 
   static final FCMClient instance = FCMClient._();
   static bool _isInit = false;
   final container = ProviderContainer();
- 
   final _fCMLock = Lock();
-
   final _localNotifications = LocalNotifications();
 
   /// Stream of messages when app is opened in foreground.
@@ -44,20 +33,36 @@ class FCMClient {
   /// Stream for detecting FCM token refresh
   Stream<String> get tokenRefreshStream => _firebaseMessaging.onTokenRefresh;
 
- 
   Future<String?> init() async {
     return _fCMLock.synchronized(() async {
       if (_isInit) {
         return _firebaseMessaging.getToken();
       }
- 
-      await _firebaseMessaging.requestPermission();
 
+      await _firebaseMessaging.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
+      );
+
+      if (Platform.isAndroid) {
+        await FirebaseMessaging.instance.setAutoInitEnabled(true);
+      }
       _firebaseMessaging.onTokenRefresh.listen((token) {
-         print('fcm token refreshed: $token');
+        print('fcm token refreshed: $token');
       });
+      FirebaseMessaging.instance.getToken();
+      // Set the foreground notification presentation options
+      FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
-   
       initialMessage = await _firebaseMessaging.getInitialMessage();
       _log(initialMessage, name: 'initialMessage');
 
@@ -72,12 +77,11 @@ class FCMClient {
       _onMessageOpenedAppSub =
           FirebaseMessaging.onMessageOpenedApp.listen(_onMessageOpenedApp);
 
-
       await _localNotifications.init(
         onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
       );
 
-     await _firebaseMessaging.subscribeToTopic("dev");
+      await _firebaseMessaging.subscribeToTopic("dev");
 
       final token = await _firebaseMessaging.getToken();
       print('fcm token: $token');
@@ -87,13 +91,13 @@ class FCMClient {
         // container
         //     .read(authenticationNotifierProvider.notifier)
         //     .updateToken(token);
-      // _auth.updateToken(token);
+        // _auth.updateToken(token);
 
-      tokenRefreshStream.listen((event) {
-        // container
-        //     .read(authenticationNotifierProvider.notifier)
-        //     .updateToken(event);
-      });
+        tokenRefreshStream.listen((event) {
+          // container
+          //     .read(authenticationNotifierProvider.notifier)
+          //     .updateToken(event);
+        });
       }
 
       return token;

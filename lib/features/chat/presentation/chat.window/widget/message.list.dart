@@ -24,23 +24,14 @@ class _MessageListState extends ConsumerState<MessageList> {
     super.initState();
   }
 
-  void _updateconversationId(String id) {
-    conversationId = id;
-    ref.read(getMessageList(conversationId ?? "").notifier).getMessageList();
-  }
+  
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<SendMessageState>(sendMessageProvider, (prev, current) {
-      if (current.isSuccess) {
-        if (conversationId == null) {
-          _updateconversationId(current.data!);
-        }
-      }
-    });
+    
       
 
-    final messages = ref.watch(getMessageList(conversationId ?? ""));
+    final messages = ref.watch(getMessageList(conversationId!));
 
     return Expanded(
         child: Padding(

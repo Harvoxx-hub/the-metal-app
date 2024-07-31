@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -66,14 +67,14 @@ class BlockedUser extends ConsumerWidget {
                     const Gap(13),
                     blockedUserState.isLoading
                         ? const Center(
-                            child: CircularProgressIndicator(),
+                            child: CupertinoActivityIndicator(),
                           )
                         : Column(
                             children: [
                               for (var element in blockedUserState.data ?? [])
                                 BlockedCard(
                                   id: element["id"],
-                                  name: element["name"],
+                                  name: element["name"] ??"",
                                 ),
                             ],
                           ),

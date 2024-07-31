@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/utils/date.formart.dart';
+import 'package:metal/features/notification/base.item.dart';
+import 'package:metal/features/notification/domain/entries/notification.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/text_views.dart';
+ 
 
-class MeltNotifcationItem extends StatelessWidget {
-  const MeltNotifcationItem({super.key});
+class MeltNotificationItem extends BaseNotificationItem {
+  const MeltNotificationItem({super.key, required NotificationModel notificationModel})
+      : super(notificationModel: notificationModel);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +28,7 @@ class MeltNotifcationItem extends StatelessWidget {
               blurRadius: 40,
               offset: Offset(0, 30),
               spreadRadius: 0,
-            )
+            ),
           ],
         ),
         child: Row(
@@ -38,26 +42,25 @@ class MeltNotifcationItem extends StatelessWidget {
                 Positioned(
                   bottom: 0,
                   right: 0,
-                  // alignment: Alignment.bottomRight,
-                  child: Image.asset(Assets.images .sparkNotification.path),
-                )
+                  child: Image.asset(Assets.images.meltNotifcation.path),
+                ),
               ],
             ),
-            Gap(18.w),
-            const Expanded(
+            const Gap(18),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextView(
-                    text: "@*elizabeth_gold* pushed your profile",
+                    text: notificationModel.body ?? '',
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                   ),
                   Row(
-                    children: [
+                    children:   [
                       Spacer(),
                       TextView(
-                        text: "Mon at 8:14am",
+                        text: formatDateDDMMYY(notificationModel.created_at!),
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),
@@ -65,10 +68,12 @@ class MeltNotifcationItem extends StatelessWidget {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 }
+
+// Create other specific notification item widgets for SPARK, REFER, MESSAGE, UNMELT in a similar manner

@@ -9,10 +9,10 @@ part of 'status.model.dart';
 StatusModel _$StatusModelFromJson(Map<String, dynamic> json) => StatusModel(
       file: json['file'] as String?,
       text: json['text'] as String?,
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
       views: json['views'] as List<dynamic>?,
       isActive: json['isActive'] as bool?,
-    )..postedAt = json['postedAt'] as int?;
+    )..postedAt = (json['postedAt'] as num?)?.toInt();
 
 Map<String, dynamic> _$StatusModelToJson(StatusModel instance) =>
     <String, dynamic>{

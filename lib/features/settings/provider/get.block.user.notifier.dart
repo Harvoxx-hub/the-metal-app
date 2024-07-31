@@ -31,6 +31,6 @@ class GetBlockUsersNotifier extends StateNotifier<GetBlockUsersState> {
 typedef GetBlockUsersState = BaseState<List<dynamic>>;
 
 final getBlockUserProvider =
-    StateNotifierProvider<GetBlockUsersNotifier, GetBlockUsersState>(
+    StateNotifierProvider.autoDispose<GetBlockUsersNotifier, GetBlockUsersState>(
   (ref) => GetBlockUsersNotifier(GetBlockUsersState.initial(), ref),
 );

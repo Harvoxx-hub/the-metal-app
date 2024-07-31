@@ -9,17 +9,22 @@ class MeltUserModel {
   final String? id;
 
   final String? gender;
+  final String? username;
+  final String? fcmToken;
+  final String? conversationId;
 
   final Metal? metal;
   final String? phone;
 
-  MeltUserModel({
-    this.id,
-    this.gender,
-    this.metal,
-    this.phone,
-    this.name,
-  });
+  MeltUserModel(
+      {this.id,
+      this.gender,
+      this.metal,
+      this.phone,
+      this.name,
+      this.conversationId,
+      this.username,
+      this.fcmToken});
 
   factory MeltUserModel.fromJson(Map<String, dynamic> json) =>
       _$MeltUserModelFromJson(json);

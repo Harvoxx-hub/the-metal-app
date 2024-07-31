@@ -72,7 +72,7 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
       final authenticationRepository =
           ref.watch(authenticationRepositoryProvider);
       final response = await authenticationRepository
-          .completeUser(getNonNullValues(userModel.toJson()));
+          .completeUser(getNonNullValues(model.toJson()));
       final userData = UserModel.fromJson(response.data);
 
       await ref.read(authProvider.notifier).getUpdatedUser();

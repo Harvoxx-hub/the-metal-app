@@ -7,7 +7,7 @@ import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 import 'package:metal/features/authentication/provider/login.notifier.dart';
- 
+
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
@@ -15,7 +15,7 @@ import 'package:metal/widgets/agree.click.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
- 
+
 import 'package:metal/widgets/text_views.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -63,19 +63,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               : AppRoutes.welcomePage,
         );
       }
-      if (current.isError) {
-        if (current.errorMessage == "Account not activated") {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.notificationEnablePage,
+      if (current.isAction) {
+        Navigator.pushNamed(context, AppRoutes.verificationPage,
             arguments: VerificationSentArgument(
               type: RouteFrom.AccountSetting,
-              code: current.errorData?["OTP"],
-              uuid: current.errorData?["UUID"],
-              phoneNumber: current.errorData?["phone"],
-            ),
-          );
-        }
+              code: current.action?["OTP"],
+              uuid: current.action?["UUID"],
+              phoneNumber: current.action?["phone"],
+              email: current.action?["email"],
+            ));
       }
     });
 
@@ -128,6 +124,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   EditFormField(
                     floatingLabel: 'Password',
                     label: '*************',
+                    obscureText: true,
                     controller: _passwordController,
                     keyboardType: TextInputType.visiblePassword,
                     prefixWidget: SvgPicture.asset(

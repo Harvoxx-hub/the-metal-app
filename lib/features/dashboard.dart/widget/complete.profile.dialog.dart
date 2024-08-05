@@ -16,7 +16,7 @@ class ComplecteProfileDialog extends StatelessWidget {
         Assets.images.meltProfile.image(),
         const Gap(15),
         const TextView(
-          text: "Complecte Profile Setup",
+          text: "Complete Profile Setup",
           fontSize: 20,
           fontWeight: FontWeight.w500,
         ),

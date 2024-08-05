@@ -6,6 +6,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/feedback/provider/send.feedback.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/rate.widget.dart';
@@ -21,7 +22,18 @@ class FeedBackPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final feedbackState = ref.watch(sendFeedbackProvider);
-
+    ref.listen<SendFeedbackState>(sendFeedbackProvider, (prev, current) {
+      if (current.isSuccess) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CustomDialog(
+              content: feedbackDialog(context),
+            );
+          },
+        );
+      }
+    });
     return BaseScreen(
       subAppBar: true,
       appBarState: AppBarState.HambugerWithHeader,
@@ -71,14 +83,9 @@ class FeedBackPage extends ConsumerWidget {
                 loading: feedbackState.isLoading,
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return CustomDialog(
-                          content: confirmationDialog(context, ref),
-                        );
-                      },
-                    );
+                    ref
+                        .read(sendFeedbackProvider.notifier)
+                        .sendFeedback(controller.text);
                   }
                 },
                 buttonText: 'Submit review',
@@ -90,16 +97,16 @@ class FeedBackPage extends ConsumerWidget {
     );
   }
 
-  Widget confirmationDialog(BuildContext context, WidgetRef ref) {
+  Widget feedbackDialog(BuildContext context) {
     return Column(
       children: [
         const Gap(38),
-        Image.asset(Assets.images.handshake.path),
+        Assets.images.handshake.image(),
         const Gap(15),
         const TextView(
           text: "Thank you for your review!",
           fontSize: 20,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
         ),
         const Gap(15),
         const TextView(
@@ -111,16 +118,17 @@ class FeedBackPage extends ConsumerWidget {
         ),
         const Gap(38),
         BaseButton(
-          buttonText: "Got it!",
-          onPressed: () {
-            Navigator.pop(context);
-            ref
-                .read(sendFeedbackProvider.notifier)
-                .sendFeedback(controller.text);
-            controller.text = "";
-          },
-        ),
-        const Gap(23),
+            buttonText: "Got it!",
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushReplacementNamed(
+                context,
+                AppRoutes.dashboardPage,
+              );
+
+              //  confirm(context);
+            }),
+        const Gap(21),
       ],
     );
   }

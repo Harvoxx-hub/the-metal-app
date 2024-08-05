@@ -46,12 +46,12 @@ class AuthenticationRepository implements IAuthenticationRepository {
   }
 
   @override
-  Future<Responses> signUp(
-      {required String email,
-      required String password,
-      required String phoneNumber,
-      String? referal,
-      }) async {
+  Future<Responses> signUp({
+    required String email,
+    required String password,
+    required String phoneNumber,
+    String? referal,
+  }) async {
     try {
       String? token = await FCMClient.instance.init();
       final response = await _apiService.post(
@@ -61,7 +61,7 @@ class AuthenticationRepository implements IAuthenticationRepository {
           "password": password,
           "phone": phoneNumber,
           "fcmToken": token ?? "",
-          "reff_By": referal?? "",
+          "reff_By": referal ?? "",
         },
       );
       return response;
@@ -167,16 +167,35 @@ class AuthenticationRepository implements IAuthenticationRepository {
       rethrow;
     }
   }
-  
+
   @override
   Future<Responses> sendFeedback(String feedback) async {
-      try {
-      final response = await _apiService.post(
-        'user/send-feedback',
-        body: {
-          "feedback": feedback
-        }
-      );
+    try {
+      final response = await _apiService
+          .post('user/send-feedback', body: {"feedback": feedback});
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Responses> changePassword(String id, String password) async {
+    try {
+      final response = await _apiService
+          .post('auth/change-password', body: {"id": id, "password": password});
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Responses> forgetPassword(String email) async {
+    try {
+      final response = await _apiService.post('auth/verify-email-phone', body: {
+        "payload": email,
+      });
       return response;
     } catch (e) {
       rethrow;

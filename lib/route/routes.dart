@@ -128,7 +128,7 @@ class AppRoutes {
       case forgetPasswordOTP:
         return MaterialPageRoute(builder: (_) => ForgetPasswordOTPPage());
       case createNewPassword:
-        return MaterialPageRoute(builder: (_) => CreateNewPasswordPage());
+        return MaterialPageRoute(builder: (_) => CreateNewPasswordPage(userid: settings.arguments as String,));
       case accountSetting:
         return MaterialPageRoute(builder: (_) => const AccountSetting());
       case verificationPage:

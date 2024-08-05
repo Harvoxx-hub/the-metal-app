@@ -20,7 +20,7 @@ import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
-enum RouteFrom { AccountSetting, UpdatePhoneNumber, UpdateEmail }
+enum RouteFrom { AccountSetting, UpdatePhoneNumber, UpdateEmail, ForgetPassword }
 
 class VerificationPage extends ConsumerStatefulWidget {
   VerificationPage(this.argument, {super.key});
@@ -203,6 +203,9 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
       }
       if (widget.argument.type == RouteFrom.UpdateEmail) {
         Navigator.pushReplacementNamed(context, AppRoutes.newEmailPage);
+      }
+       if (widget.argument.type == RouteFrom.ForgetPassword) {
+        Navigator.pushReplacementNamed(context, AppRoutes.createNewPassword, arguments:widget.argument.uuid );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

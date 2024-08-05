@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/date.formart.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
@@ -14,14 +17,40 @@ import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
-class ForgetPasswordOTPPage extends ConsumerWidget {
+class ForgetPasswordOTPPage extends ConsumerStatefulWidget {
   ForgetPasswordOTPPage({super.key});
   static const name = 'forgetPasswordOtpPage';
   static const route = name;
-  final TextEditingController _otpController = TextEditingController();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ForgetPasswordOTPPage> createState() => _ForgetPasswordOTPPageState();
+}
+
+class _ForgetPasswordOTPPageState extends ConsumerState<ForgetPasswordOTPPage> {
+  final TextEditingController _otpController = TextEditingController();
+  int _secondsRemaining = 60;
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    startTimer();
+  }
+
+  void startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_secondsRemaining > 0) {
+          _secondsRemaining--;
+        } else {
+          _timer.cancel();
+        }
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BaseScreen(
       authFlow: true,
       bgImage: Assets.images.bg2.path,
@@ -78,7 +107,7 @@ class ForgetPasswordOTPPage extends ConsumerWidget {
           color: AppColors.metalBrownColourForText,
         ),
         const TextView(
-          text: " Tap to resend via SMS or Phone call",
+          text: " Tap to resend via Email",
           fontSize: 12,
           fontWeight: FontWeight.w400,
           textAlign: TextAlign.center,
@@ -103,13 +132,14 @@ class ForgetPasswordOTPPage extends ConsumerWidget {
           ],
         ),
         const Gap(27),
-        const TextView(
-          text: "00:58 secounds",
-          fontSize: 12,
-          fontWeight: FontWeight.w400,
-          textAlign: TextAlign.center,
-          color: AppColors.metalBrownColourForText,
-        ),
+         TextView(
+              text:
+                  "${formatDuration(Duration(seconds: _secondsRemaining))} Remaining",
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              textAlign: TextAlign.center,
+              color: AppColors.metalBrownColourForText,
+            ),
         const Gap(27),
         BaseButton(
           buttonText: "Verify Code",

@@ -109,7 +109,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   EditFormField(
-                    floatingLabel: 'Email address/Phone number/User name',
+                    floatingLabel: 'Email address',
                     label: 'Enter your email address',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,

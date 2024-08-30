@@ -10,6 +10,7 @@ import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
+import 'package:metal/features/authentication/provider/forget.password.notifier.dart';
 import 'package:metal/features/authentication/provider/verfication.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
@@ -20,7 +21,12 @@ import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
-enum RouteFrom { AccountSetting, UpdatePhoneNumber, UpdateEmail, ForgetPassword }
+enum RouteFrom {
+  AccountSetting,
+  UpdatePhoneNumber,
+  UpdateEmail,
+  ForgetPassword
+}
 
 class VerificationPage extends ConsumerStatefulWidget {
   VerificationPage(this.argument, {super.key});
@@ -133,38 +139,55 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
               },
             ),
             const Gap(36),
-            const TextView(
-              text: "Didn’t receive the code? ",
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              textAlign: TextAlign.center,
-              fontStyle: FontStyle.italic,
-              color: AppColors.metalBrownColourForText,
-            ),
-            const TextView(
-              text: " Tap to resend the OTP",
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              textAlign: TextAlign.center,
-              fontStyle: FontStyle.italic,
-              color: AppColors.metalBrownColourForText,
-            ),
             const Gap(33),
             _secondsRemaining == 0
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                ? Column(
                     children: [
-                      SvgPicture.asset(
-                        Assets.icons.verificationText.path,
-                        height: 50,
-                        width: 50,
+                      const TextView(
+                        text: "Didn’t receive the code? ",
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        textAlign: TextAlign.center,
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.metalBrownColourForText,
                       ),
-                      // Gap(10.w),
-                      // SvgPicture.asset(
-                      //   Assets.icons.verificationCall.path,
-                      //   height: 50 ,
-                      //   width: 50.w,
-                      // ),
+                      const TextView(
+                        text: " Tap to resend the OTP",
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        textAlign: TextAlign.center,
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.metalBrownColourForText,
+                      ),
+                      const Gap(33),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              ref
+                                  .read(forgetPasswordProvider.notifier)
+                                  .forgetPassword(
+                                      email: widget.argument.email!);
+                              setState(() {
+                                _secondsRemaining = 60;
+                                startTimer();
+                              });
+                            },
+                            child: SvgPicture.asset(
+                              Assets.icons.verificationText.path,
+                              height: 50,
+                              width: 50,
+                            ),
+                          ),
+                          // Gap(10.w),
+                          // SvgPicture.asset(
+                          //   Assets.icons.verificationCall.path,
+                          //   height: 50 ,
+                          //   width: 50.w,
+                          // ),
+                        ],
+                      ),
                     ],
                   )
                 : const Gap(0),
@@ -204,8 +227,9 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
       if (widget.argument.type == RouteFrom.UpdateEmail) {
         Navigator.pushReplacementNamed(context, AppRoutes.newEmailPage);
       }
-       if (widget.argument.type == RouteFrom.ForgetPassword) {
-        Navigator.pushReplacementNamed(context, AppRoutes.createNewPassword, arguments:widget.argument.uuid );
+      if (widget.argument.type == RouteFrom.ForgetPassword) {
+        Navigator.pushReplacementNamed(context, AppRoutes.createNewPassword,
+            arguments: widget.argument.uuid);
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -7,6 +7,7 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/chat/data/repositories/message.repository.dart';
 
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
+import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
 import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.explore.dart';
@@ -32,9 +33,12 @@ class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
           recipientId: id,
           senderId: userData!.id!);
       final response = await homeRepository.meltUser(id, conversationId);
-      ref.watch(getMeltUserProvider.notifier).updateMelt();
-      ref.read(getThoughtForYouProvider.notifier).getThoughtUpdate();
-      ref.read(getThoughtExploreProvider.notifier).getThoughtUpdate();
+      if (!response.data.isEmpty) {
+        ref.watch(getMeltUserProvider.notifier).updateMelt();
+        ref.read(getThoughtForYouProvider.notifier).getThoughtUpdate();
+        ref.read(getThoughtExploreProvider.notifier).getThoughtUpdate();
+      }
+
       Fluttertoast.showToast(
           msg: "Melt Request Sent",
           toastLength: Toast.LENGTH_LONG,
@@ -43,7 +47,9 @@ class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 16.0);
-      state = MeltUsersState.success(conversationId);
+ 
+      state = MeltUsersState.success(
+          {"conversationId": "conversationId", "data": response.data});
     } catch (e) {
       print(e.toString());
       state = MeltUsersState.error(e.toString());
@@ -52,7 +58,7 @@ class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
 }
 
 // Define a type alias
-typedef MeltUsersState = BaseState<String>;
+typedef MeltUsersState = BaseState<Map>;
 
 final meltUserProvider =
     StateNotifierProvider.autoDispose<MeltUsersNotifier, MeltUsersState>(

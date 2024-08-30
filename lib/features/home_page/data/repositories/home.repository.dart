@@ -53,10 +53,8 @@ class HomeRepository implements IHomeRepository {
   @override
   Future<Responses> meltUser(String userToMelt, String conversationId) async {
     try {
-      final response = await _apiService.post("melt/melt", body: {
-        "userToMelt": userToMelt,
-        "conversationId":conversationId
-      });
+      final response = await _apiService.post("melt/melt",
+          body: {"userToMelt": userToMelt, "conversationId": conversationId});
 
       return response;
     } catch (e) {
@@ -108,7 +106,7 @@ class HomeRepository implements IHomeRepository {
       rethrow;
     }
   }
-  
+
   @override
   Future<Responses> pushUser(String userToPush) async {
     try {
@@ -121,31 +119,58 @@ class HomeRepository implements IHomeRepository {
       rethrow;
     }
   }
-  
+
   @override
   Future<Responses> getThoughtById(String id) async {
-      try {
+    try {
       final response = await _apiService.get("user/thoughts-by-user/$id");
       return response;
     } catch (e) {
       rethrow;
     }
   }
-  
+
   @override
   Future<Responses> getThoughtExplore() async {
-     try {
+    try {
       final response = await _apiService.get("user/thought-explore");
       return response;
     } catch (e) {
       rethrow;
     }
   }
-  
+
   @override
   Future<Responses> getThoughtForYou() async {
-      try {
+    try {
       final response = await _apiService.get("user/thoughts-for-you");
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Responses> sendThought(String thought) async {
+    try {
+      final response = await _apiService.post("user/post-thought", body: {
+        "thought": thought,
+      });
+
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Responses> reactThought(int thoughtId, String reaction) async {
+    try {
+      final response = await _apiService.post("user/react-to-thoughts", body: {
+        "thoughtId": thoughtId,
+        "reaction": reaction,
+      });
+
       return response;
     } catch (e) {
       rethrow;
@@ -153,11 +178,9 @@ class HomeRepository implements IHomeRepository {
   }
   
   @override
-  Future<Responses> sendThought(String thought) async {
-   try {
-      final response = await _apiService.post("user/post-thought", body: {
-        "thought": thought,
-      });
+  Future<Responses> checkMelt({required String userId}) async {
+    try {
+      final response = await _apiService.get("melt/check-melt-status/$userId",);
 
       return response;
     } catch (e) {

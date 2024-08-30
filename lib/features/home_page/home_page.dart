@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.explore.dart';
@@ -11,6 +13,7 @@ import 'package:metal/features/home_page/widget/thought_card.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/plain.button.dart';
+import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/shimmer/custom_shimmer_loader.dart';
 import 'package:metal/widgets/shimmer/feed_shimmer_widget.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
@@ -38,7 +41,25 @@ class _HomePageState extends ConsumerState<HomePage> {
     final sendThoughtState = ref.watch(sendThoughtProvider);
     final getThoughtForYouState = ref.watch(getThoughtForYouProvider);
     final getThoughtExploreState = ref.watch(getThoughtExploreProvider);
-
+    final userdata = ref.watch(authProvider).data;
+    ref.listen<SendThoughtState>(sendThoughtProvider, (prev, current) {
+      if (current.isSuccess) {
+        setState(() {
+          tabIndex = 1;
+          _refreshData();
+        });
+        if (userdata!.completed_profile!) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const CustomDialog(
+                content: ComplecteProfileDialog(),
+              );
+            },
+          );
+        }
+      }
+    });
     return RefreshIndicator(
       onRefresh: _refreshData,
       child: SingleChildScrollView(
@@ -171,7 +192,6 @@ class _HomePageState extends ConsumerState<HomePage> {
             itemBuilder: (context, index) {
               return ThoughtCard(
                 thoughtModel: getThoughtExploreState.data![index],
-           
               );
             },
           );
@@ -235,7 +255,6 @@ class _HomePageState extends ConsumerState<HomePage> {
             itemBuilder: (context, index) {
               return ThoughtCard(
                 thoughtModel: getThoughtForYouState.data![index],
-              
               );
             },
           );

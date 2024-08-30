@@ -5,38 +5,38 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 
-class ComplecteProfileDialog extends StatelessWidget {
-  const ComplecteProfileDialog({super.key});
+class TutoralDialog extends StatelessWidget {
+  const TutoralDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         const Gap(38),
-        Assets.images.meltProfile.image(),
+        Assets.images.rocketEmoji1.image(height: 54, width: 54),
         const Gap(15),
         const TextView(
-          text: "Complete Profile Setup",
+          text: "Let’s get you ready!",
           fontSize: 20,
           fontWeight: FontWeight.w500,
         ),
         const Gap(15),
         const TextView(
           text:
-              "Complete your profile so your thoughts can be displayed on feeds",
+              "Here is everything you need to know about Metal to get started quickly. Let the arrows guide you!",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
         BaseButton(
-            buttonText: "Complete your profile",
+            buttonText: "Start Tutorial",
             onPressed: () async {
-              await Navigator.pushNamed(
-                context,
-                AppRoutes.passionsPage,
-              );
-              Navigator.pop(context);
+              // await Navigator.pushNamed(
+              //   context,
+              //   AppRoutes.passionsPage,
+              // );
+           //   Navigator.pop(context);
             }),
         const Gap(23),
         TextView(

@@ -12,6 +12,8 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
+import 'package:metal/features/dashboard.dart/widget/tutoral.dialog.dart';
+import 'package:metal/features/dashboard.dart/widget/verification.dialog.dart';
 
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/settings/provider/get.block.user.notifier.dart';
@@ -49,7 +51,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     super.initState();
   }
 
-  void showAlertDialog(context, UserModel userData) {
+  Future<void> showAlertDialog(context, UserModel userData) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const CustomDialog(
+          content: TutoralDialog(),
+        );
+      },
+    );
     !userData.completed_profile!
         ? showDialog(
             context: context,
@@ -63,8 +73,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             ? showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return CustomDialog(
-                    content: verifyDialog(context),
+                  return const CustomDialog(
+                    content: VerificationDialog(),
                   );
                 },
               )
@@ -131,48 +141,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               label: 'Profile'),
         ],
       ),
-    );
-  }
-
-  Widget verifyDialog(BuildContext context) {
-    return Column(
-      children: [
-        const Gap(38),
-        Assets.images.checkVerified.image(),
-        const Gap(15),
-        const TextView(
-          text: "Confirmation",
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
-        ),
-        const Gap(15),
-        const TextView(
-          text:
-              "Verifying your identity means telling other metals that you are authentic, and your information is accurate which helps to increase your chances for real connections and we can vouch that we know you. It takes a little fee!",
-          fontSize: 16,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
-        ),
-        const Gap(38),
-        BaseButton(
-            buttonText: "Verifly Me",
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.verificationVideo,
-              );
-
-              //  confirm(context);
-            }),
-        const Gap(23),
-        TextView(
-          text: "Skip for Now",
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          onTap: () => Navigator.pop(context),
-        ),
-        const Gap(21),
-      ],
     );
   }
 }

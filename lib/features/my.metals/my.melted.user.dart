@@ -8,6 +8,7 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
 
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
+import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
 
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
@@ -22,10 +23,12 @@ import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
+import 'package:metal/widgets/button/plain.button.dart';
 
 import 'package:metal/widgets/tab/base.tab.dart';
 import 'package:metal/widgets/text_views.dart';
 
+//enum meltState//
 class MyMeltedUser extends ConsumerStatefulWidget {
   const MyMeltedUser({super.key, required this.meltedUserAgurment});
 
@@ -36,12 +39,11 @@ class MyMeltedUser extends ConsumerStatefulWidget {
 }
 
 class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
-  bool melted = false;
   String? conversationId;
   @override
   void initState() {
     // TODO: implement initState
-    melted = widget.meltedUserAgurment.melted;
+
     conversationId = widget.meltedUserAgurment.conversationID.isEmpty
         ? null
         : widget.meltedUserAgurment.conversationID;
@@ -52,12 +54,17 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
   Widget build(
     BuildContext context,
   ) {
+    final checkMeltState =
+        ref.watch(checkMeltProvider(widget.meltedUserAgurment.userId));
+
     final myMelt = ref.watch(getUserProvider(widget.meltedUserAgurment.userId));
     final meltState = ref.watch(meltUserProvider);
     ref.listen<MeltUsersState>(meltUserProvider, (prev, current) {
       if (current.isSuccess) {
-        melted = true;
-        conversationId = current.data;
+        ref
+            .read(checkMeltProvider(widget.meltedUserAgurment.userId).notifier)
+            .checkStatus();
+        conversationId = current.data!["conversationId"];
         setState(() {});
       }
     });
@@ -91,55 +98,78 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                         child: TextView(text: "@${myMelt.data!.username}"),
                       ),
                       Gap(20),
-                      !melted
-                          ? BaseButton(
-                              loading: meltState.isLoading,
-                              onPressed: () {
-                                ref
-                                    .read(meltUserProvider.notifier)
-                                    .meltUser(widget.meltedUserAgurment.userId);
-                              },
-                              fontSize: 15,
-                              buttonText: "Melt",
-                            )
-                          : Row(
-                              children: [
-                                Expanded(
-                                  child: BaseButton(
-                                    onPressed: () {
-                                      Navigator.pushReplacementNamed(
-                                        context,
-                                        AppRoutes.sendSpark,
-                                      );
-                                    },
-                                    fontSize: 15,
-                                    buttonText: "Send Spark",
-                                  ),
-                                ),
-                                Gap(30),
-                                Expanded(
-                                  child: OutilineButton(
-                                    onPressed: () {
-                                      Navigator.pushNamed(
-                                          context, AppRoutes.chatWindowsPage,
-                                          arguments: ChatWindowArgument(
-                                            user: MeltUserModel(
-                                                gender: myMelt.data!.gender,
-                                                name: myMelt.data!.username,
-                                                username: myMelt.data!.username,
-                                                fcmToken: myMelt.data!.fcmToken,
-                                                conversationId: conversationId!,
-                                                metal: myMelt.data!.metal,
-                                                phone: myMelt.data!.phone,
-                                                id: myMelt.data!.id),
-                                          ));
-                                    },
-                                    fontSize: 15,
-                                    buttonText: "Message",
-                                  ),
-                                ),
-                              ],
-                            ),
+                      checkMeltState.isLoading
+                          ? CircularProgressIndicator()
+                          : checkMeltState.data == "⁠⁠melt-requested"
+                              ? PlainButton(
+                                  enabled: false,
+                                  loading: meltState.isLoading,
+                                  onPressed: () {
+                                    // ref
+                                    //     .read(meltUserProvider.notifier)
+                                    //     .meltUser(widget.meltedUserAgurment.userId);
+                                  },
+                                  fontSize: 15,
+                                  textColor: Colors.grey,
+                                  buttonText: "Melt Requested",
+                                )
+                              : checkMeltState.data == "mutual"
+                                  ? Row(
+                                      children: [
+                                        Expanded(
+                                          child: BaseButton(
+                                            onPressed: () {
+                                              Navigator.pushReplacementNamed(
+                                                context,
+                                                AppRoutes.sendSpark,
+                                              );
+                                            },
+                                            fontSize: 15,
+                                            buttonText: "Send Spark",
+                                          ),
+                                        ),
+                                        Gap(30),
+                                        Expanded(
+                                          child: OutilineButton(
+                                            onPressed: () {
+                                              Navigator.pushNamed(context,
+                                                  AppRoutes.chatWindowsPage,
+                                                  arguments: ChatWindowArgument(
+                                                    user: MeltUserModel(
+                                                        gender:
+                                                            myMelt.data!.gender,
+                                                        name: myMelt
+                                                            .data!.username,
+                                                        username: myMelt
+                                                            .data!.username,
+                                                        fcmToken: myMelt
+                                                            .data!.fcmToken,
+                                                        conversationId:
+                                                            conversationId!,
+                                                        metal:
+                                                            myMelt.data!.metal,
+                                                        phone:
+                                                            myMelt.data!.phone,
+                                                        id: myMelt.data!.id),
+                                                  ));
+                                            },
+                                            fontSize: 15,
+                                            buttonText: "Message",
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : BaseButton(
+                                      loading: meltState.isLoading,
+                                      onPressed: () {
+                                        ref
+                                            .read(meltUserProvider.notifier)
+                                            .meltUser(widget
+                                                .meltedUserAgurment.userId);
+                                      },
+                                      fontSize: 15,
+                                      buttonText: "Melt",
+                                    ),
                       Gap(10),
                       BaseTab(
                         tabs: [
@@ -148,7 +178,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                               title: 'Metal Thought'),
                           BaseTabModel(
                               child: MetalDetailsTab(
-                                melted: melted,
+                                melted: checkMeltState.data == "mutual",
                                 userModel: myMelt.data!,
                               ),
                               title: 'Metal Details '),

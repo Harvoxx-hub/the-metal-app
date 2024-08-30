@@ -34,19 +34,19 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
   final image3 = Assets.gifs.onboarding3.path;
   final PageController _controller = PageController();
   int currentPage = 0;
-  
+
   @override
   void initState() {
     super.initState();
-    
-    //  Timer.periodic(const Duration(seconds: 3), (timer) {
-    //   if (currentPage < 2) {
-    //     _controller.nextPage(
-    //         duration: const Duration(milliseconds: 500), curve: Curves.ease);
-    //   } else {
-    //     _controller.jumpToPage(0);
-    //   }
-    // });
+
+    Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (currentPage < 2) {
+        _controller.nextPage(
+            duration: const Duration(milliseconds: 500), curve: Curves.ease);
+      } else {
+        _controller.jumpToPage(0);
+      }
+    });
   }
 
   @override
@@ -137,6 +137,9 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                 ),
                 const Gap(5),
                 TextView(
+                  color: AppColors.metalPinkColour,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
                   onTap: () {
                     Navigator.pushNamed(
                       context,

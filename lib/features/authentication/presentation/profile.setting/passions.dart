@@ -49,28 +49,31 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
               children: [
                 ShimmerLoading(
                     isLoading: metalProps.isLoading,
-                    child: SizedBox(
-                      height: getDeviceHeight(context) * 0.59,
-                      child: GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount:
-                              2, // You can adjust the number of columns here
-                          crossAxisSpacing: 10.0,
-
-                          mainAxisSpacing: 10.0,
-                          childAspectRatio: 16 / 6,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 60.0),
+                      child: SizedBox(
+                        height: getDeviceHeight(context) * 0.59,
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount:
+                                2, // You can adjust the number of columns here
+                            crossAxisSpacing: 10.0,
+                      
+                            mainAxisSpacing: 10.0,
+                            childAspectRatio: 16 / 6,
+                          ),
+                          itemCount: metalProps.data?.passions?.length ?? 0,
+                          itemBuilder: (BuildContext context, int index) {
+                            final model =
+                                metalProps.data?.passions?[index] ?? Passion();
+                            return PassionsCard(
+                              model: model,
+                              onTap: () => updateMetal(model.title!),
+                              selected: _seletedPassion.contains(model.title),
+                            );
+                          },
                         ),
-                        itemCount: metalProps.data?.passions?.length ?? 0,
-                        itemBuilder: (BuildContext context, int index) {
-                          final model =
-                              metalProps.data?.passions?[index] ?? Passion();
-                          return PassionsCard(
-                            model: model,
-                            onTap: () => updateMetal(model.title!),
-                            selected: _seletedPassion.contains(model.title),
-                          );
-                        },
                       ),
                     )),
                 Positioned(

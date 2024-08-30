@@ -110,7 +110,7 @@ class _VideoPreviewState extends State<VideoPreview> {
                       ),
                       const Spacer(),
                       const TextView(
-                          text: 'Viedo Preview',
+                          text: 'Video Preview',
                           fontSize: 20,
                           color: Colors.white),
                       const Spacer(),

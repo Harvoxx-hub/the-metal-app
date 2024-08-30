@@ -7,9 +7,9 @@ import 'package:metal/features/authentication/domain/entries/metal.properties.mo
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
- 
+
 import 'package:metal/gen/assets.gen.dart';
- 
+
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
@@ -51,27 +51,31 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
                       subtitle: "You can only select one metal"),
                   Stack(
                     children: [
-                      SizedBox(
-                        height: getDeviceHeight(context) * 0.59,
-                        child: GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount:
-                                2, // You can adjust the number of columns here
-                            crossAxisSpacing: 10.0,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 60.0),
+                        child: SizedBox(
+                          height: getDeviceHeight(context) * 0.59,
+                          child: GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount:
+                                  2, // You can adjust the number of columns here
+                              crossAxisSpacing: 10.0,
 
-                            mainAxisSpacing: 10.0,
-                            childAspectRatio: 16 / 14,
+                              mainAxisSpacing: 10.0,
+                              childAspectRatio: 16 / 14,
+                            ),
+                            itemCount: metalProps.data!.metals!.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final Metal model =
+                                  metalProps.data!.metals![index];
+                              return ChooseMetalCard(
+                                model: model,
+                                onTap: () => updateMetal(model),
+                                selected: model == _selectedMetal,
+                              );
+                            },
                           ),
-                          itemCount: metalProps.data!.metals!.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final Metal model = metalProps.data!.metals![index];
-                            return ChooseMetalCard(
-                              model: model,
-                              onTap: () => updateMetal(model),
-                              selected: model == _selectedMetal,
-                            );
-                          },
                         ),
                       ),
                       Positioned(

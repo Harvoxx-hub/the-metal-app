@@ -12,20 +12,23 @@ class getThoughtForYouNotifier extends StateNotifier<GetThoughtForYouState> {
   ) {
     getThought();
   }
+
   final Ref ref;
 
-  // melt user
+  // Fetch and sort thoughts by creation date (newest to oldest)
   void getThought() async {
     try {
       state = GetThoughtForYouState.loading();
       final homeRepository = ref.watch(homeRepositoryProvider);
       final response = await homeRepository.getThoughtForYou();
       final List<ThoughtModel> thoughts = [];
+
       for (var thought in response.data) {
         thoughts.add(ThoughtModel.fromJson(thought));
       }
+
       if (mounted) {
-        state = GetThoughtForYouState.success(thoughts);
+        state = GetThoughtForYouState.success(_sortThoughtsByDate(thoughts));
       }
     } catch (e) {
       print(e.toString());
@@ -33,21 +36,43 @@ class getThoughtForYouNotifier extends StateNotifier<GetThoughtForYouState> {
     }
   }
 
+  // Fetch updated thoughts and sort them
   void getThoughtUpdate() async {
     try {
-   
       final homeRepository = ref.watch(homeRepositoryProvider);
       final response = await homeRepository.getThoughtForYou();
       final List<ThoughtModel> thoughts = [];
+
       for (var thought in response.data) {
         thoughts.add(ThoughtModel.fromJson(thought));
       }
+
       if (mounted) {
-        state = GetThoughtForYouState.success(thoughts);
+        state = GetThoughtForYouState.success(_sortThoughtsByDate(thoughts));
       }
     } catch (e) {
-      print(e.toString()); 
+      print(e.toString());
+      // Handle the error state accordingly
+      state = GetThoughtForYouState.error(e.toString());
     }
+  }
+
+  // Private method to sort thoughts by date from newest to oldest
+  List<ThoughtModel> _sortThoughtsByDate(List<ThoughtModel> thoughts) {
+    thoughts.sort((a, b) {
+      DateTime? dateA =
+          a.created_at != null ? DateTime.parse(a.created_at!) : null;
+      DateTime? dateB =
+          b.created_at != null ? DateTime.parse(b.created_at!) : null;
+
+      if (dateA == null && dateB == null) return 0;
+      if (dateA == null) return 1;
+      if (dateB == null) return -1;
+
+      return dateB.compareTo(dateA);
+    });
+
+    return thoughts;
   }
 }
 

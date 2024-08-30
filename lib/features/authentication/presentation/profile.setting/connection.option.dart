@@ -46,27 +46,30 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
                     "**Please select up to two. You can always change your selection in settings"),
             Stack(
               children: [
-                SizedBox(
-                  height: getDeviceHeight(context) * 0.59,
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount:
-                          2, // You can adjust the number of columns here
-                      crossAxisSpacing: 10.0,
-
-                      mainAxisSpacing: 10.0,
-                      childAspectRatio: 16 / 10,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 60.0),
+                  child: SizedBox(
+                    height: getDeviceHeight(context) * 0.59,
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:
+                            2, // You can adjust the number of columns here
+                        crossAxisSpacing: 10.0,
+                  
+                        mainAxisSpacing: 10.0,
+                        childAspectRatio: 16 / 10,
+                      ),
+                      itemCount: metalProps.data!.lookingFor!.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final model = metalProps.data!.lookingFor![index];
+                        return ConnectionOptionsCard(
+                          model: model,
+                          onTap: () => updateMetal(model.title!),
+                          selected: _seletedOption.contains(model.title),
+                        );
+                      },
                     ),
-                    itemCount: metalProps.data!.lookingFor!.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final model = metalProps.data!.lookingFor![index];
-                      return ConnectionOptionsCard(
-                        model: model,
-                        onTap: () => updateMetal(model.title!),
-                        selected: _seletedOption.contains(model.title),
-                      );
-                    },
                   ),
                 ),
                 Positioned(

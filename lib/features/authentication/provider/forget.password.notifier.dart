@@ -20,8 +20,10 @@ class ForgetPasswordNotifier extends StateNotifier<ForgetPasswordStates> {
       final response = await authenticationRepository.forgetPassword(
         email,
       );
-
-      state = ForgetPasswordStates.success(response.data);
+      if(mounted){
+        state = ForgetPasswordStates.success(response.data);
+      }
+      
     } catch (e) {
       state = ForgetPasswordStates.error(
         e.toString(),

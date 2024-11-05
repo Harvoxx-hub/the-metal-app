@@ -23,8 +23,7 @@ class _MyThoughtTabState extends ConsumerState<MyThoughtTab> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-  
-        ref.read(getThoughtByUserProvider.notifier).getThought( id: widget.id);
+      ref.read(getThoughtByUserProvider.notifier).getThought(id: widget.id);
     });
     super.initState();
   }
@@ -64,14 +63,16 @@ class _MyThoughtTabState extends ConsumerState<MyThoughtTab> {
             shrinkWrap: true,
             physics: const ClampingScrollPhysics(),
             itemBuilder: (context, index) {
-              return ThoughtCard(thoughtModel: getThoughtState.data![index], );
+              return ThoughtCard(
+                thoughtModel: getThoughtState.data![index],
+              );
             },
           );
         }
       case Status.error:
         return Center(
           child: TextView(
-            text: getThoughtState.errorMessage ?? "Error loading thoughts",
+            text: "Error loading thoughts",
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),

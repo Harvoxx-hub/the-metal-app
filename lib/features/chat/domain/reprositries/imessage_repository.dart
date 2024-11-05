@@ -12,6 +12,6 @@ abstract class IMessageRepository {
 
   Stream<List<ConversationsModel>> getChatList(String userId);
   Future<String> checkConversationId(String id, String recepintId);
-     updateGame(String id, String gameTile);
-        clearChat(String id);
+  updateGame(String id, String gameTile, {MessageModel? message});
+  clearChat(String id);
 }

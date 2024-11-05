@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+ 
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
@@ -10,7 +10,7 @@ import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+ 
 
 class NavDrawer extends ConsumerWidget {
   const NavDrawer({super.key});
@@ -290,6 +290,6 @@ class NavDrawer extends ConsumerWidget {
    AuthManager.deleteLoginState();
  AuthManager.deleteRefreshToken();
 
-    ZegoUIKitPrebuiltCallInvitationService().uninit();
+    
   }
 }

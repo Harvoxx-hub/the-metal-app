@@ -28,20 +28,17 @@ class _StatusWidgetState extends ConsumerState<StatusWidget> {
         scrollDirection: Axis .horizontal,
         child: Row(
           children: [
-            myStatus(),
-            const Gap(10),
+            // myStatus(),
+            // const Gap(10),
             meltStatus(),
           ],
         ));
   }
 
-  Widget myStatus() {
-    final currentStatus = ref.watch(getCurrentEyesProvider);
-    return ShimmerLoading(
-      isLoading: currentStatus.isLoading,
-      child: eyeWidget("You"),
-    );
-  }
+  // Widget myStatus() {
+  // //  final currentStatus = ref.watch(getCurrentEyesProvider);
+  //   return eyeWidget("You");
+  // }
 
   Widget meltStatus() {
     final myMelt = ref.watch(getMeltUserProvider);
@@ -70,10 +67,10 @@ class _StatusWidgetState extends ConsumerState<StatusWidget> {
               Navigator.pushNamed(
                 context,
                 AppRoutes.chatWindowsPage,
-                arguments: ChatWindowArgument(user: status, ),
+                arguments:  status.id,
               );
             }
-          },
+          }, imageUrl: status!.metal!.img!,
         ),
         TextView(
           text: title,

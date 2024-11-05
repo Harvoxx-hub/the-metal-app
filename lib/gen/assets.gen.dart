@@ -28,6 +28,9 @@ class $AssetsGifsGen {
   /// File path: assets/gifs/empty.gif
   AssetGenImage get empty => const AssetGenImage('assets/gifs/empty.gif');
 
+  /// File path: assets/gifs/error.gif
+  AssetGenImage get error => const AssetGenImage('assets/gifs/error.gif');
+
   /// File path: assets/gifs/logo.gif
   AssetGenImage get logo => const AssetGenImage('assets/gifs/logo.gif');
 
@@ -45,7 +48,7 @@ class $AssetsGifsGen {
 
   /// List of all assets
   List<AssetGenImage> get values =>
-      [empty, logo, onboarding, onboarding2, onboarding3];
+      [empty, error, logo, onboarding, onboarding2, onboarding3];
 }
 
 class $AssetsIconsGen {
@@ -871,6 +874,10 @@ class Assets {
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
   static const $AssetsJsonGen json = $AssetsJsonGen();
+  static const String shorebird = 'shorebird.yaml';
+
+  /// List of all assets
+  static List<String> get values => [shorebird];
 }
 
 class AssetGenImage {

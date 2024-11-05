@@ -15,10 +15,12 @@ String formatDuration(Duration duration) {
 
 
 String formatToWhatsAppChatTime(String isoDateString) {
-  // Parse the ISO 8601 date string
-  DateTime date = DateTime.parse(isoDateString);
+  // Parse the ISO 8601 date string and convert to local time
+  DateTime date = DateTime.parse(isoDateString).toLocal();
   
+  // Get the current time in local time zone
   DateTime now = DateTime.now();
+  
   Duration diff = now.difference(date);
   
   if (diff.inDays == 0) {
@@ -32,3 +34,4 @@ String formatToWhatsAppChatTime(String isoDateString) {
     return DateFormat('dd/MM/yy').format(date);
   }
 }
+

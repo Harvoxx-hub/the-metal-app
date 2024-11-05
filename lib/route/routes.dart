@@ -5,7 +5,10 @@ import 'package:metal/features/authentication/presentation/forget.password/forgo
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
-import 'package:metal/features/my.metals/melted.user.agurment.dart';
+import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
+import 'package:metal/features/home_page/post_thought.dart';
+import 'package:metal/features/my.metals/melt.metal.dart';
+ 
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
 import 'package:metal/features/settings/presentation%20/delete.screen.dart';
 import 'package:metal/features/settings/presentation%20/edit.page.dart';
@@ -115,6 +118,7 @@ class AppRoutes {
   static const String newEmailPage = '/newEmailPage';
   static const String editPage = '/editPage';
   static const String delete = '/deletePage';
+    static const String postThought = '/postThought';
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
@@ -190,8 +194,8 @@ class AppRoutes {
         return MaterialPageRoute(
             builder: (_) =>
                 UserProfilePage(user: settings.arguments as UserModel));
-      case upgradePage:
-        return MaterialPageRoute(builder: (_) => const UpgradePage());
+      // case upgradePage:
+      //   return MaterialPageRoute(builder: (_) => const UpgradePage());
       case makePayment:
         final arguments = settings.arguments as List<dynamic>;
         return MaterialPageRoute(
@@ -206,7 +210,12 @@ class AppRoutes {
       case myMeltedUser:
         return MaterialPageRoute(
             builder: (_) => MyMeltedUser(
-               meltedUserAgurment:  settings.arguments as MeltedUserAgurment,));
+               metalId:  settings.arguments as String,));
+
+                 case meltMetal:
+        return MaterialPageRoute(
+            builder: (_) => MeltMetal( id:
+            settings.arguments as String,));
       case sendSpark:
         return MaterialPageRoute(builder: (_) => const SendSpark());
       case buySpark:
@@ -216,7 +225,7 @@ class AppRoutes {
       case chatWindowsPage:
         return MaterialPageRoute(
             builder: (_) => ChatWindowsPage(
-                  argument: settings.arguments as ChatWindowArgument,
+                  metalId: settings.arguments as String,
                 ));
       case gamePage:
         return MaterialPageRoute(builder: (_) => const GamePage());
@@ -233,6 +242,9 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => NewEmailPage());
       case delete:
         return MaterialPageRoute(builder: (_) => DeleteScreen());
+
+         case postThought:
+        return MaterialPageRoute(builder: (_) => PostThought( userModel: settings.arguments as UserModel,));
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

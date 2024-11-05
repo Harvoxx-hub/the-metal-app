@@ -20,9 +20,9 @@ class GetBlockUsersNotifier extends StateNotifier<GetBlockUsersState> {
       final repo = ref.watch(settingRepositoryProvider);
       final response = await repo.getBlockedUsers();
       state = GetBlockUsersState.success(response.data);
-    } catch (e) {
-      print(e.toString());
-      state = GetBlockUsersState.error(e.toString());
+    } catch (e, s) {
+ 
+      state = GetBlockUsersState.error(e.toString(), stackTrace: s);
     }
   }
 }

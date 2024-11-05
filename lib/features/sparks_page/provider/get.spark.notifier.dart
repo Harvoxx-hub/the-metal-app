@@ -24,9 +24,9 @@ class GetSparkNotifier extends StateNotifier<GetsparkState> {
         spark.add(SparkModel.fromJson(element));
       });
       state = GetsparkState.success(spark);
-    } catch (e) {
-      print(e.toString());
-      state = GetsparkState.error(e.toString());
+    } catch (e, s) {
+    
+      state = GetsparkState.error(e.toString(), stackTrace: s);
     }
   }
 }

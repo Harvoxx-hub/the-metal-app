@@ -40,10 +40,10 @@ class _ViewEyesState extends State<ViewEyes> {
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    const ProfileImage(
-                      height: 50,
-                      width: 50,
-                    ),
+                    // const ProfileImage(
+                    //   height: 50,
+                    //   width: 50,
+                    // ),
                     const Gap(10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

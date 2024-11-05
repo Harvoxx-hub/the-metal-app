@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
- 
- 
+
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shimmer/shimmer.dart';
+
 enum ShimmerItemType {
   single,
   list,
   responsive,
 }
+
 class CustomShimmerLoader extends StatelessWidget {
   const CustomShimmerLoader({
     super.key,
@@ -31,8 +32,8 @@ class CustomShimmerLoader extends StatelessWidget {
           padding: EdgeInsets.only(top: 10),
           shrinkWrap: true,
           itemBuilder: (context, index) => Shimmer.fromColors(
-            baseColor: Colors.grey.shade400,
-            highlightColor: Colors.grey.shade300,
+            baseColor: Colors.grey.shade200,
+            highlightColor: Colors.grey.shade100,
             child: loaderWidget,
           ),
           separatorBuilder: (context, index) => SizedBox(

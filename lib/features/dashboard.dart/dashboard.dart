@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:gap/gap.dart';
-
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
@@ -26,9 +24,7 @@ import 'package:metal/features/sparks_page/screens/sparks_page.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 
-import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
-import 'package:metal/widgets/text_views.dart';
 
 import '../home_page/home_page.dart';
 
@@ -43,7 +39,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   int currentIndex = 0;
   @override
   void initState() {
-    // TODO: implement initState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userdata = ref.watch(authProvider).data;
       showAlertDialog(context, userdata!);
@@ -52,14 +47,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   Future<void> showAlertDialog(context, UserModel userData) async {
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return const CustomDialog(
-          content: TutoralDialog(),
-        );
-      },
-    );
+    // await showDialog(
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return const CustomDialog(
+    //       content: TutoralDialog(),
+    //     );
+    //   },
+    // );
     !userData.completed_profile!
         ? showDialog(
             context: context,
@@ -110,6 +105,20 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 )),
               ],
             ),
+      floatingActionButton: currentIndex == 0
+          ? FloatingActionButton(
+              backgroundColor: const Color(0xFFD2128B),
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
+              onPressed: () async {
+              await   Navigator.pushNamed(
+            context,
+            AppRoutes.postThought,
+            arguments: user.data
+          );  })
+          : null,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: currentIndex,

@@ -25,9 +25,9 @@ class SendSparkNotifier extends StateNotifier<SendsparkState> {
       );
       ref.read(authProvider.notifier).getUpdatedUser();
       state = SendsparkState.success(response.data);
-    } catch (e) {
-      print(e.toString());
-      state = SendsparkState.error(e.toString());
+    } catch (e, s) {
+   
+      state = SendsparkState.error(e.toString(), stackTrace: s);
     }
   }
 }

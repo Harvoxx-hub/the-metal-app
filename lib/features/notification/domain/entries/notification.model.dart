@@ -10,7 +10,10 @@ enum NotificationType {
   SPARK,
   REFER,
   MESSAGE,
+  
   UNMELT,
+  THOUGHTREACTION,
+  THOUGHT
 }
 
 @JsonSerializable(explicitToJson: true)

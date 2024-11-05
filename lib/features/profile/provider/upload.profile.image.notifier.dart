@@ -23,9 +23,9 @@ class ProfileImageNotifier extends StateNotifier<ProfileImageState> {
       if (mounted) {
         state = ProfileImageState.success(response.message!);
       }
-    } catch (e) {
-      print(e.toString());
-      state = ProfileImageState.error(e.toString());
+    } catch (e, s) {
+ 
+      state = ProfileImageState.error(e.toString(), stackTrace: s);
     }
   }
 }

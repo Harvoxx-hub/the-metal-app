@@ -21,9 +21,9 @@ class LikeUsersNotifier extends StateNotifier<LikeUsersState> {
       if (mounted) {
         state = LikeUsersState.success(response.message!);
       }
-    } catch (e) {
-      print(e.toString());
-      state = LikeUsersState.error(e.toString());
+    } catch (e, s) {
+     
+      state = LikeUsersState.error(e.toString(), stackTrace: s);
     }
   }
 }

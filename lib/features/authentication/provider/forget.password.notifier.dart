@@ -24,9 +24,9 @@ class ForgetPasswordNotifier extends StateNotifier<ForgetPasswordStates> {
         state = ForgetPasswordStates.success(response.data);
       }
       
-    } catch (e) {
+    } catch (e, s) {
       state = ForgetPasswordStates.error(
-        e.toString(),
+        e.toString(), stackTrace: s
       );
     }
   }

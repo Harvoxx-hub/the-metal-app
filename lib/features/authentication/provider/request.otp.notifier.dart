@@ -22,9 +22,9 @@ class RequestOtpNotifier extends StateNotifier<RequestOtpStates> {
       );
 
       state = RequestOtpStates.success(response.data);
-    } catch (e) {
+    } catch (e, s) {
       state = RequestOtpStates.error(
-        e.toString(),
+        e.toString(), stackTrace: s
       );
     }
   }

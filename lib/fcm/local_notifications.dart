@@ -27,7 +27,7 @@ class LocalNotifications {
   /// Used in [AndroidInitializationSettings].
   Future<void> init({
     DidReceiveNotificationResponseCallback? onDidReceiveNotificationResponse,
-    String androidDefaultIcon = '@mipmap/ic_launcher',
+    String androidDefaultIcon = '@mipmap/launcher_icon',
   }) async {
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       _androidChannelId, // id

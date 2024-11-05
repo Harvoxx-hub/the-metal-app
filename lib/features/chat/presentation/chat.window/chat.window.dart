@@ -9,18 +9,19 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/chat/domain/entries/conversations.model.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
-import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
 
 import 'package:metal/features/chat/presentation/chat.window/widget/chat.input.sheet.dart';
 
 import 'package:metal/features/chat/presentation/chat.window/widget/chat.appbar.dart';
 import 'package:metal/features/chat/presentation/chat.window/widget/game.tile.dart';
 import 'package:metal/features/chat/presentation/chat.window/widget/message.list.dart';
-import 'package:metal/features/chat/provider/check.conversation.notifier.dart';
+
 import 'package:metal/features/chat/provider/game.conversation.notifier.dart';
 import 'package:metal/features/chat/provider/get.converation.notifier.dart';
 
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
+import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
+import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
@@ -28,11 +29,11 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class ChatWindowsPage extends ConsumerStatefulWidget {
-  const ChatWindowsPage({super.key, required this.argument});
+  const ChatWindowsPage({super.key, required this.metalId});
   static const name = 'chatWindowsPage';
   static const route = name;
 
-  final ChatWindowArgument argument;
+  final String metalId;
 
   @override
   ConsumerState<ChatWindowsPage> createState() => _ChatWindowsPageState();
@@ -40,13 +41,18 @@ class ChatWindowsPage extends ConsumerStatefulWidget {
 
 class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
   GameModel? game;
-  String? conversationId;
 
+  MeltUserModel? _meltUserModel;
   @override
   void initState() {
-    conversationId = widget.argument.user.conversationId;
-
+    //  conversationId = widget.argument.user.conversationId;
+    getMeltMetal();
     super.initState();
+  }
+
+  getMeltMetal() {
+    _meltUserModel =
+        ref.read(getMeltUserProvider.notifier).getMeltUserById(widget.metalId)!;
   }
 
   UserModel? currentUserData;
@@ -56,15 +62,9 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
   Widget build(BuildContext context) {
     currentUserData = ref.watch(authProvider).data;
 
-    conversationData = ref.watch(getConverationProvider(conversationId!)).data;
+    conversationData =
+        ref.watch(getConverationProvider(_meltUserModel!.conversationId!)).data;
 
-    ref.listen<SendMessageState>(sendMessageProvider, (prev, current) {
-      if (current.isSuccess) {
-        // if (conversationId == null) {
-        //   _updateconversationId(current.data!);
-        // }
-      }
-    });
     return BaseScreen(
       appBarEnabled: false,
       body: Container(
@@ -80,14 +80,14 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
               const Gap(20),
               ChatWindowsAppBar(
                 key: widget.key,
-                meltUserModel: widget.argument.user,
+                meltUserModel: _meltUserModel!,
               ),
               conversationData == null
                   ? const SizedBox()
                   : GameTile(
                       conversationsModel: conversationData!,
                     ),
-              MessageList(conversationId),
+              MessageList(_meltUserModel!.conversationId!),
               ChatBottomSheet(
                 onSend: (p0) {
                   sendTextMessage(p0);
@@ -101,9 +101,23 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
                     game = gameModel as GameModel?;
                   });
                   if (game != null) {
+                    final message = MessageModel(
+                        senderId: currentUserData!.id!,
+                        type: MessageType.text,
+                        timestamp: DateTime.now(),
+                        state: MessageState.sending,
+                        fcmToken: _meltUserModel!.fcmToken,
+                        userName: _meltUserModel!.username,
+                        message: game!.title,
+                        recipientId: _meltUserModel!.id!);
                     ref
                         .read(gameConversationProvider.notifier)
-                        .updateGameConversation(conversationId!, game!.title);
+                        .updateGameConversation(
+                          conversatioId:  _meltUserModel!.conversationId!,
+                          gameTitle: game!.title,
+                          message: message
+                         
+                            );
                   }
                 },
               )
@@ -120,12 +134,14 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
         type: MessageType.text,
         timestamp: DateTime.now(),
         state: MessageState.sending,
-        fcmToken: widget.argument.user.fcmToken,
-        userName: widget.argument.user.username,
+        fcmToken: _meltUserModel!.fcmToken,
+        userName: _meltUserModel!.username,
         message: text,
-        recipientId: widget.argument.user.id!);
+        recipientId: _meltUserModel!.id!);
 
-    ref.read(sendMessageProvider.notifier).sendMessage(message, conversationId);
+    ref
+        .read(sendMessageProvider.notifier)
+        .sendMessage(message, _meltUserModel!.conversationId!);
   }
 }
 

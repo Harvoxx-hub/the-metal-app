@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/chat/data/repositories/message.repository.dart';
+import 'package:metal/features/chat/domain/entries/message.model.dart';
 
 class GameConversationNotifier extends StateNotifier<GameConversationState> {
   GameConversationNotifier(
@@ -13,14 +14,15 @@ class GameConversationNotifier extends StateNotifier<GameConversationState> {
 
   final Ref ref;
 
-  Future<void> updateGameConversation(
-      String conversatioId, String gameTitle) async {
+  Future<void> updateGameConversation({ required  String conversatioId,required String gameTitle, MessageModel? message}
+    ) async {
     try {
       state = GameConversationState.loading();
+      
 
       final messageRepository = ref.watch(messageRepositoryProvider);
 
-      await messageRepository.updateGame(conversatioId, gameTitle);
+      await messageRepository.updateGame(conversatioId, gameTitle,message: message);
       if (mounted) {
         state = GameConversationState.success("response");
       }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
-import 'package:metal/features/my.metals/melted.user.agurment.dart';
+ 
 
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/card.with.shadow.dart';
@@ -18,11 +18,9 @@ class MeltCard extends StatelessWidget {
     return CardWithShadow(
         onTap: () {
           Navigator.pushNamed(context, AppRoutes.myMeltedUser,
-              arguments: MeltedUserAgurment(
-                                userId: user.id!,
-                                melted: true,
-                                conversationID: user.conversationId!
-                              ));
+            arguments:   user.id!,
+              
+                              );
         },
         height: 105,
         child: Row(

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
  
 
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/core/utils/metal.helper.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
@@ -29,11 +30,11 @@ class GetThoughtByUserNotifier extends StateNotifier<GetThoughtByUserState> {
         thoughts.add(ThoughtModel.fromJson(thought));
       }
       if (mounted) {
-        state = GetThoughtByUserState.success(thoughts);
+        state = GetThoughtByUserState.success(MetalHelper.sortThoughtsByDate(thoughts));
       }
-    } catch (e) {
-      print(e.toString());
-      state = GetThoughtByUserState.error(e.toString());
+    } catch (e,s) {
+ 
+      state = GetThoughtByUserState.error(e.toString(), stackTrace: s);
     }
   }
 }

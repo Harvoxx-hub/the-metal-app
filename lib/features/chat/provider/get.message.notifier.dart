@@ -31,9 +31,9 @@ class MessageListNotifier extends StateNotifier<MessageListState> {
           }
         });
       }
-    } catch (e) {
-      print(e.toString());
-      state = MessageListState.error(e.toString());
+    } catch (e, s) {
+ 
+      state = MessageListState.error(e.toString(), stackTrace: s);
     }
   }
 

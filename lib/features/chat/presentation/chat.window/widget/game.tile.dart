@@ -65,8 +65,10 @@ class GameTile extends ConsumerWidget {
                   ref
                       .read(gameConversationProvider.notifier)
                       .updateGameConversation(
-                        conversationsModel.documentId,
-                        "",
+                        conversatioId: conversationsModel.documentId,
+                        gameTitle: ""
+                        // 
+                        // "",
                       );
                 },
                 child: Container(

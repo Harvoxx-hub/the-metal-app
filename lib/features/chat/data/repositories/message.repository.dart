@@ -225,7 +225,7 @@ class MessageRepository implements IMessageRepository {
   }
 
   @override
-  updateGame(String id, String gameTile) async {
+  updateGame(String id, String gameTile,{ MessageModel? message}) async {
     try {
       // Get a reference to the conversation document
       final conversationDocRef = _firestore.collection('conversations').doc(id);
@@ -235,6 +235,9 @@ class MessageRepository implements IMessageRepository {
         'lastMessage': "Started a game",
         'game': gameTile,
       });
+      if (message != null) {
+        sendGameNotification(message: message);
+      }
     } catch (e) {
       print('Error updating conversation: $e');
       rethrow;
@@ -269,13 +272,34 @@ class MessageRepository implements IMessageRepository {
         body: {
           "body": message.message,
           "title": "New Message From @${message.userName}",
-          "type": NotificationType.MESSAGE,
+          "type": NotificationType.MESSAGE.name,
           "fcmToken": message.fcmToken,
           "sender_id": message.senderId,
           "receiver_id": message.recipientId
         },
       );
       return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  sendGameNotification({
+    required MessageModel message,
+  }) async {
+    try {
+       await _apiService.post(
+        "user/notification",
+        body: {
+          "body": message.message,
+          "title": "@${message.userName} Sent a Game request",
+          "type": NotificationType.MESSAGE.name,
+          "fcmToken": message.fcmToken,
+          "sender_id": message.senderId,
+          "receiver_id": message.recipientId
+        },
+      );
+       
     } catch (e) {
       rethrow;
     }

@@ -22,9 +22,9 @@ class MetalPropertiesNotifier extends StateNotifier<MetalPropertiesState> {
       final response = await authenticationRepository.getMetalProperties();
       final metalPropertires = MetalPropertiesModel.fromJson(response.data);
       state = MetalPropertiesState.success(metalPropertires);
-    } catch (e) {
-      print(e.toString());
-      state = MetalPropertiesState.error(e.toString());
+    } catch (e,s) {
+      
+      state = MetalPropertiesState.error(e.toString(), stackTrace: s);
     }
   }
 }

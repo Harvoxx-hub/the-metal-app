@@ -2,15 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
+ 
 import 'package:image_picker/image_picker.dart';
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 import 'package:metal/features/eyes/provider/get.current.eyes.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/appbar.background.dart';
 import 'package:metal/features/profile/provider/upload.profile.image.notifier.dart';
-import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/route/routes.dart';
+ 
 import 'package:metal/widgets/profile.photo.dart';
 
 class ProfileHeader extends ConsumerWidget {
@@ -30,7 +28,7 @@ class ProfileHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileImage = ref.watch(profileImageProvider);
-    final eyes = ref.watch(getCurrentEyesProvider);
+ 
     return SingleChildScrollView(
       child: Stack(
         children: [
@@ -58,55 +56,6 @@ class ProfileHeader extends ConsumerWidget {
                     ),
                   ),
           ),
-          if (eye)
-            Positioned(
-              top: 140,
-              right: 50,
-              child: GestureDetector(
-                onTap: () {
-                   eyes.data != null || eyes.data!.isNotEmpty ?? false ?
-                  showModalBottomSheet(
-                    backgroundColor: Colors.white,
-                    context: context,
-                    builder: (BuildContext context) {
-                      return SafeArea(
-                        child: Wrap(
-                          children: <Widget>[
-                            ListTile(
-                              title: const Text('View Eyes'),
-                              onTap: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  AppRoutes.viewEyes,
-                                  arguments: eyes.data
-                                );
-                              },
-                            ),
-                            ListTile(
-                                title: const Text('Upload Eyes'),
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.eyesIntro,
-                                  );
-                                }),
-                          ],
-                        ),
-                      );
-                    },
-                  )
-               :  Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.eyesIntro,
-                                  );
-                },
-                child: SvgPicture.asset(
-                  Assets.icons.eye.path,
-                  height: 40,
-                  width: 40,
-                ),
-              ),
-            ),
         ],
       ),
     );

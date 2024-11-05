@@ -22,9 +22,9 @@ class ChnagePasswordNotifier extends StateNotifier<ChangePasswordStates> {
           await authenticationRepository.changePassword(id, password);
 
       state = ChangePasswordStates.success(response.data);
-    } catch (e) {
+    } catch (e, s) {
       state = ChangePasswordStates.error(
-        e.toString(),
+        e.toString(), stackTrace: s
       );
     }
   }

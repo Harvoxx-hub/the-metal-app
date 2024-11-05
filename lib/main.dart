@@ -1,70 +1,116 @@
+import 'package:cr_logger/cr_logger.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:metal/core/services/auth.pref.service.dart';
-
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 import 'package:metal/route/routes.dart';
-
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:logger/logger.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:upgrader/upgrader.dart';
 
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
-
+/// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
 
+/// Convenience getter for accessing the current [NavigatorState]
 NavigatorState? get nav => navKey.currentState;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // if (Platform.isIOS || Platform.isMacOS) {
-  //   StoreConfig(
-  //     store: Store.appStore,
-  //     apiKey: "appl_FTkWKqtWAOYYGkGuYcKyfxQxduY",
-  //   );
-  // } else if (Platform.isAndroid) {
-  //   StoreConfig(
-  //     store: Store.playStore,
-  //     apiKey: "appl_FTkWKqtWAOYYGkGuYcKyfxQxduY",
-  //   );
-  // }
+  await initializeFirebase();
+  await initializeAuthManager();
+  await initializeCRLogger();
+  await initializeSentry();
 
-  // await _configureSDK();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  runApp(
+    ProviderScope(
+      child: UpgradeAlert(
+        dialogStyle: UpgradeDialogStyle.cupertino,
+        child: const MyApp(),
+      ),
+    ),
   );
-  await AuthManager.ensureInitialized();
+}
+
+/// Initializes Firebase and sets analytics
+Future<void> initializeFirebase() async {
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
     FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
   } catch (e) {
-    print("Failed to initialize Firebase: $e");
+  log.i("Failed to initialize Firebase: $e");
+  }
+}
+
+/// Ensures that the [AuthManager] is properly initialized
+Future<void> initializeAuthManager() async {
+  await AuthManager.ensureInitialized();
+}
+
+/// Initializes CRLogger with custom settings
+Future<void> initializeCRLogger() async {
+  await CRLoggerInitializer.instance.init(
+    useDatabase: true,
+    printLogs: true,
+    printLogsCompactly: true,
+    useCrLoggerInReleaseBuild: true,
+    theme: ThemeData.light(),
+    levelColors: {
+      Level.debug: Colors.lightGreenAccent,
+      Level.warning: Colors.orange,
+      Level.trace: Colors.blueAccent,
+      Level.info: Colors.blueAccent,
+      Level.error: Colors.red,
+      Level.fatal: Colors.red.shade900,
+      Level.off: Colors.grey.shade300,
+      Level.all: Colors.grey.shade300,
+    },
+    hiddenFields: [
+      'Test',
+      'Test3',
+      'Test7',
+      'freeform',
+      'qwe',
+    ],
+    hiddenHeaders: [
+      'content-type',
+      'Test3',
+      'Authorization',
+    ],
+    logFileName: 'my_logs',
+  );
+
+  // Set application-specific information for logging
+  CRLoggerInitializer.instance.appInfo = {
+    'Build type': 'release',
+    'Endpoint': 'https://metal-server.vercel.app/api/v1',
+  };
+
+  // Optionally set up proxy for logging (e.g., Charles Proxy)
+  final proxy = CRLoggerInitializer.instance.getProxySettings();
+  if (proxy != null) {
+    // RestClient.instance.initDioProxyForCharles(proxy);
   }
 
-  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navKey);
+  // Define what happens when logs are shared
+  CRLoggerInitializer.instance.onShareLogsFile = (String path) async {
+    await Share.shareXFiles([XFile(path)]);
+  };
+}
+
+/// Initializes Sentry for error tracking and performance monitoring
+Future<void> initializeSentry() async {
   await SentryFlutter.init(
     (options) {
       options.dsn =
           'https://db967fb52e009f50806bff1ee19d3588@o4507616949370880.ingest.us.sentry.io/4507616953499648';
-
       options.tracesSampleRate = 1.0;
-
       options.profilesSampleRate = 1.0;
     },
-    appRunner: () => ZegoUIKit().initLog().then((value) {
-      ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
-        [ZegoUIKitSignalingPlugin()],
-      );
-      runApp(const ProviderScope(
-        overrides: [],
-        child: MyApp(),
-      ));
-    }),
   );
 }
 
@@ -84,6 +130,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        builder: (context, child) => CrInspector(child: child!),
       title: 'Metal',
       key: navKey,
       initialRoute: '/',

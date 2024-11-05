@@ -1,6 +1,8 @@
-import 'dart:developer';
+ 
 
-import 'package:fluttertoast/fluttertoast.dart';
+ 
+
+import 'package:cr_logger/cr_logger.dart';
 
 enum Status { initial, loading, success, error, action }
 
@@ -33,8 +35,8 @@ class BaseState<T> {
     return BaseState<T>(status: Status.action, action: action);
   }
 
-  factory BaseState.error(String errorMessage, {Map? errorData}) {
-    log('Error ||||| errorMessage', level: 1000);
+  factory BaseState.error(String errorMessage, {Map? errorData, StackTrace? stackTrace}) {
+          log.e(  errorMessage, stackTrace: stackTrace );
     return BaseState<T>(
         status: Status.error, errorMessage: errorMessage, errorData: errorData);
   }

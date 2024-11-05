@@ -15,7 +15,7 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
   final Ref ref;
   final String id;
 
-  //get user by username
+   
   void getUserById() async {
     try {
       state = GetUserState.loading();
@@ -25,9 +25,9 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
 
       state = GetUserState.success(UserModel.fromJson(response.data));
       
-    } catch (e) {
-      print(e.toString());
-      state = GetUserState.error(e.toString());
+    } catch (e, s) {
+    
+      state = GetUserState.error(e.toString(), stackTrace: s);
     }
   }
 }

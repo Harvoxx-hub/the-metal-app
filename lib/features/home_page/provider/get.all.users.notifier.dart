@@ -28,9 +28,9 @@ class GetUsersNotifier extends StateNotifier<GetAllUsersState> {
      if (mounted) {
         state = GetAllUsersState.success(users);
       }
-    } catch (e) {
-      print(e.toString());
-      state = GetAllUsersState.error(e.toString());
+    } catch (e, s) {
+ 
+      state = GetAllUsersState.error(e.toString(), stackTrace: s);
     }
   }
 

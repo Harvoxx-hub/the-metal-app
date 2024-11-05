@@ -30,9 +30,9 @@ class VerificationNotifier extends StateNotifier<VerificationState> {
       await ref.read(authProvider.notifier).getUpdatedUser();
 
       state = VerificationState.success(response.message!);
-    } catch (e) {
-      print(e.toString());
-      state = VerificationState.error(e.toString());
+    } catch (e, s) {
+ 
+      state = VerificationState.error(e.toString(), stackTrace: s);
     }
   }
 }

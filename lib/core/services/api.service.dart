@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'dart:developer';
 
+import 'package:cr_logger/cr_logger.dart';
 import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/error/error.handle.dart';
@@ -21,20 +21,26 @@ class ApiService {
       PrettyDioLogger(
         requestHeader: true,
         requestBody: true,
-        responseBody: true,
+        responseBody: false,
         responseHeader: false,
         error: true,
-        compact: true,
+        compact: false,
         maxWidth: 90,
       ),
+ 
+
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           options.headers['Authorization'] =
               'Bearer ${await AuthManager.getAccessToken()}';
-          log('Started Calling ||||| ${options.path}', level: 1000);
+
+          log.i('Network Call: ${options.path}');
           handler.next(options);
         },
-        onError: (DioError e, handler) async {
+        onError: (
+          DioError e,
+          handler,
+        ) async {
           handler.next(e);
         },
         onResponse: (response, handler) {
@@ -48,7 +54,12 @@ class ApiService {
     try {
       final response = await _dio.get('$baseUrl/$endpoint');
       return _handleResponse(response);
-    } catch (error) {
+    } catch (error, s) {
+      log.e(
+        'error',
+        error: error,
+        stackTrace: s,
+      );
       throw ErrorHandler.handle(error).failure;
     }
   }
@@ -61,7 +72,12 @@ class ApiService {
         data: formData ?? (body != null ? jsonEncode(body) : null),
       );
       return _handleResponse(response);
-    } catch (error) {
+    } catch (error, s) {
+      log.e(
+        'error',
+        error: error,
+        stackTrace: s,
+      );
       throw ErrorHandler.handle(error).failure;
     }
   }
@@ -74,17 +90,25 @@ class ApiService {
         data: formData ?? jsonEncode(body),
       );
       return _handleResponse(response);
-    } catch (error) {
+    } catch (error, s) {
+      log.e(
+        'error',
+        error: error,
+        stackTrace: s,
+      );
+
       throw ErrorHandler.handle(error).failure;
     }
   }
 
   Future<Responses> _handleResponse(Response response) async {
+   
     final body = response.data;
     final data = Responses.fromJson(body);
     if (data.success!) {
       return data;
     } else {
+       log.i("Network Error: $data");
       Fluttertoast.showToast(
         msg: data.message.toString(),
       );

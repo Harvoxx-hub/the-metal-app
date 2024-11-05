@@ -2,8 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:metal/core/services/api.service.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:metal/core/services/api.service.dart';
+ 
 
 enum LoginState { loggedIn, loggedOut }
 

@@ -1,3 +1,4 @@
+import 'package:cr_logger/cr_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -126,7 +127,7 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
         .then((Position position) {
       setState(() => _currentPosition = position);
     }).catchError((e) {
-      debugPrint(e);
+      log.i(e);
     });
   }
 }

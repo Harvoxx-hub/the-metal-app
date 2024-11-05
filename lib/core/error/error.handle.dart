@@ -1,5 +1,6 @@
  
  
+import 'package:cr_logger/cr_logger.dart';
 import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/model/responces.dart';
@@ -9,8 +10,10 @@ class ErrorHandler implements Exception {
 
   ErrorHandler.handle(dynamic error) {
     if (error is DioException) {
+      
       // Handle Dio-specific error
       failure = _handleError(error);
+
 
     } else {
       // Handle default error
@@ -39,7 +42,7 @@ Responses _handleError(DioException error) {
       if (error.response != null &&
           error.response?.statusCode != null &&
           error.response?.statusMessage != null) {
-        print(error.response?.data);
+        log.i(error.response?.data);
         return Responses(
           success: false,
           message: "An error occurred, try again",

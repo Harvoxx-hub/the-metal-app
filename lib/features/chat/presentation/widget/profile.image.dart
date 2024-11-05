@@ -1,12 +1,14 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
  
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/gen/assets.gen.dart';
 
 class ProfileImage extends ConsumerWidget {
   const ProfileImage(
-      {super.key, this.imageUrl, this.height, this.width, this.onTap, this.id, });
-  final String? imageUrl;
+      {super.key, required this.imageUrl, this.height, this.width, this.onTap, this.id, });
+  final String imageUrl;
   final double? height;
   final String? id;
   final double? width;
@@ -29,21 +31,24 @@ class ProfileImage extends ConsumerWidget {
             ),
           ),
           child: Center(
-            child: imageUrl != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(33),
-                    child: Image.network(
-                      imageUrl!,
-                      fit: BoxFit.cover,
-                    ),
-                  )
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(33),
-                    child: Image.network(
-                      userdata!.metal!.img!,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+            child: CachedNetworkImage(
+                            imageUrl:   imageUrl!,
+                            imageBuilder: (context, imageProvider) =>
+                                CircleAvatar(
+                                  radius: 33, // Image radius
+                                  backgroundImage: imageProvider,
+                                ),
+                            placeholder: (context, url) => const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator
+                                      .adaptive(), // Loading indicator
+                                ),
+                            errorWidget: (context, url, error) =>
+                                Assets.images.logo.image(height: 24, width: 24))
+                
+                
+                
           )),
     );
   }

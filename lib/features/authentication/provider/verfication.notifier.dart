@@ -26,9 +26,9 @@ class VerficationNotifier extends StateNotifier<VerficationState> {
 
       await AuthManager.saveLoginState(LoginState.loggedIn);
       state = VerficationState.success("");
-    } catch (e) {
-      print(e);
-      state = VerficationState.error(e.toString());
+    } catch (e, s) {
+ 
+      state = VerficationState.error(e.toString(), stackTrace: s);
     }
   }
 }

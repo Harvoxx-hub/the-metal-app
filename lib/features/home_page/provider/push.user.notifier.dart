@@ -20,9 +20,9 @@ class PushUsersNotifier extends StateNotifier<PushUsersState> {
       final response = await homeRepository.pushUser(id);
 
       state = PushUsersState.success(response.message!);
-    } catch (e) {
-      print(e.toString());
-      state = PushUsersState.error(e.toString());
+    } catch (e,s) {
+ 
+      state = PushUsersState.error(e.toString(), stackTrace: s);
     }
   }
 }

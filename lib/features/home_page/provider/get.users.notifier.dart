@@ -32,9 +32,9 @@ class GetUsersNotifier extends StateNotifier<GetUsersState> {
           throw Exception("Response data is not a list");
         }
       }
-    } catch (e) {
-      print(e.toString());
-      state = GetUsersState.error(e.toString());
+    } catch (e, s) {
+   
+      state = GetUsersState.error(e.toString(), stackTrace: s);
     }
   }
 }

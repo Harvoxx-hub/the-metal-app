@@ -22,14 +22,14 @@ class ChatListNotifier extends StateNotifier<ChatListState> {
       final userData = ref.watch(authProvider).data;
       _messageSubscription =
           messageRepository.getChatList(userData!.id!).listen((event) {
-        print(event.length);
+       
         if (mounted) {
           state = ChatListState.success(event);
         }
       });
-    } catch (e) {
-      print('Failed to Get Message: $e');
-      state = ChatListState.error('Failed to Get Message $e');
+    } catch (e, s) {
+     
+      state = ChatListState.error('Failed to Get Message $e', stackTrace: s);
     }
   }
 

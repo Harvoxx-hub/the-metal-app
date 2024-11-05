@@ -15,27 +15,22 @@ class ReactThoughtNotifier extends StateNotifier<ReactThoughtState> {
   void reactThought(int thoughtid, String emoji) async {
     try {
       final homeRepository = ref.watch(homeRepositoryProvider);
-      final response =
-          await homeRepository.reactThought(thoughtid, emojiToUnicode(emoji));
-           print(response.data['data'][0]);
+
+      await homeRepository.reactThought(thoughtid, emoji);
+
       if (mounted) {
-       
-        state = ReactThoughtState.success(
-            ThoughtModel.fromJson(response.data['data'][0]));
+        state = ReactThoughtState.success("");
       }
-    } catch (e) {
-      print(e.toString());
-      state = ReactThoughtState.error(e.toString());
+    } catch (e, s) {
+      state = ReactThoughtState.error(e.toString(), stackTrace: s);
     }
   }
 
-  String emojiToUnicode(String emoji) {
-    return emoji.runes.map((rune) => rune.toRadixString(16)).join('-');
-  }
+ 
 }
 
 // Define a type alias
-typedef ReactThoughtState = BaseState<ThoughtModel>;
+typedef ReactThoughtState = BaseState<String>;
 
 final reactThoughtProvider =
     StateNotifierProvider.autoDispose<ReactThoughtNotifier, ReactThoughtState>(

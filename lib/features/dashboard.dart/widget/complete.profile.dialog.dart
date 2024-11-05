@@ -23,7 +23,7 @@ class ComplecteProfileDialog extends StatelessWidget {
         const Gap(15),
         const TextView(
           text:
-              "Complete your profile so your thoughts can be displayed on feeds",
+              "Complete your profile so your thoughts can be displayed on feed",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,

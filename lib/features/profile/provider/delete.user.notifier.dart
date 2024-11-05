@@ -19,9 +19,9 @@ class DeleteUsersNotifier extends StateNotifier<DeleteUsersState> {
       if (mounted) {
         state = DeleteUsersState.success(response.message!);
       }
-    } catch (e) {
-      print(e.toString());
-      state = DeleteUsersState.error(e.toString());
+    } catch (e, s) {
+    
+      state = DeleteUsersState.error(e.toString(), stackTrace: s);
     }
   }
   

@@ -1,3 +1,4 @@
+import 'package:cr_logger/cr_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,7 +10,7 @@ import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/react.thoughts.notifier.dart';
-import 'package:metal/features/my.metals/melted.user.agurment.dart';
+ 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
@@ -44,21 +45,6 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     thoughtModel = widget.thoughtModel;
   }
 
-  void _toggleReactions() {
-    setState(() => _showReactions = !_showReactions);
-  }
-
-  void _selectReaction(String reaction) {
-    setState(() {
-      _selectedReaction = reaction;
-      _showReactions = false;
-    });
-
-    ref
-        .read(reactThoughtProvider.notifier)
-        .reactThought(widget.thoughtModel.id!, reaction);
-  }
-
   @override
   Widget build(BuildContext context) {
     final userdata = ref.watch(authProvider).data;
@@ -67,14 +53,6 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     melted = (meltedUsers?.any((user) => user.id == widget.thoughtModel.user) ??
             false) ||
         (userdata?.id == widget.thoughtModel.user);
-
-    ref.listen<ReactThoughtState>(reactThoughtProvider, (prev, current) {
-      if (current.isSuccess) {
-        setState(() {
-          thoughtModel = current.data!;
-        });
-      }
-    });
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -85,7 +63,10 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
   Widget _buildThoughtCard(BuildContext context, dynamic userdata) {
     return Container(
       padding: const EdgeInsets.all(16.0),
-      decoration: _buildBoxDecoration(),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
       child: Stack(
         children: [
           Column(
@@ -98,26 +79,13 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
               _buildReactionsRow(),
               IconButton(
                 onPressed: _toggleReactions,
-                icon: const Icon(Icons.favorite_border),
+                icon: Icon(Icons.favorite_border),
               ),
             ],
           ),
           if (_showReactions) _buildReactionsSelector(),
         ],
       ),
-    );
-  }
-
-  BoxDecoration _buildBoxDecoration() {
-    return BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(10.0),
-      boxShadow: [
-        const BoxShadow(
-          color: Colors.black12,
-          blurRadius: 10.0,
-        ),
-      ],
     );
   }
 
@@ -128,11 +96,9 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           Navigator.pushNamed(
             context,
             AppRoutes.myMeltedUser,
-            arguments: MeltedUserAgurment(
-              userId: thoughtModel.user!,
-              conversationID: "",
-              melted: melted,
-            ),
+             arguments: 
+          thoughtModel.user!,
+          
           );
         }
       },
@@ -159,7 +125,10 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
       children: [
         Row(
           children: [
-            TextView(text: thoughtModel.userData?.username ?? ''),
+            TextView(
+              fontSize: 13.5,
+                text:
+                    "${thoughtModel.userData?.username} ${thoughtModel.userData!.metal!.title}"),
             const Gap(5),
             if (thoughtModel.userData?.verification ?? false)
               Assets.icons.checkVerified.svg(height: 16),
@@ -184,6 +153,80 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
       },
       icon: const Icon(Icons.more_vert),
     );
+  }
+
+  void _toggleReactions() {
+    final userdata = ref.watch(authProvider).data;
+    // Create a set of user IDs who reacted
+    final reactedUserIds = <String>{};
+
+    // Populate the set with user IDs from reactions
+    thoughtModel.reactions?.forEach((r) {
+      r.users?.forEach((user) {
+        reactedUserIds.add(user.userId!); // Assuming userId is not null
+      });
+    });
+
+    // Check if the current user has already reacted
+    if (reactedUserIds.contains(userdata!.id)) {
+      // User has reacted before; remove their reaction
+      thoughtModel.reactions?.removeWhere((reaction) {
+        reaction.users?.removeWhere((user) => user.userId == userdata.id);
+        // Return true if the users list is empty after removal
+        return reaction.users?.isEmpty ?? false;
+      });
+    } else {
+      _showReactions = !_showReactions;
+    }
+    setState(() {});
+  }
+
+  void _selectReaction(String reaction) {
+    final userdata = ref.watch(authProvider).data;
+    setState(() {
+      _selectedReaction = reaction;
+      _showReactions = false;
+    });
+
+    // Create a set of user IDs who reacted
+    final reactedUserIds = <String>{};
+
+    // Populate the set with user IDs from reactions
+    thoughtModel.reactions?.forEach((r) {
+      r.users?.forEach((user) {
+        reactedUserIds.add(user.userId!); // Assuming userId is not null
+      });
+    });
+
+    // Check if the current user has already reacted
+    if (reactedUserIds.contains(userdata!.id)) {
+      // User has reacted before; remove their reaction
+      thoughtModel.reactions?.removeWhere((reaction) {
+        reaction.users?.removeWhere((user) => user.userId == userdata.id);
+        // Return true if the users list is empty after removal
+        return reaction.users?.isEmpty ?? false;
+      });
+    } else {
+      // User has not reacted before; add their reaction
+      final newReactionUser = ReactionUser(
+          userId: userdata.id,
+          userName: userdata.username); // Add logic to get the actual user name
+      final newReaction = Reaction(
+          users: [newReactionUser], reaction: emojiToUnicode(reaction));
+
+      // Add the new reaction to the reactions list
+      thoughtModel.reactions?.add(newReaction);
+      _selectedReaction = emojiToUnicode(reaction);
+    }
+
+    // Call the provider to send the reaction to the backend
+    ref
+        .read(reactThoughtProvider.notifier)
+        .reactThought(widget.thoughtModel.id!, emojiToUnicode(reaction));
+  }
+
+  String emojiToUnicode(String emoji) {
+    return emoji.runes.map((rune) => rune.toRadixString(16)).join('-');
   }
 
   Widget _buildOptionsBottomSheet(BuildContext context) {
@@ -214,13 +257,48 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
   }
 
   Widget _buildReactionsRow() {
+    final userdata = ref.watch(authProvider).data;
+    String userid = userdata!
+        .id!; // Replace this with the actual ID check logic if necessary
+
+    // Check if the thought has any reactions
+    if (thoughtModel.reactions == null || thoughtModel.reactions!.isEmpty) {
+      return Container(); // or any other fallback widget when there are no reactions
+    }
+
+    // Initialize variables to track reactions
+    int totalReactions = 0;
+    bool userHasReacted = false;
+
+    // Calculate the total number of reactions and check if the user has reacted
+    for (var reaction in thoughtModel.reactions!) {
+      if (reaction.users != null) {
+        totalReactions += reaction.users!.length;
+        if (reaction.users!.any((user) => user.userId == userid)) {
+          userHasReacted = true;
+        }
+      }
+    }
+
+    // Build the display text based on the user's reaction status
+    String reactionText;
+    if (userHasReacted) {
+      if (totalReactions > 1) {
+        reactionText = 'You and ${totalReactions - 1} others reacted';
+      } else {
+        reactionText = 'You reacted';
+      }
+    } else {
+      reactionText = '$totalReactions reacted';
+    }
+
     return Row(
       children: [
         for (var reaction in thoughtModel.reactions!)
           Text(
             '${unicodeToEmoji(reaction.reaction ?? '')}',
           ),
-       // Text(thoughtModel.reactions![0].users![0].userName!)
+        Text(reactionText),
       ],
     );
   }
@@ -298,9 +376,8 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
         int codePoint = int.parse(unicode, radix: 16);
         // Append the emoji character to the result
         emoji += String.fromCharCode(codePoint);
-      } catch (e) {
-        // Handle any errors in conversion
-        print('Error converting Unicode $unicode: $e');
+      } catch (e, s) {
+     
       }
     }
 

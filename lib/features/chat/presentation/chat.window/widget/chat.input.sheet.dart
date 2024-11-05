@@ -56,7 +56,7 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                   keyboardType: TextInputType.emailAddress,
                   autoValidate: false,
 
-                  // validator: EmailValidator.validate(email),
+                  
                   radius: 34,
                   // fillColor: AppColors.appGrey,
                 ),
@@ -81,7 +81,7 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Text(
-                                'Voice note features are enabled after 30 days of chatting with this metal. Please contact them through messages',
+                                'Voice note features are enabled after 15 days of chatting with this metal. Please contact them through messages',
                               ),
                             ),
                           ),
@@ -141,7 +141,7 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                           ? 1.2
                           : 1.0),
                 ),
-                swapCategoryAndBottomBar: true,
+          
               ),
             ),
           ),

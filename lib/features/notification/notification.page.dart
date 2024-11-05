@@ -66,13 +66,15 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                           ],
                         ),
                       )
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: notificationData.data?.length ?? 0,
-                        itemBuilder: (BuildContext context, int index) {
-                          final notification = notificationData.data![index];
-                          return NotificationItemFactory.create(notification);
-                        },
+                    : Expanded(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: notificationData.data?.length ?? 0,
+                          itemBuilder: (BuildContext context, int index) {
+                            final notification = notificationData.data![index];
+                            return NotificationItemFactory.create(notification);
+                          },
+                        ),
                       )
           ],
         ));

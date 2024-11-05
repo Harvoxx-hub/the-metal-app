@@ -100,11 +100,7 @@ class ReferEarn extends StatelessWidget {
                                 context, AppRoutes.referEarnSpark);
                           },
                         ),
-                        const Gap(16),
-                        OutilineButton(
-                          buttonText: "View last 30 days",
-                          onPressed: () {},
-                        ),
+                       
                       ],
                     ),
                   ))

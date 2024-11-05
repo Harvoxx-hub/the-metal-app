@@ -24,12 +24,12 @@ class GetConveration extends StateNotifier<ConversationState> {
  
       _messageSubscription =
           messageRepository.conversation(id).listen((event) {
-        print(event);
+      
         state = ConversationState.success(event);
       });
-    } catch (e) {
-      print('Failed to Get Message: $e');
-      state = ConversationState.error('Failed to Get Message $e');
+    } catch (e,s) {
+  
+      state = ConversationState.error('Failed to Get Message $e', stackTrace: s);
     }
   }
 

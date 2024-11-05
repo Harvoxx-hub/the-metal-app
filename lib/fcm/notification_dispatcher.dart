@@ -1,3 +1,4 @@
+import 'package:cr_logger/cr_logger.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
@@ -101,8 +102,8 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
           metal: meltUserData.metal,
           phone: meltUserData.phone,
           id: meltUserData.id);
-        } catch (e) {
-      print(e);
+        } catch (e,s) {
+      log.i(e,stackTrace: s);
       rethrow; // Rethrow the exception to propagate it up the call stack if needed
     }
   }

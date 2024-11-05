@@ -1,11 +1,13 @@
 import 'dart:math';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
-class ProfilePhoto extends StatelessWidget {
+class ProfilePhoto extends ConsumerWidget {
   final double size;
   final bool verfly;
   final String? photourl;
@@ -16,8 +18,11 @@ class ProfilePhoto extends StatelessWidget {
     this.verfly = false,
     this.photourl,
   });
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+  final  currentUserData = ref.watch(authProvider).data;
+  
     return Stack(
       children: [
         Center(
@@ -45,19 +50,36 @@ class ProfilePhoto extends StatelessWidget {
                   ),
                   child: Center(
                     child: photourl != null
-                        ? CircleAvatar(
-                            radius: 48, // Image radius
-                            backgroundImage: NetworkImage(
-                              photourl!,
-                              scale: size * 0.7,
-                            ),
-                          )
-                        : Image.asset(
-                            Assets.images.silver.path,
-                            height: size * 0.7,
-                            width: size * 0.7,
-                            fit: BoxFit.fill,
-                          ),
+                        ? CachedNetworkImage(
+                            imageUrl: photourl!,
+                            imageBuilder: (context, imageProvider) =>
+                                CircleAvatar(
+                                  radius: size * 0.7, // Image radius
+                                  backgroundImage: imageProvider,
+                                ),
+                            placeholder: (context, url) => const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator
+                                      .adaptive(), // Loading indicator
+                                ),
+                            errorWidget: (context, url, error) =>
+                                Assets.images.logo.image(height: 24, width: 24))
+                        :CachedNetworkImage(
+                            imageUrl: currentUserData!.metal!.img!,
+                            imageBuilder: (context, imageProvider) =>
+                                CircleAvatar(
+                                  radius: size * 0.7, // Image radius
+                                  backgroundImage: imageProvider,
+                                ),
+                            placeholder: (context, url) => const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator
+                                      .adaptive(), // Loading indicator
+                                ),
+                            errorWidget: (context, url, error) =>
+                                Assets.images.logo.image(height: 24, width: 24))
                   ),
                 ),
               ),
@@ -65,15 +87,16 @@ class ProfilePhoto extends StatelessWidget {
           ),
         ),
         Positioned(
-            bottom: 0,
-            right: size >= 57 ? size / 1.3 : 0,
-            child: verfly
-                ? SvgPicture.asset(
-                    Assets.icons.checkVerified.path,
-                    height: 23,
-                    width: 23,
-                  )
-                : const SizedBox())
+          bottom: 0,
+          right: size >= 57 ? size / 1.3 : 0,
+          child: verfly
+              ? SvgPicture.asset(
+                  Assets.icons.checkVerified.path,
+                  height: 23,
+                  width: 23,
+                )
+              : const SizedBox(),
+        ),
       ],
     );
   }

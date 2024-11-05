@@ -29,9 +29,9 @@ class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
         referal: referal
       );
       state = AccountSettingState.success(response.data);
-    } catch (e) {
+    } catch (e,s) {
       
-      state = AccountSettingState.error(e.toString());
+      state = AccountSettingState.error(e.toString(), stackTrace: s);
     }
   }
 }

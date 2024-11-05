@@ -113,8 +113,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         ),
                         const Gap(20),
                         EditField(
-                          text: "Make chnages to my profile",
-                          floatingLabel: "Edit rofile",
+                          text: "Make changes to my profile",
+                          floatingLabel: "Edit profile",
                           prefixIcon: TextView(
                               text: "Edit",
                               fontSize: 14,

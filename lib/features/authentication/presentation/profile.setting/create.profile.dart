@@ -6,7 +6,7 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header1.dart';
- 
+
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
@@ -24,7 +24,8 @@ class CreateProfilePage extends ConsumerStatefulWidget {
   static const route = name;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _CreateProfilePageState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _CreateProfilePageState();
 }
 
 class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
@@ -94,7 +95,8 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                       label: 'User name',
                       controller: _userNameController,
                       keyboardType: TextInputType.name,
-                      bottomLabel: "Type a name unique to you that will be displayed to other users",
+                      bottomLabel:
+                          "Type a name unique to you that will be displayed to other users",
                       prefixWidget: Assets.icons.user3.svg(
                         width: 24,
                         height: 24,
@@ -139,7 +141,6 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                       items: const [
                         "Male",
                         "Female",
-                        "Both male and female",
                         "Others",
                       ],
                       value: _whatImLookingFor,
@@ -147,6 +148,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                         setState(() {
                           _whatImLookingFor = newValue;
                         });
+                        
                       },
                       floatingLabel: "I am looking to connect with",
                       hint: "Please Select",

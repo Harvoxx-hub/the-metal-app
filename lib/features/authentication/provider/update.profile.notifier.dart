@@ -20,10 +20,9 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
   }
 
   void updateUserData(UserModel userData) {
-    print(model.toJson().toString());
+ 
     model = userData;
-    print("model.toJson().toString()");
-    print(model.toJson().toString());
+   
   }
 
   Future<void> sendUserUpdate(UserModel userModel) async {
@@ -37,8 +36,8 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
 
       ref.read(authProvider.notifier).getUpdatedUser();
       state = UpdateProfileState.success(userData);
-    } catch (e) {
-      state = UpdateProfileState.error(e.toString());
+    } catch (e, s) {
+      state = UpdateProfileState.error(e.toString(), stackTrace: s);
     }
   }
 
@@ -61,8 +60,8 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
         fontSize: 16.0,
       );
       state = UpdateProfileState.success(userData);
-    } catch (e) {
-      state = UpdateProfileState.error(e.toString());
+    } catch (e, s) {
+      state = UpdateProfileState.error(e.toString(), stackTrace: s);
     }
   }
 
@@ -77,8 +76,8 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
 
       await ref.read(authProvider.notifier).getUpdatedUser();
       state = UpdateProfileState.success(userData);
-    } catch (e) {
-      state = UpdateProfileState.error(e.toString());
+    } catch (e,s) {
+      state = UpdateProfileState.error(e.toString(), stackTrace: s);
     }
   }
 

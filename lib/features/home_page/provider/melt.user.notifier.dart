@@ -39,20 +39,12 @@ class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
         ref.read(getThoughtExploreProvider.notifier).getThoughtUpdate();
       }
 
-      Fluttertoast.showToast(
-          msg: "Melt Request Sent",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 3,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0);
- 
+    
       state = MeltUsersState.success(
-          {"conversationId": "conversationId", "data": response.data});
-    } catch (e) {
-      print(e.toString());
-      state = MeltUsersState.error(e.toString());
+          { "data": response.data});
+    } catch (e, s) {
+     
+      state = MeltUsersState.error(e.toString(), stackTrace: s);
     }
   }
 }

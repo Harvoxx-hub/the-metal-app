@@ -36,4 +36,6 @@ const _$NotificationTypeEnumMap = {
   NotificationType.REFER: 'REFER',
   NotificationType.MESSAGE: 'MESSAGE',
   NotificationType.UNMELT: 'UNMELT',
+  NotificationType.THOUGHTREACTION: 'THOUGHTREACTION',
+  NotificationType.THOUGHT: 'THOUGHT',
 };

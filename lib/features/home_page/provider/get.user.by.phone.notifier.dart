@@ -20,9 +20,9 @@ class GetUserByPhoneNotifier extends StateNotifier<GetUserByPhoneState> {
       print(response.data);
 
       state = GetUserByPhoneState.success(UserModel.fromJson(response.data));
-    } catch (e) {
-      print(e.toString());
-      state = GetUserByPhoneState.error(e.toString());
+    } catch (e, s) {
+ 
+      state = GetUserByPhoneState.error(e.toString(), stackTrace: s);
     }
   }
 }

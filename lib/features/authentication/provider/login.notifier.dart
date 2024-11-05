@@ -40,9 +40,9 @@ class LoginNotifier extends StateNotifier<LoginStates> {
             .updateUserData(UserModel.fromJson(response.data));
         state = LoginStates.success(UserModel.fromJson(response.data));
       }
-    } catch (e) {
+    } catch (e,s) {
       state = LoginStates.error(
-        e.toString(),
+        e.toString(), stackTrace: s
       );
     }
   }

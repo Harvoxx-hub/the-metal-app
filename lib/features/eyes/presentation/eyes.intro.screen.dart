@@ -44,7 +44,7 @@ class EyesIntro extends StatelessWidget {
                     const Gap(20),
                     const TextView(
                       text:
-                          "- You can upload a maximum of 1 files or\n UPGRADE to Metal Plus for more.\n - A maximum of 30 secs video clip. \n - Only your melted unmetals can see your \neyes (after 30 days of interacting).",
+                          "- You can upload a maximum of 1 files or\n UPGRADE to Metal Plus for more.\n - A maximum of 30 secs video clip. \n - Only your melted unmetals can see your \neyes (after 15 days of interacting).",
                       fontSize: 14,
                       textAlign: TextAlign.center,
                       fontWeight: FontWeight.w300,

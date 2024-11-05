@@ -37,9 +37,9 @@ class UnMeltUsersNotifier extends StateNotifier<UnMeltUsersState> {
       ref.watch(getMeltUserProvider.notifier).updateMelt();
       ref.read(getThoughtForYouProvider.notifier).getThoughtUpdate();
       ref.read(getThoughtExploreProvider.notifier).getThoughtUpdate();
-    } catch (e) {
-      print(e.toString());
-      state = UnMeltUsersState.error(e.toString());
+    } catch (e, s) {
+      
+      state = UnMeltUsersState.error(e.toString(), stackTrace: s);
     }
   }
 }

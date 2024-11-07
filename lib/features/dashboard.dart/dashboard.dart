@@ -55,7 +55,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     //     );
     //   },
     // );
-    !userData.completed_profile!
+    !userData.completedProfile!
         ? showDialog(
             context: context,
             builder: (BuildContext context) {

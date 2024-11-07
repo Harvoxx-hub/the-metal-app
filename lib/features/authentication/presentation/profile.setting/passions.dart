@@ -5,11 +5,10 @@ import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
- 
+
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
- 
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
@@ -59,7 +58,7 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
                             crossAxisCount:
                                 2, // You can adjust the number of columns here
                             crossAxisSpacing: 10.0,
-                      
+
                             mainAxisSpacing: 10.0,
                             childAspectRatio: 16 / 6,
                           ),
@@ -102,7 +101,7 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
 
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
-    userData!.passion = _seletedPassion;
+    userData!.copyWith(passion: _seletedPassion);
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
     Navigator.pushNamed(
       context,

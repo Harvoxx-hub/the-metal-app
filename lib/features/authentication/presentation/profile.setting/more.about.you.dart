@@ -67,7 +67,7 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
 
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
-    userData!.description = _controller.text;
+    userData!.copyWith(description :_controller.text);
 
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
 

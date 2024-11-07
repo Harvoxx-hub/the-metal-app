@@ -5,7 +5,7 @@ import 'package:gap/gap.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
- 
+
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
@@ -106,10 +106,11 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
     await _getCurrentPosition();
     if (_currentPosition != null) {
       final userData = ref.watch(updateProfileProvider).data;
-      userData!.location = Location(
+      userData!.location!.copyWith(
         lat: _currentPosition!.latitude,
         lng: _currentPosition!.longitude,
       );
+
       ref.read(updateProfileProvider.notifier).updateUserData(userData);
 
       updateProfile(user);

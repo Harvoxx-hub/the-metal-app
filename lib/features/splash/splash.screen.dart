@@ -84,7 +84,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   Widget build(BuildContext context) {
     ref.listen<AuthState>(authProvider, (prev, current) {
       if (current.isSuccess) {
-        current.data!.profile_updated ?? false
+        current.data!.profileUpdated ?? false
             ? Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage)
             : Navigator.pushReplacementNamed(context, AppRoutes.welcomePage);
       }

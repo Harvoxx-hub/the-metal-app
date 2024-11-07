@@ -109,24 +109,24 @@ class _EditProfileState extends ConsumerState<EditProfile> {
         ),
         const Gap(20),
         EditField(
-          text: userState?.extra_data?.marital_status ?? "Marital status",
+          text: userState?.extraData?.maritalStatus ?? "Marital status",
           floatingLabel: "Marital status",
           subLabel: "Edit",
           dropDownItems: metalProperties.marriageStatus,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(UserModel(extra_data: ExtraData(marital_status: p0)));
+            updateUser(UserModel(extraData:  userState!.extraData!.copyWith(maritalStatus: p0)));
           },
         ),
         const Gap(20),
         EditField(
-          text: userState?.extra_data?.religion ?? "Religion",
+          text: userState?.extraData?.religion ?? "Religion",
           floatingLabel: "Religion",
           subLabel: "Edit",
           dropDownItems: metalProperties.religion,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(UserModel(extra_data: ExtraData(religion: p0)));
+            updateUser(UserModel(extraData:  userState!.extraData!.copyWith(religion: p0)));
           },
         ),
         const Gap(20),
@@ -143,13 +143,13 @@ class _EditProfileState extends ConsumerState<EditProfile> {
 
         const Gap(20),
         EditField(
-          text: userState.extra_data?.profession ?? "Proffession",
+          text: userState.extraData?.profession ?? "Proffession",
           floatingLabel: "Proffession",
           subLabel: "Edit",
           dropDownItems: metalProperties.profession,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(UserModel(extra_data: ExtraData(profession: p0)));
+            updateUser(UserModel(extraData:  userState.extraData!.copyWith(profession: p0)));
           },
         ),
 

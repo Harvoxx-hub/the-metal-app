@@ -8,7 +8,7 @@ import 'package:metal/core/services/countries.service.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
- 
+
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 
 import 'package:metal/gen/assets.gen.dart';
@@ -198,15 +198,14 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
 
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
-    final Address address = Address();
 
-    address.apartment_number = _apartmentNoController.text;
-    address.state = _selectedState;
-    address.country = _selectedCountries;
-    address.streetName = _streetNameController.text;
-    address.postalCode = _postalCodeController.text;
-    address.house_number = _houseNumberController.text;
-    userData!.address = address;
+    userData!.address!.copyWith(
+        country: _selectedCountries,
+        streetName: _streetNameController.text,
+        apartmentNumber: _apartmentNoController.text,
+        state: _selectedState,
+        postalCode: _postalCodeController.text,
+        houseNumber: _houseNumberController.text);
 
     ref.read(updateProfileProvider.notifier).completeUserUpdate(userData);
   }

@@ -176,13 +176,14 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
 
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
-    final preferences = Preferences()
-      ..age_range = selectedAgeRange?.join(',')
-      ..religion = selectedReligion?.join(',')
-      ..demography = selectedDemography?.join(',')
-      ..education = selectedEducation?.join(',')
-      ..ethnicity = selectedEthnicity?.join(',');
-    userData!.preferences = preferences;
+  
+    userData!.preferences!.copyWith(ageRange: selectedAgeRange?.join(','),
+    religion: selectedReligion?.join(','),
+    demography: selectedDemography?.join(','), 
+    
+    education: selectedEducation?.join(','), 
+    ethnicity: selectedEthnicity?.join(',')
+    );
     ref.read(updateProfileProvider.notifier).updateUserData(userData);
 
     Navigator.pushNamed(

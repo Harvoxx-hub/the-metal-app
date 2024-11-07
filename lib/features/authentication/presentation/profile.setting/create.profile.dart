@@ -148,7 +148,6 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                         setState(() {
                           _whatImLookingFor = newValue;
                         });
-                        
                       },
                       floatingLabel: "I am looking to connect with",
                       hint: "Please Select",
@@ -184,11 +183,13 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
     final userData = ref.watch(updateProfileProvider).data;
 
     if (_formKey.currentState!.validate()) {
-      userData!.fullname = _nameController.text;
-      userData.username = _userNameController.text;
-      userData.DOB = _dobController.text;
-      userData.gender = _gender;
-      userData.connect_with = _whatImLookingFor.join(",");
+      userData!.copyWith(
+          username: _userNameController.text,
+          dob: _dobController.text,
+          gender: _gender,
+          connectWith: _whatImLookingFor.join(","),
+          fullname: _nameController.text);
+ 
 
       ref.read(updateProfileProvider.notifier).updateUserData(userData);
 

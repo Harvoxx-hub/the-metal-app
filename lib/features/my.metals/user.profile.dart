@@ -61,7 +61,7 @@ class UserProfilePage extends StatelessWidget {
                     ),
                     const Gap(20),
                     EditField(
-                      text: getAgeRange(user.DOB!) + " years",
+                      text: getAgeRange(user.dob!) + " years",
                       floatingLabel: "Age Range",
                     ),
                     const Gap(20),
@@ -76,22 +76,22 @@ class UserProfilePage extends StatelessWidget {
                     ),
                     const Gap(20),
                     EditField(
-                      text: user.extra_data?.marital_status ?? "",
+                      text: user.extraData?.maritalStatus ?? "",
                       floatingLabel: "Marital status",
                     ),
                     const Gap(20),
                     EditField(
-                      text: user.extra_data?.religion ?? "",
+                      text: user.extraData?.religion ?? "",
                       floatingLabel: "Religion",
                     ),
                     const Gap(20),
                     EditField(
-                      text: user.extra_data?.profession ?? "",
+                      text: user.extraData?.profession ?? "",
                       floatingLabel: "Profession",
                     ),
                     const Gap(20),
                     EditField(
-                      text: user.connect_with!,
+                      text: user.connectWith!,
                       floatingLabel: "Interested in",
                     ),
                     const Gap(20),

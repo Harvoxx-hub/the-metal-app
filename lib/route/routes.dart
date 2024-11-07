@@ -4,8 +4,7 @@ import 'package:metal/features/authentication/presentation/forget.password/forgo
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
-import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
-import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
+ 
 import 'package:metal/features/home_page/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
  
@@ -54,7 +53,7 @@ import 'package:metal/features/profile/presentation/update.email/update.email.pa
 import 'package:metal/features/profile/presentation/update.phone.number/new.phone.number.page.dart';
 import 'package:metal/features/profile/presentation/update.phone.number/update.phone.number.page.dart';
 import 'package:metal/features/refer.earn/refer.earn.dart';
-import 'package:metal/features/settings/presentation%20/blocked.user.dart';
+import 'package:metal/features/settings/presentation%20/blocked.user.dart' as block;
 import 'package:metal/features/settings/presentation%20/settings.page.dart';
 
 import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
@@ -63,7 +62,7 @@ import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 
 
 import 'package:metal/features/upgrade/make.payment.dart';
-import 'package:metal/features/upgrade/upgrade.page.dart';
+ 
 import 'package:metal/features/verification/verification.video.dart';
 import 'package:metal/features/verification/video.preview.dart';
 
@@ -187,7 +186,7 @@ class AppRoutes {
       case feedBackPage:
         return MaterialPageRoute(builder: (_) =>   FeedBackPage());
       case blockedUser:
-        return MaterialPageRoute(builder: (_) => const BlockedUser());
+        return MaterialPageRoute(builder: (_) => const block.BlockedUser());
       case notificationPage:
         return MaterialPageRoute(builder: (_) => const NotificationPage());
       case userProfilePage:

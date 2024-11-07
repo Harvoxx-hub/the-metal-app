@@ -58,7 +58,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       if (current.isSuccess) {
         Navigator.pushNamed(
           context,
-          current.data?.profile_updated ?? false
+          current.data?.profileUpdated ?? false
               ? AppRoutes.dashboardPage
               : AppRoutes.welcomePage,
         );

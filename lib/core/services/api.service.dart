@@ -27,20 +27,46 @@ class ApiService {
         compact: false,
         maxWidth: 90,
       ),
- 
-
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          // Attach the token to each request
           options.headers['Authorization'] =
               'Bearer ${await AuthManager.getAccessToken()}';
-
           log.i('Network Call: ${options.path}');
           handler.next(options);
         },
-        onError: (
-          DioError e,
-          handler,
-        ) async {
+        onError: (DioError e, handler) async {
+          // Check if error is due to an expired token
+          if (e.response?.statusCode == 401) {
+            try {
+              final newToken = await _refreshToken();
+
+              if (newToken != null) {
+                await AuthManager.saveAccessToken(newToken);
+                e.requestOptions.headers['Authorization'] = 'Bearer $newToken';
+
+                final clonedRequest = await _dio.request(
+                  e.requestOptions.path,
+                  options: Options(
+                    method: e.requestOptions.method,
+                    headers: e.requestOptions.headers,
+                  ),
+                  data: e.requestOptions.data,
+                  queryParameters: e.requestOptions.queryParameters,
+                );
+
+                handler.resolve(clonedRequest);
+                return;
+              }
+            } catch (refreshError) {
+              log.e('Token refresh failed', error: refreshError);
+              Fluttertoast.showToast(
+                  msg: "Session expired. Please log in again.");
+              throw ErrorHandler.handle(e).failure;
+            }
+          }
+
+          // If error is not token related or retry fails, proceed with original error
           handler.next(e);
         },
         onResponse: (response, handler) {
@@ -50,16 +76,32 @@ class ApiService {
     ]);
   }
 
+  Future<String?> _refreshToken() async {
+    try {
+      final refreshToken = await AuthManager.getRefreshToken();
+      final response = await _dio.post(
+        '$baseUrl/auth/refresh-token', // Your refresh token endpoint
+        data: {'refreshtoken': refreshToken},
+      );
+
+      if (response.statusCode == 200) {
+        final newAccessToken = response.data['access_token'];
+        await AuthManager.saveRefreshToken(response.data['refresh_token']);
+        log.i('Token refreshed successfully');
+        return newAccessToken;
+      }
+    } catch (e) {
+      log.e('Refresh token failed', error: e);
+    }
+    return null;
+  }
+
   Future<dynamic> get(String endpoint) async {
     try {
       final response = await _dio.get('$baseUrl/$endpoint');
       return _handleResponse(response);
     } catch (error, s) {
-      log.e(
-        'error',
-        error: error,
-        stackTrace: s,
-      );
+      log.e('GET request error', error: error, stackTrace: s);
       throw ErrorHandler.handle(error).failure;
     }
   }
@@ -73,11 +115,7 @@ class ApiService {
       );
       return _handleResponse(response);
     } catch (error, s) {
-      log.e(
-        'error',
-        error: error,
-        stackTrace: s,
-      );
+      log.e('PATCH request error', error: error, stackTrace: s);
       throw ErrorHandler.handle(error).failure;
     }
   }
@@ -91,27 +129,20 @@ class ApiService {
       );
       return _handleResponse(response);
     } catch (error, s) {
-      log.e(
-        'error',
-        error: error,
-        stackTrace: s,
-      );
-
+      log.e('POST request error', error: error, stackTrace: s);
       throw ErrorHandler.handle(error).failure;
     }
   }
 
   Future<Responses> _handleResponse(Response response) async {
-   
     final body = response.data;
     final data = Responses.fromJson(body);
+
     if (data.success!) {
       return data;
     } else {
-       log.i("Network Error: $data");
-      Fluttertoast.showToast(
-        msg: data.message.toString(),
-      );
+      log.i("Network Error: ${data.message}");
+      Fluttertoast.showToast(msg: data.message.toString());
       throw data;
     }
   }

@@ -128,7 +128,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
             TextView(
               fontSize: 13.5,
                 text:
-                    "${thoughtModel.userData?.username} ${thoughtModel.userData!.metal!.title}"),
+                    "${thoughtModel.userData?.username} ${thoughtModel.userData!.metal?.title ?? ""}"),
             const Gap(5),
             if (thoughtModel.userData?.verification ?? false)
               Assets.icons.checkVerified.svg(height: 16),

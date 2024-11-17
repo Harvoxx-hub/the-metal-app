@@ -1,6 +1,6 @@
  
  
-import 'package:cr_logger/cr_logger.dart';
+ 
 import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/model/responces.dart';
@@ -42,7 +42,7 @@ Responses _handleError(DioException error) {
       if (error.response != null &&
           error.response?.statusCode != null &&
           error.response?.statusMessage != null) {
-        log.i(error.response?.data);
+      print(error.response?.data);
         return Responses(
           success: false,
           message: "An error occurred, try again",

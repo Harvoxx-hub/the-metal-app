@@ -1,4 +1,4 @@
-import 'package:cr_logger/cr_logger.dart';
+ 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
@@ -39,7 +39,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final userData = UserModel.fromJson(response.data);
       state = AuthState.success(userData);
     } catch (e) {
-      log.i( e.toString());
+      print( e.toString());
     }
   }
 

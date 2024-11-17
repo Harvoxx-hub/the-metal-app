@@ -25,14 +25,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.4.1"
-  app_settings:
-    dependency: transitive
-    description:
-      name: app_settings
-      sha256: "09bc7fe0313a507087bec1a3baf555f0576e816a760cbb31813a88890a09d9e5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.1.1"
   archive:
     dependency: transitive
     description:
@@ -217,14 +209,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
-  chopper:
-    dependency: transitive
-    description:
-      name: chopper
-      sha256: "1b6280ec22841b844448bec8ef2644d9cbe9ea8dfce13ec9cab9e8d3aac3830d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.4.0"
   cli_util:
     dependency: transitive
     description:
@@ -321,22 +305,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
-  cr_json_widget:
-    dependency: transitive
-    description:
-      name: cr_json_widget
-      sha256: "6de03c1b6ada25e090c35834f12b4e9384ab38870813035c6ab2ba8924adc2f2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.1"
-  cr_logger:
-    dependency: "direct main"
-    description:
-      name: cr_logger
-      sha256: "861baabb03095384dcd5598659d29e046f8958c751e974ffe6a1405c01fe47fc"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.2"
   cross_file:
     dependency: transitive
     description:
@@ -433,14 +401,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0"
-  equatable:
-    dependency: transitive
-    description:
-      name: equatable
-      sha256: c2b87cb7756efdf69892005af546c56c0b5037f54d2a88269b4f347a505e3ca2
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.5"
   fake_async:
     dependency: transitive
     description:
@@ -726,14 +686,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.9.3"
-  flutter_staggered_grid_view:
-    dependency: transitive
-    description:
-      name: flutter_staggered_grid_view
-      sha256: "19e7abb550c96fbfeb546b23f3ff356ee7c59a019a651f8f102a4ba9b7349395"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -984,22 +936,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.3"
-  infinite_scroll_pagination:
-    dependency: transitive
+  instabug_flutter:
+    dependency: "direct main"
     description:
-      name: infinite_scroll_pagination
-      sha256: b68bce20752fcf36c7739e60de4175494f74e99e9a69b4dd2fe3a1dd07a7f16a
+      name: instabug_flutter
+      sha256: f4ac6c48fee223e63b96875136e42448049db043b34754309c80586429dcff04
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0"
-  inspector:
-    dependency: transitive
-    description:
-      name: inspector
-      sha256: "40ba0ac1c819c85139bfec9d1e283804581a8985c91f19d00e93212cf29226b1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
+    version: "13.4.0"
   intl:
     dependency: "direct main"
     description:
@@ -1088,14 +1032,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
-  logger:
-    dependency: transitive
-    description:
-      name: logger
-      sha256: "697d067c60c20999686a0add96cf6aba723b3aa1f83ecf806a8097231529ec32"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.0"
   logging:
     dependency: transitive
     description:
@@ -1336,14 +1272,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
-  qs_dart:
-    dependency: transitive
-    description:
-      name: qs_dart
-      sha256: be73d060d29c0716ded88380ba32e87ce8105f0ba234edb3edefa0d74d47d64b
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.4"
   range_slider_flutter:
     dependency: "direct main"
     description:
@@ -1352,14 +1280,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.2"
-  recursive_regex:
-    dependency: transitive
-    description:
-      name: recursive_regex
-      sha256: f7252e3d3dfd1665e594d9fe035eca6bc54139b1f2fee38256fa427ea41adc60
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   responsive_framework:
     dependency: "direct main"
     description:
@@ -1384,22 +1304,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
-  sentry:
-    dependency: transitive
-    description:
-      name: sentry
-      sha256: cbc29cbdd8a047aab3df42f826daf07e58dfb2e1d550895d1021a6d4e618b00d
-      url: "https://pub.dev"
-    source: hosted
-    version: "8.4.0"
-  sentry_flutter:
-    dependency: "direct main"
-    description:
-      name: sentry_flutter
-      sha256: "96ce085e1be6c9963d93d42d6ba5c67484c076c59d25c94a7ba906549dc6c635"
-      url: "https://pub.dev"
-    source: hosted
-    version: "8.4.0"
   share_plus:
     dependency: "direct main"
     description:
@@ -1501,14 +1405,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
-  sliver_tools:
-    dependency: transitive
-    description:
-      name: sliver_tools
-      sha256: eae28220badfb9d0559207badcbbc9ad5331aac829a88cb0964d330d2a4636a6
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.12"
   source_gen:
     dependency: transitive
     description:
@@ -1533,14 +1429,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
-  split_view:
-    dependency: transitive
-    description:
-      name: split_view
-      sha256: "7ad0e1c40703901aa1175fd465dec5e965b55324f9cc8e51526479a4a96d01a4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.2.1"
   sqflite:
     dependency: transitive
     description:
@@ -1837,14 +1725,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
-  weak_map:
-    dependency: transitive
-    description:
-      name: weak_map
-      sha256: "95ca338f0cdf5f0022cc283dfa4d97f6f6b03752f67eca85ebe6d7a679ffe3ed"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.1"
   web:
     dependency: "direct overridden"
     description:
@@ -1885,14 +1765,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.3"
-  worker_manager:
-    dependency: transitive
-    description:
-      name: worker_manager
-      sha256: c64ada43c5adc1bcd4635f1ce386857e7fdec7fc494589e2ca61cad0a1304377
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.3.2"
   xdg_directories:
     dependency: transitive
     description:

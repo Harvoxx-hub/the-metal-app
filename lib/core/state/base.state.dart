@@ -2,7 +2,7 @@
 
  
 
-import 'package:cr_logger/cr_logger.dart';
+ 
 
 enum Status { initial, loading, success, error, action }
 
@@ -36,7 +36,7 @@ class BaseState<T> {
   }
 
   factory BaseState.error(String errorMessage, {Map? errorData, StackTrace? stackTrace}) {
-          log.e(  errorMessage, stackTrace: stackTrace );
+          print(  errorMessage);
     return BaseState<T>(
         status: Status.error, errorMessage: errorMessage, errorData: errorData);
   }

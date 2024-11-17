@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header1.dart';
 
 import 'package:metal/gen/assets.gen.dart';
@@ -183,15 +184,14 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
     final userData = ref.watch(updateProfileProvider).data;
 
     if (_formKey.currentState!.validate()) {
-      userData!.copyWith(
+      UserModel userModel = UserModel(
           username: _userNameController.text,
           dob: _dobController.text,
           gender: _gender,
           connectWith: _whatImLookingFor.join(","),
           fullname: _nameController.text);
- 
 
-      ref.read(updateProfileProvider.notifier).updateUserData(userData);
+      ref.read(updateProfileProvider.notifier).updateUserData(userModel);
 
       Navigator.pushNamed(
         context,

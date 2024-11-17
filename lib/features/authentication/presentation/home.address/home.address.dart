@@ -198,15 +198,15 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
 
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
-
-    userData!.address!.copyWith(
+    Address address = Address(
         country: _selectedCountries,
         streetName: _streetNameController.text,
         apartmentNumber: _apartmentNoController.text,
         state: _selectedState,
         postalCode: _postalCodeController.text,
         houseNumber: _houseNumberController.text);
+    final updated = userData!.copyWith(address: address);
 
-    ref.read(updateProfileProvider.notifier).completeUserUpdate(userData);
+    ref.read(updateProfileProvider.notifier).completeUserUpdate(updated);
   }
 }

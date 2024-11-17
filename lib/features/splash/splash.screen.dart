@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cr_logger/cr_logger.dart';
+ 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,7 +34,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     _retryConnection();
     // Use post-frame callback to ensure the button is shown after the first build
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      CRLoggerInitializer.instance.showDebugButton(context);
+ 
     });
   }
 

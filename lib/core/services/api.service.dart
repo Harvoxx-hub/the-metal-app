@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:cr_logger/cr_logger.dart';
+ 
 import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/error/error.handle.dart';
@@ -32,7 +32,7 @@ class ApiService {
           // Attach the token to each request
           options.headers['Authorization'] =
               'Bearer ${await AuthManager.getAccessToken()}';
-          log.i('Network Call: ${options.path}');
+         print('Network Call: ${options.path}');
           handler.next(options);
         },
         onError: (DioError e, handler) async {
@@ -40,7 +40,7 @@ class ApiService {
           if (e.response?.statusCode == 401) {
             try {
               final newToken = await _refreshToken();
-
+              print(newToken);
               if (newToken != null) {
                 await AuthManager.saveAccessToken(newToken);
                 e.requestOptions.headers['Authorization'] = 'Bearer $newToken';
@@ -59,7 +59,7 @@ class ApiService {
                 return;
               }
             } catch (refreshError) {
-              log.e('Token refresh failed', error: refreshError);
+         print('Token refresh failed');
               Fluttertoast.showToast(
                   msg: "Session expired. Please log in again.");
               throw ErrorHandler.handle(e).failure;
@@ -85,13 +85,14 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
+        print(response.data);
         final newAccessToken = response.data['access_token'];
         await AuthManager.saveRefreshToken(response.data['refresh_token']);
-        log.i('Token refreshed successfully');
+     print  ('Token refreshed successfully');
         return newAccessToken;
       }
     } catch (e) {
-      log.e('Refresh token failed', error: e);
+     print('Refresh token failed',  );
     }
     return null;
   }
@@ -101,7 +102,7 @@ class ApiService {
       final response = await _dio.get('$baseUrl/$endpoint');
       return _handleResponse(response);
     } catch (error, s) {
-      log.e('GET request error', error: error, stackTrace: s);
+   print  ('GET request error');
       throw ErrorHandler.handle(error).failure;
     }
   }
@@ -115,7 +116,7 @@ class ApiService {
       );
       return _handleResponse(response);
     } catch (error, s) {
-      log.e('PATCH request error', error: error, stackTrace: s);
+  print  ('PATCH request error');
       throw ErrorHandler.handle(error).failure;
     }
   }
@@ -129,7 +130,7 @@ class ApiService {
       );
       return _handleResponse(response);
     } catch (error, s) {
-      log.e('POST request error', error: error, stackTrace: s);
+print ('POST request error');
       throw ErrorHandler.handle(error).failure;
     }
   }
@@ -141,7 +142,7 @@ class ApiService {
     if (data.success!) {
       return data;
     } else {
-      log.i("Network Error: ${data.message}");
+    print("Network Error: ${data.message}");
       Fluttertoast.showToast(msg: data.message.toString());
       throw data;
     }

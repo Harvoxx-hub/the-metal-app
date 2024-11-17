@@ -1,4 +1,4 @@
-import 'package:cr_logger/cr_logger.dart';
+ 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -106,12 +106,14 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
     await _getCurrentPosition();
     if (_currentPosition != null) {
       final userData = ref.watch(updateProfileProvider).data;
-      userData!.location!.copyWith(
+      Location location = Location(
         lat: _currentPosition!.latitude,
         lng: _currentPosition!.longitude,
       );
 
-      ref.read(updateProfileProvider.notifier).updateUserData(userData);
+     final updated =    userData!.copyWith(location: location);
+
+      ref.read(updateProfileProvider.notifier).updateUserData(updated);
 
       updateProfile(user);
     }
@@ -128,7 +130,7 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
         .then((Position position) {
       setState(() => _currentPosition = position);
     }).catchError((e) {
-      log.i(e);
+ 
     });
   }
 }

@@ -7,16 +7,15 @@ import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
- 
+
 import 'package:metal/gen/assets.gen.dart';
 
- 
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
- 
+
 import 'package:metal/widgets/text_views.dart';
 
 class PreferenceMetalPage extends ConsumerStatefulWidget {
@@ -50,10 +49,11 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
           children: [
             CreateProfileHeader2(
               path: Assets.images.heartLocks1.path,
-              title: "Let us know what your special preferences are in a person",
+              title:
+                  "Let us know what your special preferences are in a person",
               subtitle: " ",
             ),
-            const Gap(16 ),
+            const Gap(16),
             CustomCheckWidget(
               boarder: true,
               title: 'No Special Preference',
@@ -64,13 +64,13 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
                 });
               },
             ),
-            const Gap(16 ),
+            const Gap(16),
             const TextView(
               text: "If you have special preferences, please select below.",
               fontSize: 14,
               fontWeight: FontWeight.w300,
             ),
-            const Gap(15 ),
+            const Gap(15),
             MentalDropdownMutipleSelection(
               items: const [
                 "18 - 30 years",
@@ -92,7 +92,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
                 width: 24,
               ),
             ),
-            const Gap(15 ),
+            const Gap(15),
             MentalDropdownMutipleSelection(
               items: metalProps.data!.religion!,
               value: selectedReligion,
@@ -105,7 +105,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               hint: "Please Select",
               prefixIcon: Assets.icons.christianity.svg(width: 24, height: 24),
             ),
-            const Gap(15 ),
+            const Gap(15),
             MentalDropdownMutipleSelection(
               items: metalProps.data!.ethnicity!,
               value: selectedEthnicity,
@@ -122,7 +122,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
                 width: 24,
               ),
             ),
-            const Gap(15 ),
+            const Gap(15),
             MentalDropdownMutipleSelection(
               items: metalProps.data!.education!,
               value: selectedEducation,
@@ -139,7 +139,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
                 width: 24,
               ),
             ),
-            const Gap(15 ),
+            const Gap(15),
             MentalDropdownMutipleSelection(
               items: metalProps.data!.demography!,
               value: selectedDemography,
@@ -156,7 +156,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
                 width: 24,
               ),
             ),
-            const Gap(15 ),
+            const Gap(15),
             BaseButton(
               enabled: noSpecialPreference == true
                   ? true
@@ -176,19 +176,18 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
 
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
-  
-    userData!.preferences!.copyWith(ageRange: selectedAgeRange?.join(','),
-    religion: selectedReligion?.join(','),
-    demography: selectedDemography?.join(','), 
-    
-    education: selectedEducation?.join(','), 
-    ethnicity: selectedEthnicity?.join(',')
-    );
-    ref.read(updateProfileProvider.notifier).updateUserData(userData);
+    Preferences preferences = Preferences(
+        ageRange: selectedAgeRange?.join(','),
+        religion: selectedReligion?.join(','),
+        demography: selectedDemography?.join(','),
+        education: selectedEducation?.join(','),
+        ethnicity: selectedEthnicity?.join(','));
+    final updated = userData!.copyWith(preferences: preferences);
+    ref.read(updateProfileProvider.notifier).updateUserData(updated);
 
     Navigator.pushNamed(
       context,
-      AppRoutes .homeAddressPage,
+      AppRoutes.homeAddressPage,
     );
   }
 }

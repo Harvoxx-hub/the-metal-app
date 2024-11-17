@@ -1,3 +1,4 @@
+ 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -20,9 +21,11 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
   }
 
   void updateUserData(UserModel userData) {
- 
+     state = UpdateProfileState.success(userData);
     model = userData;
-   
+    
+
+print(userData.toString());
   }
 
   Future<void> sendUserUpdate(UserModel userModel) async {
@@ -76,7 +79,7 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
 
       await ref.read(authProvider.notifier).getUpdatedUser();
       state = UpdateProfileState.success(userData);
-    } catch (e,s) {
+    } catch (e, s) {
       state = UpdateProfileState.error(e.toString(), stackTrace: s);
     }
   }

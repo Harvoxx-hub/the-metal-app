@@ -28,8 +28,6 @@ class CheckMeltStatusNotifier extends StateNotifier<CheckMeltState> {
       case "TVVUVUFM":
         return CheckStatus.MUTUAL;
       default:
-         
- 
         throw Exception("Unknown status: $status");
     }
   }
@@ -41,9 +39,10 @@ class CheckMeltStatusNotifier extends StateNotifier<CheckMeltState> {
       final repository = ref.watch(homeRepositoryProvider);
 
       final response = await repository.checkMelt(userId: id);
-Codec<String, String> stringToBase64 = utf8.fuse(base64);
+      Codec<String, String> stringToBase64 = utf8.fuse(base64);
       // Map the response string to the CheckStatus enum
-      final status = _mapStringToCheckStatus(stringToBase64.encode(response.data["status"]));
+      final status = _mapStringToCheckStatus(
+          stringToBase64.encode(response.data["status"]));
 
       state = CheckMeltState.success(status);
     } catch (e, s) {

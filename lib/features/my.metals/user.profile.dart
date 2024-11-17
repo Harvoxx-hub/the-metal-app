@@ -50,11 +50,11 @@ class UserProfilePage extends StatelessWidget {
                       child: TextView(text: "@ ${user.username}"),
                     ),
                     const Gap(40),
-                    EditField(
-                      text: user.fullname!,
-                      floatingLabel: " First name & Last name",
-                    ),
-                    const Gap(20),
+                    // EditField(
+                    //   text: user.fullname!,
+                    //   floatingLabel: " First name & Last name",
+                    // ),
+                  //  const Gap(20),
                     EditField(
                       text: "@${user.username}",
                       floatingLabel: "Username",

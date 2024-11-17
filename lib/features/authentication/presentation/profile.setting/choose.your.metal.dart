@@ -102,8 +102,8 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
 
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
-    userData!.copyWith(metal: _selectedMetal);
-    ref.read(updateProfileProvider.notifier).updateUserData(userData);
+    final updated = userData!.copyWith(metal: _selectedMetal);
+    ref.read(updateProfileProvider.notifier).updateUserData(updated);
 
     Navigator.pushNamed(
       context,

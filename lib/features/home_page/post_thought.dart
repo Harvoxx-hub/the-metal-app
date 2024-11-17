@@ -54,6 +54,7 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                 PlainButton(
                     buttonText: "Post",
                     onPressed: () {
+                      FocusScope.of(context).unfocus();
                       ref
                           .read(sendThoughtProvider.notifier)
                           .sendThought(controller.text.trim());

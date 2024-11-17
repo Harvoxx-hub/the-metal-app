@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
- 
+
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
-
 
 import 'package:metal/widgets/text_views.dart';
 
@@ -62,10 +61,12 @@ class PassionsCard extends StatelessWidget {
               width: 20,
             ),
             Gap(8),
-            TextView(
-              text: model.title!,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+            Expanded(
+              child: TextView(
+                text: model.title!,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const Spacer(),
           ],

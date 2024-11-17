@@ -1,4 +1,4 @@
-import 'package:cr_logger/cr_logger.dart';
+ 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
@@ -57,7 +57,7 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
       state = GetMeltUsersState.success(users);
     } catch (e) {
       // Log the error in case of failure
-      log.i(e.toString());
+      print(e.toString());
     }
   }
 
@@ -78,7 +78,7 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
       return null;
     } catch (e, s) {
       // Log the error in case of an exception
-      log.i(e.toString());
+   print(e.toString());
       return null;
     }
   }

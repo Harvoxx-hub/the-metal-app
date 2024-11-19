@@ -50,27 +50,6 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
                 Column(
                   children: [
                     const Gap(20),
-                    // EditField(
-                    //   text: "Send and receive messages ",
-                    //   onTap: () {
-                    //     Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
-                    //         arguments: ChatWindowArgument(
-                    //           user: MeltUserModel(
-                    //               gender: widget.userModel.gender,
-                    //               name: widget.userModel.username,
-                    //               metal: widget.userModel.metal,
-                    //               phone: widget.userModel.phone,
-                    //               id: widget.userModel.id),
-                    //         ));
-                    //   },
-                    //   floatingLabel: "Start a conversation",
-                    //   suffixIcon: Image.asset(
-                    //     Assets.images.inactiveMessage.path,
-                    //     height: 21,
-                    //     width: 21,
-                    //   ),
-                    // ),
-                    const Gap(20),
                     EditField(
                       text:
                           "De-melt ${widget.userModel.username}  from your metal list",

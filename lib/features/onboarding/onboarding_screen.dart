@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:gap/gap.dart';
- 
 
 import '../../widgets/text_views.dart';
 
@@ -13,7 +12,7 @@ class OnboardingWidget extends StatefulWidget {
   const OnboardingWidget({
     super.key,
     required this.imageUrl,
-    required this .headerText,
+    required this.headerText,
     required this.descriptionText,
   });
 
@@ -34,7 +33,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget> {
           height: 172,
         ),
         TextView(
-          text: widget .headerText,
+          text: widget.headerText,
           fontSize: 30,
           fontWeight: FontWeight.normal,
         ),

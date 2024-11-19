@@ -2,8 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:metal/core/services/api.service.dart';
 
- 
-
 enum LoginState { loggedIn, loggedOut }
 
 class AuthManager {
@@ -82,9 +80,8 @@ class AuthManager {
   }
 }
 
-
 final authManagerProvider = Provider((ref) {
-   final authManager = AuthManager();
-  
-   return authManager;
+  final authManager = AuthManager();
+
+  return authManager;
 });

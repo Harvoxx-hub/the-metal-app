@@ -1,4 +1,3 @@
- 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -111,7 +110,7 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
         lng: _currentPosition!.longitude,
       );
 
-     final updated =    userData!.copyWith(location: location);
+      final updated = userData!.copyWith(location: location);
 
       ref.read(updateProfileProvider.notifier).updateUserData(updated);
 
@@ -129,8 +128,6 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
     await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((Position position) {
       setState(() => _currentPosition = position);
-    }).catchError((e) {
- 
-    });
+    }).catchError((e) {});
   }
 }

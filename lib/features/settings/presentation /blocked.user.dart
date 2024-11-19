@@ -74,7 +74,7 @@ class BlockedUser extends ConsumerWidget {
                               for (var element in blockedUserState.data ?? [])
                                 BlockedCard(
                                   id: element["id"],
-                                  name: element["name"] ??"",
+                                  name: element["name"] ?? "",
                                 ),
                             ],
                           ),

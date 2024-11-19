@@ -10,7 +10,7 @@ class GetUsersNotifier extends StateNotifier<GetAllUsersState> {
     super.state,
     this.ref,
   ) {
-   // getAllUsers();
+    // getAllUsers();
   }
   final Ref ref;
 
@@ -25,11 +25,10 @@ class GetUsersNotifier extends StateNotifier<GetAllUsersState> {
       response.data.forEach((element) {
         users.add(ALLUserModel.fromJson(element));
       });
-     if (mounted) {
+      if (mounted) {
         state = GetAllUsersState.success(users);
       }
     } catch (e, s) {
- 
       state = GetAllUsersState.error(e.toString(), stackTrace: s);
     }
   }
@@ -45,7 +44,7 @@ class GetUsersNotifier extends StateNotifier<GetAllUsersState> {
   //   if (mounted) {
   //       state = GetAllUsersState.success(filteredUsers);
   //     }
-  
+
   // }
 
   //remove user from list

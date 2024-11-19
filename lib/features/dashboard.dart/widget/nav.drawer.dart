@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
- 
+
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
@@ -10,7 +10,6 @@ import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
- 
 
 class NavDrawer extends ConsumerWidget {
   const NavDrawer({super.key});
@@ -53,12 +52,11 @@ class NavDrawer extends ConsumerWidget {
                   const Gap(36),
                   Row(
                     children: [
-                        ProfilePhoto(
+                      ProfilePhoto(
                         verfly: false,
                         size: 51,
                         photourl: authState?.profilePhoto ?? null,
                       ),
-                  
                       const Gap(19),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,9 +286,7 @@ class NavDrawer extends ConsumerWidget {
 
   void logout(WidgetRef ref) {
     AuthManager.deleteAccessToken();
-   AuthManager.deleteLoginState();
- AuthManager.deleteRefreshToken();
-
-    
+    AuthManager.deleteLoginState();
+    AuthManager.deleteRefreshToken();
   }
 }

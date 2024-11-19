@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'push_type.dart';
- 
 
 class NotificationPayloadModel {
   NotificationPayloadModel({
@@ -31,7 +30,7 @@ class NotificationPayloadModel {
   factory NotificationPayloadModel.fromRemoteMessage(RemoteMessage message) {
     return NotificationPayloadModel(
       action: PushType.valueOf(message.data['type'] as String?),
-      id:  message.data['Id'],
+      id: message.data['Id'],
       payload: jsonDecode(message.data['payload'] ?? "{}"),
     );
   }

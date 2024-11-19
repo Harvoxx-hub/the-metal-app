@@ -39,11 +39,8 @@ class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
         ref.read(getThoughtExploreProvider.notifier).getThoughtUpdate();
       }
 
-    
-      state = MeltUsersState.success(
-          { "data": response.data});
+      state = MeltUsersState.success({"data": response.data});
     } catch (e, s) {
-     
       state = MeltUsersState.error(e.toString(), stackTrace: s);
     }
   }

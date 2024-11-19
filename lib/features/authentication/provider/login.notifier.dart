@@ -30,7 +30,7 @@ class LoginNotifier extends StateNotifier<LoginStates> {
       );
 
       if (response.action == "ENTER OTP") {
-        state = LoginStates.action( action: response.data);
+        state = LoginStates.action(action: response.data);
       } else {
         await AuthManager.saveAccessToken(response.data['access_token']);
         await AuthManager.saveRefreshToken(response.data['refresh_token']);
@@ -40,10 +40,8 @@ class LoginNotifier extends StateNotifier<LoginStates> {
             .updateUserData(UserModel.fromJson(response.data));
         state = LoginStates.success(UserModel.fromJson(response.data));
       }
-    } catch (e,s) {
-      state = LoginStates.error(
-        e.toString(), stackTrace: s
-      );
+    } catch (e, s) {
+      state = LoginStates.error(e.toString(), stackTrace: s);
     }
   }
 }

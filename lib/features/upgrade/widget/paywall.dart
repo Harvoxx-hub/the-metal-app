@@ -1,6 +1,5 @@
 // import 'package:flutter/material.dart';
 // import 'package:purchases_flutter/purchases_flutter.dart';
- 
 
 // class Paywall extends StatefulWidget {
 //   final Offering offering;
@@ -22,7 +21,7 @@
 //               height: 70.0,
 //               width: double.infinity,
 //               decoration: const BoxDecoration(
-                 
+
 //                   borderRadius:
 //                       BorderRadius.vertical(top: Radius.circular(25.0))),
 //               child: const Center(
@@ -35,7 +34,7 @@
 //               child: SizedBox(
 //                 child: Text(
 //                   'MAGIC WEATHER PREMIUM',
-           
+
 //                 ),
 //                 width: double.infinity,
 //               ),
@@ -64,11 +63,11 @@
 //                       },
 //                       title: Text(
 //                         myProductList[index].storeProduct.title,
-                  
+
 //                       ),
 //                       subtitle: Text(
 //                         myProductList[index].storeProduct.description,
-                  
+
 //                       ),
 //                       trailing: Text(
 //                           myProductList[index].storeProduct.priceString,
@@ -84,7 +83,7 @@
 //               child: SizedBox(
 //                 child: Text(
 //                   "footerText",
-              
+
 //                 ),
 //                 width: double.infinity,
 //               ),

@@ -23,9 +23,7 @@ class ChnagePasswordNotifier extends StateNotifier<ChangePasswordStates> {
 
       state = ChangePasswordStates.success(response.data);
     } catch (e, s) {
-      state = ChangePasswordStates.error(
-        e.toString(), stackTrace: s
-      );
+      state = ChangePasswordStates.error(e.toString(), stackTrace: s);
     }
   }
 }

@@ -5,10 +5,9 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
- 
+
 import 'package:metal/gen/assets.gen.dart';
 
- 
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
@@ -67,7 +66,7 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
 
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
- final updated=    userData!.copyWith(description :_controller.text);
+    final updated = userData!.copyWith(description: _controller.text);
 
     ref.read(updateProfileProvider.notifier).updateUserData(updated);
 

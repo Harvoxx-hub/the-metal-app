@@ -33,7 +33,6 @@ class GetUsersNotifier extends StateNotifier<GetUsersState> {
         }
       }
     } catch (e, s) {
-   
       state = GetUsersState.error(e.toString(), stackTrace: s);
     }
   }

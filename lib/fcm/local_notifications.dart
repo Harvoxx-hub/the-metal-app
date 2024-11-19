@@ -5,7 +5,8 @@ class LocalNotifications {
   // Android notification settings
   static const _androidChannelId = 'high_importance_channel';
   static const _androidChannelName = 'High Importance Notifications';
-  static const _androidChannelDescription = 'This channel is used for important notifications.';
+  static const _androidChannelDescription =
+      'This channel is used for important notifications.';
 
   static int _lastNotificationId = 0;
 
@@ -36,7 +37,9 @@ class LocalNotifications {
       importance: Importance.high,
     );
 
-    await _localNotifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
     await _localNotifications.initialize(

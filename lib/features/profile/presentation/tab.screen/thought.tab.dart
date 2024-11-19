@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
- 
+
 import 'package:metal/core/state/base.state.dart';
- 
+
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.by.user.dart';
 import 'package:metal/features/home_page/widget/thought_card.dart';
- 
+
 import 'package:metal/widgets/shimmer/custom_shimmer_loader.dart';
 import 'package:metal/widgets/shimmer/feed_shimmer_widget.dart';
 import 'package:metal/widgets/text_views.dart';

@@ -25,8 +25,6 @@ class ReactThoughtNotifier extends StateNotifier<ReactThoughtState> {
       state = ReactThoughtState.error(e.toString(), stackTrace: s);
     }
   }
-
- 
 }
 
 // Define a type alias

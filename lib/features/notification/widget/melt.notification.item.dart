@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
+
 import 'package:metal/features/notification/base.item.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -19,11 +20,11 @@ class MeltNotificationItem extends BaseNotificationItem {
         switch (notificationModel.type) {
           case NotificationType.MELT:
             {
-                Navigator.pushNamed(
-            context,
-            AppRoutes.meltMetal,
-            arguments: notificationModel.sender,
-          );
+              Navigator.pushNamed(
+                context,
+                AppRoutes.meltMetal,
+                arguments: notificationModel.sender,
+              );
             }
             break;
           case NotificationType.SPARK:
@@ -95,7 +96,7 @@ class MeltNotificationItem extends BaseNotificationItem {
                 ),
               ),
               TextView(
-                text: formatToWhatsAppChatTime(notificationModel.created_at!),
+                text: formatTime(isoDateString: notificationModel.created_at!),
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),

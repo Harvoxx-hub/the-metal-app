@@ -54,7 +54,7 @@ class UserProfilePage extends StatelessWidget {
                     //   text: user.fullname!,
                     //   floatingLabel: " First name & Last name",
                     // ),
-                  //  const Gap(20),
+                    //  const Gap(20),
                     EditField(
                       text: "@${user.username}",
                       floatingLabel: "Username",

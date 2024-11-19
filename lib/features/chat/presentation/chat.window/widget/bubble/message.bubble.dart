@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
@@ -65,8 +66,9 @@ class MessageBubble extends ConsumerWidget {
           ),
           const Gap(10),
           Text(
-            formatChatTime(message.timestamp),
+            formatTime(datetime: message.timestamp),
             style: TextStyle(
+              fontSize: 10,
               color: Colors.black.withOpacity(0.4),
             ),
           ),

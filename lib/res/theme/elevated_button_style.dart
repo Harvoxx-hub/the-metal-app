@@ -7,8 +7,7 @@ class ElevatedButtonStyle {
     required this.emergency,
     required this.chat,
     required this.active,
-   required this.inActive,
-
+    required this.inActive,
   });
 
   final ButtonStyle smallBlack;

@@ -31,18 +31,18 @@ class StatusModel {
     }
     final dateTime = DateTime.fromMillisecondsSinceEpoch(postedAt! * 1000);
     DateTime now = DateTime.now();
-  Duration diff = now.difference(dateTime);
-  
-  if (diff.inDays == 0) {
-    // Same day, show time as HH:mm
-    return DateFormat('HH:mm').format(dateTime);
-  } else if (diff.inDays == 1) {
-    // Yesterday
-    return 'Yesterday';
-  } else {
-    // Older dates, show date as dd/MM/yy
-    return DateFormat('dd/MM/yy').format(dateTime);
-  }
+    Duration diff = now.difference(dateTime);
+
+    if (diff.inDays == 0) {
+      // Same day, show time as HH:mm
+      return DateFormat('HH:mm').format(dateTime);
+    } else if (diff.inDays == 1) {
+      // Yesterday
+      return 'Yesterday';
+    } else {
+      // Older dates, show date as dd/MM/yy
+      return DateFormat('dd/MM/yy').format(dateTime);
+    }
   }
 }
 

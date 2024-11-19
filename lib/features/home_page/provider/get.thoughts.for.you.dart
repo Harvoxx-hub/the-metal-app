@@ -29,10 +29,10 @@ class getThoughtForYouNotifier extends StateNotifier<GetThoughtForYouState> {
       }
 
       if (mounted) {
-        state = GetThoughtForYouState.success(MetalHelper.sortThoughtsByDate(thoughts));
+        state = GetThoughtForYouState.success(
+            MetalHelper.sortThoughtsByDate(thoughts));
       }
     } catch (e, s) {
-   
       state = GetThoughtForYouState.error(e.toString(), stackTrace: s);
     }
   }
@@ -49,15 +49,13 @@ class getThoughtForYouNotifier extends StateNotifier<GetThoughtForYouState> {
       }
 
       if (mounted) {
-        state = GetThoughtForYouState.success(MetalHelper.sortThoughtsByDate  (thoughts));
+        state = GetThoughtForYouState.success(
+            MetalHelper.sortThoughtsByDate(thoughts));
       }
     } catch (e, s) {
- 
       state = GetThoughtForYouState.error(e.toString(), stackTrace: s);
     }
   }
-
-  
 }
 
 // Define a type alias

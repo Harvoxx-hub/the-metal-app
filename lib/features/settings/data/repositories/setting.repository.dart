@@ -25,10 +25,9 @@ class SettingRepository implements ISettingRepository {
 
   @override
   Future<Responses> getBlockedUsers() async {
-  try {
+    try {
       final response = await _apiService.get(
         "user/get-blocked-user",
-        
       );
       return response;
     } catch (e) {
@@ -38,11 +37,10 @@ class SettingRepository implements ISettingRepository {
 
   @override
   Future<Responses> unBlockUser(String id) async {
-  try {
+    try {
       final response = await _apiService.post(
         "user/block-user",
         body: {
-           
           "id": id,
         },
       );

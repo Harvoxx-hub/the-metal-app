@@ -26,7 +26,6 @@ class UploadEyeNotifier extends StateNotifier<UploadEyeState> {
           await eyeRepository.createStatus(text: text, media: media);
       state = UploadEyeState.success(StatusModel.fromJson(response.data));
     } catch (e, s) {
-  
       state = UploadEyeState.error(e.toString(), stackTrace: s);
     }
   }

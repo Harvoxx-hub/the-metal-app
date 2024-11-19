@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -25,7 +24,7 @@ class _StatusWidgetState extends ConsumerState<StatusWidget> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        scrollDirection: Axis .horizontal,
+        scrollDirection: Axis.horizontal,
         child: Row(
           children: [
             // myStatus(),
@@ -58,7 +57,6 @@ class _StatusWidgetState extends ConsumerState<StatusWidget> {
   }
 
   Widget eyeWidget(String title, {MeltUserModel? status}) {
-
     return Column(
       children: [
         ProfileImage(
@@ -67,10 +65,11 @@ class _StatusWidgetState extends ConsumerState<StatusWidget> {
               Navigator.pushNamed(
                 context,
                 AppRoutes.chatWindowsPage,
-                arguments:  status.id,
+                arguments: status.id,
               );
             }
-          }, imageUrl: status!.metal!.img!,
+          },
+          imageUrl: status!.metal!.img!,
         ),
         TextView(
           text: title,

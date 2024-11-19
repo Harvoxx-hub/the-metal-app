@@ -9,6 +9,7 @@ import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
 enum PaymentType { metalPlan, Spark, push }
+
 enum PaymentState { success, failed }
 
 class MakePayment extends ConsumerStatefulWidget {
@@ -41,9 +42,6 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
 
   @override
   Widget build(BuildContext context) {
-  
-  
-
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -54,7 +52,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
           children: [
             const Gap(40),
             Row(
-              mainAxisAlignment: MainAxisAlignment .spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Image.asset(Assets.images.paymentCard.path),
                 Image.asset(Assets.images.stripe.path),
@@ -133,16 +131,12 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
             ),
             const Gap(20),
             BaseButton(
-             //   loading: _subscribeState.isLoading,
+                //   loading: _subscribeState.isLoading,
                 buttonText: "Pay ${widget.price}.00 ",
                 onPressed: () {
-                  Navigator.pop(
-                    context,
-                    PaymentState.success
-                  );
+                  Navigator.pop(context, PaymentState.success);
                 })
           ],
         ));
   }
-
 }

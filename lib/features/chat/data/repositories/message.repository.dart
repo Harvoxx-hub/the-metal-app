@@ -225,7 +225,7 @@ class MessageRepository implements IMessageRepository {
   }
 
   @override
-  updateGame(String id, String gameTile,{ MessageModel? message}) async {
+  updateGame(String id, String gameTile, {MessageModel? message}) async {
     try {
       // Get a reference to the conversation document
       final conversationDocRef = _firestore.collection('conversations').doc(id);
@@ -288,7 +288,7 @@ class MessageRepository implements IMessageRepository {
     required MessageModel message,
   }) async {
     try {
-       await _apiService.post(
+      await _apiService.post(
         "user/notification",
         body: {
           "body": message.message,
@@ -299,7 +299,6 @@ class MessageRepository implements IMessageRepository {
           "receiver_id": message.recipientId
         },
       );
-       
     } catch (e) {
       rethrow;
     }

@@ -18,7 +18,7 @@ import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class MeltMetal extends ConsumerWidget {
-  const MeltMetal({super.key,required this.id});
+  const MeltMetal({super.key, required this.id});
   static const name = 'meltMetal';
   static const route = name;
   final String id;

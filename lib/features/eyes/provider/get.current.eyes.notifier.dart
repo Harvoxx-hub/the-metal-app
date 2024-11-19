@@ -10,7 +10,7 @@ class GetCurrentEyeNotifier extends StateNotifier<GetCurrentEyeState> {
     super.state,
     this.ref,
   ) {
-  //  getCurrentEye();
+    //  getCurrentEye();
   }
   final Ref ref;
 
@@ -28,7 +28,6 @@ class GetCurrentEyeNotifier extends StateNotifier<GetCurrentEyeState> {
         state = GetCurrentEyeState.success(eyes);
       }
     } catch (e, s) {
-   
       state = GetCurrentEyeState.error(e.toString(), stackTrace: s);
     }
   }

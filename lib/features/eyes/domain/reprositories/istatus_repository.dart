@@ -11,7 +11,7 @@ abstract class IStatusRepository {
   //getnstatus
   Future<Responses> getStatus();
   //get user by
-   Future<Responses> getCurrentUserStatus();
+  Future<Responses> getCurrentUserStatus();
 
   //verifi
 }

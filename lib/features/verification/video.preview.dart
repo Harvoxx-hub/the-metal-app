@@ -5,10 +5,10 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
- 
+
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/screen.size.dart';
- 
+
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/buttons.dart';
@@ -178,10 +178,12 @@ class _VideoPreviewState extends State<VideoPreview> {
                                     onPressed: () {
                                       _videoFile != null
                                           ? {
-                                              _videoPlayerController
-                                                  .pause(),
-                                                  Navigator.pop(context, _videoFile!.path ) // Pause the video
-                                           // Navigate back when the FAB is pressed
+                                              _videoPlayerController.pause(),
+                                              Navigator.pop(
+                                                  context,
+                                                  _videoFile!
+                                                      .path) // Pause the video
+                                              // Navigate back when the FAB is pressed
                                             }
                                           : _recordVideo();
                                     }),

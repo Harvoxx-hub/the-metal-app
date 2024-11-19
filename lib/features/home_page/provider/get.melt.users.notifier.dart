@@ -1,4 +1,3 @@
- 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
@@ -13,7 +12,7 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
     // Fetch the list of Melt users when the notifier is instantiated
     getMeltUsers();
   }
-  
+
   final Ref ref;
 
   // Fetch all Melt users and update the state accordingly
@@ -21,7 +20,7 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
     try {
       // Set the state to loading while fetching data
       state = GetMeltUsersState.loading();
-      
+
       // Access the home repository to fetch Melt users
       final homeRepository = ref.watch(homeRepositoryProvider);
       final response = await homeRepository.getMeltedUsers();
@@ -62,7 +61,7 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
   }
 
   // Retrieve a specific Melt user by their ID from the current state
-  MeltUserModel? getMeltUserById(String id)  {
+  MeltUserModel? getMeltUserById(String id) {
     try {
       // Check if the state contains a valid list of users
       if (state.data != null) {
@@ -78,7 +77,7 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
       return null;
     } catch (e, s) {
       // Log the error in case of an exception
-   print(e.toString());
+      print(e.toString());
       return null;
     }
   }

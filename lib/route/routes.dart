@@ -4,10 +4,10 @@ import 'package:metal/features/authentication/presentation/forget.password/forgo
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
- 
+
 import 'package:metal/features/home_page/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
- 
+
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
 import 'package:metal/features/settings/presentation%20/delete.screen.dart';
 import 'package:metal/features/settings/presentation%20/edit.page.dart';
@@ -42,7 +42,7 @@ import 'package:metal/features/eyes/presentation/eye.select.media.dart';
 import 'package:metal/features/eyes/presentation/eyes.intro.screen.dart';
 import 'package:metal/features/eyes/presentation/view.eyes.dart';
 import 'package:metal/features/feedback/feedback.page.dart';
- 
+
 import 'package:metal/features/my.metals/my.melted.metals.dart';
 import 'package:metal/features/my.metals/my.melted.user.dart';
 import 'package:metal/features/my.metals/user.profile.dart';
@@ -53,16 +53,16 @@ import 'package:metal/features/profile/presentation/update.email/update.email.pa
 import 'package:metal/features/profile/presentation/update.phone.number/new.phone.number.page.dart';
 import 'package:metal/features/profile/presentation/update.phone.number/update.phone.number.page.dart';
 import 'package:metal/features/refer.earn/refer.earn.dart';
-import 'package:metal/features/settings/presentation%20/blocked.user.dart' as block;
+import 'package:metal/features/settings/presentation%20/blocked.user.dart'
+    as block;
 import 'package:metal/features/settings/presentation%20/settings.page.dart';
 
 import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
 import 'package:metal/features/sparks_page/screens/refer.earn/refer.earn.dart';
 import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 
-
 import 'package:metal/features/upgrade/make.payment.dart';
- 
+
 import 'package:metal/features/verification/verification.video.dart';
 import 'package:metal/features/verification/video.preview.dart';
 
@@ -117,7 +117,7 @@ class AppRoutes {
   static const String newEmailPage = '/newEmailPage';
   static const String editPage = '/editPage';
   static const String delete = '/deletePage';
-    static const String postThought = '/postThought';
+  static const String postThought = '/postThought';
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
@@ -131,7 +131,10 @@ class AppRoutes {
       case forgetPasswordOTP:
         return MaterialPageRoute(builder: (_) => ForgetPasswordOTPPage());
       case createNewPassword:
-        return MaterialPageRoute(builder: (_) => CreateNewPasswordPage(userid: settings.arguments as String,));
+        return MaterialPageRoute(
+            builder: (_) => CreateNewPasswordPage(
+                  userid: settings.arguments as String,
+                ));
       case accountSetting:
         return MaterialPageRoute(builder: (_) => const AccountSetting());
       case verificationPage:
@@ -155,7 +158,8 @@ class AppRoutes {
       case aboutYouPage:
         return MaterialPageRoute(builder: (_) => const AboutYouPage());
       case notificationEnablePage:
-        return MaterialPageRoute(builder: (_) => const NotificationEnablePage());
+        return MaterialPageRoute(
+            builder: (_) => const NotificationEnablePage());
       case locationEnablePage:
         return MaterialPageRoute(builder: (_) => const LocationEnablePage());
       case homeAddressPage:
@@ -182,9 +186,9 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const VerificationVideo());
       case videoPreview:
         return MaterialPageRoute(builder: (_) => const VideoPreview());
-     
+
       case feedBackPage:
-        return MaterialPageRoute(builder: (_) =>   FeedBackPage());
+        return MaterialPageRoute(builder: (_) => FeedBackPage());
       case blockedUser:
         return MaterialPageRoute(builder: (_) => const block.BlockedUser());
       case notificationPage:
@@ -209,12 +213,14 @@ class AppRoutes {
       case myMeltedUser:
         return MaterialPageRoute(
             builder: (_) => MyMeltedUser(
-               metalId:  settings.arguments as String,));
+                  metalId: settings.arguments as String,
+                ));
 
-                 case meltMetal:
+      case meltMetal:
         return MaterialPageRoute(
-            builder: (_) => MeltMetal( id:
-            settings.arguments as String,));
+            builder: (_) => MeltMetal(
+                  id: settings.arguments as String,
+                ));
       case sendSpark:
         return MaterialPageRoute(builder: (_) => const SendSpark());
       case buySpark:
@@ -242,8 +248,11 @@ class AppRoutes {
       case delete:
         return MaterialPageRoute(builder: (_) => DeleteScreen());
 
-         case postThought:
-        return MaterialPageRoute(builder: (_) => PostThought( userModel: settings.arguments as UserModel,));
+      case postThought:
+        return MaterialPageRoute(
+            builder: (_) => PostThought(
+                  userModel: settings.arguments as UserModel,
+                ));
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

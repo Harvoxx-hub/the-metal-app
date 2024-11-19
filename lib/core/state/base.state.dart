@@ -1,9 +1,3 @@
- 
-
- 
-
- 
-
 enum Status { initial, loading, success, error, action }
 
 class BaseState<T> {
@@ -35,8 +29,9 @@ class BaseState<T> {
     return BaseState<T>(status: Status.action, action: action);
   }
 
-  factory BaseState.error(String errorMessage, {Map? errorData, StackTrace? stackTrace}) {
-          print(  errorMessage);
+  factory BaseState.error(String errorMessage,
+      {Map? errorData, StackTrace? stackTrace}) {
+    print(errorMessage);
     return BaseState<T>(
         status: Status.error, errorMessage: errorMessage, errorData: errorData);
   }

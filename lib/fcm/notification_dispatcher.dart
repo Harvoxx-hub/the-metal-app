@@ -1,4 +1,3 @@
- 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
@@ -49,7 +48,7 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
           removeUntil: true,
           argument: getUserById(model.id),
           removeUntilPredicate: ModalRoute.withName(
-           AppRoutes.chatWindowsPage,
+            AppRoutes.chatWindowsPage,
           ),
         );
         break;
@@ -85,7 +84,7 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
       //     ),
       //   );
       //   break;
-       default:
+      default:
         print('default');
     }
   }
@@ -102,8 +101,8 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
           metal: meltUserData.metal,
           phone: meltUserData.phone,
           id: meltUserData.id);
-        } catch (e,s) {
-     print(e);
+    } catch (e, s) {
+      print(e);
       rethrow; // Rethrow the exception to propagate it up the call stack if needed
     }
   }
@@ -111,8 +110,7 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
   final container = ProviderContainer();
 
   Future<bool> _isUserAuthorized() async =>
-      await AuthManager.getLoginState() ==
-      LoginState.loggedIn;
+      await AuthManager.getLoginState() == LoginState.loggedIn;
 
   Future<void> handleNavigation(NotificationPayloadModel? model) async {
     if (await _isUserAuthorized()) {
@@ -121,7 +119,7 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
           AppRoutes.dashboardPage,
           removeUntil: true,
           removeUntilPredicate: ModalRoute.withName(
-     AppRoutes.dashboardPage,
+            AppRoutes.dashboardPage,
           ),
         );
       } else {

@@ -5,7 +5,6 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
 
- 
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
@@ -20,7 +19,6 @@ class ReferEarn extends StatelessWidget {
   const ReferEarn({super.key});
   static const name = 'referEarn';
   static const route = name;
- 
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +48,8 @@ class ReferEarn extends StatelessWidget {
               Padding(
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     margin: const EdgeInsets.only(left: 10, right: 10),
                     decoration: BoxDecoration(
                         color: AppColors.metalWhite,
@@ -100,7 +99,6 @@ class ReferEarn extends StatelessWidget {
                                 context, AppRoutes.referEarnSpark);
                           },
                         ),
-                       
                       ],
                     ),
                   ))

@@ -68,7 +68,7 @@ class PhoneInput extends StatelessWidget {
               ? (phone) => onPhoneNumberChanged!(phone.completeNumber ?? '')
               : null,
           onSubmitted: onPhoneNumberChanged != null
-              ? (phone) => onPhoneNumberChanged!(phone )
+              ? (phone) => onPhoneNumberChanged!(phone)
               : null,
         ),
       ],

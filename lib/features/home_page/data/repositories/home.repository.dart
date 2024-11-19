@@ -176,11 +176,13 @@ class HomeRepository implements IHomeRepository {
       rethrow;
     }
   }
-  
+
   @override
   Future<Responses> checkMelt({required String userId}) async {
     try {
-      final response = await _apiService.get("melt/check-melt-status/$userId",);
+      final response = await _apiService.get(
+        "melt/check-melt-status/$userId",
+      );
 
       return response;
     } catch (e) {

@@ -25,7 +25,6 @@ class GetSparkNotifier extends StateNotifier<GetsparkState> {
       });
       state = GetsparkState.success(spark);
     } catch (e, s) {
-    
       state = GetsparkState.error(e.toString(), stackTrace: s);
     }
   }

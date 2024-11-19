@@ -21,7 +21,6 @@ class GetUserByPhoneNotifier extends StateNotifier<GetUserByPhoneState> {
 
       state = GetUserByPhoneState.success(UserModel.fromJson(response.data));
     } catch (e, s) {
- 
       state = GetUserByPhoneState.error(e.toString(), stackTrace: s);
     }
   }

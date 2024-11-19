@@ -1,8 +1,4 @@
- 
 // import 'package:flutter/material.dart';
- 
-
- 
 
 // class AudioMessage extends StatefulWidget {
 //   final Message? message;
@@ -28,7 +24,6 @@
 //     print('Current position: $p'),
 //     setState(() => duration = p)
 //     });
-
 
 //       _audioPlayer.onPlayerCompletion.listen((duration) {
 //         setState(() {

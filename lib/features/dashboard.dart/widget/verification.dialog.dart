@@ -10,7 +10,7 @@ class VerificationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return      Column(
+    return Column(
       children: [
         const Gap(38),
         Assets.images.checkVerified.image(),
@@ -49,6 +49,5 @@ class VerificationDialog extends StatelessWidget {
         const Gap(21),
       ],
     );
- 
   }
 }

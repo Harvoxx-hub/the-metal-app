@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 enum notificationstate {
   push,
   like,
@@ -10,6 +11,7 @@ enum notificationstate {
   virtualDate,
   cancelDate
 }
+
 class NotificationItem extends StatelessWidget {
   const NotificationItem({super.key});
 

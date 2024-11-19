@@ -20,9 +20,9 @@ class SubscribeMetalNotifier extends StateNotifier<SubscribeMetalState> {
       final subscriptionRepository = ref.watch(subscriptionRepositoryProvider);
       final response = await subscriptionRepository.subscribeMetalPlan(Id);
       ref.read(authProvider.notifier).getUpdatedUser();
-      state = SubscribeMetalState.success(SubscribedPlanModel.fromJson(response.data));
+      state = SubscribeMetalState.success(
+          SubscribedPlanModel.fromJson(response.data));
     } catch (e, s) {
- 
       state = SubscribeMetalState.error(e.toString(), stackTrace: s);
     }
   }

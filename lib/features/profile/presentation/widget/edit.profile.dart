@@ -4,7 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
- 
+
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 
@@ -90,7 +90,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                 );
                 // Assign the selected metal object to the UserModel
                 updateUser(UserModel(metal: selectedMetal));
-                            }
+              }
             }
           },
         ),
@@ -115,7 +115,8 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           dropDownItems: metalProperties.marriageStatus,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(UserModel(extraData:  userState!.extraData!.copyWith(maritalStatus: p0)));
+            updateUser(UserModel(
+                extraData: userState!.extraData!.copyWith(maritalStatus: p0)));
           },
         ),
         const Gap(20),
@@ -126,7 +127,8 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           dropDownItems: metalProperties.religion,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(UserModel(extraData:  userState!.extraData!.copyWith(religion: p0)));
+            updateUser(UserModel(
+                extraData: userState!.extraData!.copyWith(religion: p0)));
           },
         ),
         const Gap(20),
@@ -149,7 +151,8 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           dropDownItems: metalProperties.profession,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(UserModel(extraData:  userState.extraData!.copyWith(profession: p0)));
+            updateUser(UserModel(
+                extraData: userState.extraData!.copyWith(profession: p0)));
           },
         ),
 

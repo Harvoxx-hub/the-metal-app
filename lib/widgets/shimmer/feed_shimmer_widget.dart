@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
- 
+
 import 'package:shimmer/shimmer.dart'; // Add this import for Shimmer effect
- 
+
 class PostCardShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

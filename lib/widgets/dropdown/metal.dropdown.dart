@@ -10,7 +10,8 @@ class MentalDropdown extends StatefulWidget {
   final String? hint;
   final String? floatingLabel;
 
-  const MentalDropdown({super.key, 
+  const MentalDropdown({
+    super.key,
     required this.items,
     this.value,
     required this.onChanged,

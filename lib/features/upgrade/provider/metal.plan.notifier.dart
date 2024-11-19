@@ -22,8 +22,7 @@ class MetalPlanNotifier extends StateNotifier<MetalPlanState> {
           .map((e) => MetalPlanModel.fromJson(e))
           .toList();
       state = MetalPlanState.success(metalPlans);
-    } catch (e,s) {
-      
+    } catch (e, s) {
       state = MetalPlanState.error(e.toString(), stackTrace: s);
     }
   }

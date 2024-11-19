@@ -1,9 +1,8 @@
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
 
-class MetalHelper{
-
-  static   List<ThoughtModel> sortThoughtsByDate(List<ThoughtModel> thoughts) {
+class MetalHelper {
+  static List<ThoughtModel> sortThoughtsByDate(List<ThoughtModel> thoughts) {
     thoughts.sort((a, b) {
       DateTime? dateA =
           a.created_at != null ? DateTime.parse(a.created_at!) : null;
@@ -20,7 +19,8 @@ class MetalHelper{
     return thoughts;
   }
 
-   static   List<NotificationModel> sortNotificationByDate(List<NotificationModel> thoughts) {
+  static List<NotificationModel> sortNotificationByDate(
+      List<NotificationModel> thoughts) {
     thoughts.sort((a, b) {
       DateTime? dateA =
           a.created_at != null ? DateTime.parse(a.created_at!) : null;

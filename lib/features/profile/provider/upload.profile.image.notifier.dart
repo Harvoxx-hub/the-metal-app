@@ -24,7 +24,6 @@ class ProfileImageNotifier extends StateNotifier<ProfileImageState> {
         state = ProfileImageState.success(response.message!);
       }
     } catch (e, s) {
- 
       state = ProfileImageState.error(e.toString(), stackTrace: s);
     }
   }

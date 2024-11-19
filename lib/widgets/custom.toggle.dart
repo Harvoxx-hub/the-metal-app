@@ -5,7 +5,8 @@ class CustomToggle extends StatefulWidget {
   final bool initialValue;
   final ValueChanged<bool> onChanged;
 
-  const CustomToggle({super.key, 
+  const CustomToggle({
+    super.key,
     required this.initialValue,
     required this.onChanged,
   });

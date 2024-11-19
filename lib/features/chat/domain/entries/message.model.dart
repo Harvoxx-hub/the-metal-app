@@ -15,8 +15,8 @@ class MessageModel {
   final String recipientId;
   final MessageType type;
   String? content;
-   String? userName;
-    String? fcmToken;
+  String? userName;
+  String? fcmToken;
   @TimestampConverter()
   final DateTime timestamp;
   final MessageState state;

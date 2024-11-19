@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 String formatDateDDMMYY(String inputDate) {
   DateTime date = DateTime.parse(inputDate);
@@ -13,25 +14,11 @@ String formatDuration(Duration duration) {
   return '$minutes:$seconds';
 }
 
+String formatTime({String? isoDateString, DateTime? datetime}) {
+  // Parse the ISO 8601 date string to a DateTime object
+  DateTime date = datetime ?? DateTime.parse(isoDateString!).toLocal();
 
-String formatToWhatsAppChatTime(String isoDateString) {
-  // Parse the ISO 8601 date string and convert to local time
-  DateTime date = DateTime.parse(isoDateString).toLocal();
-  
-  // Get the current time in local time zone
-  DateTime now = DateTime.now();
-  
-  Duration diff = now.difference(date);
-  
-  if (diff.inDays == 0) {
-    // Same day, show time as HH:mm
-    return DateFormat('HH:mm').format(date);
-  } else if (diff.inDays == 1) {
-    // Yesterday
-    return 'Yesterday';
-  } else {
-    // Older dates, show date as dd/MM/yy
-    return DateFormat('dd/MM/yy').format(date);
-  }
+  // Use timeago to generate a relative time string
+  return timeago.format(date,
+      locale: 'en'); // Change 'en' to other locales if needed
 }
-

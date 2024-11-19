@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
- 
 
 class LikeUsersNotifier extends StateNotifier<LikeUsersState> {
   LikeUsersNotifier(
@@ -22,7 +21,6 @@ class LikeUsersNotifier extends StateNotifier<LikeUsersState> {
         state = LikeUsersState.success(response.message!);
       }
     } catch (e, s) {
-     
       state = LikeUsersState.error(e.toString(), stackTrace: s);
     }
   }

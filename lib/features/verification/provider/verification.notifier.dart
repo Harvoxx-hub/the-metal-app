@@ -31,7 +31,6 @@ class VerificationNotifier extends StateNotifier<VerificationState> {
 
       state = VerificationState.success(response.message!);
     } catch (e, s) {
- 
       state = VerificationState.error(e.toString(), stackTrace: s);
     }
   }

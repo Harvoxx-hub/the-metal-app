@@ -24,13 +24,8 @@ class _MessageListState extends ConsumerState<MessageList> {
     super.initState();
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
-    
-      
-
     final messages = ref.watch(getMessageList(conversationId!));
 
     return Expanded(

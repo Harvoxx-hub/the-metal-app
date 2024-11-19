@@ -6,12 +6,10 @@ import '../../domain/repositories/inotification_repository.dart';
 
 class NotificationRepository implements INotificationRepository {
   final ApiService _apiService = ApiService();
- 
- 
-  
+
   @override
   Future<Responses> getNotification() async {
-  try {
+    try {
       final response = await _apiService.get("user/get-notification");
 
       return response;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/chat/domain/entries/conversations.model.dart';
@@ -42,10 +43,7 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
             fontWeight: FontWeight.w600,
           ),
           const Gap(10),
-          SizedBox(
-            height: getDeviceHeight(context) * 0.35,
-            child: _buildChatListContent(myMelt, chatList),
-          ),
+          _buildChatListContent(myMelt, chatList),
         ],
       ),
     );
@@ -60,26 +58,29 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
     } else if (myMelt!.isEmpty || chatList.data?.isEmpty) {
       return _buildEmptyChatMessage();
     } else {
-      return ListView.builder(
-        itemCount: chatList.data!.length,
-        itemBuilder: (context, index) {
-          final message = chatList.data![index];
+      return Expanded(
+        flex: 1,
+        child: ListView.builder(
+          itemCount: chatList.data!.length,
+          itemBuilder: (context, index) {
+            final message = chatList.data![index];
 
-          MeltUserModel? matchedData;
-          for (var element in myMelt) {
-            bool data = message.participantIds.contains(element.id);
-            if (data) matchedData = element;
-          }
+            MeltUserModel? matchedData;
+            for (var element in myMelt) {
+              bool data = message.participantIds.contains(element.id);
+              if (data) matchedData = element;
+            }
 
-          if (matchedData == null) {
-            return const SizedBox(); // Return an empty widget if no match is found
-          }
+            if (matchedData == null) {
+              return const SizedBox(); // Return an empty widget if no match is found
+            }
 
-          return chatListItem(
-            data: matchedData,
-            conversationsModel: message,
-          );
-        },
+            return chatListItem(
+              data: matchedData,
+              conversationsModel: message,
+            );
+          },
+        ),
       );
     }
   }
@@ -155,7 +156,7 @@ class chatListItem extends StatelessWidget {
               ),
             ),
             TextView(
-              text: formatChatTime(conversationsModel.lastUpdatedAt),
+              text: formatTime(datetime: conversationsModel.lastUpdatedAt),
               fontWeight: FontWeight.w300,
               fontSize: 13,
             ),

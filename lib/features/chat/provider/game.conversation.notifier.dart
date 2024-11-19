@@ -14,15 +14,17 @@ class GameConversationNotifier extends StateNotifier<GameConversationState> {
 
   final Ref ref;
 
-  Future<void> updateGameConversation({ required  String conversatioId,required String gameTitle, MessageModel? message}
-    ) async {
+  Future<void> updateGameConversation(
+      {required String conversatioId,
+      required String gameTitle,
+      MessageModel? message}) async {
     try {
       state = GameConversationState.loading();
-      
 
       final messageRepository = ref.watch(messageRepositoryProvider);
 
-      await messageRepository.updateGame(conversatioId, gameTitle,message: message);
+      await messageRepository.updateGame(conversatioId, gameTitle,
+          message: message);
       if (mounted) {
         state = GameConversationState.success("response");
       }

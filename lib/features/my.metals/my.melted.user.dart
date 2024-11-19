@@ -129,7 +129,8 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                   title: 'Metal Thought'),
                               BaseTabModel(
                                   child: MetalDetailsTab(
-                                    melted: checkMeltState.data == CheckStatus,
+                                    melted: checkMeltState.data ==
+                                        CheckStatus.MUTUAL,
                                     userModel: myMelt.data!,
                                   ),
                                   title: 'Metal Details '),

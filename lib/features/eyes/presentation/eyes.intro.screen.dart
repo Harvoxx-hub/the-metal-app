@@ -53,10 +53,10 @@ class EyesIntro extends StatelessWidget {
                     BaseButton(
                         buttonText: "Upload files to eyes",
                         onPressed: () {
-                              Navigator.pushNamed(context, AppRoutes.eyeSelectMedia,
-                );
- 
-                   
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.eyeSelectMedia,
+                          );
                         }),
                   ],
                 ),

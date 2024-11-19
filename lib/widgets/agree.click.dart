@@ -10,7 +10,8 @@ class CustomCheckWidget extends StatefulWidget {
   final bool initialValue;
   final bool boarder;
 
-  const CustomCheckWidget({super.key, 
+  const CustomCheckWidget({
+    super.key,
     this.title,
     required this.onChanged,
     this.initialValue = false,
@@ -47,7 +48,8 @@ class _CustomCheckWidgetState extends State<CustomCheckWidget> {
                   ? ShapeDecoration(
                       color: const Color(0xFFFBF0F8),
                       shape: RoundedRectangleBorder(
-                        side: const BorderSide(width: 1, color: Color(0xFFFF5553)),
+                        side: const BorderSide(
+                            width: 1, color: Color(0xFFFF5553)),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       shadows: const [

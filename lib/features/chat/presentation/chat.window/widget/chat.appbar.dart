@@ -8,7 +8,6 @@ import 'package:metal/features/chat/presentation/widget/profile.image.dart';
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 
- 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
@@ -141,9 +140,12 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                 );
               } else if (value == "View contact") {
                 Navigator.pushNamed(context, AppRoutes.myMeltedUser,
-                    arguments:   widget.meltUserModel.id!);
+                    arguments: widget.meltUserModel.id!);
               } else if (value == "Clear chat") {
-                ref.read(getMessageList(widget.meltUserModel.conversationId!).notifier).clearChat();
+                ref
+                    .read(getMessageList(widget.meltUserModel.conversationId!)
+                        .notifier)
+                    .clearChat();
                 Navigator.pop(context);
               } else if (value == "Block") {
                 showDialog(

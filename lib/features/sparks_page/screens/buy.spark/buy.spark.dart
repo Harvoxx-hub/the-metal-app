@@ -20,7 +20,6 @@ import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
- 
 
 class BuySpark extends ConsumerWidget {
   BuySpark({super.key});
@@ -108,7 +107,6 @@ class BuySpark extends ConsumerWidget {
                           radius: 10,
                         ),
                         const Gap(15),
-                        
                         BaseButton(
                           buttonText: "Buy",
                           loading: buySpark.isLoading,

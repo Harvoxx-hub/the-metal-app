@@ -26,7 +26,6 @@ class BuySparkNotifier extends StateNotifier<BuysparkState> {
       ref.read(authProvider.notifier).getUpdatedUser();
       state = BuysparkState.success(response.data);
     } catch (e, s) {
-    
       state = BuysparkState.error(e.toString(), stackTrace: s);
     }
   }

@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 
 class BaseTextField extends StatelessWidget {
-  const BaseTextField({super.key
-
-, required this.hintText, required this.controller, this.obscureText = false, this.keyboardType = TextInputType.text, required this.validator, required this.onChanged, required this.onFieldSubmitted, required this.onTap, required this.onEditingComplete, required this.onSaved
-
-  });
+  const BaseTextField(
+      {super.key,
+      required this.hintText,
+      required this.controller,
+      this.obscureText = false,
+      this.keyboardType = TextInputType.text,
+      required this.validator,
+      required this.onChanged,
+      required this.onFieldSubmitted,
+      required this.onTap,
+      required this.onEditingComplete,
+      required this.onSaved});
   final String hintText;
   final TextEditingController controller;
   final bool obscureText;
@@ -16,23 +23,17 @@ class BaseTextField extends StatelessWidget {
   final Function() onTap;
   final Function() onEditingComplete;
   final Function() onSaved;
- 
- 
-
-
 
   @override
   Widget build(BuildContext context) {
-    return  TextFormField(
+    return TextFormField(
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-     
       onChanged: onChanged,
       onFieldSubmitted: onFieldSubmitted,
       onTap: onTap,
       onEditingComplete: onEditingComplete,
-    
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(color: Colors.grey),

@@ -24,8 +24,8 @@ class DeleteScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen<DeleteUsersState>(deleteUserProvider, (prev, current) {
       if (current.isSuccess) {
-       AuthManager.deleteAccessToken();
-       AuthManager.deleteLoginState();
+        AuthManager.deleteAccessToken();
+        AuthManager.deleteLoginState();
         AuthManager.deleteRefreshToken();
 
         // ZegoUIKitPrebuiltCallInvitationService().uninit();
@@ -94,7 +94,8 @@ class DeleteScreen extends ConsumerWidget {
                       fontWeight: FontWeight.w600,
                     ),
                     const TextView(
-                      text: "-  Make you unavailable to other Metals \n-  Delete your account from Metal \n-  Erase your message history with all metals \n-  Delete all media from your account",
+                      text:
+                          "-  Make you unavailable to other Metals \n-  Delete your account from Metal \n-  Erase your message history with all metals \n-  Delete all media from your account",
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     ),
@@ -108,11 +109,11 @@ class DeleteScreen extends ConsumerWidget {
                     BaseButton(
                       buttonText: 'Create a new Metal account',
                       onPressed: () {
-                      AuthManager.deleteAccessToken();
-                       AuthManager.deleteLoginState();
-                       AuthManager.deleteRefreshToken();
+                        AuthManager.deleteAccessToken();
+                        AuthManager.deleteLoginState();
+                        AuthManager.deleteRefreshToken();
 
-                   //     ZegoUIKitPrebuiltCallInvitationService().uninit();
+                        //     ZegoUIKitPrebuiltCallInvitationService().uninit();
                         Navigator.pushNamedAndRemoveUntil(
                             context, AppRoutes.onboarding, (route) => false);
                       },

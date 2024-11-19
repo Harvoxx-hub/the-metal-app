@@ -105,9 +105,8 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
                           value
                               ? widget.onChanged([...widget.value ?? [], item])
                               : widget.onChanged(
-                                  widget.value == null
-                                      ? []
-                                      : widget.value!..remove(item));
+                                  widget.value == null ? [] : widget.value!
+                                    ..remove(item));
                         },
                       ),
                     ],

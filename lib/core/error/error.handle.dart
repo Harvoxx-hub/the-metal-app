@@ -1,6 +1,3 @@
- 
- 
- 
 import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/model/responces.dart';
@@ -10,11 +7,8 @@ class ErrorHandler implements Exception {
 
   ErrorHandler.handle(dynamic error) {
     if (error is DioException) {
-      
       // Handle Dio-specific error
       failure = _handleError(error);
-
-
     } else {
       // Handle default error
       failure = Responses(
@@ -23,10 +17,7 @@ class ErrorHandler implements Exception {
         data: error.data,
       );
     }
-    Fluttertoast.showToast(
-          msg: failure.message.toString(),
-          
-          fontSize: 16.0);
+    Fluttertoast.showToast(msg: failure.message.toString(), fontSize: 16.0);
   }
 }
 
@@ -42,7 +33,7 @@ Responses _handleError(DioException error) {
       if (error.response != null &&
           error.response?.statusCode != null &&
           error.response?.statusMessage != null) {
-      print(error.response?.data);
+        print(error.response?.data);
         return Responses(
           success: false,
           message: "An error occurred, try again",
@@ -184,5 +175,3 @@ class ResponseMessage {
   static const String NO_INTERNET_CONNECTION = "NoInternetError";
   static const String DEFAULT = "DefaultError";
 }
-
- 

@@ -23,7 +23,8 @@ class ForgetPasswordOTPPage extends ConsumerStatefulWidget {
   static const route = name;
 
   @override
-  ConsumerState<ForgetPasswordOTPPage> createState() => _ForgetPasswordOTPPageState();
+  ConsumerState<ForgetPasswordOTPPage> createState() =>
+      _ForgetPasswordOTPPageState();
 }
 
 class _ForgetPasswordOTPPageState extends ConsumerState<ForgetPasswordOTPPage> {
@@ -132,14 +133,14 @@ class _ForgetPasswordOTPPageState extends ConsumerState<ForgetPasswordOTPPage> {
           ],
         ),
         const Gap(27),
-         TextView(
-              text:
-                  "${formatDuration(Duration(seconds: _secondsRemaining))} Remaining",
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              textAlign: TextAlign.center,
-              color: AppColors.metalBrownColourForText,
-            ),
+        TextView(
+          text:
+              "${formatDuration(Duration(seconds: _secondsRemaining))} Remaining",
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          textAlign: TextAlign.center,
+          color: AppColors.metalBrownColourForText,
+        ),
         const Gap(27),
         BaseButton(
           buttonText: "Verify Code",

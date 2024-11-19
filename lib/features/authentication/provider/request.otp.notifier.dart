@@ -23,16 +23,14 @@ class RequestOtpNotifier extends StateNotifier<RequestOtpStates> {
 
       state = RequestOtpStates.success(response.data);
     } catch (e, s) {
-      state = RequestOtpStates.error(
-        e.toString(), stackTrace: s
-      );
+      state = RequestOtpStates.error(e.toString(), stackTrace: s);
     }
   }
 }
 
 typedef RequestOtpStates = BaseState<Map>;
 
-final requestOtpProvider = StateNotifierProvider.autoDispose<
-    RequestOtpNotifier, RequestOtpStates>(
+final requestOtpProvider =
+    StateNotifierProvider.autoDispose<RequestOtpNotifier, RequestOtpStates>(
   (ref) => RequestOtpNotifier(RequestOtpStates.initial(), ref),
 );

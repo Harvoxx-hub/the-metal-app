@@ -10,7 +10,7 @@ enum SparkHistoryType { Purchase, Sent, Referred }
 class SparkHistoryItem extends StatelessWidget {
   const SparkHistoryItem({
     super.key,
-    required this .sparkModel,
+    required this.sparkModel,
   });
   final SparkModel sparkModel;
 

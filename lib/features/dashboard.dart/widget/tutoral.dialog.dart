@@ -36,7 +36,7 @@ class TutoralDialog extends StatelessWidget {
               //   context,
               //   AppRoutes.passionsPage,
               // );
-           //   Navigator.pop(context);
+              //   Navigator.pop(context);
             }),
         const Gap(23),
         TextView(

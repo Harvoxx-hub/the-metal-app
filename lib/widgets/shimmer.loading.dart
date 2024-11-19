@@ -29,11 +29,9 @@ class _ShimmerLoadingState extends State<ShimmerLoading> {
       child: widget.child,
     );
   }
-
-
 }
 
-  const _shimmerGradient = LinearGradient(
+const _shimmerGradient = LinearGradient(
   colors: [
     Color(0xFFEBEBF4),
     Color(0xFFF4F4F4),

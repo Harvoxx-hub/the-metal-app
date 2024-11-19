@@ -18,7 +18,7 @@ class BlockedCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CardWithShadow(
         onTap: () {
-       ref.read(blockUserProvider.notifier).unBlockUser(id);
+          ref.read(blockUserProvider.notifier).unBlockUser(id);
         },
         height: 105,
         child: Row(

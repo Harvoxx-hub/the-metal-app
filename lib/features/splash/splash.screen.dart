@@ -31,7 +31,6 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     _connectivity = Connectivity();
 
     _retryConnection();
-   
   }
 
   _checkLoginState() {

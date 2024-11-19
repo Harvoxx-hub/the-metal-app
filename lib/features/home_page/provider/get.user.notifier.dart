@@ -5,17 +5,12 @@ import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 
 class GetUserNotifier extends StateNotifier<GetUserState> {
-  GetUserNotifier(
-    super.state,
-    this.ref,
-    this.id
-  ) {
+  GetUserNotifier(super.state, this.ref, this.id) {
     getUserById();
   }
   final Ref ref;
   final String id;
 
-   
   void getUserById() async {
     try {
       state = GetUserState.loading();
@@ -24,9 +19,7 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
       print(response.data);
 
       state = GetUserState.success(UserModel.fromJson(response.data));
-      
     } catch (e, s) {
-    
       state = GetUserState.error(e.toString(), stackTrace: s);
     }
   }
@@ -35,7 +28,7 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
 // Define a type alias
 typedef GetUserState = BaseState<UserModel>;
 
-final getUserProvider =
-    StateNotifierProvider.autoDispose.family<GetUserNotifier, GetUserState, String>(
+final getUserProvider = StateNotifierProvider.autoDispose
+    .family<GetUserNotifier, GetUserState, String>(
   (ref, id) => GetUserNotifier(GetUserState.initial(), ref, id),
 );

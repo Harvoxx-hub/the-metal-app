@@ -129,9 +129,9 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
               Assets.icons.checkVerified.svg(height: 16),
           ],
         ),
-        Text(
-          formatToWhatsAppChatTime(thoughtModel.created_at!),
-          style: const TextStyle(color: Colors.grey),
+        TextView(
+          text: formatTime(isoDateString: thoughtModel.created_at!),
+          color: Colors.grey,
         ),
       ],
     );

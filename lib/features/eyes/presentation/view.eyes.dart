@@ -70,14 +70,13 @@ class _ViewEyesState extends State<ViewEyes> {
                   onPageChanged: (value) {
                     setState(() {
                       currentPage = value;
-                         data = widget.eyes[value].getFormattedDate();
+                      data = widget.eyes[value].getFormattedDate();
                     });
                   },
                   controller: pageController,
                   itemCount: widget.eyes.length,
                   itemBuilder: (context, index) {
                     final eye = widget.eyes[index];
-                    
 
                     return _buildMediaWidget(eye);
                   },

@@ -21,7 +21,6 @@ class GetBlockUsersNotifier extends StateNotifier<GetBlockUsersState> {
       final response = await repo.getBlockedUsers();
       state = GetBlockUsersState.success(response.data);
     } catch (e, s) {
- 
       state = GetBlockUsersState.error(e.toString(), stackTrace: s);
     }
   }
@@ -30,7 +29,7 @@ class GetBlockUsersNotifier extends StateNotifier<GetBlockUsersState> {
 // Define a type alias
 typedef GetBlockUsersState = BaseState<List<dynamic>>;
 
-final getBlockUserProvider =
-    StateNotifierProvider.autoDispose<GetBlockUsersNotifier, GetBlockUsersState>(
+final getBlockUserProvider = StateNotifierProvider.autoDispose<
+    GetBlockUsersNotifier, GetBlockUsersState>(
   (ref) => GetBlockUsersNotifier(GetBlockUsersState.initial(), ref),
 );

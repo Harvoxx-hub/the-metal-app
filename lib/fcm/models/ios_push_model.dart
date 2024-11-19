@@ -1,5 +1,3 @@
- 
-
 // todo starter: update iOS push model
 import 'push_type.dart';
 

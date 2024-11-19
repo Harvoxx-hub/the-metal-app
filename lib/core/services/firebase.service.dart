@@ -56,8 +56,7 @@ class FirebaseService {
   Future<String> uploadAudio(String audioFilePath) async {
     try {
       // Generate a unique filename for the audio file
-      String fileName =
-          '${DateTime.now().millisecondsSinceEpoch}.mp3';
+      String fileName = '${DateTime.now().millisecondsSinceEpoch}.mp3';
       // Get a reference to the audio file in Firebase Storage
       Reference ref = _storage.ref().child('audio/$fileName');
       // Upload the audio file

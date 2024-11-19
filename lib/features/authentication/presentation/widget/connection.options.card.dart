@@ -63,7 +63,7 @@ class ConnectionOptionsCard extends StatelessWidget {
             const Gap(2),
             TextView(
               text: model.desc!,
-              fontSize: 12,
+              fontSize: 10,
               fontWeight: FontWeight.w400,
             ),
           ],

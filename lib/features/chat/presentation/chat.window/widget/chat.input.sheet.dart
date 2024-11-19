@@ -4,14 +4,19 @@ import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
+import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 
 class ChatBottomSheet extends StatefulWidget {
   const ChatBottomSheet(
-      {super.key, required this.onSend, required this.onGameClick});
+      {super.key,
+      required this.onSend,
+      required this.onGameClick,
+      required this.meltUserModel});
   final Function(String) onSend;
   final Function() onGameClick;
+  final MeltUserModel meltUserModel;
   @override
   State<ChatBottomSheet> createState() => _ChatBottomSheetState();
 }
@@ -56,7 +61,6 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                   keyboardType: TextInputType.emailAddress,
                   autoValidate: false,
 
-                  
                   radius: 34,
                   // fillColor: AppColors.appGrey,
                 ),
@@ -81,7 +85,7 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Text(
-                                'Voice note features are enabled after 15 days of chatting with this metal. Please contact them through messages',
+                                'Voice note features are enabled after 5 days (--- remaining) of chatting with this metal. Please contact them through messages',
                               ),
                             ),
                           ),
@@ -134,14 +138,12 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                 height: 256,
                 checkPlatformCompatibility: true,
                 emojiViewConfig: EmojiViewConfig(
-                  
                   // Issue: https://github.com/flutter/flutter/issues/28894
                   emojiSizeMax: 18 *
                       (foundation.defaultTargetPlatform == TargetPlatform.iOS
                           ? 1.2
                           : 1.0),
                 ),
-          
               ),
             ),
           ),

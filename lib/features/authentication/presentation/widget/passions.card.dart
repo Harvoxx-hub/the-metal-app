@@ -22,7 +22,7 @@ class PassionsCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(4),
         decoration: selected
             ? ShapeDecoration(
                 color: const Color(0xFFFBF0F8),
@@ -64,11 +64,10 @@ class PassionsCard extends StatelessWidget {
             Expanded(
               child: TextView(
                 text: model.title!,
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const Spacer(),
           ],
         ),
       ),

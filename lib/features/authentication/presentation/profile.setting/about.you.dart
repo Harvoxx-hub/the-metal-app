@@ -117,14 +117,15 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
 
- 
-    userData!.extraData!.copyWith(
-        maritalStatus: maritalStatus,
-        religion: religion,
-        profession: profession,
-        language: language!.join(','));
+    final extraData = ExtraData(
+        maritalStatus: maritalStatus ?? "",
+        religion: religion ?? "",
+        profession: profession ?? "",
+        language: language?.join(',') ?? "");
 
-    ref.read(updateProfileProvider.notifier).updateUserData(userData);
+    final updated = userData!.copyWith(extraData: extraData);
+
+    ref.read(updateProfileProvider.notifier).updateUserData(updated);
     Navigator.pushNamed(
       context,
       AppRoutes.moreAboutYouPage,

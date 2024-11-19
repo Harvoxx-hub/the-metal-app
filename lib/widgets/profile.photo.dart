@@ -21,8 +21,8 @@ class ProfilePhoto extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-  final  currentUserData = ref.watch(authProvider).data;
-  
+    final currentUserData = ref.watch(authProvider).data;
+
     return Stack(
       children: [
         Center(
@@ -49,38 +49,39 @@ class ProfilePhoto extends ConsumerWidget {
                     shape: OvalBorder(),
                   ),
                   child: Center(
-                    child: photourl != null
-                        ? CachedNetworkImage(
-                            imageUrl: photourl!,
-                            imageBuilder: (context, imageProvider) =>
-                                CircleAvatar(
-                                  radius: size * 0.7, // Image radius
-                                  backgroundImage: imageProvider,
-                                ),
-                            placeholder: (context, url) => const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator
-                                      .adaptive(), // Loading indicator
-                                ),
-                            errorWidget: (context, url, error) =>
-                                Assets.images.logo.image(height: 24, width: 24))
-                        :CachedNetworkImage(
-                            imageUrl: currentUserData!.metal!.img!,
-                            imageBuilder: (context, imageProvider) =>
-                                CircleAvatar(
-                                  radius: size * 0.7, // Image radius
-                                  backgroundImage: imageProvider,
-                                ),
-                            placeholder: (context, url) => const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator
-                                      .adaptive(), // Loading indicator
-                                ),
-                            errorWidget: (context, url, error) =>
-                                Assets.images.logo.image(height: 24, width: 24))
-                  ),
+                      child: photourl != null
+                          ? CachedNetworkImage(
+                              imageUrl: photourl!,
+                              imageBuilder: (context, imageProvider) =>
+                                  CircleAvatar(
+                                    radius: size * 0.7, // Image radius
+                                    backgroundImage: imageProvider,
+                                  ),
+                              placeholder: (context, url) => const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator
+                                        .adaptive(), // Loading indicator
+                                  ),
+                              errorWidget: (context, url, error) => Assets
+                                  .images.logo
+                                  .image(height: size * 0.7, width: size * 0.7))
+                          : CachedNetworkImage(
+                              imageUrl: currentUserData!.metal!.img!,
+                              imageBuilder: (context, imageProvider) =>
+                                  CircleAvatar(
+                                    radius: size * 0.7, // Image radius
+                                    backgroundImage: imageProvider,
+                                  ),
+                              placeholder: (context, url) => const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator
+                                        .adaptive(), // Loading indicator
+                                  ),
+                              errorWidget: (context, url, error) => Assets
+                                  .images.logo
+                                  .image(height: 24, width: 24))),
                 ),
               ),
             ),

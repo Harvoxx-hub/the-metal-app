@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/features/profile/presentation/tab.screen/discovery.tab.dart';
-import 'package:metal/features/profile/presentation/tab.screen/metal.plan.tab.dart';
+ 
 import 'package:metal/features/profile/presentation/tab.screen/personal.tab.dart';
 import 'package:metal/features/profile/presentation/tab.screen/thought.tab.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';

@@ -40,6 +40,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         child: ProfileHeader(
             eye: false,
             metal: user!.metal!,
+            profileUrl: user.profilePhoto,
             child: Padding(
               padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
               child: Container(

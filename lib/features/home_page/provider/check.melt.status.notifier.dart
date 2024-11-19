@@ -44,7 +44,9 @@ class CheckMeltStatusNotifier extends StateNotifier<CheckMeltState> {
       final status = _mapStringToCheckStatus(
           stringToBase64.encode(response.data["status"]));
 
-      state = CheckMeltState.success(status);
+      if (mounted) {
+        state = CheckMeltState.success(status);
+      }
     } catch (e, s) {
       state = CheckMeltState.error(e.toString(), stackTrace: s);
     }

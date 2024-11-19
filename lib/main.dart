@@ -1,11 +1,11 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
- 
+
 import 'package:share_plus/share_plus.dart';
 import 'package:upgrader/upgrader.dart';
 import 'package:instabug_flutter/instabug_flutter.dart';
@@ -20,11 +20,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await initializeFirebase();
- 
+  initializeAuthManager();
+
   Instabug.init(token: "35773fb6523ba7aa0ca63a8bb8d55099", invocationEvents: [
     InvocationEvent.shake,
     InvocationEvent.screenshot,
-    
   ]);
   CrashReporting.setEnabled(true);
   runApp(
@@ -43,15 +43,12 @@ Future<void> initializeFirebase() async {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
     FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
-  } catch (e) {
-   
-  }
+  } catch (e) {}
 }
 
- 
- 
-
- 
+Future<void> initializeAuthManager() async {
+  await AuthManager.ensureInitialized();
+}
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
@@ -69,7 +66,6 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-    
       title: 'Metal',
       key: navKey,
       initialRoute: '/',

@@ -53,11 +53,12 @@ class NavDrawer extends ConsumerWidget {
                   const Gap(36),
                   Row(
                     children: [
-                      const ProfilePhoto(
+                        ProfilePhoto(
                         verfly: false,
                         size: 51,
+                        photourl: authState?.profilePhoto ?? null,
                       ),
-                      // Image.asset(Assets.images.navBarProfile.path),
+                  
                       const Gap(19),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

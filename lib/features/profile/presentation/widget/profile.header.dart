@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
- 
+
 import 'package:image_picker/image_picker.dart';
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 import 'package:metal/features/eyes/provider/get.current.eyes.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/appbar.background.dart';
 import 'package:metal/features/profile/provider/upload.profile.image.notifier.dart';
- 
+
 import 'package:metal/widgets/profile.photo.dart';
 
 class ProfileHeader extends ConsumerWidget {
@@ -28,7 +28,7 @@ class ProfileHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileImage = ref.watch(profileImageProvider);
- 
+
     return SingleChildScrollView(
       child: Stack(
         children: [
@@ -44,7 +44,7 @@ class ProfileHeader extends ConsumerWidget {
             left: 0,
             right: 0,
             child: profileImage.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator.adaptive())
                 : GestureDetector(
                     onTap: () => _pickImage(context, ref),
                     child: ProfilePhoto(

@@ -1,6 +1,5 @@
 import 'dart:async';
 
- 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -32,10 +31,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     _connectivity = Connectivity();
 
     _retryConnection();
-    // Use post-frame callback to ensure the button is shown after the first build
-    WidgetsBinding.instance.addPostFrameCallback((_) {
- 
-    });
+   
   }
 
   _checkLoginState() {

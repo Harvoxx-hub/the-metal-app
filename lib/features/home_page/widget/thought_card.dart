@@ -1,4 +1,3 @@
- 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,7 +9,7 @@ import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/home_page/provider/get.all.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/react.thoughts.notifier.dart';
- 
+
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
@@ -96,9 +95,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           Navigator.pushNamed(
             context,
             AppRoutes.myMeltedUser,
-             arguments: 
-          thoughtModel.user!,
-          
+            arguments: thoughtModel.user!,
           );
         }
       },
@@ -126,9 +123,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
         Row(
           children: [
             TextView(
-              fontSize: 13.5,
-                text:
-                    "${thoughtModel.userData?.username} ${thoughtModel.userData!.metal?.title ?? ""}"),
+                fontSize: 13.5, text: "${thoughtModel.userData?.username}"),
             const Gap(5),
             if (thoughtModel.userData?.verification ?? false)
               Assets.icons.checkVerified.svg(height: 16),
@@ -376,9 +371,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
         int codePoint = int.parse(unicode, radix: 16);
         // Append the emoji character to the result
         emoji += String.fromCharCode(codePoint);
-      } catch (e, s) {
-     
-      }
+      } catch (e, s) {}
     }
 
     return emoji;

@@ -89,6 +89,7 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
                     ),
               MessageList(_meltUserModel!.conversationId!),
               ChatBottomSheet(
+                meltUserModel: _meltUserModel!,
                 onSend: (p0) {
                   sendTextMessage(p0);
                 },
@@ -113,11 +114,9 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
                     ref
                         .read(gameConversationProvider.notifier)
                         .updateGameConversation(
-                          conversatioId:  _meltUserModel!.conversationId!,
-                          gameTitle: game!.title,
-                          message: message
-                         
-                            );
+                            conversatioId: _meltUserModel!.conversationId!,
+                            gameTitle: game!.title,
+                            message: message);
                   }
                 },
               )

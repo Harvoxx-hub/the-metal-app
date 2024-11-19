@@ -74,7 +74,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               child: Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                  'Video call features are enabled after 15 days of chatting with this metal. Please contact them through messages',
+                  'Video call features are enabled after 5 days( --- remaining ) of chatting with this metal. Please contact them through messages',
                 ),
               ),
             ),
@@ -101,7 +101,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               child: Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                  'Voice call features are enabled after 15 days of chatting with this metal. Please contact them through messages',
+                  'Voice call features are enabled after 5 days( --- remaining ) of chatting with this metal. Please contact them through messages',
                 ),
               ),
             ),

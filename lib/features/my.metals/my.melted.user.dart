@@ -59,6 +59,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
         ref.read(checkMeltProvider(widget.metalId).notifier).checkStatus();
 
         if (!current.data!["data"].isEmpty) {
+          
           Navigator.pushNamed(
             context,
             AppRoutes.meltMetal,

@@ -303,6 +303,32 @@ class MessageRepository implements IMessageRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<Responses> lastActiveTime(String id) async {
+    try {
+      final response = await _apiService.post(
+        "user/get-last-seen",
+        body: {"user": id},
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Responses> deMelt(String id) async {
+    try {
+      final response = await _apiService.post(
+        "melt/de-melt",
+        body: {"userToDeMelt": id},
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
 
 final messageRepositoryProvider = Provider((ref) => MessageRepository());

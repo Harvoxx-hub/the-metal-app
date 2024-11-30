@@ -14,4 +14,6 @@ abstract class IMessageRepository {
   Future<String> checkConversationId(String id, String recepintId);
   updateGame(String id, String gameTile, {MessageModel? message});
   clearChat(String id);
+  Future<Responses> lastActiveTime(String id);
+  Future<Responses> deMelt(String id);
 }

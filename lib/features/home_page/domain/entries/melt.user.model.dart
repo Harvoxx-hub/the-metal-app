@@ -12,12 +12,14 @@ class MeltUserModel {
   final String? username;
   final String? fcmToken;
   final String? conversationId;
+  final String? meltedDate;
 
   final Metal? metal;
   final String? phone;
 
   MeltUserModel(
       {this.id,
+      this.meltedDate,
       this.gender,
       this.metal,
       this.phone,

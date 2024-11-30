@@ -9,6 +9,7 @@ import 'package:metal/features/chat/presentation/chat.window/chat.window.argumen
 
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
@@ -17,21 +18,39 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 
-class MeltMetal extends ConsumerWidget {
+class MeltMetal extends ConsumerStatefulWidget {
   const MeltMetal({super.key, required this.id});
   static const name = 'meltMetal';
   static const route = name;
   final String id;
+  @override
+  ConsumerState<MeltMetal> createState() => _MeltMetalState();
+}
+
+class _MeltMetalState extends ConsumerState<MeltMetal> {
+  MeltUserModel? meltUserData;
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(getMeltUserProvider.notifier).getMeltUsers();
+    });
+    super.initState();
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
 
-    MeltUserModel meltUserData =
-        ref.read(getMeltUserProvider.notifier).getMeltUserById(id)!;
-
+    ref.listen<GetMeltUsersState>(getMeltUserProvider, (prev, current) {
+      if (current.isSuccess) {
+        meltUserData =
+            ref.read(getMeltUserProvider.notifier).getMeltUserById(widget.id)!;
+        setState(() {});
+      }
+    });
     return BaseScreen(
       subAppBar: true,
+      isLoading: meltUserData == null,
       appBarState: AppBarState.HambugerWithHeader,
       Header: "My melted metals",
       body: Column(children: [
@@ -43,7 +62,7 @@ class MeltMetal extends ConsumerWidget {
         ),
         const Gap(8),
         TextView(
-          text: "*You* and *@${meltUserData.username}*\n just melted",
+          text: "*You* and *@${meltUserData!.username}*\n just melted",
           fontWeight: FontWeight.w400,
           textAlign: TextAlign.center,
           fontSize: 15,
@@ -74,11 +93,11 @@ class MeltMetal extends ConsumerWidget {
                   children: [
                     ProfilePhoto(
                         size: 156,
-                        photourl: meltUserData.metal!.img,
+                        photourl: meltUserData!.metal!.img,
                         verfly: false),
                     const Gap(28),
                     username(
-                      name: meltUserData.username!,
+                      name: meltUserData!.username!,
                     ),
                   ],
                 ),
@@ -92,7 +111,7 @@ class MeltMetal extends ConsumerWidget {
           children: [
             meltItem("Chat", Assets.images.meltChat.path, () {
               Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
-                  arguments: meltUserData.id);
+                  arguments: meltUserData!.id);
             }),
             meltItem("Spark", Assets.images.meltSpark.path, () {
               Navigator.pushNamed(

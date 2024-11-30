@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
+import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
+import 'package:metal/features/chat/provider/get.last.active.notifier.dart';
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 
@@ -27,8 +29,21 @@ class ChatWindowsAppBar extends ConsumerStatefulWidget {
 class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   final tooltipController = JustTheController();
   final tooltipController2 = JustTheController();
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(lastActiveProvider.notifier)
+          .GetLastActiveTime(widget.meltUserModel.id!);
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final time = ref.watch(lastActiveProvider).data;
+    int dayRemaining = daysRemaining(widget.meltUserModel.meltedDate!, 5);
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),
       child: Row(
@@ -57,8 +72,9 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                 fontWeight: FontWeight.w600,
               ),
               const Gap(3),
-              const TextView(
-                text: "Active now",
+              TextView(
+                text: ActiveTime(
+                    isoDateString: time ?? DateTime.now().toIso8601String()),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: AppColors.metalBlack50,
@@ -68,12 +84,12 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           const Spacer(),
           JustTheTooltip(
             controller: tooltipController,
-            content: const SizedBox(
+            content: SizedBox(
               width: 180,
               child: Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                  'Video call features are enabled after 5 days( --- remaining ) of chatting with this metal. Please contact them through messages',
+                  'Video call features are enabled after 5 days. ${dayRemaining} Remaining of chatting with this metal. Please contact them through messages',
                 ),
               ),
             ),
@@ -82,7 +98,9 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               shape: const CircleBorder(),
               child: GestureDetector(
                 onTap: () {
-                  tooltipController.showTooltip();
+                  hasDurationReached(widget.meltUserModel.meltedDate!, 5)
+                      ? makeCall
+                      : tooltipController.showTooltip();
                 },
                 child: SvgPicture.asset(
                   Assets.icons.chatsWindowactiveVideoRecorder.path,
@@ -95,12 +113,12 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           Gap(15),
           JustTheTooltip(
             controller: tooltipController2,
-            content: const SizedBox(
+            content: SizedBox(
               width: 180,
               child: Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                  'Voice call features are enabled after 5 days( --- remaining ) of chatting with this metal. Please contact them through messages',
+                  'Voice call features are enabled after 5 days. ${dayRemaining} Remaining of chatting with this metal. Please contact them through messages',
                 ),
               ),
             ),
@@ -109,7 +127,9 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               shape: const CircleBorder(),
               child: GestureDetector(
                 onTap: () {
-                  tooltipController.showTooltip();
+                  hasDurationReached(widget.meltUserModel.meltedDate!, 5)
+                      ? makeCall
+                      : tooltipController.showTooltip();
                 },
                 child: SvgPicture.asset(
                   Assets.icons.chatsWindowactiveFill.path,
@@ -134,7 +154,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                   context: context,
                   builder: (BuildContext context) {
                     return CustomDialog(
-                      content: unmetalDialog(context),
+                      content: unmetalDialog(context, dayRemaining),
                     );
                   },
                 );
@@ -170,15 +190,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              // const PopupMenuItem(
-              //   value: "View eyes",
-              //   child: TextView(
 
-              //     text: 'View eyes',
-              //     fontSize: 15,
-              //     fontWeight: FontWeight.w500,
-              //   ),
-              // ),
               const PopupMenuItem(
                 value: "Unmetal",
                 child: TextView(
@@ -226,7 +238,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     );
   }
 
-  Widget unmetalDialog(BuildContext context) {
+  Widget unmetalDialog(BuildContext context, int remaining) {
     return Column(
       children: [
         const Gap(38),
@@ -238,18 +250,19 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         const Gap(15),
         TextView(
           text:
-              "To Unmetal, we require a minimum of 30days and 10 sessions of conversations between you and @${widget.meltUserModel.username}",
+              "To Unmetal, we require a minimum of 5days and 5 sessions of conversations between you and @${widget.meltUserModel.username}",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        // const Gap(15),
-        // const TextView(
-        //   text: "You have had *16 days* and *3 interactions*",
-        //   fontSize: 16,
-        //   textAlign: TextAlign.center,
-        //   fontWeight: FontWeight.w400,
-        // ),
+        const Gap(15),
+        TextView(
+          text:
+              "You have had * $remaining Remaining days* and *0 interactions*",
+          fontSize: 16,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.w400,
+        ),
         const Gap(38),
         BaseButton(
             buttonText: "Return to chat",
@@ -306,4 +319,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
       ],
     );
   }
+
+  void makeCall() {}
 }

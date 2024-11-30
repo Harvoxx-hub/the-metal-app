@@ -35,7 +35,7 @@ class ThoughtCard extends ConsumerStatefulWidget {
 class _ThoughtCardState extends ConsumerState<ThoughtCard> {
   bool melted = false;
   bool _showReactions = false;
-  String? _selectedReaction;
+
   late ThoughtModel thoughtModel;
 
   @override
@@ -179,7 +179,6 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
   void _selectReaction(String reaction) {
     final userdata = ref.watch(authProvider).data;
     setState(() {
-      _selectedReaction = reaction;
       _showReactions = false;
     });
 
@@ -211,7 +210,6 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
 
       // Add the new reaction to the reactions list
       thoughtModel.reactions?.add(newReaction);
-      _selectedReaction = emojiToUnicode(reaction);
     }
 
     // Call the provider to send the reaction to the backend

@@ -64,6 +64,7 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
   MeltUserModel? getMeltUserById(String id) {
     try {
       // Check if the state contains a valid list of users
+ 
       if (state.data != null) {
         // Iterate over the users and find the one matching the provided ID
         for (var user in state.data!) {

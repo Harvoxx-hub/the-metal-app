@@ -9,6 +9,7 @@ part of 'melt.user.model.dart';
 MeltUserModel _$MeltUserModelFromJson(Map<String, dynamic> json) =>
     MeltUserModel(
       id: json['id'] as String?,
+      meltedDate: json['meltedDate'] as String?,
       gender: json['gender'] as String?,
       metal: json['metal'] == null
           ? null
@@ -28,6 +29,7 @@ Map<String, dynamic> _$MeltUserModelToJson(MeltUserModel instance) =>
       'username': instance.username,
       'fcmToken': instance.fcmToken,
       'conversationId': instance.conversationId,
+      'meltedDate': instance.meltedDate,
       'metal': instance.metal?.toJson(),
       'phone': instance.phone,
     };

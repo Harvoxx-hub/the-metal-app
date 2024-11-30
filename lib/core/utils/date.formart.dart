@@ -22,3 +22,47 @@ String formatTime({String? isoDateString, DateTime? datetime}) {
   return timeago.format(date,
       locale: 'en'); // Change 'en' to other locales if needed
 }
+
+String ActiveTime({String? isoDateString, DateTime? datetime}) {
+  String time = formatTime(isoDateString: isoDateString);
+  if (time == "a moment ago") {
+    return "active";
+  } else {
+    return time;
+  }
+
+  
+}
+
+int daysRemaining(String isoDateString, int durationInDays) {
+  // Parse the ISO 8601 date string and convert it to local time
+  DateTime date = DateTime.parse(isoDateString).toLocal();
+
+  // Calculate the target date by adding the duration to the parsed date
+  DateTime targetDate = date.add(Duration(days: durationInDays));
+
+  // Get the current date in local time
+  DateTime now = DateTime.now();
+
+  // Calculate the difference in days
+  int remainingDays = targetDate.difference(now).inDays;
+
+  // If the duration has passed, return 0 (no days remaining)
+  return remainingDays > 0 ? remainingDays : 0;
+}
+
+bool hasDurationReached(String isoDateString, int durationInDays) {
+  // Parse the ISO 8601 date string and convert it to local time
+  DateTime date = DateTime.parse(isoDateString).toLocal();
+
+  // Calculate the target date by adding the duration to the parsed date
+  DateTime targetDate = date.add(Duration(days: durationInDays));
+
+  // Get the current date in local time
+  DateTime now = DateTime.now();
+
+  // Check if the current date has reached or surpassed the target date
+  return now.isAfter(targetDate) || now.isAtSameMomentAs(targetDate);
+}
+
+

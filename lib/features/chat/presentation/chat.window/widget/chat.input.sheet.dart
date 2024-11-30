@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
+import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
@@ -26,8 +27,10 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
   final tooltipController = JustTheController();
   final _scrollController = ScrollController();
   bool _emojiShowing = false;
+
   @override
   Widget build(BuildContext context) {
+    int dayRemaining = daysRemaining(widget.meltUserModel.meltedDate!, 5);
     return Padding(
       padding: EdgeInsets.only(bottom: 10.0, left: 18, right: 18),
       child: Column(
@@ -80,12 +83,12 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                         const Gap(17),
                         JustTheTooltip(
                           controller: tooltipController,
-                          content: const SizedBox(
+                          content: SizedBox(
                             width: 180,
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Text(
-                                'Voice note features are enabled after 5 days (--- remaining) of chatting with this metal. Please contact them through messages',
+                                'Voice note features are enabled after 5 days. $dayRemaining remaining of chatting with this metal. Please contact them through messages',
                               ),
                             ),
                           ),
@@ -94,7 +97,10 @@ class _ChatBottomSheetState extends State<ChatBottomSheet> {
                             shape: const CircleBorder(),
                             child: GestureDetector(
                               onTap: () {
-                                tooltipController.showTooltip();
+                                hasDurationReached(
+                                        widget.meltUserModel.meltedDate!, 5)
+                                    ? ()
+                                    : tooltipController.showTooltip();
                               },
                               child: SvgPicture.asset(
                                 Assets.icons.chatsEmptyStateMicrophone.path,

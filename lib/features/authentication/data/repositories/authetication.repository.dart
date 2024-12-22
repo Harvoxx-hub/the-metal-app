@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
@@ -67,7 +68,8 @@ class AuthenticationRepository implements IAuthenticationRepository {
   }) async {
     try {
       String? token = await FCMClient.instance.init();
-      String referral = UUIDCenter.uuid5;
+      var rng = new Random();
+      var code = rng.nextInt(900000) + 100000;
       UserCredential userCredential =
           await _firebaseService.auth.createUserWithEmailAndPassword(
         email: email,
@@ -77,7 +79,7 @@ class AuthenticationRepository implements IAuthenticationRepository {
       final user = UserModel(
           email: email,
           phone: phoneNumber,
-          referralCode: referral,
+          referralCode: code.toString(),
           fcmToken: token,
           referredBy: referal,
           id: userCredential.user?.uid);

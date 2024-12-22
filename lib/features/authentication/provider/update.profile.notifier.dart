@@ -1,94 +1,79 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/state/base.state.dart';
-
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
+/// Notifier for managing and updating user profiles
 class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
   final Ref ref;
-  UserModel model = UserModel();
+  late UserModel model;
 
   UpdateProfileNotifier(this.ref) : super(UpdateProfileState.initial()) {
-    initMyProfile();
+    _initializeProfile();
   }
 
-  void initMyProfile() async {
-    state = UpdateProfileState.success(UserModel());
+  /// Initializes the user profile from the auth provider
+  Future<void> _initializeProfile() async {
+    final user = ref.watch(authProvider).data;
+    if (user != null) {
+      model = user;
+      state = UpdateProfileState.success(user);
+    }
   }
 
+  /// Updates the state with the given [userData]
   void updateUserData(UserModel userData) {
-    state = UpdateProfileState.success(userData);
     model = userData;
-
-    print(userData.toString());
+    state = UpdateProfileState.success(userData);
   }
 
+  /// Sends the user update to the repository and updates the state accordingly
   Future<void> sendUserUpdate(UserModel userModel) async {
     try {
       state = UpdateProfileState.loading();
-      final authenticationRepository =
-          ref.watch(authenticationRepositoryProvider);
-      final response = await authenticationRepository
-          .updateUser(getNonNullValues(model.toJson()));
-      final userData = UserModel.fromJson(response.data);
+      final repository = ref.read(authenticationRepositoryProvider);
+      final response =
+          await repository.updateUser(getNonNullValues(userModel.toJson()));
 
-      ref.read(authProvider.notifier).getUpdatedUser();
-      state = UpdateProfileState.success(userData);
-    } catch (e, s) {
-      state = UpdateProfileState.error(e.toString(), stackTrace: s);
+      if (response.success!) {
+        final updatedUser = UserModel.fromJson(response.data);
+        ref.read(authProvider.notifier).getUpdatedUser();
+        state = UpdateProfileState.success(updatedUser);
+      } else {
+        state =
+            UpdateProfileState.error(response.message ?? 'An error occurred');
+      }
+    } catch (e, stackTrace) {
+      state = UpdateProfileState.error(e.toString(), stackTrace: stackTrace);
     }
   }
 
-  Future<void> updateParticularInfo(UserModel userModel) async {
-    try {
-      final authenticationRepository =
-          ref.watch(authenticationRepositoryProvider);
-      final response = await authenticationRepository.UpdateParticualarInfo(
-          getNonNullValues(userModel.toJson()));
-      final userData = UserModel.fromJson(response.data);
-
-      ref.read(authProvider.notifier).getUpdatedUser();
-      Fluttertoast.showToast(
-        msg: "Profile Updated",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 3,
-        backgroundColor: Colors.green,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
-      state = UpdateProfileState.success(userData);
-    } catch (e, s) {
-      state = UpdateProfileState.error(e.toString(), stackTrace: s);
-    }
-  }
-
-  Future<void> completeUserUpdate(UserModel userModel) async {
-    try {
-      state = UpdateProfileState.loading();
-      final authenticationRepository =
-          ref.watch(authenticationRepositoryProvider);
-      final response = await authenticationRepository
-          .completeUser(getNonNullValues(model.toJson()));
-      final userData = UserModel.fromJson(response.data);
-
-      await ref.read(authProvider.notifier).getUpdatedUser();
-      state = UpdateProfileState.success(userData);
-    } catch (e, s) {
-      state = UpdateProfileState.error(e.toString(), stackTrace: s);
-    }
-  }
-
+  /// Filters out null values from a map
   Map<String, dynamic> getNonNullValues(Map<String, dynamic> object) {
+    // Ensure nested objects are serialized
+    object.forEach((key, value) {
+      if (value is Map) {
+        object[key] = getNonNullValues(value as Map<String, dynamic>);
+      } else if (value is List) {
+        object[key] = value.map((item) {
+          if (item is Map) {
+            return getNonNullValues(item as Map<String, dynamic>);
+          }
+          return item;
+        }).toList();
+      }
+    });
+
+    // Remove null values
     return object..removeWhere((key, value) => value == null);
   }
 }
 
+/// Type alias for the profile update state
 typedef UpdateProfileState = BaseState<UserModel>;
 
+/// Provider for the [UpdateProfileNotifier]
 final updateProfileProvider =
     StateNotifierProvider<UpdateProfileNotifier, UpdateProfileState>(
   (ref) => UpdateProfileNotifier(ref),

@@ -8,20 +8,20 @@ part of 'user.model.dart';
 
 _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
     _$UserModelImpl(
-      profileUpdated: json['profile_updated'] as bool?,
-      completedProfile: json['completed_profile'] as bool?,
-      dob: json['DOB'] as String?,
+      profileUpdated: json['profileUpdated'] as bool?,
+      completedProfile: json['completedProfile'] as bool?,
+      dob: json['dob'] as String?,
       address: json['address'] == null
           ? null
           : Address.fromJson(json['address'] as Map<String, dynamic>),
-      connectWith: json['connect_with'] as String?,
-      connectionOption: (json['connection_option'] as List<dynamic>?)
+      connectWith: json['connectWith'] as String?,
+      connectionOption: (json['connectionOption'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
       description: json['description'] as String?,
-      extraData: json['extra_data'] == null
+      extraData: json['extraData'] == null
           ? null
-          : ExtraData.fromJson(json['extra_data'] as Map<String, dynamic>),
+          : ExtraData.fromJson(json['extraData'] as Map<String, dynamic>),
       fullname: json['fullname'] as String?,
       gender: json['gender'] as String?,
       isVerified: json['isVerified'] as bool?,
@@ -29,75 +29,89 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       location: json['location'] == null
           ? null
           : Location.fromJson(json['location'] as Map<String, dynamic>),
-      metal: json['metal'] == null
-          ? null
-          : Metal.fromJson(json['metal'] as Map<String, dynamic>),
+      metal: json['metal'] as String?,
       passion:
           (json['passion'] as List<dynamic>?)?.map((e) => e as String).toList(),
       phone: json['phone'] as String?,
       email: json['email'] as String?,
-      emailVerified: json['email_verified'] as bool?,
+      emailVerified: json['emailVerified'] as bool?,
       preferences: json['preferences'] == null
           ? null
           : Preferences.fromJson(json['preferences'] as Map<String, dynamic>),
       username: json['username'] as String?,
-      accessToken: json['access_token'] as String?,
       refreshToken: json['refreshToken'] as String?,
       subscription: json['subscription'] == null
           ? null
           : SubscribedPlanModel.fromJson(
               json['subscription'] as Map<String, dynamic>),
-      sparkBalance: (json['sparkBalance'] as num?)?.toDouble(),
+      sparkBalance: (json['sparkBalance'] as num?)?.toDouble() ?? 0,
       distance: json['distance'] as String?,
       id: json['id'] as String?,
-      referralCode: json['referralCode'] as String?,
+      referralCode: json['referralCode'] as String? ?? "",
+      referredBy: json['referredBy'] as String?,
+      showOnline: json['showOnline'] as bool? ?? true,
+      alwaysMetal: json['alwaysMetal'] as bool? ?? true,
+      receiveNotification: json['receiveNotification'] as bool? ?? true,
+      showMyProfile: json['showMyProfile'] as bool? ?? true,
+      activateVoiceNote: json['activateVoiceNote'] as bool? ?? true,
+      activateVoiceCall: json['activateVoiceCall'] as bool? ?? true,
+      activateVideoCall: json['activateVideoCall'] as bool? ?? true,
       profilePhoto: json['profilePhoto'] as String?,
       fcmToken: json['fcmToken'] as String?,
-      conversationId: json['conversationId'] as String?,
+      isOnline: json['isOnline'] as bool? ?? false,
+      lastActive: json['lastActive'] as String?,
       blockedUsers: (json['blockedUsers'] as List<dynamic>?)
-          ?.map((e) => BlockedUser.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => e as String)
           .toList(),
     );
 
 Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
     <String, dynamic>{
-      'profile_updated': instance.profileUpdated,
-      'completed_profile': instance.completedProfile,
-      'DOB': instance.dob,
-      'address': instance.address,
-      'connect_with': instance.connectWith,
-      'connection_option': instance.connectionOption,
+      'profileUpdated': instance.profileUpdated,
+      'completedProfile': instance.completedProfile,
+      'dob': instance.dob,
+      'address': instance.address?.toJson(),
+      'connectWith': instance.connectWith,
+      'connectionOption': instance.connectionOption,
       'description': instance.description,
-      'extra_data': instance.extraData,
+      'extraData': instance.extraData?.toJson(),
       'fullname': instance.fullname,
       'gender': instance.gender,
       'isVerified': instance.isVerified,
       'isActivated': instance.isActivated,
-      'location': instance.location,
+      'location': instance.location?.toJson(),
       'metal': instance.metal,
       'passion': instance.passion,
       'phone': instance.phone,
       'email': instance.email,
-      'email_verified': instance.emailVerified,
-      'preferences': instance.preferences,
+      'emailVerified': instance.emailVerified,
+      'preferences': instance.preferences?.toJson(),
       'username': instance.username,
-      'access_token': instance.accessToken,
       'refreshToken': instance.refreshToken,
-      'subscription': instance.subscription,
+      'subscription': instance.subscription?.toJson(),
       'sparkBalance': instance.sparkBalance,
       'distance': instance.distance,
       'id': instance.id,
       'referralCode': instance.referralCode,
+      'referredBy': instance.referredBy,
+      'showOnline': instance.showOnline,
+      'alwaysMetal': instance.alwaysMetal,
+      'receiveNotification': instance.receiveNotification,
+      'showMyProfile': instance.showMyProfile,
+      'activateVoiceNote': instance.activateVoiceNote,
+      'activateVoiceCall': instance.activateVoiceCall,
+      'activateVideoCall': instance.activateVideoCall,
       'profilePhoto': instance.profilePhoto,
       'fcmToken': instance.fcmToken,
-      'conversationId': instance.conversationId,
+      'isOnline': instance.isOnline,
+      'lastActive': instance.lastActive,
       'blockedUsers': instance.blockedUsers,
     };
 
 _$AddressImpl _$$AddressImplFromJson(Map<String, dynamic> json) =>
     _$AddressImpl(
-      apartmentNumber: json['apartment_number'] as String?,
-      houseNumber: json['house_number'] as String?,
+      apartmentNumber: json['apartmentNumber'] as String?,
+      houseNumber: json['houseNumber'] as String?,
       streetName: json['streetName'] as String?,
       postalCode: json['postalCode'] as String?,
       state: json['state'] as String?,
@@ -106,8 +120,8 @@ _$AddressImpl _$$AddressImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$AddressImplToJson(_$AddressImpl instance) =>
     <String, dynamic>{
-      'apartment_number': instance.apartmentNumber,
-      'house_number': instance.houseNumber,
+      'apartmentNumber': instance.apartmentNumber,
+      'houseNumber': instance.houseNumber,
       'streetName': instance.streetName,
       'postalCode': instance.postalCode,
       'state': instance.state,
@@ -120,7 +134,7 @@ _$ExtraDataImpl _$$ExtraDataImplFromJson(Map<String, dynamic> json) =>
       education: json['education'] as String?,
       ethnicity: json['ethnicity'] as String?,
       language: json['language'] as String?,
-      maritalStatus: json['marital_status'] as String?,
+      maritalStatus: json['maritalStatus'] as String?,
       profession: json['profession'] as String?,
       religion: json['religion'] as String?,
     );
@@ -131,14 +145,14 @@ Map<String, dynamic> _$$ExtraDataImplToJson(_$ExtraDataImpl instance) =>
       'education': instance.education,
       'ethnicity': instance.ethnicity,
       'language': instance.language,
-      'marital_status': instance.maritalStatus,
+      'maritalStatus': instance.maritalStatus,
       'profession': instance.profession,
       'religion': instance.religion,
     };
 
 _$PreferencesImpl _$$PreferencesImplFromJson(Map<String, dynamic> json) =>
     _$PreferencesImpl(
-      ageRange: json['age_range'] as String?,
+      ageRange: json['ageRange'] as String?,
       demography: json['demography'] as String?,
       education: json['education'] as String?,
       ethnicity: json['ethnicity'] as String?,
@@ -147,7 +161,7 @@ _$PreferencesImpl _$$PreferencesImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$PreferencesImplToJson(_$PreferencesImpl instance) =>
     <String, dynamic>{
-      'age_range': instance.ageRange,
+      'ageRange': instance.ageRange,
       'demography': instance.demography,
       'education': instance.education,
       'ethnicity': instance.ethnicity,
@@ -166,20 +180,4 @@ Map<String, dynamic> _$$LocationImplToJson(_$LocationImpl instance) =>
       'lat': instance.lat,
       'lng': instance.lng,
       'address': instance.address,
-    };
-
-_$BlockedUserImpl _$$BlockedUserImplFromJson(Map<String, dynamic> json) =>
-    _$BlockedUserImpl(
-      id: json['id'] as String?,
-      metal: json['metal'] == null
-          ? null
-          : Metal.fromJson(json['metal'] as Map<String, dynamic>),
-      name: json['name'] as String?,
-    );
-
-Map<String, dynamic> _$$BlockedUserImplToJson(_$BlockedUserImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'metal': instance.metal,
-      'name': instance.name,
     };

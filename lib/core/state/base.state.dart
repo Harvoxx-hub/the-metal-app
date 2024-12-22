@@ -1,3 +1,5 @@
+import 'package:fluttertoast/fluttertoast.dart';
+
 enum Status { initial, loading, success, error, action }
 
 class BaseState<T> {
@@ -31,7 +33,7 @@ class BaseState<T> {
 
   factory BaseState.error(String errorMessage,
       {Map? errorData, StackTrace? stackTrace}) {
-    print(errorMessage);
+    Fluttertoast.showToast(msg: errorMessage);
     return BaseState<T>(
         status: Status.error, errorMessage: errorMessage, errorData: errorData);
   }

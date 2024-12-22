@@ -1,32 +1,27 @@
 import 'package:metal/core/model/responces.dart';
+import 'package:metal/features/home_page/domain/entries/melt.request.model.dart';
+import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 
 abstract class IHomeRepository {
   Future<Responses> getUserByUsername({
     required String username,
   });
-  Future<Responses> getUserById({
-    required String id,
-  });
-  Future<Responses> getUserByPhone({
-    required String phone,
-  });
 
-  Future<Responses> getALLUser(String distance);
+  Future<Responses> meltUser(MeltRequestModel melt);
+  Future<Responses> sendThought(ThoughtModel thought);
+  Future<Responses> reactThought({
+    required String thoughtId,
+    required String userId,
+    required String emoji,
+  });
+  Future markUserOnline(String userId);
 
-  Future<Responses> meltUser(String userToMelt, String conversationId);
-  Future<Responses> sendThought(String thought);
-  Future<Responses> reactThought(
-    int thoughtId,
-    String reaction,
-  );
   Future<Responses> getThoughtForYou();
   Future<Responses> getThoughtExplore();
   Future<Responses> getThoughtById(String id);
-
-  Future<Responses> pushUser(String userToPush);
+  Future<Responses> getThoughtsByUserId(String id);
   Future<Responses> unMeltUser(String userToMelt);
-  Future<Responses> getMeltedUsers();
-  Future<Responses> likeUser({required String userToLike});
-  Future<Responses> unLikeUser({required String userToLike});
-  Future<Responses> checkMelt({required String userId});
+  Stream<Responses> fetchConnections({String? userId});
+  Future<Responses> checkMelt({required String user2Id});
+  Future markUserOffline(String userId);
 }

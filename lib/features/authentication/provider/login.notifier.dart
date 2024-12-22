@@ -29,16 +29,16 @@ class LoginNotifier extends StateNotifier<LoginStates> {
         password: password,
       );
 
-      if (response.action == "ENTER OTP") {
-        state = LoginStates.action(action: response.data);
-      } else {
-        await AuthManager.saveAccessToken(response.data['access_token']);
-        await AuthManager.saveRefreshToken(response.data['refresh_token']);
-        await AuthManager.saveLoginState(LoginState.loggedIn);
+      if (response.success!) {
+        final Map<String, dynamic> data = response.data;
         ref
             .read(authProvider.notifier)
-            .updateUserData(UserModel.fromJson(response.data));
-        state = LoginStates.success(UserModel.fromJson(response.data));
+            .updateUserData(UserModel.fromJson(data));
+        state = LoginStates.success(UserModel.fromJson(data));
+      } else {
+        state = LoginStates.error(
+          response.message!,
+        );
       }
     } catch (e, s) {
       state = LoginStates.error(e.toString(), stackTrace: s);

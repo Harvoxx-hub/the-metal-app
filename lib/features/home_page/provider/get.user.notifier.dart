@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 
 class GetUserNotifier extends StateNotifier<GetUserState> {
   GetUserNotifier(super.state, this.ref, this.id) {
@@ -14,8 +14,8 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
   void getUserById() async {
     try {
       state = GetUserState.loading();
-      final homeRepository = ref.watch(homeRepositoryProvider);
-      final response = await homeRepository.getUserById(id: id);
+      final homeRepository = ref.watch(authenticationRepositoryProvider);
+      final response = await homeRepository.getUserByID(id: id);
       print(response.data);
 
       state = GetUserState.success(UserModel.fromJson(response.data));
@@ -23,7 +23,8 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
       state = GetUserState.error(e.toString(), stackTrace: s);
     }
   }
-}
+
+ }
 
 // Define a type alias
 typedef GetUserState = BaseState<UserModel>;

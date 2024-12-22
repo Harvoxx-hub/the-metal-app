@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/features/chat/domain/entries/conversations.model.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/chat/provider/game.conversation.notifier.dart';
+import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -13,7 +14,7 @@ class GameTile extends ConsumerWidget {
     required this.conversationsModel,
   });
 
-  final ConversationsModel conversationsModel;
+  final ConnectionModel conversationsModel;
   GameModel? game;
 
   void setGame() {
@@ -65,7 +66,7 @@ class GameTile extends ConsumerWidget {
                   ref
                       .read(gameConversationProvider.notifier)
                       .updateGameConversation(
-                          conversatioId: conversationsModel.documentId,
+                          conversatioId: conversationsModel.connectionId,
                           gameTitle: ""
                           //
                           // "",

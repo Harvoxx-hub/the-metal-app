@@ -5,7 +5,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
-import 'package:metal/features/settings/provider/get.block.user.notifier.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/settings/presentation%20/widget/blocked.card.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -15,7 +16,7 @@ class BlockedUser extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final blockedUserState = ref.watch(getBlockUserProvider);
+    final blockedUserList = ref.watch(authProvider).data!.blockedUsers;
     return BaseScreen(
       appBarState: AppBarState.BackWithHeader,
       Header: "Blocked Contact",
@@ -65,19 +66,14 @@ class BlockedUser extends ConsumerWidget {
                       width: 90,
                     ),
                     const Gap(13),
-                    blockedUserState.isLoading
-                        ? const Center(
-                            child: CupertinoActivityIndicator(),
-                          )
-                        : Column(
-                            children: [
-                              for (var element in blockedUserState.data ?? [])
-                                BlockedCard(
-                                  id: element["id"],
-                                  name: element["name"] ?? "",
-                                ),
-                            ],
+                    Column(
+                      children: [
+                        for (var element in blockedUserList ?? [])
+                          BlockedCard(
+                            id: element,
                           ),
+                      ],
+                    ),
                     const Gap(30)
                   ],
                 ),

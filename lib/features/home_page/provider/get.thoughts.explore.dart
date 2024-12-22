@@ -36,6 +36,7 @@ class GetThoughtExploreNotifier extends StateNotifier<GetThoughtExploreState> {
 
   void getThoughtUpdate() async {
     try {
+      state = GetThoughtExploreState.loading();
       final homeRepository = ref.watch(homeRepositoryProvider);
       final response = await homeRepository.getThoughtExplore();
       final List<ThoughtModel> thoughts = [];
@@ -43,8 +44,8 @@ class GetThoughtExploreNotifier extends StateNotifier<GetThoughtExploreState> {
         thoughts.add(ThoughtModel.fromJson(thought));
       }
       if (mounted) {
-        state = GetThoughtExploreState.error(
-            MetalHelper.sortThoughtsByDate(thoughts).toString());
+        state = GetThoughtExploreState.success(
+            MetalHelper.sortThoughtsByDate(thoughts));
       }
     } catch (e, s) {
       state = GetThoughtExploreState.error(e.toString(), stackTrace: s);

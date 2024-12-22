@@ -11,7 +11,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier(
     super.state,
     this.ref,
-  );
+  ) {
+  }
+
   final Ref ref;
 
   //get current user
@@ -56,6 +58,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     //   plugins: [ZegoUIKitSignalingPlugin()],
     // );
   }
+ 
 }
 
 // Define a type alias

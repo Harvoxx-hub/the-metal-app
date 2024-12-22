@@ -15,19 +15,19 @@ part 'spark.model.g.dart';
 class SparkModel {
   String? type;
   String? amount;
-  int? numberOfSparks;
-  String? receiver;
-  String? date;
-  String? time;
+  int? sparks;
+  String? receiverId;
 
-  SparkModel({
-    this.type,
-    this.amount,
-    this.numberOfSparks,
-    this.receiver,
-    this.date,
-    this.time,
-  });
+  String? userId;
+  String? timestamp;
+
+  SparkModel(
+      {this.type,
+      this.amount,
+      this.sparks,
+      this.receiverId,
+      this.userId,
+      this.timestamp});
 
   factory SparkModel.fromJson(Map<String, dynamic> json) =>
       _$SparkModelFromJson(json);

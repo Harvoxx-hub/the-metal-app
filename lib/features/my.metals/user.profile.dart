@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
@@ -13,18 +15,27 @@ import 'package:metal/res/colors/cr_colors.dart';
 
 import 'package:metal/widgets/text_views.dart';
 
-class UserProfilePage extends StatelessWidget {
+class UserProfilePage extends ConsumerWidget {
   const UserProfilePage({super.key, required this.user});
   static const name = 'userProfilePage';
   static const route = name;
   final UserModel user;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+      final metalProperties = ref.watch(metalPropertiesProvider).data;
+
+ 
+  final metal = metalProperties!.metals!.firstWhere(
+      (element) => element.id == user.metal,
+      orElse: () => metalProperties
+          .metals![0], // Fallback in case no match is found
+    );
     return BaseScreen(
       Header: "User Profile",
       body: ProfileHeader(
           eye: false,
-          metal: user.metal!,
+          metalId: user.metal!,
+          profileUrl: user.profilePhoto,
           child: Padding(
             padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
             child: Container(
@@ -66,7 +77,7 @@ class UserProfilePage extends StatelessWidget {
                     ),
                     const Gap(20),
                     EditField(
-                      text: user.metal!.title!,
+                      text: metal.title,
                       floatingLabel: "Metal that represents your value",
                     ),
                     const Gap(20),

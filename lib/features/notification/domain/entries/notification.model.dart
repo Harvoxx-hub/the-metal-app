@@ -1,46 +1,107 @@
-import 'package:json_annotation/json_annotation.dart';
-import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
-import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'dart:convert';
 
-part 'notification.model.g.dart';
-
-enum NotificationType {
-  MELT,
-  SPARK,
-  REFER,
-  MESSAGE,
-
-  UNMELT,
-  THOUGHTREACTION,
-  THOUGHT
-}
-
-@JsonSerializable(explicitToJson: true)
 class NotificationModel {
-  final int? id;
-  final String? created_at;
-  final NotificationType? type;
-  final String? fcmToken;
-  final String? title;
-  final String? body;
-  final String? sender;
-  // final String? username;
-  final String? receiver;
+  final List<String> recipientIds; // List of recipient IDs
+  final String title; // Notification title
+  final String subTitle; // Notification subtitle
+  final NotificationType type; // Enum for notification type
+  final Map<String, dynamic> data; // Additional data (e.g., connectionId, status)
+  final NotificationAndroidNotification androidNotification; // Android-specific notification
+  final NotificationIosNotification iosNotification; // iOS-specific notification
+  final DateTime timestamp; // When the notification was sent
+  final String id; // Unique ID
 
   NotificationModel({
-    this.id,
-    this.created_at,
-    this.type,
-    this.fcmToken,
-    this.title,
-    this.body,
-    this.sender,
-    this.receiver,
+    required this.recipientIds,
+    required this.title,
+    required this.subTitle,
+    required this.type,
+    required this.data,
+    required this.androidNotification,
+    required this.iosNotification,
+    required this.timestamp,
+    required this.id,
   });
 
-  factory NotificationModel.fromJson(Map<String, dynamic> json) =>
-      _$NotificationModelFromJson(json);
+  // Convert a NotificationModel instance to a JSON map
+  Map<String, dynamic> toJson() {
+    return {
+      'recipientIds': recipientIds,
+      'title': title,
+      'subTitle': subTitle,
+      'type': type.toString().split('.').last, // Serialize enum to string
+      'data': data,
+      'androidNotification': androidNotification.toJson(),
+      'iosNotification': iosNotification.toJson(),
+      'timestamp': timestamp.toIso8601String(),
+      'id': id,
+    };
+  }
 
-  Map<String, dynamic> toJson() => _$NotificationModelToJson(this);
+  // Convert a JSON map to a NotificationModel instance
+  factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    return NotificationModel(
+      recipientIds: List<String>.from(json['recipientIds']),
+      title: json['title'],
+      subTitle: json['subTitle'],
+      type: NotificationType.values
+          .firstWhere((e) => e.toString().split('.').last == json['type']),
+      data: Map<String, dynamic>.from(json['data']),
+      androidNotification: NotificationAndroidNotification.fromJson(json['androidNotification']),
+      iosNotification: NotificationIosNotification.fromJson(json['iosNotification']),
+      timestamp: DateTime.parse(json['timestamp']),
+      id: json['id'],
+    );
+  }
+}
+
+enum NotificationType {
+  new_connection,
+  new_message,
+  thought_created,
+  reaction_added,
+}
+
+class NotificationAndroidNotification {
+  final String priority;
+
+  NotificationAndroidNotification({
+    required this.priority,
+  });
+
+  // Convert a NotificationAndroidNotification instance to a JSON map
+  Map<String, dynamic> toJson() {
+    return {
+      'priority': priority,
+    };
+  }
+
+  // Convert a JSON map to a NotificationAndroidNotification instance
+  factory NotificationAndroidNotification.fromJson(Map<String, dynamic> json) {
+    return NotificationAndroidNotification(
+      priority: json['priority'],
+    );
+  }
+}
+
+class NotificationIosNotification {
+  final Map<String, String> headers;
+
+  NotificationIosNotification({
+    required this.headers,
+  });
+
+  // Convert a NotificationIosNotification instance to a JSON map
+  Map<String, dynamic> toJson() {
+    return {
+      'headers': headers,
+    };
+  }
+
+  // Convert a JSON map to a NotificationIosNotification instance
+  factory NotificationIosNotification.fromJson(Map<String, dynamic> json) {
+    return NotificationIosNotification(
+      headers: Map<String, String>.from(json['headers']),
+    );
+  }
 }

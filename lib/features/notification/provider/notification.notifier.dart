@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/core/utils/metal.helper.dart';
+ 
 
 import 'package:metal/features/notification/data/repositories/notification.repository.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
@@ -25,8 +25,7 @@ class NotificationNotifier extends StateNotifier<GetNotification> {
         notification.add(NotificationModel.fromJson(element));
       });
 
-      state = GetNotification.success(
-          MetalHelper.sortNotificationByDate(notification));
+ 
     } catch (e, s) {
       state = GetNotification.error(e.toString(), stackTrace: s);
     }

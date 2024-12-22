@@ -16,7 +16,9 @@ String formatDuration(Duration duration) {
 
 String formatTime({String? isoDateString, DateTime? datetime}) {
   // Parse the ISO 8601 date string to a DateTime object
-  DateTime date = datetime ?? DateTime.parse(isoDateString!).toLocal();
+  DateTime date = datetime ??
+      DateTime.parse(isoDateString ?? DateTime.now().toIso8601String())
+          .toLocal();
 
   // Use timeago to generate a relative time string
   return timeago.format(date,
@@ -30,8 +32,6 @@ String ActiveTime({String? isoDateString, DateTime? datetime}) {
   } else {
     return time;
   }
-
-  
 }
 
 int daysRemaining(String isoDateString, int durationInDays) {
@@ -64,5 +64,3 @@ bool hasDurationReached(String isoDateString, int durationInDays) {
   // Check if the current date has reached or surpassed the target date
   return now.isAfter(targetDate) || now.isAtSameMomentAs(targetDate);
 }
-
-

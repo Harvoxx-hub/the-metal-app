@@ -1,13 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
+import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/core/utils/handler/app.lifeycle.handler.dart';
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
-import 'package:share_plus/share_plus.dart';
-import 'package:upgrader/upgrader.dart';
 import 'package:instabug_flutter/instabug_flutter.dart';
 
 /// Global key for navigation
@@ -29,12 +30,13 @@ void main() async {
   CrashReporting.setEnabled(true);
   runApp(
     ProviderScope(
-      child: UpgradeAlert(
-        dialogStyle: UpgradeDialogStyle.cupertino,
-        child: const MyApp(),
-      ),
+      child: MyApp(),
     ),
   );
+  final userId = FirebaseAuth.instance.currentUser?.uid;
+
+  if (userId != null)
+    WidgetsBinding.instance.addObserver(AppLifecycleHandler(userId));
 }
 
 /// Initializes Firebase and sets analytics
@@ -43,6 +45,7 @@ Future<void> initializeFirebase() async {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
     FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+    await FirebaseRemoteConfigService().initialize();
   } catch (e) {}
 }
 

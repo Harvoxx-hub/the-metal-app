@@ -11,7 +11,6 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/base_button.dart';
-import 'package:metal/widgets/button/outiline.button.dart';
 
 import 'package:metal/widgets/text_views.dart';
 

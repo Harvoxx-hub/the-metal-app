@@ -2,19 +2,19 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 class ProfileImage extends ConsumerWidget {
   const ProfileImage({
     super.key,
-    required this.imageUrl,
+    required this.metalID,
     this.height,
     this.width,
     this.onTap,
     this.id,
   });
-  final String imageUrl;
+  final String metalID;
   final double? height;
   final String? id;
   final double? width;
@@ -23,7 +23,13 @@ class ProfileImage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userdata = ref.watch(authProvider).data;
+    final metalProperties = ref.watch(metalPropertiesProvider).data;
+
+    final metal = metalProperties!.metals!.firstWhere(
+      (element) => element.id == metalID,
+      orElse: () =>
+          metalProperties.metals![0], // Fallback in case no match is found
+    );
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -38,7 +44,7 @@ class ProfileImage extends ConsumerWidget {
           ),
           child: Center(
               child: CachedNetworkImage(
-                  imageUrl: imageUrl!,
+                  imageUrl: metal.img,
                   imageBuilder: (context, imageProvider) => CircleAvatar(
                         radius: 33, // Image radius
                         backgroundImage: imageProvider,

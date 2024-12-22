@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,7 +16,6 @@ import 'package:metal/features/dashboard.dart/widget/tutoral.dialog.dart';
 import 'package:metal/features/dashboard.dart/widget/verification.dialog.dart';
 
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
-import 'package:metal/features/settings/provider/get.block.user.notifier.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
@@ -25,6 +26,7 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/dialog/custom.dialog.dart';
+import 'package:upgrader/upgrader.dart';
 
 import '../home_page/home_page.dart';
 
@@ -55,7 +57,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     //     );
     //   },
     // );
-    !userData.completedProfile!
+    !(userData.completedProfile ?? false)
         ? showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -64,7 +66,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               );
             },
           )
-        : !userData.isVerified!
+        : !(userData.isVerified ?? false)
             ? showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -87,23 +89,37 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final user = ref.watch(authProvider);
     ref.watch(getMeltUserProvider);
     ref.watch(metalPropertiesProvider);
-    ref.watch(getBlockUserProvider);
+
     return BaseScreen(
       appBarState: AppBarState.Dashboard,
       body: user.isLoading
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : Column(
-              children: [
-                Expanded(
-                    child: Container(
-                  color: AppColors.metalWhite,
-                  child: Stack(
-                    children: [bottomNavPages[currentIndex]],
+          : UpgradeAlert(
+              dialogStyle: Platform.isIOS
+                  ? UpgradeDialogStyle.cupertino
+                  : UpgradeDialogStyle.material,
+              upgrader: Upgrader(
+
+                  // onIgnore: () {
+                  //   return false;
+                  // },
+                  // onLater: () {
+                  //   return false;
+                  // },
                   ),
-                )),
-              ],
+              child: Column(
+                children: [
+                  Expanded(
+                      child: Container(
+                    color: AppColors.metalWhite,
+                    child: Stack(
+                      children: [bottomNavPages[currentIndex]],
+                    ),
+                  )),
+                ],
+              ),
             ),
       floatingActionButton: currentIndex == 0
           ? FloatingActionButton(

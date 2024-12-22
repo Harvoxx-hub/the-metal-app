@@ -4,7 +4,7 @@ description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
  
-version: 1.0.12+37
+version: 1.0.14+39
 
 
 environment:
@@ -67,6 +67,11 @@ dependencies:
   cached_network_image: ^3.3.1
   instabug_flutter: ^13.4.0
   timeago: ^3.7.0
+  firebase_auth: ^5.3.3
+  firebase_remote_config: ^5.1.5
+  permission_handler: ^11.3.1
+  audio_waveforms: ^1.2.0
+  file_picker: ^8.1.4
  
   
 

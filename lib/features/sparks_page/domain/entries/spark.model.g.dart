@@ -9,18 +9,18 @@ part of 'spark.model.dart';
 SparkModel _$SparkModelFromJson(Map<String, dynamic> json) => SparkModel(
       type: json['type'] as String?,
       amount: json['amount'] as String?,
-      numberOfSparks: (json['numberOfSparks'] as num?)?.toInt(),
-      receiver: json['receiver'] as String?,
-      date: json['date'] as String?,
-      time: json['time'] as String?,
+      sparks: (json['sparks'] as num?)?.toInt(),
+      receiverId: json['receiverId'] as String?,
+      userId: json['userId'] as String?,
+      timestamp: json['timestamp'] as String?,
     );
 
 Map<String, dynamic> _$SparkModelToJson(SparkModel instance) =>
     <String, dynamic>{
       'type': instance.type,
       'amount': instance.amount,
-      'numberOfSparks': instance.numberOfSparks,
-      'receiver': instance.receiver,
-      'date': instance.date,
-      'time': instance.time,
+      'sparks': instance.sparks,
+      'receiverId': instance.receiverId,
+      'userId': instance.userId,
+      'timestamp': instance.timestamp,
     };

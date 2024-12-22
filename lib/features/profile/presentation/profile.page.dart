@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-
+ 
 import 'package:metal/features/profile/presentation/tab.screen/discovery.tab.dart';
 
 import 'package:metal/features/profile/presentation/tab.screen/personal.tab.dart';
@@ -27,7 +27,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     return SingleChildScrollView(
       child: ProfileHeader(
-        metal: user.metal!,
+        metalId: user.metal!,
         profileUrl: user.profilePhoto,
         child: Padding(
           padding: const EdgeInsets.only(top: 110, left: 20, right: 20),

@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
+import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
@@ -17,6 +19,13 @@ class NavDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider).data;
+    final metalProperties = ref.watch(metalPropertiesProvider).data;
+
+    final metal = metalProperties!.metals!.firstWhere(
+      (element) => element.id == authState!.metal,
+      orElse: () =>
+          metalProperties.metals![0], // Fallback in case no match is found
+    );
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -55,7 +64,8 @@ class NavDrawer extends ConsumerWidget {
                       ProfilePhoto(
                         verfly: false,
                         size: 51,
-                        photourl: authState?.profilePhoto ?? null,
+                        meltId: authState!.metal!,
+                        imgUrl: authState?.profilePhoto ?? null,
                       ),
                       const Gap(19),
                       Column(
@@ -67,8 +77,7 @@ class NavDrawer extends ConsumerWidget {
                             fontWeight: FontWeight.w500,
                           ),
                           TextView(
-                            text:
-                                "@${authState.username!}_${authState.metal!.title!}",
+                            text: "@${authState.username!}_${metal.title}",
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
                           ),
@@ -154,7 +163,7 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(20),
-          !authState.isVerified!
+          !(authState.isVerified ?? false)
               ? Column(
                   children: [
                     ListTile(
@@ -285,8 +294,6 @@ class NavDrawer extends ConsumerWidget {
   }
 
   void logout(WidgetRef ref) {
-    AuthManager.deleteAccessToken();
-    AuthManager.deleteLoginState();
-    AuthManager.deleteRefreshToken();
+    FirebaseServiceDb.instance.auth.signOut();
   }
 }

@@ -1,15 +1,15 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:gap/gap.dart';
-import 'package:metal/core/services/auth.pref.service.dart';
+import 'package:metal/core/services/firebase.service.db.dart';
+import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
+import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
+
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -22,66 +22,41 @@ class SplashPage extends ConsumerStatefulWidget {
 
 class _SplashPageState extends ConsumerState<SplashPage> {
   late final String _asset = Assets.images.bg1.path;
-  late Connectivity _connectivity;
 
   @override
   void initState() {
     super.initState();
 
-    _connectivity = Connectivity();
-
-    _retryConnection();
-  }
-
-  _checkLoginState() {
-    AuthManager.getLoginState().then((value) {
-      if (value == LoginState.loggedIn) {
-        ref.read(authProvider.notifier).getCurrentUser();
-      } else {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = FirebaseServiceDb.instance.auth.currentUser;
+      if (user == null) {
         Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+      } else {
+        ref.read(authProvider.notifier).getCurrentUser();
       }
     });
-  }
-
-  // Method to show a no internet connection dialog
-  void _showNoConnectionDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("No Internet Connection"),
-        content:
-            const Text("Please check your internet connection and try again."),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _retryConnection(); // Retry login check after dialog is dismissed
-            },
-            child: const Text("Retry"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Method to retry the connection check and login state
-  void _retryConnection() async {
-    List<ConnectivityResult> result = await _connectivity.checkConnectivity();
-    if (result.contains(ConnectivityResult.none)) {
-      _showNoConnectionDialog(); // Retry login check if connection is restored
-    } else {
-      // Show the dialog again if there's still no connection
-      _checkLoginState();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     ref.listen<AuthState>(authProvider, (prev, current) {
       if (current.isSuccess) {
-        current.data!.profileUpdated ?? false
-            ? Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage)
-            : Navigator.pushReplacementNamed(context, AppRoutes.welcomePage);
+        current.data!.emailVerified == false
+            ? Navigator.pushReplacementNamed(
+                context,
+                AppRoutes.verificationPage,
+                arguments: VerificationSentArgument(
+                    type: RouteFrom.AccountSetting,
+                    code: 123456,
+                    uuid: current.data?.id ?? "",
+                    phoneNumber: current.data!.phone!,
+                    email: current.data!.phone!),
+              )
+            : current.data!.profileUpdated ?? false
+                ? Navigator.pushReplacementNamed(
+                    context, AppRoutes.dashboardPage)
+                : Navigator.pushReplacementNamed(
+                    context, AppRoutes.welcomePage);
       }
       if (current.isError) {
         Navigator.pushReplacementNamed(context, AppRoutes.onboarding);

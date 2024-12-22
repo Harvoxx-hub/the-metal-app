@@ -3,13 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
 
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
 
-import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
-import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
+import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
@@ -28,7 +27,7 @@ class MeltMetal extends ConsumerStatefulWidget {
 }
 
 class _MeltMetalState extends ConsumerState<MeltMetal> {
-  MeltUserModel? meltUserData;
+  UserModel? meltUserData;
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -43,8 +42,7 @@ class _MeltMetalState extends ConsumerState<MeltMetal> {
 
     ref.listen<GetMeltUsersState>(getMeltUserProvider, (prev, current) {
       if (current.isSuccess) {
-        meltUserData =
-            ref.read(getMeltUserProvider.notifier).getMeltUserById(widget.id)!;
+        meltUserData = ref.watch(getUserProvider(widget.id)).data;
         setState(() {});
       }
     });
@@ -53,83 +51,92 @@ class _MeltMetalState extends ConsumerState<MeltMetal> {
       isLoading: meltUserData == null,
       appBarState: AppBarState.HambugerWithHeader,
       Header: "My melted metals",
-      body: Column(children: [
-        const Gap(74),
-        const TextView(
-          text: "It’s a melt🎉",
-          fontWeight: FontWeight.w600,
-          fontSize: 28,
-        ),
-        const Gap(8),
-        TextView(
-          text: "*You* and *@${meltUserData!.username}*\n just melted",
-          fontWeight: FontWeight.w400,
-          textAlign: TextAlign.center,
-          fontSize: 15,
-        ),
-        const Gap(66),
-        Container(
-          child: Stack(
-            children: [
-              const SizedBox(
-                width: double.infinity,
-                height: 300,
+      body: meltUserData == null
+          ? Center(
+              child: CircularProgressIndicator.adaptive(),
+            )
+          : Column(children: [
+              const Gap(74),
+              const TextView(
+                text: "It’s a melt🎉",
+                fontWeight: FontWeight.w600,
+                fontSize: 28,
               ),
-              Positioned(
-                left: 30,
-                child: Column(
+              const Gap(8),
+              TextView(
+                text:
+                    "*You* and *@${meltUserData?.username ?? ""}*\n just melted",
+                fontWeight: FontWeight.w400,
+                textAlign: TextAlign.center,
+                fontSize: 15,
+              ),
+              const Gap(66),
+              Container(
+                child: Stack(
                   children: [
-                    const ProfilePhoto(size: 156, verfly: false),
-                    const Gap(28),
-                    username(
-                      name: user.data!.username!,
+                    const SizedBox(
+                      width: double.infinity,
+                      height: 300,
+                    ),
+                    Positioned(
+                      left: 40,
+                      child: Column(
+                        children: [
+                          ProfilePhoto(
+                            size: 156,
+                            verfly: false,
+                            meltId: user.data!.metal!,
+                          ),
+                          const Gap(28),
+                          username(
+                            name: user.data!.username!,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      right: 40,
+                      child: Column(
+                        children: [
+                          ProfilePhoto(
+                              size: 156,
+                              meltId: meltUserData!.metal!,
+                              verfly: false),
+                          const Gap(28),
+                          username(
+                            name: meltUserData!.username!,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-              Positioned(
-                right: 30,
-                child: Column(
-                  children: [
-                    ProfilePhoto(
-                        size: 156,
-                        photourl: meltUserData!.metal!.img,
-                        verfly: false),
-                    const Gap(28),
-                    username(
-                      name: meltUserData!.username!,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const Gap(70),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            meltItem("Chat", Assets.images.meltChat.path, () {
-              Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
-                  arguments: meltUserData!.id);
-            }),
-            meltItem("Spark", Assets.images.meltSpark.path, () {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.sendSpark,
-              );
-            }),
-            // meltItem("Profile", Assets.images.meltProfile.path, () {
-            //   Navigator.pushNamed(context, AppRoutes.userProfilePage,
-            //       arguments: UserModel.fromJson(meltUserData.toJson()));
-            // }),
-            meltItem("Dashboard", Assets.images.meltDashboard.path, () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            })
-          ],
-        )
-      ]),
+              const Gap(70),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  meltItem("Chat", Assets.images.meltChat.path, () {
+                    Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
+                        arguments: meltUserData!.id);
+                  }),
+                  meltItem("Spark", Assets.images.meltSpark.path, () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.sendSpark,
+                    );
+                  }),
+                  // meltItem("Profile", Assets.images.meltProfile.path, () {
+                  //   Navigator.pushNamed(context, AppRoutes.userProfilePage,
+                  //       arguments: UserModel.fromJson(meltUserData.toJson()));
+                  // }),
+                  meltItem("Dashboard", Assets.images.meltDashboard.path, () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  })
+                ],
+              )
+            ]),
     );
   }
 

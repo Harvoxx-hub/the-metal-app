@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
   AccountSettingNotifier(
@@ -25,7 +27,12 @@ class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
           password: password,
           phoneNumber: phoneNumber,
           referal: referal);
-      state = AccountSettingState.success(response.data);
+      if (response.success ?? false) {
+        ref.read(authProvider.notifier).getCurrentUser();
+        state = AccountSettingState.success(response.data);
+      } else {
+        state = AccountSettingState.error(response.message!);
+      }
     } catch (e, s) {
       state = AccountSettingState.error(e.toString(), stackTrace: s);
     }
@@ -33,7 +40,7 @@ class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
 }
 
 // Define a type alias
-typedef AccountSettingState = BaseState<Map>;
+typedef AccountSettingState = BaseState<UserModel>;
 
 final accountSettingProvider = StateNotifierProvider.autoDispose<
     AccountSettingNotifier, AccountSettingState>(

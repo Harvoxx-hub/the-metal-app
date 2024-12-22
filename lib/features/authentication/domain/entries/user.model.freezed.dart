@@ -20,48 +20,49 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$UserModel {
-  @JsonKey(name: 'profile_updated')
   bool? get profileUpdated => throw _privateConstructorUsedError;
-  @JsonKey(name: 'completed_profile')
   bool? get completedProfile => throw _privateConstructorUsedError;
-  @JsonKey(name: 'DOB')
   String? get dob => throw _privateConstructorUsedError;
   Address? get address => throw _privateConstructorUsedError;
-  @JsonKey(name: 'connect_with')
+  @JsonKey(name: 'connectWith')
   String? get connectWith => throw _privateConstructorUsedError;
-  @JsonKey(name: 'connection_option')
+  @JsonKey(name: 'connectionOption')
   List<String>? get connectionOption => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
-  @JsonKey(name: 'extra_data')
+  @JsonKey(name: 'extraData')
   ExtraData? get extraData => throw _privateConstructorUsedError;
   String? get fullname => throw _privateConstructorUsedError;
   String? get gender => throw _privateConstructorUsedError;
-  @JsonKey(name: 'isVerified')
   bool? get isVerified => throw _privateConstructorUsedError;
-  @JsonKey(name: 'isActivated')
   bool? get isActivated => throw _privateConstructorUsedError;
   Location? get location => throw _privateConstructorUsedError;
-  Metal? get metal => throw _privateConstructorUsedError;
+  String? get metal => throw _privateConstructorUsedError;
   List<String>? get passion => throw _privateConstructorUsedError;
   String? get phone => throw _privateConstructorUsedError;
   String? get email => throw _privateConstructorUsedError;
-  @JsonKey(name: 'email_verified')
   bool? get emailVerified => throw _privateConstructorUsedError;
   Preferences? get preferences => throw _privateConstructorUsedError;
   String? get username => throw _privateConstructorUsedError;
-  @JsonKey(name: 'access_token')
-  String? get accessToken => throw _privateConstructorUsedError;
   String? get refreshToken => throw _privateConstructorUsedError;
   SubscribedPlanModel? get subscription => throw _privateConstructorUsedError;
-  double? get sparkBalance => throw _privateConstructorUsedError;
+  double get sparkBalance => throw _privateConstructorUsedError;
   String? get distance => throw _privateConstructorUsedError;
   String? get id => throw _privateConstructorUsedError;
-  String? get referralCode => throw _privateConstructorUsedError;
+  String get referralCode => throw _privateConstructorUsedError;
+  String? get referredBy => throw _privateConstructorUsedError;
+  bool get showOnline => throw _privateConstructorUsedError;
+  bool get alwaysMetal => throw _privateConstructorUsedError;
+  bool get receiveNotification => throw _privateConstructorUsedError;
+  bool get showMyProfile => throw _privateConstructorUsedError;
+  bool get activateVoiceNote => throw _privateConstructorUsedError;
+  bool get activateVoiceCall => throw _privateConstructorUsedError;
+  bool get activateVideoCall => throw _privateConstructorUsedError;
   String? get profilePhoto => throw _privateConstructorUsedError;
   String? get fcmToken => throw _privateConstructorUsedError;
-  String? get conversationId => throw _privateConstructorUsedError;
+  bool get isOnline => throw _privateConstructorUsedError;
+  String? get lastActive => throw _privateConstructorUsedError;
   @JsonKey(name: 'blockedUsers')
-  List<BlockedUser>? get blockedUsers => throw _privateConstructorUsedError;
+  List<String>? get blockedUsers => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -75,37 +76,45 @@ abstract class $UserModelCopyWith<$Res> {
       _$UserModelCopyWithImpl<$Res, UserModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'profile_updated') bool? profileUpdated,
-      @JsonKey(name: 'completed_profile') bool? completedProfile,
-      @JsonKey(name: 'DOB') String? dob,
+      {bool? profileUpdated,
+      bool? completedProfile,
+      String? dob,
       Address? address,
-      @JsonKey(name: 'connect_with') String? connectWith,
-      @JsonKey(name: 'connection_option') List<String>? connectionOption,
+      @JsonKey(name: 'connectWith') String? connectWith,
+      @JsonKey(name: 'connectionOption') List<String>? connectionOption,
       String? description,
-      @JsonKey(name: 'extra_data') ExtraData? extraData,
+      @JsonKey(name: 'extraData') ExtraData? extraData,
       String? fullname,
       String? gender,
-      @JsonKey(name: 'isVerified') bool? isVerified,
-      @JsonKey(name: 'isActivated') bool? isActivated,
+      bool? isVerified,
+      bool? isActivated,
       Location? location,
-      Metal? metal,
+      String? metal,
       List<String>? passion,
       String? phone,
       String? email,
-      @JsonKey(name: 'email_verified') bool? emailVerified,
+      bool? emailVerified,
       Preferences? preferences,
       String? username,
-      @JsonKey(name: 'access_token') String? accessToken,
       String? refreshToken,
       SubscribedPlanModel? subscription,
-      double? sparkBalance,
+      double sparkBalance,
       String? distance,
       String? id,
-      String? referralCode,
+      String referralCode,
+      String? referredBy,
+      bool showOnline,
+      bool alwaysMetal,
+      bool receiveNotification,
+      bool showMyProfile,
+      bool activateVoiceNote,
+      bool activateVoiceCall,
+      bool activateVideoCall,
       String? profilePhoto,
       String? fcmToken,
-      String? conversationId,
-      @JsonKey(name: 'blockedUsers') List<BlockedUser>? blockedUsers});
+      bool isOnline,
+      String? lastActive,
+      @JsonKey(name: 'blockedUsers') List<String>? blockedUsers});
 
   $AddressCopyWith<$Res>? get address;
   $ExtraDataCopyWith<$Res>? get extraData;
@@ -146,16 +155,24 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? emailVerified = freezed,
     Object? preferences = freezed,
     Object? username = freezed,
-    Object? accessToken = freezed,
     Object? refreshToken = freezed,
     Object? subscription = freezed,
-    Object? sparkBalance = freezed,
+    Object? sparkBalance = null,
     Object? distance = freezed,
     Object? id = freezed,
-    Object? referralCode = freezed,
+    Object? referralCode = null,
+    Object? referredBy = freezed,
+    Object? showOnline = null,
+    Object? alwaysMetal = null,
+    Object? receiveNotification = null,
+    Object? showMyProfile = null,
+    Object? activateVoiceNote = null,
+    Object? activateVoiceCall = null,
+    Object? activateVideoCall = null,
     Object? profilePhoto = freezed,
     Object? fcmToken = freezed,
-    Object? conversationId = freezed,
+    Object? isOnline = null,
+    Object? lastActive = freezed,
     Object? blockedUsers = freezed,
   }) {
     return _then(_value.copyWith(
@@ -214,7 +231,7 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
       metal: freezed == metal
           ? _value.metal
           : metal // ignore: cast_nullable_to_non_nullable
-              as Metal?,
+              as String?,
       passion: freezed == passion
           ? _value.passion
           : passion // ignore: cast_nullable_to_non_nullable
@@ -239,10 +256,6 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.username
           : username // ignore: cast_nullable_to_non_nullable
               as String?,
-      accessToken: freezed == accessToken
-          ? _value.accessToken
-          : accessToken // ignore: cast_nullable_to_non_nullable
-              as String?,
       refreshToken: freezed == refreshToken
           ? _value.refreshToken
           : refreshToken // ignore: cast_nullable_to_non_nullable
@@ -251,10 +264,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.subscription
           : subscription // ignore: cast_nullable_to_non_nullable
               as SubscribedPlanModel?,
-      sparkBalance: freezed == sparkBalance
+      sparkBalance: null == sparkBalance
           ? _value.sparkBalance
           : sparkBalance // ignore: cast_nullable_to_non_nullable
-              as double?,
+              as double,
       distance: freezed == distance
           ? _value.distance
           : distance // ignore: cast_nullable_to_non_nullable
@@ -263,10 +276,42 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String?,
-      referralCode: freezed == referralCode
+      referralCode: null == referralCode
           ? _value.referralCode
           : referralCode // ignore: cast_nullable_to_non_nullable
+              as String,
+      referredBy: freezed == referredBy
+          ? _value.referredBy
+          : referredBy // ignore: cast_nullable_to_non_nullable
               as String?,
+      showOnline: null == showOnline
+          ? _value.showOnline
+          : showOnline // ignore: cast_nullable_to_non_nullable
+              as bool,
+      alwaysMetal: null == alwaysMetal
+          ? _value.alwaysMetal
+          : alwaysMetal // ignore: cast_nullable_to_non_nullable
+              as bool,
+      receiveNotification: null == receiveNotification
+          ? _value.receiveNotification
+          : receiveNotification // ignore: cast_nullable_to_non_nullable
+              as bool,
+      showMyProfile: null == showMyProfile
+          ? _value.showMyProfile
+          : showMyProfile // ignore: cast_nullable_to_non_nullable
+              as bool,
+      activateVoiceNote: null == activateVoiceNote
+          ? _value.activateVoiceNote
+          : activateVoiceNote // ignore: cast_nullable_to_non_nullable
+              as bool,
+      activateVoiceCall: null == activateVoiceCall
+          ? _value.activateVoiceCall
+          : activateVoiceCall // ignore: cast_nullable_to_non_nullable
+              as bool,
+      activateVideoCall: null == activateVideoCall
+          ? _value.activateVideoCall
+          : activateVideoCall // ignore: cast_nullable_to_non_nullable
+              as bool,
       profilePhoto: freezed == profilePhoto
           ? _value.profilePhoto
           : profilePhoto // ignore: cast_nullable_to_non_nullable
@@ -275,14 +320,18 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.fcmToken
           : fcmToken // ignore: cast_nullable_to_non_nullable
               as String?,
-      conversationId: freezed == conversationId
-          ? _value.conversationId
-          : conversationId // ignore: cast_nullable_to_non_nullable
+      isOnline: null == isOnline
+          ? _value.isOnline
+          : isOnline // ignore: cast_nullable_to_non_nullable
+              as bool,
+      lastActive: freezed == lastActive
+          ? _value.lastActive
+          : lastActive // ignore: cast_nullable_to_non_nullable
               as String?,
       blockedUsers: freezed == blockedUsers
           ? _value.blockedUsers
           : blockedUsers // ignore: cast_nullable_to_non_nullable
-              as List<BlockedUser>?,
+              as List<String>?,
     ) as $Val);
   }
 
@@ -344,37 +393,45 @@ abstract class _$$UserModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'profile_updated') bool? profileUpdated,
-      @JsonKey(name: 'completed_profile') bool? completedProfile,
-      @JsonKey(name: 'DOB') String? dob,
+      {bool? profileUpdated,
+      bool? completedProfile,
+      String? dob,
       Address? address,
-      @JsonKey(name: 'connect_with') String? connectWith,
-      @JsonKey(name: 'connection_option') List<String>? connectionOption,
+      @JsonKey(name: 'connectWith') String? connectWith,
+      @JsonKey(name: 'connectionOption') List<String>? connectionOption,
       String? description,
-      @JsonKey(name: 'extra_data') ExtraData? extraData,
+      @JsonKey(name: 'extraData') ExtraData? extraData,
       String? fullname,
       String? gender,
-      @JsonKey(name: 'isVerified') bool? isVerified,
-      @JsonKey(name: 'isActivated') bool? isActivated,
+      bool? isVerified,
+      bool? isActivated,
       Location? location,
-      Metal? metal,
+      String? metal,
       List<String>? passion,
       String? phone,
       String? email,
-      @JsonKey(name: 'email_verified') bool? emailVerified,
+      bool? emailVerified,
       Preferences? preferences,
       String? username,
-      @JsonKey(name: 'access_token') String? accessToken,
       String? refreshToken,
       SubscribedPlanModel? subscription,
-      double? sparkBalance,
+      double sparkBalance,
       String? distance,
       String? id,
-      String? referralCode,
+      String referralCode,
+      String? referredBy,
+      bool showOnline,
+      bool alwaysMetal,
+      bool receiveNotification,
+      bool showMyProfile,
+      bool activateVoiceNote,
+      bool activateVoiceCall,
+      bool activateVideoCall,
       String? profilePhoto,
       String? fcmToken,
-      String? conversationId,
-      @JsonKey(name: 'blockedUsers') List<BlockedUser>? blockedUsers});
+      bool isOnline,
+      String? lastActive,
+      @JsonKey(name: 'blockedUsers') List<String>? blockedUsers});
 
   @override
   $AddressCopyWith<$Res>? get address;
@@ -417,16 +474,24 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? emailVerified = freezed,
     Object? preferences = freezed,
     Object? username = freezed,
-    Object? accessToken = freezed,
     Object? refreshToken = freezed,
     Object? subscription = freezed,
-    Object? sparkBalance = freezed,
+    Object? sparkBalance = null,
     Object? distance = freezed,
     Object? id = freezed,
-    Object? referralCode = freezed,
+    Object? referralCode = null,
+    Object? referredBy = freezed,
+    Object? showOnline = null,
+    Object? alwaysMetal = null,
+    Object? receiveNotification = null,
+    Object? showMyProfile = null,
+    Object? activateVoiceNote = null,
+    Object? activateVoiceCall = null,
+    Object? activateVideoCall = null,
     Object? profilePhoto = freezed,
     Object? fcmToken = freezed,
-    Object? conversationId = freezed,
+    Object? isOnline = null,
+    Object? lastActive = freezed,
     Object? blockedUsers = freezed,
   }) {
     return _then(_$UserModelImpl(
@@ -485,7 +550,7 @@ class __$$UserModelImplCopyWithImpl<$Res>
       metal: freezed == metal
           ? _value.metal
           : metal // ignore: cast_nullable_to_non_nullable
-              as Metal?,
+              as String?,
       passion: freezed == passion
           ? _value._passion
           : passion // ignore: cast_nullable_to_non_nullable
@@ -510,10 +575,6 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.username
           : username // ignore: cast_nullable_to_non_nullable
               as String?,
-      accessToken: freezed == accessToken
-          ? _value.accessToken
-          : accessToken // ignore: cast_nullable_to_non_nullable
-              as String?,
       refreshToken: freezed == refreshToken
           ? _value.refreshToken
           : refreshToken // ignore: cast_nullable_to_non_nullable
@@ -522,10 +583,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.subscription
           : subscription // ignore: cast_nullable_to_non_nullable
               as SubscribedPlanModel?,
-      sparkBalance: freezed == sparkBalance
+      sparkBalance: null == sparkBalance
           ? _value.sparkBalance
           : sparkBalance // ignore: cast_nullable_to_non_nullable
-              as double?,
+              as double,
       distance: freezed == distance
           ? _value.distance
           : distance // ignore: cast_nullable_to_non_nullable
@@ -534,10 +595,42 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String?,
-      referralCode: freezed == referralCode
+      referralCode: null == referralCode
           ? _value.referralCode
           : referralCode // ignore: cast_nullable_to_non_nullable
+              as String,
+      referredBy: freezed == referredBy
+          ? _value.referredBy
+          : referredBy // ignore: cast_nullable_to_non_nullable
               as String?,
+      showOnline: null == showOnline
+          ? _value.showOnline
+          : showOnline // ignore: cast_nullable_to_non_nullable
+              as bool,
+      alwaysMetal: null == alwaysMetal
+          ? _value.alwaysMetal
+          : alwaysMetal // ignore: cast_nullable_to_non_nullable
+              as bool,
+      receiveNotification: null == receiveNotification
+          ? _value.receiveNotification
+          : receiveNotification // ignore: cast_nullable_to_non_nullable
+              as bool,
+      showMyProfile: null == showMyProfile
+          ? _value.showMyProfile
+          : showMyProfile // ignore: cast_nullable_to_non_nullable
+              as bool,
+      activateVoiceNote: null == activateVoiceNote
+          ? _value.activateVoiceNote
+          : activateVoiceNote // ignore: cast_nullable_to_non_nullable
+              as bool,
+      activateVoiceCall: null == activateVoiceCall
+          ? _value.activateVoiceCall
+          : activateVoiceCall // ignore: cast_nullable_to_non_nullable
+              as bool,
+      activateVideoCall: null == activateVideoCall
+          ? _value.activateVideoCall
+          : activateVideoCall // ignore: cast_nullable_to_non_nullable
+              as bool,
       profilePhoto: freezed == profilePhoto
           ? _value.profilePhoto
           : profilePhoto // ignore: cast_nullable_to_non_nullable
@@ -546,53 +639,66 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.fcmToken
           : fcmToken // ignore: cast_nullable_to_non_nullable
               as String?,
-      conversationId: freezed == conversationId
-          ? _value.conversationId
-          : conversationId // ignore: cast_nullable_to_non_nullable
+      isOnline: null == isOnline
+          ? _value.isOnline
+          : isOnline // ignore: cast_nullable_to_non_nullable
+              as bool,
+      lastActive: freezed == lastActive
+          ? _value.lastActive
+          : lastActive // ignore: cast_nullable_to_non_nullable
               as String?,
       blockedUsers: freezed == blockedUsers
           ? _value._blockedUsers
           : blockedUsers // ignore: cast_nullable_to_non_nullable
-              as List<BlockedUser>?,
+              as List<String>?,
     ));
   }
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _$UserModelImpl implements _UserModel {
   _$UserModelImpl(
-      {@JsonKey(name: 'profile_updated') this.profileUpdated,
-      @JsonKey(name: 'completed_profile') this.completedProfile,
-      @JsonKey(name: 'DOB') this.dob,
+      {this.profileUpdated,
+      this.completedProfile,
+      this.dob,
       this.address,
-      @JsonKey(name: 'connect_with') this.connectWith,
-      @JsonKey(name: 'connection_option') final List<String>? connectionOption,
+      @JsonKey(name: 'connectWith') this.connectWith,
+      @JsonKey(name: 'connectionOption') final List<String>? connectionOption,
       this.description,
-      @JsonKey(name: 'extra_data') this.extraData,
+      @JsonKey(name: 'extraData') this.extraData,
       this.fullname,
       this.gender,
-      @JsonKey(name: 'isVerified') this.isVerified,
-      @JsonKey(name: 'isActivated') this.isActivated,
+      this.isVerified,
+      this.isActivated,
       this.location,
       this.metal,
       final List<String>? passion,
       this.phone,
       this.email,
-      @JsonKey(name: 'email_verified') this.emailVerified,
+      this.emailVerified,
       this.preferences,
       this.username,
-      @JsonKey(name: 'access_token') this.accessToken,
       this.refreshToken,
       this.subscription,
-      this.sparkBalance,
+      this.sparkBalance = 0,
       this.distance,
       this.id,
-      this.referralCode,
+      this.referralCode = "",
+      this.referredBy,
+      this.showOnline = true,
+      this.alwaysMetal = true,
+      this.receiveNotification = true,
+      this.showMyProfile = true,
+      this.activateVoiceNote = true,
+      this.activateVoiceCall = true,
+      this.activateVideoCall = true,
       this.profilePhoto,
       this.fcmToken,
-      this.conversationId,
-      @JsonKey(name: 'blockedUsers') final List<BlockedUser>? blockedUsers})
+      this.isOnline = false,
+      this.lastActive,
+      @JsonKey(name: 'blockedUsers') final List<String>? blockedUsers})
       : _connectionOption = connectionOption,
         _passion = passion,
         _blockedUsers = blockedUsers;
@@ -601,22 +707,19 @@ class _$UserModelImpl implements _UserModel {
       _$$UserModelImplFromJson(json);
 
   @override
-  @JsonKey(name: 'profile_updated')
   final bool? profileUpdated;
   @override
-  @JsonKey(name: 'completed_profile')
   final bool? completedProfile;
   @override
-  @JsonKey(name: 'DOB')
   final String? dob;
   @override
   final Address? address;
   @override
-  @JsonKey(name: 'connect_with')
+  @JsonKey(name: 'connectWith')
   final String? connectWith;
   final List<String>? _connectionOption;
   @override
-  @JsonKey(name: 'connection_option')
+  @JsonKey(name: 'connectionOption')
   List<String>? get connectionOption {
     final value = _connectionOption;
     if (value == null) return null;
@@ -629,22 +732,20 @@ class _$UserModelImpl implements _UserModel {
   @override
   final String? description;
   @override
-  @JsonKey(name: 'extra_data')
+  @JsonKey(name: 'extraData')
   final ExtraData? extraData;
   @override
   final String? fullname;
   @override
   final String? gender;
   @override
-  @JsonKey(name: 'isVerified')
   final bool? isVerified;
   @override
-  @JsonKey(name: 'isActivated')
   final bool? isActivated;
   @override
   final Location? location;
   @override
-  final Metal? metal;
+  final String? metal;
   final List<String>? _passion;
   @override
   List<String>? get passion {
@@ -660,37 +761,61 @@ class _$UserModelImpl implements _UserModel {
   @override
   final String? email;
   @override
-  @JsonKey(name: 'email_verified')
   final bool? emailVerified;
   @override
   final Preferences? preferences;
   @override
   final String? username;
   @override
-  @JsonKey(name: 'access_token')
-  final String? accessToken;
-  @override
   final String? refreshToken;
   @override
   final SubscribedPlanModel? subscription;
   @override
-  final double? sparkBalance;
+  @JsonKey()
+  final double sparkBalance;
   @override
   final String? distance;
   @override
   final String? id;
   @override
-  final String? referralCode;
+  @JsonKey()
+  final String referralCode;
+  @override
+  final String? referredBy;
+  @override
+  @JsonKey()
+  final bool showOnline;
+  @override
+  @JsonKey()
+  final bool alwaysMetal;
+  @override
+  @JsonKey()
+  final bool receiveNotification;
+  @override
+  @JsonKey()
+  final bool showMyProfile;
+  @override
+  @JsonKey()
+  final bool activateVoiceNote;
+  @override
+  @JsonKey()
+  final bool activateVoiceCall;
+  @override
+  @JsonKey()
+  final bool activateVideoCall;
   @override
   final String? profilePhoto;
   @override
   final String? fcmToken;
   @override
-  final String? conversationId;
-  final List<BlockedUser>? _blockedUsers;
+  @JsonKey()
+  final bool isOnline;
+  @override
+  final String? lastActive;
+  final List<String>? _blockedUsers;
   @override
   @JsonKey(name: 'blockedUsers')
-  List<BlockedUser>? get blockedUsers {
+  List<String>? get blockedUsers {
     final value = _blockedUsers;
     if (value == null) return null;
     if (_blockedUsers is EqualUnmodifiableListView) return _blockedUsers;
@@ -700,7 +825,7 @@ class _$UserModelImpl implements _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(profileUpdated: $profileUpdated, completedProfile: $completedProfile, dob: $dob, address: $address, connectWith: $connectWith, connectionOption: $connectionOption, description: $description, extraData: $extraData, fullname: $fullname, gender: $gender, isVerified: $isVerified, isActivated: $isActivated, location: $location, metal: $metal, passion: $passion, phone: $phone, email: $email, emailVerified: $emailVerified, preferences: $preferences, username: $username, accessToken: $accessToken, refreshToken: $refreshToken, subscription: $subscription, sparkBalance: $sparkBalance, distance: $distance, id: $id, referralCode: $referralCode, profilePhoto: $profilePhoto, fcmToken: $fcmToken, conversationId: $conversationId, blockedUsers: $blockedUsers)';
+    return 'UserModel(profileUpdated: $profileUpdated, completedProfile: $completedProfile, dob: $dob, address: $address, connectWith: $connectWith, connectionOption: $connectionOption, description: $description, extraData: $extraData, fullname: $fullname, gender: $gender, isVerified: $isVerified, isActivated: $isActivated, location: $location, metal: $metal, passion: $passion, phone: $phone, email: $email, emailVerified: $emailVerified, preferences: $preferences, username: $username, refreshToken: $refreshToken, subscription: $subscription, sparkBalance: $sparkBalance, distance: $distance, id: $id, referralCode: $referralCode, referredBy: $referredBy, showOnline: $showOnline, alwaysMetal: $alwaysMetal, receiveNotification: $receiveNotification, showMyProfile: $showMyProfile, activateVoiceNote: $activateVoiceNote, activateVoiceCall: $activateVoiceCall, activateVideoCall: $activateVideoCall, profilePhoto: $profilePhoto, fcmToken: $fcmToken, isOnline: $isOnline, lastActive: $lastActive, blockedUsers: $blockedUsers)';
   }
 
   @override
@@ -741,8 +866,6 @@ class _$UserModelImpl implements _UserModel {
                 other.preferences == preferences) &&
             (identical(other.username, username) ||
                 other.username == username) &&
-            (identical(other.accessToken, accessToken) ||
-                other.accessToken == accessToken) &&
             (identical(other.refreshToken, refreshToken) ||
                 other.refreshToken == refreshToken) &&
             (identical(other.subscription, subscription) ||
@@ -754,12 +877,30 @@ class _$UserModelImpl implements _UserModel {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.referralCode, referralCode) ||
                 other.referralCode == referralCode) &&
+            (identical(other.referredBy, referredBy) ||
+                other.referredBy == referredBy) &&
+            (identical(other.showOnline, showOnline) ||
+                other.showOnline == showOnline) &&
+            (identical(other.alwaysMetal, alwaysMetal) ||
+                other.alwaysMetal == alwaysMetal) &&
+            (identical(other.receiveNotification, receiveNotification) ||
+                other.receiveNotification == receiveNotification) &&
+            (identical(other.showMyProfile, showMyProfile) ||
+                other.showMyProfile == showMyProfile) &&
+            (identical(other.activateVoiceNote, activateVoiceNote) ||
+                other.activateVoiceNote == activateVoiceNote) &&
+            (identical(other.activateVoiceCall, activateVoiceCall) ||
+                other.activateVoiceCall == activateVoiceCall) &&
+            (identical(other.activateVideoCall, activateVideoCall) ||
+                other.activateVideoCall == activateVideoCall) &&
             (identical(other.profilePhoto, profilePhoto) ||
                 other.profilePhoto == profilePhoto) &&
             (identical(other.fcmToken, fcmToken) ||
                 other.fcmToken == fcmToken) &&
-            (identical(other.conversationId, conversationId) ||
-                other.conversationId == conversationId) &&
+            (identical(other.isOnline, isOnline) ||
+                other.isOnline == isOnline) &&
+            (identical(other.lastActive, lastActive) ||
+                other.lastActive == lastActive) &&
             const DeepCollectionEquality()
                 .equals(other._blockedUsers, _blockedUsers));
   }
@@ -788,16 +929,24 @@ class _$UserModelImpl implements _UserModel {
         emailVerified,
         preferences,
         username,
-        accessToken,
         refreshToken,
         subscription,
         sparkBalance,
         distance,
         id,
         referralCode,
+        referredBy,
+        showOnline,
+        alwaysMetal,
+        receiveNotification,
+        showMyProfile,
+        activateVoiceNote,
+        activateVoiceCall,
+        activateVideoCall,
         profilePhoto,
         fcmToken,
-        conversationId,
+        isOnline,
+        lastActive,
         const DeepCollectionEquality().hash(_blockedUsers)
       ]);
 
@@ -817,78 +966,81 @@ class _$UserModelImpl implements _UserModel {
 
 abstract class _UserModel implements UserModel {
   factory _UserModel(
-      {@JsonKey(name: 'profile_updated') final bool? profileUpdated,
-      @JsonKey(name: 'completed_profile') final bool? completedProfile,
-      @JsonKey(name: 'DOB') final String? dob,
+      {final bool? profileUpdated,
+      final bool? completedProfile,
+      final String? dob,
       final Address? address,
-      @JsonKey(name: 'connect_with') final String? connectWith,
-      @JsonKey(name: 'connection_option') final List<String>? connectionOption,
+      @JsonKey(name: 'connectWith') final String? connectWith,
+      @JsonKey(name: 'connectionOption') final List<String>? connectionOption,
       final String? description,
-      @JsonKey(name: 'extra_data') final ExtraData? extraData,
+      @JsonKey(name: 'extraData') final ExtraData? extraData,
       final String? fullname,
       final String? gender,
-      @JsonKey(name: 'isVerified') final bool? isVerified,
-      @JsonKey(name: 'isActivated') final bool? isActivated,
+      final bool? isVerified,
+      final bool? isActivated,
       final Location? location,
-      final Metal? metal,
+      final String? metal,
       final List<String>? passion,
       final String? phone,
       final String? email,
-      @JsonKey(name: 'email_verified') final bool? emailVerified,
+      final bool? emailVerified,
       final Preferences? preferences,
       final String? username,
-      @JsonKey(name: 'access_token') final String? accessToken,
       final String? refreshToken,
       final SubscribedPlanModel? subscription,
-      final double? sparkBalance,
+      final double sparkBalance,
       final String? distance,
       final String? id,
-      final String? referralCode,
+      final String referralCode,
+      final String? referredBy,
+      final bool showOnline,
+      final bool alwaysMetal,
+      final bool receiveNotification,
+      final bool showMyProfile,
+      final bool activateVoiceNote,
+      final bool activateVoiceCall,
+      final bool activateVideoCall,
       final String? profilePhoto,
       final String? fcmToken,
-      final String? conversationId,
+      final bool isOnline,
+      final String? lastActive,
       @JsonKey(name: 'blockedUsers')
-      final List<BlockedUser>? blockedUsers}) = _$UserModelImpl;
+      final List<String>? blockedUsers}) = _$UserModelImpl;
 
   factory _UserModel.fromJson(Map<String, dynamic> json) =
       _$UserModelImpl.fromJson;
 
   @override
-  @JsonKey(name: 'profile_updated')
   bool? get profileUpdated;
   @override
-  @JsonKey(name: 'completed_profile')
   bool? get completedProfile;
   @override
-  @JsonKey(name: 'DOB')
   String? get dob;
   @override
   Address? get address;
   @override
-  @JsonKey(name: 'connect_with')
+  @JsonKey(name: 'connectWith')
   String? get connectWith;
   @override
-  @JsonKey(name: 'connection_option')
+  @JsonKey(name: 'connectionOption')
   List<String>? get connectionOption;
   @override
   String? get description;
   @override
-  @JsonKey(name: 'extra_data')
+  @JsonKey(name: 'extraData')
   ExtraData? get extraData;
   @override
   String? get fullname;
   @override
   String? get gender;
   @override
-  @JsonKey(name: 'isVerified')
   bool? get isVerified;
   @override
-  @JsonKey(name: 'isActivated')
   bool? get isActivated;
   @override
   Location? get location;
   @override
-  Metal? get metal;
+  String? get metal;
   @override
   List<String>? get passion;
   @override
@@ -896,36 +1048,50 @@ abstract class _UserModel implements UserModel {
   @override
   String? get email;
   @override
-  @JsonKey(name: 'email_verified')
   bool? get emailVerified;
   @override
   Preferences? get preferences;
   @override
   String? get username;
   @override
-  @JsonKey(name: 'access_token')
-  String? get accessToken;
-  @override
   String? get refreshToken;
   @override
   SubscribedPlanModel? get subscription;
   @override
-  double? get sparkBalance;
+  double get sparkBalance;
   @override
   String? get distance;
   @override
   String? get id;
   @override
-  String? get referralCode;
+  String get referralCode;
+  @override
+  String? get referredBy;
+  @override
+  bool get showOnline;
+  @override
+  bool get alwaysMetal;
+  @override
+  bool get receiveNotification;
+  @override
+  bool get showMyProfile;
+  @override
+  bool get activateVoiceNote;
+  @override
+  bool get activateVoiceCall;
+  @override
+  bool get activateVideoCall;
   @override
   String? get profilePhoto;
   @override
   String? get fcmToken;
   @override
-  String? get conversationId;
+  bool get isOnline;
+  @override
+  String? get lastActive;
   @override
   @JsonKey(name: 'blockedUsers')
-  List<BlockedUser>? get blockedUsers;
+  List<String>? get blockedUsers;
   @override
   @JsonKey(ignore: true)
   _$$UserModelImplCopyWith<_$UserModelImpl> get copyWith =>
@@ -938,9 +1104,9 @@ Address _$AddressFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Address {
-  @JsonKey(name: 'apartment_number')
+  @JsonKey(name: 'apartmentNumber')
   String? get apartmentNumber => throw _privateConstructorUsedError;
-  @JsonKey(name: 'house_number')
+  @JsonKey(name: 'houseNumber')
   String? get houseNumber => throw _privateConstructorUsedError;
   @JsonKey(name: 'streetName')
   String? get streetName => throw _privateConstructorUsedError;
@@ -960,8 +1126,8 @@ abstract class $AddressCopyWith<$Res> {
       _$AddressCopyWithImpl<$Res, Address>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'apartment_number') String? apartmentNumber,
-      @JsonKey(name: 'house_number') String? houseNumber,
+      {@JsonKey(name: 'apartmentNumber') String? apartmentNumber,
+      @JsonKey(name: 'houseNumber') String? houseNumber,
       @JsonKey(name: 'streetName') String? streetName,
       @JsonKey(name: 'postalCode') String? postalCode,
       String? state,
@@ -1025,8 +1191,8 @@ abstract class _$$AddressImplCopyWith<$Res> implements $AddressCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'apartment_number') String? apartmentNumber,
-      @JsonKey(name: 'house_number') String? houseNumber,
+      {@JsonKey(name: 'apartmentNumber') String? apartmentNumber,
+      @JsonKey(name: 'houseNumber') String? houseNumber,
       @JsonKey(name: 'streetName') String? streetName,
       @JsonKey(name: 'postalCode') String? postalCode,
       String? state,
@@ -1084,8 +1250,8 @@ class __$$AddressImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$AddressImpl implements _Address {
   _$AddressImpl(
-      {@JsonKey(name: 'apartment_number') this.apartmentNumber,
-      @JsonKey(name: 'house_number') this.houseNumber,
+      {@JsonKey(name: 'apartmentNumber') this.apartmentNumber,
+      @JsonKey(name: 'houseNumber') this.houseNumber,
       @JsonKey(name: 'streetName') this.streetName,
       @JsonKey(name: 'postalCode') this.postalCode,
       this.state,
@@ -1095,10 +1261,10 @@ class _$AddressImpl implements _Address {
       _$$AddressImplFromJson(json);
 
   @override
-  @JsonKey(name: 'apartment_number')
+  @JsonKey(name: 'apartmentNumber')
   final String? apartmentNumber;
   @override
-  @JsonKey(name: 'house_number')
+  @JsonKey(name: 'houseNumber')
   final String? houseNumber;
   @override
   @JsonKey(name: 'streetName')
@@ -1154,8 +1320,8 @@ class _$AddressImpl implements _Address {
 
 abstract class _Address implements Address {
   factory _Address(
-      {@JsonKey(name: 'apartment_number') final String? apartmentNumber,
-      @JsonKey(name: 'house_number') final String? houseNumber,
+      {@JsonKey(name: 'apartmentNumber') final String? apartmentNumber,
+      @JsonKey(name: 'houseNumber') final String? houseNumber,
       @JsonKey(name: 'streetName') final String? streetName,
       @JsonKey(name: 'postalCode') final String? postalCode,
       final String? state,
@@ -1164,10 +1330,10 @@ abstract class _Address implements Address {
   factory _Address.fromJson(Map<String, dynamic> json) = _$AddressImpl.fromJson;
 
   @override
-  @JsonKey(name: 'apartment_number')
+  @JsonKey(name: 'apartmentNumber')
   String? get apartmentNumber;
   @override
-  @JsonKey(name: 'house_number')
+  @JsonKey(name: 'houseNumber')
   String? get houseNumber;
   @override
   @JsonKey(name: 'streetName')
@@ -1195,7 +1361,7 @@ mixin _$ExtraData {
   String? get education => throw _privateConstructorUsedError;
   String? get ethnicity => throw _privateConstructorUsedError;
   String? get language => throw _privateConstructorUsedError;
-  @JsonKey(name: 'marital_status')
+  @JsonKey(name: 'maritalStatus')
   String? get maritalStatus => throw _privateConstructorUsedError;
   String? get profession => throw _privateConstructorUsedError;
   String? get religion => throw _privateConstructorUsedError;
@@ -1216,7 +1382,7 @@ abstract class $ExtraDataCopyWith<$Res> {
       String? education,
       String? ethnicity,
       String? language,
-      @JsonKey(name: 'marital_status') String? maritalStatus,
+      @JsonKey(name: 'maritalStatus') String? maritalStatus,
       String? profession,
       String? religion});
 }
@@ -1288,7 +1454,7 @@ abstract class _$$ExtraDataImplCopyWith<$Res>
       String? education,
       String? ethnicity,
       String? language,
-      @JsonKey(name: 'marital_status') String? maritalStatus,
+      @JsonKey(name: 'maritalStatus') String? maritalStatus,
       String? profession,
       String? religion});
 }
@@ -1353,7 +1519,7 @@ class _$ExtraDataImpl implements _ExtraData {
       this.education,
       this.ethnicity,
       this.language,
-      @JsonKey(name: 'marital_status') this.maritalStatus,
+      @JsonKey(name: 'maritalStatus') this.maritalStatus,
       this.profession,
       this.religion});
 
@@ -1369,7 +1535,7 @@ class _$ExtraDataImpl implements _ExtraData {
   @override
   final String? language;
   @override
-  @JsonKey(name: 'marital_status')
+  @JsonKey(name: 'maritalStatus')
   final String? maritalStatus;
   @override
   final String? profession;
@@ -1426,7 +1592,7 @@ abstract class _ExtraData implements ExtraData {
       final String? education,
       final String? ethnicity,
       final String? language,
-      @JsonKey(name: 'marital_status') final String? maritalStatus,
+      @JsonKey(name: 'maritalStatus') final String? maritalStatus,
       final String? profession,
       final String? religion}) = _$ExtraDataImpl;
 
@@ -1442,7 +1608,7 @@ abstract class _ExtraData implements ExtraData {
   @override
   String? get language;
   @override
-  @JsonKey(name: 'marital_status')
+  @JsonKey(name: 'maritalStatus')
   String? get maritalStatus;
   @override
   String? get profession;
@@ -1460,7 +1626,7 @@ Preferences _$PreferencesFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Preferences {
-  @JsonKey(name: 'age_range')
+  @JsonKey(name: 'ageRange')
   String? get ageRange => throw _privateConstructorUsedError;
   String? get demography => throw _privateConstructorUsedError;
   String? get education => throw _privateConstructorUsedError;
@@ -1480,7 +1646,7 @@ abstract class $PreferencesCopyWith<$Res> {
       _$PreferencesCopyWithImpl<$Res, Preferences>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'age_range') String? ageRange,
+      {@JsonKey(name: 'ageRange') String? ageRange,
       String? demography,
       String? education,
       String? ethnicity,
@@ -1540,7 +1706,7 @@ abstract class _$$PreferencesImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'age_range') String? ageRange,
+      {@JsonKey(name: 'ageRange') String? ageRange,
       String? demography,
       String? education,
       String? ethnicity,
@@ -1593,7 +1759,7 @@ class __$$PreferencesImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PreferencesImpl implements _Preferences {
   _$PreferencesImpl(
-      {@JsonKey(name: 'age_range') this.ageRange,
+      {@JsonKey(name: 'ageRange') this.ageRange,
       this.demography,
       this.education,
       this.ethnicity,
@@ -1603,7 +1769,7 @@ class _$PreferencesImpl implements _Preferences {
       _$$PreferencesImplFromJson(json);
 
   @override
-  @JsonKey(name: 'age_range')
+  @JsonKey(name: 'ageRange')
   final String? ageRange;
   @override
   final String? demography;
@@ -1657,7 +1823,7 @@ class _$PreferencesImpl implements _Preferences {
 
 abstract class _Preferences implements Preferences {
   factory _Preferences(
-      {@JsonKey(name: 'age_range') final String? ageRange,
+      {@JsonKey(name: 'ageRange') final String? ageRange,
       final String? demography,
       final String? education,
       final String? ethnicity,
@@ -1667,7 +1833,7 @@ abstract class _Preferences implements Preferences {
       _$PreferencesImpl.fromJson;
 
   @override
-  @JsonKey(name: 'age_range')
+  @JsonKey(name: 'ageRange')
   String? get ageRange;
   @override
   String? get demography;
@@ -1850,176 +2016,5 @@ abstract class _Location implements Location {
   @override
   @JsonKey(ignore: true)
   _$$LocationImplCopyWith<_$LocationImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-BlockedUser _$BlockedUserFromJson(Map<String, dynamic> json) {
-  return _BlockedUser.fromJson(json);
-}
-
-/// @nodoc
-mixin _$BlockedUser {
-  String? get id => throw _privateConstructorUsedError;
-  Metal? get metal => throw _privateConstructorUsedError;
-  String? get name => throw _privateConstructorUsedError;
-
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $BlockedUserCopyWith<BlockedUser> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $BlockedUserCopyWith<$Res> {
-  factory $BlockedUserCopyWith(
-          BlockedUser value, $Res Function(BlockedUser) then) =
-      _$BlockedUserCopyWithImpl<$Res, BlockedUser>;
-  @useResult
-  $Res call({String? id, Metal? metal, String? name});
-}
-
-/// @nodoc
-class _$BlockedUserCopyWithImpl<$Res, $Val extends BlockedUser>
-    implements $BlockedUserCopyWith<$Res> {
-  _$BlockedUserCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = freezed,
-    Object? metal = freezed,
-    Object? name = freezed,
-  }) {
-    return _then(_value.copyWith(
-      id: freezed == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String?,
-      metal: freezed == metal
-          ? _value.metal
-          : metal // ignore: cast_nullable_to_non_nullable
-              as Metal?,
-      name: freezed == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
-  }
-}
-
-/// @nodoc
-abstract class _$$BlockedUserImplCopyWith<$Res>
-    implements $BlockedUserCopyWith<$Res> {
-  factory _$$BlockedUserImplCopyWith(
-          _$BlockedUserImpl value, $Res Function(_$BlockedUserImpl) then) =
-      __$$BlockedUserImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({String? id, Metal? metal, String? name});
-}
-
-/// @nodoc
-class __$$BlockedUserImplCopyWithImpl<$Res>
-    extends _$BlockedUserCopyWithImpl<$Res, _$BlockedUserImpl>
-    implements _$$BlockedUserImplCopyWith<$Res> {
-  __$$BlockedUserImplCopyWithImpl(
-      _$BlockedUserImpl _value, $Res Function(_$BlockedUserImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = freezed,
-    Object? metal = freezed,
-    Object? name = freezed,
-  }) {
-    return _then(_$BlockedUserImpl(
-      id: freezed == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String?,
-      metal: freezed == metal
-          ? _value.metal
-          : metal // ignore: cast_nullable_to_non_nullable
-              as Metal?,
-      name: freezed == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-class _$BlockedUserImpl implements _BlockedUser {
-  _$BlockedUserImpl({this.id, this.metal, this.name});
-
-  factory _$BlockedUserImpl.fromJson(Map<String, dynamic> json) =>
-      _$$BlockedUserImplFromJson(json);
-
-  @override
-  final String? id;
-  @override
-  final Metal? metal;
-  @override
-  final String? name;
-
-  @override
-  String toString() {
-    return 'BlockedUser(id: $id, metal: $metal, name: $name)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$BlockedUserImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.metal, metal) || other.metal == metal) &&
-            (identical(other.name, name) || other.name == name));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(runtimeType, id, metal, name);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$BlockedUserImplCopyWith<_$BlockedUserImpl> get copyWith =>
-      __$$BlockedUserImplCopyWithImpl<_$BlockedUserImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$BlockedUserImplToJson(
-      this,
-    );
-  }
-}
-
-abstract class _BlockedUser implements BlockedUser {
-  factory _BlockedUser(
-      {final String? id,
-      final Metal? metal,
-      final String? name}) = _$BlockedUserImpl;
-
-  factory _BlockedUser.fromJson(Map<String, dynamic> json) =
-      _$BlockedUserImpl.fromJson;
-
-  @override
-  String? get id;
-  @override
-  Metal? get metal;
-  @override
-  String? get name;
-  @override
-  @JsonKey(ignore: true)
-  _$$BlockedUserImplCopyWith<_$BlockedUserImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

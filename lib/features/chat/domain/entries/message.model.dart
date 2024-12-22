@@ -12,25 +12,20 @@ enum MessageState { sending, sent, read, error }
 class MessageModel {
   final String message;
   final String senderId;
-  final String recipientId;
+
   final MessageType type;
   String? content;
-  String? userName;
-  String? fcmToken;
-  @TimestampConverter()
-  final DateTime timestamp;
-  final MessageState state;
+
+  final String timestamp;
+  final bool isRead;
 
   MessageModel({
     required this.message,
-    required this.recipientId,
     required this.senderId,
     required this.type,
     this.content,
-    this.userName,
-    this.fcmToken,
     required this.timestamp,
-    required this.state,
+    required this.isRead,
   });
   factory MessageModel.fromJson(Map<String, dynamic> json) =>
       _$MessageModelFromJson(json);
@@ -41,11 +36,10 @@ class MessageModel {
     return MessageModel(
       message: data['message'] ?? '',
       senderId: data['senderId'] ?? '',
-      recipientId: data['recipientId'] ?? '',
       type: _convertStringToMessageType(data['type'] ?? ''),
       content: data['content'],
-      timestamp: (data['timestamp'] as Timestamp).toDate(),
-      state: _convertStringToMessageState(data['state'] ?? ''),
+      timestamp: data['timestamp'],
+      isRead: data['isRead'],
     );
   }
 

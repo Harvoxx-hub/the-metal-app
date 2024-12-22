@@ -4,8 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
-import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
+ 
 import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/settings/provider/block.user.notifier.dart';

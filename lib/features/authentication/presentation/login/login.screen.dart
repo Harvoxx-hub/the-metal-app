@@ -56,22 +56,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final loginState = ref.watch(loginProvider);
     ref.listen<LoginStates>(loginProvider, (prev, current) {
       if (current.isSuccess) {
-        Navigator.pushNamed(
-          context,
-          current.data?.profileUpdated ?? false
-              ? AppRoutes.dashboardPage
-              : AppRoutes.welcomePage,
-        );
-      }
-      if (current.isAction) {
-        Navigator.pushNamed(context, AppRoutes.verificationPage,
-            arguments: VerificationSentArgument(
-              type: RouteFrom.AccountSetting,
-              code: current.action?["OTP"],
-              uuid: current.action?["UUID"],
-              phoneNumber: current.action?["phone"],
-              email: current.action?["email"],
-            ));
+        !(current.data!.emailVerified ?? false)
+            ? Navigator.pushReplacementNamed(
+                context,
+                AppRoutes.verificationPage,
+                arguments: VerificationSentArgument(
+                    type: RouteFrom.AccountSetting,
+                    code: 123456,
+                    uuid: current.data?.id ?? "",
+                    phoneNumber: current.data!.phone!,
+                    email: current.data!.phone!),
+              )
+            : Navigator.pushNamed(
+                context,
+                current.data?.profileUpdated ?? false
+                    ? AppRoutes.dashboardPage
+                    : AppRoutes.welcomePage,
+              );
       }
     });
 

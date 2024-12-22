@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
-import 'package:metal/features/notification/notification.item.dart';
+
 import 'package:metal/features/notification/provider/notification.notifier.dart';
 import 'package:metal/features/notification/widget/melt.notification.item.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -72,7 +72,9 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                           itemCount: notificationData.data?.length ?? 0,
                           itemBuilder: (BuildContext context, int index) {
                             final notification = notificationData.data![index];
-                            return NotificationItemFactory.create(notification);
+                            return MeltNotificationItem(
+                              notificationModel: notification,
+                            );
                           },
                         ),
                       )

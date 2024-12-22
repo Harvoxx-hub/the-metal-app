@@ -23,11 +23,6 @@ class MyMeltedMetals extends ConsumerStatefulWidget {
 class _MyMeltedMetalsState extends ConsumerState<MyMeltedMetals> {
   @override
   void initState() {
-    //
-
-    Future.delayed(const Duration(seconds: 1), () {
-      ref.read(getMeltUserProvider.notifier).updateMelt();
-    });
     super.initState();
   }
 

@@ -20,8 +20,10 @@ import 'package:metal/features/chat/provider/game.conversation.notifier.dart';
 import 'package:metal/features/chat/provider/get.converation.notifier.dart';
 
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
-import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
+import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
@@ -42,28 +44,26 @@ class ChatWindowsPage extends ConsumerStatefulWidget {
 class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
   GameModel? game;
 
-  MeltUserModel? _meltUserModel;
+  UserModel? _meltUserModel;
+  ConnectionModel? _connectionModdel;
   @override
   void initState() {
-    //  conversationId = widget.argument.user.conversationId;
+   
     getMeltMetal();
     super.initState();
   }
 
   getMeltMetal() {
-    _meltUserModel =
+    _connectionModdel =
         ref.read(getMeltUserProvider.notifier).getMeltUserById(widget.metalId)!;
+    _meltUserModel = ref.read(getUserProvider(widget.metalId)).data;
   }
 
   UserModel? currentUserData;
-  ConversationsModel? conversationData;
 
   @override
   Widget build(BuildContext context) {
     currentUserData = ref.watch(authProvider).data;
-
-    conversationData =
-        ref.watch(getConverationProvider(_meltUserModel!.conversationId!)).data;
 
     return BaseScreen(
       appBarEnabled: false,
@@ -81,18 +81,16 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
               ChatWindowsAppBar(
                 key: widget.key,
                 meltUserModel: _meltUserModel!,
+                connectionModel: _connectionModdel!,
               ),
-              conversationData == null
-                  ? const SizedBox()
-                  : GameTile(
-                      conversationsModel: conversationData!,
-                    ),
-              MessageList(_meltUserModel!.conversationId!),
+              GameTile(
+                conversationsModel: _connectionModdel!,
+              ),
+              MessageList(_connectionModdel!.connectionId),
               ChatBottomSheet(
                 meltUserModel: _meltUserModel!,
-                onSend: (p0) {
-                  sendTextMessage(p0);
-                },
+                connectionModel: _connectionModdel!,
+                 
                 onGameClick: () async {
                   final gameModel = await Navigator.pushNamed(
                     context,
@@ -103,23 +101,22 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
                   });
                   if (game != null) {
                     final message = MessageModel(
-                        senderId: currentUserData!.id!,
-                        type: MessageType.text,
-                        timestamp: DateTime.now(),
-                        state: MessageState.sending,
-                        fcmToken: _meltUserModel!.fcmToken,
-                        userName: _meltUserModel!.username,
-                        message: game!.title,
-                        recipientId: _meltUserModel!.id!);
+                      senderId: currentUserData!.id!,
+                      type: MessageType.text,
+                      timestamp: DateTime.now().toIso8601String(),
+                      isRead: false,
+                      message: game!.title,
+                    );
                     ref
                         .read(gameConversationProvider.notifier)
                         .updateGameConversation(
-                            conversatioId: _meltUserModel!.conversationId!,
+                            conversatioId: _connectionModdel!.connectionId,
                             gameTitle: game!.title,
                             message: message);
                   }
                 },
               )
+   
             ],
           ),
         ),
@@ -127,21 +124,7 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
     );
   }
 
-  void sendTextMessage(String text) {
-    final message = MessageModel(
-        senderId: currentUserData!.id!,
-        type: MessageType.text,
-        timestamp: DateTime.now(),
-        state: MessageState.sending,
-        fcmToken: _meltUserModel!.fcmToken,
-        userName: _meltUserModel!.username,
-        message: text,
-        recipientId: _meltUserModel!.id!);
-
-    ref
-        .read(sendMessageProvider.notifier)
-        .sendMessage(message, _meltUserModel!.conversationId!);
-  }
+ 
 }
 
 class dateDivider extends StatelessWidget {

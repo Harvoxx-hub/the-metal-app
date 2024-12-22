@@ -1,15 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
-import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
+ 
 import 'package:metal/route/routes.dart';
 
 import 'abstract_notification_dispatcher.dart';
 import 'models/notification_payload_model.dart';
 import 'models/push_type.dart';
-
+///TODO Woek on notification 
 class NotificationDispatcher extends AbstractNotificationDispatcher {
   @override
   Future? dispatchNotification(
@@ -46,7 +44,7 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
         await openPage(
           AppRoutes.chatWindowsPage,
           removeUntil: true,
-          argument: getUserById(model.id),
+          argument: model.id,
           removeUntilPredicate: ModalRoute.withName(
             AppRoutes.chatWindowsPage,
           ),
@@ -89,23 +87,7 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
     }
   }
 
-//get post by id
-  Future<MeltUserModel> getUserById(String id) async {
-    try {
-      final repo = container.read(authenticationRepositoryProvider);
-      final data = await repo.getUserByID(id: id);
-      final meltUserData = UserModel.fromJson(data.data);
-      return MeltUserModel(
-          gender: meltUserData.gender,
-          name: meltUserData.username,
-          metal: meltUserData.metal,
-          phone: meltUserData.phone,
-          id: meltUserData.id);
-    } catch (e, s) {
-      print(e);
-      rethrow; // Rethrow the exception to propagate it up the call stack if needed
-    }
-  }
+ 
 
   final container = ProviderContainer();
 

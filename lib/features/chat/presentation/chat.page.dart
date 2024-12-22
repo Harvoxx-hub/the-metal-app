@@ -34,7 +34,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: 240,
+          height: 140,
           width: double.infinity,
           decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -63,14 +63,14 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                   radius: 34,
                 ),
                 const Gap(10),
-                const TextView(
-                  text: "My Metals",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.metalWhite,
-                ),
-                const Gap(10),
-                const StatusWidget()
+                // const TextView(
+                //   text: "My Metals",
+                //   fontSize: 16,
+                //   fontWeight: FontWeight.w500,
+                //   color: AppColors.metalWhite,
+                // ),
+                // const Gap(10),
+                // const StatusWidget()
               ],
             ),
           ),

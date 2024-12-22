@@ -29,43 +29,12 @@ class ApiService {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           // Attach the token to each request
-          options.headers['Authorization'] =
-              'Bearer ${await AuthManager.getAccessToken()}';
+          // options.headers['Authorization'] =
+          //     'Bearer ${await AuthManager.getAccessToken()}';
           print('Network Call: ${options.path}');
           handler.next(options);
         },
         onError: (DioError e, handler) async {
-          // Check if error is due to an expired token
-          if (e.response?.statusCode == 401) {
-            try {
-              final newToken = await _refreshToken();
-              print(newToken);
-              if (newToken != null) {
-                await AuthManager.saveAccessToken(newToken);
-                e.requestOptions.headers['Authorization'] = 'Bearer $newToken';
-
-                final clonedRequest = await _dio.request(
-                  e.requestOptions.path,
-                  options: Options(
-                    method: e.requestOptions.method,
-                    headers: e.requestOptions.headers,
-                  ),
-                  data: e.requestOptions.data,
-                  queryParameters: e.requestOptions.queryParameters,
-                );
-
-                handler.resolve(clonedRequest);
-                return;
-              }
-            } catch (refreshError) {
-              print('Token refresh failed');
-              Fluttertoast.showToast(
-                  msg: "Session expired. Please log in again.");
-              throw ErrorHandler.handle(e).failure;
-            }
-          }
-
-          // If error is not token related or retry fails, proceed with original error
           handler.next(e);
         },
         onResponse: (response, handler) {

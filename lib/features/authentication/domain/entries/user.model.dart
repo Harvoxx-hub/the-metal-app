@@ -7,38 +7,47 @@ part 'user.model.g.dart';
 
 @freezed
 class UserModel with _$UserModel {
+  @JsonSerializable(explicitToJson: true)
   factory UserModel({
-    @JsonKey(name: 'profile_updated') bool? profileUpdated,
-    @JsonKey(name: 'completed_profile') bool? completedProfile,
-    @JsonKey(name: 'DOB') String? dob,
+     bool? profileUpdated,
+ bool ? completedProfile,
+    String? dob,
     Address? address,
-    @JsonKey(name: 'connect_with') String? connectWith,
-    @JsonKey(name: 'connection_option') List<String>? connectionOption,
+    @JsonKey(name: 'connectWith') String? connectWith,
+    @JsonKey(name: 'connectionOption') List<String>? connectionOption,
     String? description,
-    @JsonKey(name: 'extra_data') ExtraData? extraData,
+    @JsonKey(name: 'extraData') ExtraData? extraData,
     String? fullname,
     String? gender,
-    @JsonKey(name: 'isVerified') bool? isVerified,
-    @JsonKey(name: 'isActivated') bool? isActivated,
+     bool? isVerified,
+ bool? isActivated,
     Location? location,
-    Metal? metal,
+    String? metal,
     List<String>? passion,
     String? phone,
     String? email,
-    @JsonKey(name: 'email_verified') bool? emailVerified,
+   bool? emailVerified,
     Preferences? preferences,
     String? username,
-    @JsonKey(name: 'access_token') String? accessToken,
     String? refreshToken,
     SubscribedPlanModel? subscription,
-    double? sparkBalance,
+    @Default(0) double sparkBalance,
     String? distance,
     String? id,
-    String? referralCode,
+    @Default("") String referralCode,
+    String? referredBy,
+    @Default(true) bool showOnline,
+    @Default(true) bool alwaysMetal,
+    @Default(true) bool receiveNotification,
+    @Default(true) bool showMyProfile,
+    @Default(true) bool activateVoiceNote,
+    @Default(true) bool activateVoiceCall,
+    @Default(true) bool activateVideoCall,
     String? profilePhoto,
     String? fcmToken,
-    String? conversationId,
-    @JsonKey(name: 'blockedUsers') List<BlockedUser>? blockedUsers,
+     @Default(false)bool isOnline,
+    String? lastActive,
+    @JsonKey(name: 'blockedUsers') List<String>? blockedUsers,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -48,8 +57,8 @@ class UserModel with _$UserModel {
 @freezed
 class Address with _$Address {
   factory Address({
-    @JsonKey(name: 'apartment_number') String? apartmentNumber,
-    @JsonKey(name: 'house_number') String? houseNumber,
+    @JsonKey(name: 'apartmentNumber') String? apartmentNumber,
+    @JsonKey(name: 'houseNumber') String? houseNumber,
     @JsonKey(name: 'streetName') String? streetName,
     @JsonKey(name: 'postalCode') String? postalCode,
     String? state,
@@ -67,7 +76,7 @@ class ExtraData with _$ExtraData {
     String? education,
     String? ethnicity,
     String? language,
-    @JsonKey(name: 'marital_status') String? maritalStatus,
+    @JsonKey(name: 'maritalStatus') String? maritalStatus,
     String? profession,
     String? religion,
   }) = _ExtraData;
@@ -79,7 +88,7 @@ class ExtraData with _$ExtraData {
 @freezed
 class Preferences with _$Preferences {
   factory Preferences({
-    @JsonKey(name: 'age_range') String? ageRange,
+    @JsonKey(name: 'ageRange') String? ageRange,
     String? demography,
     String? education,
     String? ethnicity,
@@ -100,16 +109,4 @@ class Location with _$Location {
 
   factory Location.fromJson(Map<String, dynamic> json) =>
       _$LocationFromJson(json);
-}
-
-@freezed
-class BlockedUser with _$BlockedUser {
-  factory BlockedUser({
-    String? id,
-    Metal? metal,
-    String? name,
-  }) = _BlockedUser;
-
-  factory BlockedUser.fromJson(Map<String, dynamic> json) =>
-      _$BlockedUserFromJson(json);
 }

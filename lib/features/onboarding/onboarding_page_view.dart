@@ -38,14 +38,15 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
   @override
   void initState() {
     super.initState();
-
-    Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (currentPage < 2) {
-        _controller.nextPage(
-            duration: const Duration(milliseconds: 500), curve: Curves.ease);
-      } else {
-        _controller.jumpToPage(0);
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Timer.periodic(const Duration(seconds: 3), (timer) {
+        if (currentPage < 2) {
+          _controller.nextPage(
+              duration: const Duration(milliseconds: 500), curve: Curves.ease);
+        } else {
+          _controller.jumpToPage(0);
+        }
+      });
     });
   }
 

@@ -13,7 +13,7 @@ class GetThoughtByUserNotifier extends StateNotifier<GetThoughtByUserState> {
     this.ref,
   ) {}
   final Ref ref;
-
+//185223
   // melt user
   void getThought({String? id}) async {
     try {
@@ -21,7 +21,7 @@ class GetThoughtByUserNotifier extends StateNotifier<GetThoughtByUserState> {
       final homeRepository = ref.watch(homeRepositoryProvider);
       final userData = ref.watch(authProvider).data;
       id = id ?? userData!.id;
-      final response = await homeRepository.getThoughtById(id!);
+      final response = await homeRepository.getThoughtsByUserId(id!);
       final List<ThoughtModel> thoughts = [];
       for (var thought in response.data) {
         thoughts.add(ThoughtModel.fromJson(thought));

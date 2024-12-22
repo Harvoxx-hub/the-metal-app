@@ -75,6 +75,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
 
     ref.listen<UpdateProfileState>(updateProfileProvider, (prev, current) {
       if (current.isSuccess) {
+        Navigator.pop(context);
         Navigator.pushNamedAndRemoveUntil(
             context, AppRoutes.dashboardPage, (route) => true);
       }
@@ -205,8 +206,9 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
         state: _selectedState,
         postalCode: _postalCodeController.text,
         houseNumber: _houseNumberController.text);
-    final updated = userData!.copyWith(address: address);
+    final updated =
+        userData!.copyWith(address: address, completedProfile: true);
 
-    ref.read(updateProfileProvider.notifier).completeUserUpdate(updated);
+    ref.read(updateProfileProvider.notifier).sendUserUpdate(updated);
   }
 }

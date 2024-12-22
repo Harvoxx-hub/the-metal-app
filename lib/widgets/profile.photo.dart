@@ -4,25 +4,33 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+
+import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+
 import 'package:metal/gen/assets.gen.dart';
 
 class ProfilePhoto extends ConsumerWidget {
   final double size;
   final bool verfly;
-  final String? photourl;
+  final String? imgUrl;
+  final String meltId;
 
-  const ProfilePhoto({
-    super.key,
-    this.size = 58,
-    this.verfly = false,
-    this.photourl,
-  });
+  const ProfilePhoto(
+      {super.key,
+      this.size = 58,
+      this.verfly = false,
+      this.imgUrl,
+      required this.meltId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUserData = ref.watch(authProvider).data;
+    final getMetalProperties = ref.watch(metalPropertiesProvider);
 
+    final metal = getMetalProperties.data!.metals!.firstWhere(
+      (element) => element.id == meltId,
+      orElse: () => getMetalProperties
+          .data!.metals![0], // Fallback in case no match is found
+    );
     return Stack(
       children: [
         Center(
@@ -34,55 +42,34 @@ class ProfilePhoto extends ConsumerWidget {
               child: ClipRRect(
                 borderRadius: const BorderRadius.all(Radius.circular(12)),
                 child: Container(
-                  width: size,
-                  height: size,
-                  decoration: const ShapeDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment(-0.40, -0.92),
-                      end: Alignment(0.4, 0.92),
-                      colors: [
-                        Colors.white,
-                        Color(0x359B8787),
-                        Color(0x00755C5C)
-                      ],
+                    width: size,
+                    height: size,
+                    decoration: const ShapeDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment(-0.40, -0.92),
+                        end: Alignment(0.4, 0.92),
+                        colors: [
+                          Colors.white,
+                          Color(0x359B8787),
+                          Color(0x00755C5C)
+                        ],
+                      ),
+                      shape: OvalBorder(),
                     ),
-                    shape: OvalBorder(),
-                  ),
-                  child: Center(
-                      child: photourl != null
-                          ? CachedNetworkImage(
-                              imageUrl: photourl!,
-                              imageBuilder: (context, imageProvider) =>
-                                  CircleAvatar(
-                                    radius: size * 0.7, // Image radius
-                                    backgroundImage: imageProvider,
-                                  ),
-                              placeholder: (context, url) => const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator
-                                        .adaptive(), // Loading indicator
-                                  ),
-                              errorWidget: (context, url, error) => Assets
-                                  .images.logo
-                                  .image(height: size * 0.7, width: size * 0.7))
-                          : CachedNetworkImage(
-                              imageUrl: currentUserData!.metal!.img!,
-                              imageBuilder: (context, imageProvider) =>
-                                  CircleAvatar(
-                                    radius: size * 0.7, // Image radius
-                                    backgroundImage: imageProvider,
-                                  ),
-                              placeholder: (context, url) => const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator
-                                        .adaptive(), // Loading indicator
-                                  ),
-                              errorWidget: (context, url, error) => Assets
-                                  .images.logo
-                                  .image(height: 24, width: 24))),
-                ),
+                    child: CachedNetworkImage(
+                        imageUrl: imgUrl ?? metal.img,
+                        imageBuilder: (context, imageProvider) => CircleAvatar(
+                              radius: size * 0.7, // Image radius
+                              backgroundImage: imageProvider,
+                            ),
+                        placeholder: (context, url) => const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator
+                                  .adaptive(), // Loading indicator
+                            ),
+                        errorWidget: (context, url, error) => Assets.images.logo
+                            .image(height: size * 0.7, width: size * 0.7))),
               ),
             ),
           ),

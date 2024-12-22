@@ -7,12 +7,9 @@ abstract class IMessageRepository {
   Future<Responses> sendMessage(
       {required MessageModel message, required String conversationsId});
   Stream<List<MessageModel>> getMessages(String conversationId);
-
-  Stream<ConversationsModel> conversation(String conversation);
-
-  Stream<List<ConversationsModel>> getChatList(String userId);
-  Future<String> checkConversationId(String id, String recepintId);
-  updateGame(String id, String gameTile, {MessageModel? message});
+ 
+ 
+    updateGame(String id, String gameTile, {MessageModel? message});
   clearChat(String id);
   Future<Responses> lastActiveTime(String id);
   Future<Responses> deMelt(String id);

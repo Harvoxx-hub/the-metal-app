@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
@@ -12,11 +13,12 @@ class ReactThoughtNotifier extends StateNotifier<ReactThoughtState> {
   );
   final Ref ref;
 
-  void reactThought(int thoughtid, String emoji) async {
+  void reactThought(String thoughtid, String emoji) async {
     try {
       final homeRepository = ref.watch(homeRepositoryProvider);
-
-      await homeRepository.reactThought(thoughtid, emoji);
+      final userData = ref.watch(authProvider).data;
+      await homeRepository.reactThought(
+          thoughtId: thoughtid, userId: userData?.id ?? "", emoji: emoji);
 
       if (mounted) {
         state = ReactThoughtState.success("");

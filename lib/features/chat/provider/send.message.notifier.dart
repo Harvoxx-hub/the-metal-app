@@ -24,6 +24,7 @@ class SendMessageNotifier extends StateNotifier<SendMessageState> {
           message: message, conversationsId: conversationsId!);
 
       if (response.success!) {
+        if(mounted)
         state = SendMessageState.success(response.data);
       } else {
         state = SendMessageState.error(

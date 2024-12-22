@@ -18,10 +18,6 @@ abstract class IAuthenticationRepository {
     required String email,
   });
 
-  Future<Responses> activateAccount(
-    String UUID,
-  );
-
   Future<Responses> getCurrentUser();
   Future<Responses> getUserByID({required String id});
   // get metal properties
@@ -31,14 +27,8 @@ abstract class IAuthenticationRepository {
     Map<String, dynamic> user,
   );
 
-  Future<Responses> completeUser(
-    Map<String, dynamic> user,
-  );
   Future<Responses> DeleteUser();
 
-  Future<Responses> UpdateParticualarInfo(
-    Map<String, dynamic> update,
-  );
   Future<Responses> uploadProfileImage(
     File image,
   );
@@ -52,8 +42,5 @@ abstract class IAuthenticationRepository {
   );
 
   Future<Responses> changePassword(String id, String password);
-
-  //get user by
-
-  //verifi
+  Future<Responses> getMetals();
 }

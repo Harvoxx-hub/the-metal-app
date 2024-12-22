@@ -11,14 +11,14 @@ class GetLastActiveNotifier extends StateNotifier<GetLastActiveState> {
 
   Future<void> GetLastActiveTime(String userId) async {
     try {
-      state = GetLastActiveState.loading();
+      // state = GetLastActiveState.loading();
 
-      final messageRepository = ref.watch(messageRepositoryProvider);
-      final response = await messageRepository.lastActiveTime(userId);
+      // final messageRepository = ref.watch(messageRepositoryProvider);
+      // final response = await messageRepository.lastActiveTime(userId);
 
-      if (response.success!) {
-        state = GetLastActiveState.success(response.data);
-      }
+      // if (response.success!) {
+      //   state = GetLastActiveState.success(response.data);
+      // }
     } catch (e) {
       state = GetLastActiveState.error('Failed to send message: $e');
     }

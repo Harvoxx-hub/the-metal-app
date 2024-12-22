@@ -65,7 +65,7 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
                               mainAxisSpacing: 10.0,
                               childAspectRatio: 16 / 14,
                             ),
-                            itemCount: metalProps.data!.metals!.length,
+                            itemCount: metalProps.data?.metals!.length ?? 0,
                             itemBuilder: (BuildContext context, int index) {
                               final Metal model =
                                   metalProps.data!.metals![index];
@@ -102,7 +102,7 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
 
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
-    final updated = userData!.copyWith(metal: _selectedMetal);
+    final updated = userData!.copyWith(metal: _selectedMetal!.id);
     ref.read(updateProfileProvider.notifier).updateUserData(updated);
 
     Navigator.pushNamed(

@@ -5,23 +5,29 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:metal/core/utils/date.formart.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
 import 'package:metal/features/chat/provider/get.last.active.notifier.dart';
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
-import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
+import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
-
 import 'package:metal/res/colors/cr_colors.dart';
+
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class ChatWindowsAppBar extends ConsumerStatefulWidget {
-  const ChatWindowsAppBar({super.key, required this.meltUserModel});
-  final MeltUserModel meltUserModel;
+  const ChatWindowsAppBar({
+    super.key,
+    required this.meltUserModel,
+    required this.connectionModel,
+  });
+  final UserModel meltUserModel;
+  final ConnectionModel connectionModel;
   @override
   ConsumerState<ChatWindowsAppBar> createState() => _ChatWindowsAppBarState();
 }
@@ -42,8 +48,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    final time = ref.watch(lastActiveProvider).data;
-    int dayRemaining = daysRemaining(widget.meltUserModel.meltedDate!, 5);
+    // final time = ref.watch(lastActiveProvider).data;
+    int dayRemaining = daysRemaining(widget.connectionModel.connectedOn, 5);
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),
       child: Row(
@@ -60,7 +66,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           ProfileImage(
             width: 42,
             height: 42,
-            imageUrl: widget.meltUserModel.metal!.img! ?? "",
+            metalID: widget.meltUserModel.metal ?? "",
           ),
           Gap(3),
           Column(
@@ -73,8 +79,11 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               ),
               const Gap(3),
               TextView(
-                text: ActiveTime(
-                    isoDateString: time ?? DateTime.now().toIso8601String()),
+                text: widget.meltUserModel.isOnline
+                    ? "active"
+                    : ActiveTime(
+                        isoDateString: widget.meltUserModel.lastActive ??
+                            DateTime.now().toIso8601String()),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: AppColors.metalBlack50,
@@ -98,7 +107,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               shape: const CircleBorder(),
               child: GestureDetector(
                 onTap: () {
-                  hasDurationReached(widget.meltUserModel.meltedDate!, 5)
+                  hasDurationReached(widget.connectionModel.connectedOn, 5)
                       ? makeCall
                       : tooltipController.showTooltip();
                 },
@@ -127,7 +136,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               shape: const CircleBorder(),
               child: GestureDetector(
                 onTap: () {
-                  hasDurationReached(widget.meltUserModel.meltedDate!, 5)
+                  hasDurationReached(widget.connectionModel.connectedOn, 5)
                       ? makeCall
                       : tooltipController.showTooltip();
                 },
@@ -163,7 +172,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                     arguments: widget.meltUserModel.id!);
               } else if (value == "Clear chat") {
                 ref
-                    .read(getMessageList(widget.meltUserModel.conversationId!)
+                    .read(getMessageList(widget.connectionModel.connectionId!)
                         .notifier)
                     .clearChat();
                 Navigator.pop(context);
@@ -274,7 +283,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     );
   }
 
-  Widget _blockDialog(BuildContext context, MeltUserModel data) {
+  Widget _blockDialog(BuildContext context, UserModel data) {
     return Column(
       children: [
         const Gap(38),

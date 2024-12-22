@@ -63,6 +63,7 @@ class ChooseMetalCard extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                 ),
                 const Spacer(),
+                
                 Image.network(
                   model.img!,
                   height: 40,

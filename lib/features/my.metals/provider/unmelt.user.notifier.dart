@@ -34,7 +34,7 @@ class UnMeltUsersNotifier extends StateNotifier<UnMeltUsersState> {
           textColor: Colors.white,
           fontSize: 16.0);
       if (mounted) state = UnMeltUsersState.success(response.message!);
-      ref.watch(getMeltUserProvider.notifier).updateMelt();
+      
       ref.read(getThoughtForYouProvider.notifier).getThoughtUpdate();
       ref.read(getThoughtExploreProvider.notifier).getThoughtUpdate();
     } catch (e, s) {

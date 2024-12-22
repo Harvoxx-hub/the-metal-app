@@ -1,15 +1,10 @@
-import 'dart:convert';
+
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/core/utils/constant/enums.dart';
 
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
-
-enum CheckStatus {
-  REQUESTED,
-  NOMELT,
-  MUTUAL,
-}
 
 class CheckMeltStatusNotifier extends StateNotifier<CheckMeltState> {
   CheckMeltStatusNotifier(super.state, this.ref, this.id) {
@@ -18,34 +13,15 @@ class CheckMeltStatusNotifier extends StateNotifier<CheckMeltState> {
   final Ref ref;
   final String id;
 
-  // Function to map the string status to the CheckStatus enum
-  CheckStatus _mapStringToCheckStatus(String status) {
-    switch (status) {
-      case "4oGg4oGgUkVRVUVTVEVE":
-        return CheckStatus.REQUESTED;
-      case "4oGgTk9NRUxU":
-        return CheckStatus.NOMELT;
-      case "TVVUVUFM":
-        return CheckStatus.MUTUAL;
-      default:
-        throw Exception("Unknown status: $status");
-    }
-  }
-
-  // Fetch status from the repository
   void checkStatus() async {
     try {
       state = CheckMeltState.loading();
       final repository = ref.watch(homeRepositoryProvider);
 
-      final response = await repository.checkMelt(userId: id);
-      Codec<String, String> stringToBase64 = utf8.fuse(base64);
-      // Map the response string to the CheckStatus enum
-      final status = _mapStringToCheckStatus(
-          stringToBase64.encode(response.data["status"]));
+      final response = await repository.checkMelt(user2Id: id);
 
       if (mounted) {
-        state = CheckMeltState.success(status);
+        state = CheckMeltState.success(response.data);
       }
     } catch (e, s) {
       state = CheckMeltState.error(e.toString(), stackTrace: s);
@@ -54,7 +30,7 @@ class CheckMeltStatusNotifier extends StateNotifier<CheckMeltState> {
 }
 
 // Define a type alias
-typedef CheckMeltState = BaseState<CheckStatus>;
+typedef CheckMeltState = BaseState<MeltRequestState>;
 
 final checkMeltProvider = StateNotifierProvider.family
     .autoDispose<CheckMeltStatusNotifier, CheckMeltState, String>(

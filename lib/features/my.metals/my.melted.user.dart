@@ -6,10 +6,10 @@ import 'package:gap/gap.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/core/utils/constant/enums.dart';
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-
-import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
+import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
 
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
@@ -54,19 +54,16 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
     final myMelt = ref.watch(getUserProvider(widget.metalId));
     final meltState = ref.watch(meltUserProvider);
 
-    ref.listen<MeltUsersState>(meltUserProvider, (prev, current) {
+    ref.listen<CheckMeltState>(checkMeltProvider(widget.metalId),
+        (prev, current) {
       if (current.isSuccess) {
-        ref.read(checkMeltProvider(widget.metalId).notifier).checkStatus();
-
-        if (!current.data!["data"].isEmpty) {
-          
+        if (meltState.isSuccess && current.data == MeltRequestState.mutual) {
           Navigator.pushNamed(
             context,
             AppRoutes.meltMetal,
-            arguments: MeltUserModel.fromJson(current.data!["data"]).id,
+            arguments: widget.metalId,
           );
         }
-        setState(() {});
       }
     });
 
@@ -84,7 +81,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                 )
               : ProfileHeader(
                   eye: false,
-                  metal: myMelt.data!.metal!,
+                  metalId: myMelt.data!.metal!,
                   child: Padding(
                     padding:
                         const EdgeInsets.only(top: 110, left: 20, right: 20),
@@ -114,9 +111,8 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5)),
                               ),
-                              child: TextView(
-                                  text:
-                                      "@${myMelt.data!.username} : ${myMelt.data!.metal!.title} "),
+                              child:
+                                  TextView(text: "@${myMelt.data!.username} "),
                             ),
                           ),
                           const Gap(20),
@@ -131,7 +127,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                               BaseTabModel(
                                   child: MetalDetailsTab(
                                     melted: checkMeltState.data ==
-                                        CheckStatus.MUTUAL,
+                                        MeltRequestState.mutual,
                                     userModel: myMelt.data!,
                                   ),
                                   title: 'Metal Details '),
@@ -175,9 +171,9 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
   }
 
   // Widget to handle melt-related actions
-  Widget _buildMeltActionSection(BaseState<CheckStatus> checkMeltState,
+  Widget _buildMeltActionSection(BaseState<MeltRequestState> checkMeltState,
       MeltUsersState meltState, BuildContext context) {
-    if (checkMeltState.data == CheckStatus.REQUESTED) {
+    if (checkMeltState.data == MeltRequestState.pending) {
       return PlainButton(
         enabled: false,
         loading: meltState.isLoading,
@@ -186,7 +182,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
         textColor: Colors.grey,
         buttonText: "Melt Requested",
       );
-    } else if (checkMeltState.data == CheckStatus.MUTUAL) {
+    } else if (checkMeltState.data == MeltRequestState.mutual) {
       return Row(
         children: [
           Expanded(
@@ -227,6 +223,14 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
   }
 
   Widget _buildDialog({required UserModel user}) {
+    final getMetalProperties = ref.watch(metalPropertiesProvider);
+
+    final metal = getMetalProperties.data!.metals!.firstWhere(
+      (element) => element.id == user.metal,
+      orElse: () => getMetalProperties
+          .data!.metals![0], // Fallback in case no match is found
+    );
+
     return Column(
       children: [
         const Gap(38),
@@ -237,14 +241,14 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
         ),
         const Gap(15),
         TextView(
-          text: user.metal!.title.toString(),
+          text: metal.title,
           fontSize: 20,
           fontWeight: FontWeight.w800,
         ),
         const Gap(8),
         TextView(
-          text: user.metal!
-              .desc!, // Assuming `description` contains details about the metal
+          text: metal
+              .desc, // Assuming `description` contains details about the metal
           maxLines: 3,
           textAlign: TextAlign.center,
         ),
@@ -256,7 +260,6 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
           onTap: () => Navigator.pop(context),
         ),
         const Gap(21),
-        const Gap(24),
       ],
     );
   }

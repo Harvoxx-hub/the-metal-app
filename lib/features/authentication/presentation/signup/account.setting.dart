@@ -49,8 +49,8 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
           AppRoutes.verificationPage,
           arguments: VerificationSentArgument(
               type: RouteFrom.AccountSetting,
-              code: current.data!['OTP'],
-              uuid: current.data!['UUID'],
+              code: 123456,
+              uuid: current.data?.id?? "",
               phoneNumber: _phoneController.text,
               email: _emailController.text),
         );
@@ -145,6 +145,7 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
 
   void _validateAndSubmit() {
     if (_form.currentState?.validate() ?? false) {
+      
       // Dismiss the keyboard
       FocusScope.of(context).unfocus();
       ref.read(accountSettingProvider.notifier).signup(

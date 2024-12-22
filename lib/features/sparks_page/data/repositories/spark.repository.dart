@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/model/responces.dart';
-import 'package:metal/core/services/api.service.dart';
+ 
 import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/core/utils/constant/firebase.firestore.collection.key.dart';
 
 import 'package:metal/features/sparks_page/domain/repositories/ispark.repository.dart';
 
 class SparkRepository implements ISparkRepository {
-  // final ApiService _apiService = ApiService();
+ 
   final FirebaseServiceDb _firebaseService = FirebaseServiceDb.instance;
 
   @override

@@ -8,6 +8,8 @@ import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/my.metals/widget/melt.card.dart';
+import 'package:metal/widgets/state.handler/empty.state.dart';
+import 'package:metal/widgets/state.handler/error.state.dart';
 
 import 'package:metal/widgets/text_views.dart';
 
@@ -37,52 +39,38 @@ class _MyMeltedMetalsState extends ConsumerState<MyMeltedMetals> {
         appBarState: AppBarState.HambugerWithHeader,
         Header: "melted metal",
         body: SingleChildScrollView(
-          child: myMelt.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : myMelt.data != null && myMelt.data!.isNotEmpty
-                  ? Column(
-                      children: [
-                        Image.asset(
-                          Assets.images.heartLocks1.path,
-                          height: 138,
-                          width: 138,
-                        ),
-                        SizedBox(
-                          height: getDeviceHeight(context) / 1.2,
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: myMelt.data!.length,
-                            itemBuilder: (context, index) {
-                              return MeltCard(
-                                user: myMelt.data![index],
-                              );
-                            },
-                          ),
-                        )
-                      ],
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          Assets.gifs.empty.path,
-                          height: 250,
-                          width: 250,
-                        ),
-                        const Gap(46),
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextView(
-                              textAlign: TextAlign.center,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              text: "You have no melted metals yet",
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-        ));
+            child: myMelt.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : myMelt.isError
+                    ? ErrorState(
+                        retry: () {
+                          ref.read(getMeltUserProvider.notifier).getMeltUsers();
+                        },
+                        text: myMelt.errorMessage,
+                      )
+                    : myMelt.data != null && myMelt.data!.isNotEmpty
+                        ? Column(
+                            children: [
+                              Image.asset(
+                                Assets.images.heartLocks1.path,
+                                height: 138,
+                                width: 138,
+                              ),
+                              SizedBox(
+                                height: getDeviceHeight(context) / 1.2,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: myMelt.data!.length,
+                                  itemBuilder: (context, index) {
+                                    return MeltCard(
+                                      user: myMelt.data![index],
+                                    );
+                                  },
+                                ),
+                              )
+                            ],
+                          )
+                        : const EmptyState(
+                            text: "You have no melted metals yet")));
   }
 }

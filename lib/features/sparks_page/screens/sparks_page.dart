@@ -7,6 +7,8 @@ import 'package:metal/features/sparks_page/provider/get.spark.notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/spark.header.card.dart';
 import 'package:metal/features/sparks_page/screens/widget/spark.history.item.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/widgets/state.handler/empty.state.dart';
+import 'package:metal/widgets/state.handler/error.state.dart';
 
 import 'package:metal/widgets/text_views.dart';
 
@@ -83,39 +85,27 @@ class SparksPage extends ConsumerWidget {
                     const Gap(9),
                     sparks.isLoading
                         ? const CircularProgressIndicator()
-                        : sparks.data?.isEmpty ?? true
-                            ? Column(
-                                children: [
-                                  Image.asset(
-                                    Assets.gifs.empty.path,
-                                    height: 250,
-                                    width: 250,
-                                  ),
-                                  const Gap(20),
-                                  const TextView(
-                                    textAlign: TextAlign.center,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    text: "You have no transaction history yet",
-                                  ),
-                                  const Gap(20),
-                                  const TextView(
-                                    textAlign: TextAlign.center,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w300,
-                                    text:
-                                        "You can start by sending or receiving Sparks",
-                                  ),
-                                ],
+                        : sparks.isError
+                            ? ErrorState(
+                                retry: () {
+                                  ref
+                                      .read(getSparkProvider.notifier)
+                                      .getSpark();
+                                },
+                                text: sparks.errorMessage,
                               )
-                            : Column(
-                                children: [
-                                  for (var item in sparks.data!)
-                                    SparkHistoryItem(
-                                      sparkModel: item,
-                                    ),
-                                ],
-                              ),
+                            : sparks.data?.isEmpty ?? true
+                                ? EmptyState(
+                                    text: "You have no transaction history yet",
+                                  )
+                                : Column(
+                                    children: [
+                                      for (var item in sparks.data!)
+                                        SparkHistoryItem(
+                                          sparkModel: item,
+                                        ),
+                                    ],
+                                  ),
                   ],
                 ),
               ))

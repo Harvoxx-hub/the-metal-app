@@ -17,6 +17,8 @@ import 'package:metal/widgets/button/plain.button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/shimmer/custom_shimmer_loader.dart';
 import 'package:metal/widgets/shimmer/feed_shimmer_widget.dart';
+import 'package:metal/widgets/state.handler/empty.state.dart';
+import 'package:metal/widgets/state.handler/error.state.dart';
 
 import 'package:metal/widgets/text_views.dart';
 
@@ -153,7 +155,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         );
       case Status.success:
         if (thoughtState.data!.isEmpty) {
-          return _buildEmptyState("No thoughts were found");
+          return const EmptyState(text: "No thoughts were found");
         } else {
           return ListView.builder(
             itemCount: thoughtState.data!.length,
@@ -165,56 +167,11 @@ class _HomePageState extends ConsumerState<HomePage> {
           );
         }
       case Status.error:
-        return _buildErrorState();
+        return ErrorState(
+          retry: () => _refreshData(),
+        );
       default:
         return const SizedBox.shrink();
     }
-  }
-
-  Widget _buildEmptyState(String message) {
-    return Column(
-      children: [
-        Image.asset(
-          Assets.gifs.empty.path,
-          height: 250,
-          width: 250,
-        ),
-        const Gap(46),
-        TextView(
-          textAlign: TextAlign.center,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          text: message,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildErrorState() {
-    return Center(
-      child: Column(
-        children: [
-          const Gap(10),
-          Assets.gifs.error.image(),
-          const Gap(30),
-          const TextView(
-            text: "Error ",
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-          const Gap(10),
-          const TextView(
-            text: "Connection Could not be made",
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-          ),
-          const Gap(10),
-          OutilineButton(
-            buttonText: "Try Again",
-            onPressed: _refreshData,
-          ),
-        ],
-      ),
-    );
   }
 }

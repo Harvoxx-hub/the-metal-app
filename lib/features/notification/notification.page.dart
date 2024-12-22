@@ -8,6 +8,8 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/notification/provider/notification.notifier.dart';
 import 'package:metal/features/notification/widget/melt.notification.item.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/widgets/state.handler/empty.state.dart';
+import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class NotificationPage extends ConsumerStatefulWidget {
@@ -45,39 +47,30 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
             ),
             notificationData.isLoading
                 ? Center(child: const CupertinoActivityIndicator())
-                : notificationData.data?.isEmpty ?? true
-                    ? Padding(
-                        padding: const EdgeInsets.only(left: 24.0, right: 24),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              Assets.gifs.empty.path,
-                              height: 250,
-                              width: 250,
-                            ),
-                            const Gap(46),
-                            const TextView(
-                              textAlign: TextAlign.center,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              text: "You have no notifications yet",
-                            ),
-                          ],
-                        ),
+                : notificationData.isError
+                    ? ErrorState(
+                        retry: () {
+                          ref
+                              .read(notificationProvider.notifier)
+                              .getNotification();
+                        },
+                        text: notificationData.errorMessage,
                       )
-                    : Expanded(
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: notificationData.data?.length ?? 0,
-                          itemBuilder: (BuildContext context, int index) {
-                            final notification = notificationData.data![index];
-                            return MeltNotificationItem(
-                              notificationModel: notification,
-                            );
-                          },
-                        ),
-                      )
+                    : notificationData.data?.isEmpty ?? true
+                        ? EmptyState(text: "You have no notifications yet")
+                        : Expanded(
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: notificationData.data?.length ?? 0,
+                              itemBuilder: (BuildContext context, int index) {
+                                final notification =
+                                    notificationData.data![index];
+                                return MeltNotificationItem(
+                                  notificationModel: notification,
+                                );
+                              },
+                            ),
+                          )
           ],
         ));
   }

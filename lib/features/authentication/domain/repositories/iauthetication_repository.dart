@@ -43,4 +43,5 @@ abstract class IAuthenticationRepository {
 
   Future<Responses> changePassword(String id, String password);
   Future<Responses> getMetals();
+  
 }

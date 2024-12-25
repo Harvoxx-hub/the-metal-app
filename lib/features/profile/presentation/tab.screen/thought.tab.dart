@@ -9,6 +9,8 @@ import 'package:metal/features/home_page/widget/thought_card.dart';
 
 import 'package:metal/widgets/shimmer/custom_shimmer_loader.dart';
 import 'package:metal/widgets/shimmer/feed_shimmer_widget.dart';
+import 'package:metal/widgets/state.handler/empty.state.dart';
+import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class MyThoughtTab extends ConsumerStatefulWidget {
@@ -56,13 +58,7 @@ class _MyThoughtTabState extends ConsumerState<MyThoughtTab> {
 
       case Status.success:
         if (getThoughtState.data!.isEmpty) {
-          return Center(
-            child: TextView(
-              text: "No Thoughts Available",
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          );
+          return EmptyState(text: "No Thoughts Available");
         } else {
           // Find the index of the thought with the specified thoughtID
           int targetIndex = getThoughtState.data!
@@ -93,12 +89,11 @@ class _MyThoughtTabState extends ConsumerState<MyThoughtTab> {
         }
 
       case Status.error:
-        return Center(
-          child: TextView(
-            text: "Error loading thoughts",
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+        return ErrorState(
+          retry: () {
+            ref.read(getThoughtByUserProvider.notifier).getThought();
+          },
+          text: "Error loading thoughts",
         );
 
       default:

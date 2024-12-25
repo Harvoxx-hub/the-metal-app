@@ -8,6 +8,7 @@ import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
+import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -29,12 +30,13 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).data;
-
+    final blocked = ref.watch(getBlockUserProvider).data;
     return BaseScreen(
       Header: "Settings",
       appBarState: AppBarState.HambugerWithHeader,
       body: SingleChildScrollView(
         child: ProfileHeader(
+            myProfile: true,
             eye: false,
             metalId: user!.metal!,
             profileUrl: user.profilePhoto,
@@ -164,15 +166,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         ),
                         const Gap(20),
                         EditField(
-                          text: user.blockedUsers?.length.toString() ?? "0",
+                          text: blocked?.length.toString() ?? "0",
                           floatingLabel: "*Blocked Contacts*",
                           prefixIcon: TextView(
                               text: "View",
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                               onTap: () {
-                                Navigator.pushNamed(
-                                    context, AppRoutes.blockedUser);
+                                if ((blocked?.length ?? 0) >= 1)
+                                  Navigator.pushNamed(
+                                      context, AppRoutes.blockedUser);
                               }),
                         ),
                         const Gap(20),

@@ -22,13 +22,17 @@ class GetThoughtByUserNotifier extends StateNotifier<GetThoughtByUserState> {
       final userData = ref.watch(authProvider).data;
       id = id ?? userData!.id;
       final response = await homeRepository.getThoughtsByUserId(id!);
-      final List<ThoughtModel> thoughts = [];
-      for (var thought in response.data) {
-        thoughts.add(ThoughtModel.fromJson(thought));
-      }
-      if (mounted) {
-        state = GetThoughtByUserState.success(
-            MetalHelper.sortThoughtsByDate(thoughts));
+      if (response.success ?? false) {
+        final List<ThoughtModel> thoughts = [];
+        for (var thought in response.data) {
+          thoughts.add(ThoughtModel.fromJson(thought));
+        }
+        if (mounted) {
+          state = GetThoughtByUserState.success(
+              MetalHelper.sortThoughtsByDate(thoughts));
+        }
+      } else {
+        state = GetThoughtByUserState.success([]);
       }
     } catch (e, s) {
       state = GetThoughtByUserState.error(e.toString(), stackTrace: s);

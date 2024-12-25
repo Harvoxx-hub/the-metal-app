@@ -11,6 +11,7 @@ MessageModel _$MessageModelFromJson(Map<String, dynamic> json) => MessageModel(
       senderId: json['senderId'] as String,
       type: $enumDecode(_$MessageTypeEnumMap, json['type']),
       content: json['content'] as String?,
+      id: json['id'] as String?,
       timestamp: json['timestamp'] as String,
       isRead: json['isRead'] as bool,
     );
@@ -21,6 +22,7 @@ Map<String, dynamic> _$MessageModelToJson(MessageModel instance) =>
       'senderId': instance.senderId,
       'type': _$MessageTypeEnumMap[instance.type]!,
       'content': instance.content,
+      'id': instance.id,
       'timestamp': instance.timestamp,
       'isRead': instance.isRead,
     };
@@ -28,4 +30,5 @@ Map<String, dynamic> _$MessageModelToJson(MessageModel instance) =>
 const _$MessageTypeEnumMap = {
   MessageType.text: 'text',
   MessageType.audio: 'audio',
+  MessageType.un_melt: 'un_melt',
 };

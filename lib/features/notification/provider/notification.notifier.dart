@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
- 
 
 import 'package:metal/features/notification/data/repositories/notification.repository.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
@@ -18,14 +17,13 @@ class NotificationNotifier extends StateNotifier<GetNotification> {
   void getNotification() async {
     try {
       state = GetNotification.loading();
-      final repo = ref.watch(notificationepositoryProvider);
+      final repo = ref.watch(notificationRepositoryProvider);
       final response = await repo.getNotification();
       final List<NotificationModel> notification = [];
       response.data.forEach((element) {
         notification.add(NotificationModel.fromJson(element));
       });
-
- 
+      state = GetNotification.success(notification);
     } catch (e, s) {
       state = GetNotification.error(e.toString(), stackTrace: s);
     }

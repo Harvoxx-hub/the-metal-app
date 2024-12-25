@@ -47,7 +47,7 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       sparkBalance: (json['sparkBalance'] as num?)?.toDouble() ?? 0,
       distance: json['distance'] as String?,
       id: json['id'] as String?,
-      referralCode: json['referralCode'] as String? ?? "",
+      referralCode: json['referralCode'] as String?,
       referredBy: json['referredBy'] as String?,
       showOnline: json['showOnline'] as bool? ?? true,
       alwaysMetal: json['alwaysMetal'] as bool? ?? true,

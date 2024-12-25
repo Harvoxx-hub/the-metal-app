@@ -16,7 +16,7 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
       state = GetUserState.loading();
       final homeRepository = ref.watch(authenticationRepositoryProvider);
       final response = await homeRepository.getUserByID(id: id);
-      print(response.data);
+ 
 
       state = GetUserState.success(UserModel.fromJson(response.data));
     } catch (e, s) {

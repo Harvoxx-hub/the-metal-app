@@ -7,10 +7,12 @@ abstract class IMessageRepository {
   Future<Responses> sendMessage(
       {required MessageModel message, required String conversationsId});
   Stream<List<MessageModel>> getMessages(String conversationId);
- 
- 
-    updateGame(String id, String gameTile, {MessageModel? message});
+
+  updateGame(String id, String gameTile, {MessageModel? message});
   clearChat(String id);
-  Future<Responses> lastActiveTime(String id);
-  Future<Responses> deMelt(String id);
+
+   updateMessage(String id, messageId, Map<String, dynamic> data);
+    deleteMessage(String id, messageId);
+
+  Future<Responses> unMelt(String id, String messageId,  Map<String, dynamic> data);
 }

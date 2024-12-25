@@ -6,9 +6,12 @@ import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
 import 'package:metal/features/chat/provider/get.last.active.notifier.dart';
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
+import 'package:metal/features/chat/provider/send.message.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
@@ -64,10 +67,12 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           ),
           Gap(3),
           ProfileImage(
-            width: 42,
-            height: 42,
-            metalID: widget.meltUserModel.metal ?? "",
-          ),
+              width: 42,
+              height: 42,
+              metalID: widget.meltUserModel.metal ?? "",
+              url: widget.connectionModel.isAnonymous == false
+                  ? widget.meltUserModel.profilePhoto
+                  : null),
           Gap(3),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,15 +204,15 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-
-              const PopupMenuItem(
-                value: "Unmetal",
-                child: TextView(
-                  text: 'Unmetal',
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
+              if (widget.connectionModel.isAnonymous)
+                PopupMenuItem(
+                  value: "Unmetal",
+                  child: TextView(
+                    text: 'Unmetal',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
               // const PopupMenuItem(
               //   value: "Unblock from audio call",
               //   child: TextView(
@@ -274,13 +279,28 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         ),
         const Gap(38),
         BaseButton(
-            buttonText: "Return to chat",
+            buttonText: "Un-Melt Request",
             onPressed: () {
+              sendUnmelt();
               Navigator.pop(context);
             }),
         const Gap(23),
       ],
     );
+  }
+
+  void sendUnmelt() {
+    final message = MessageModel(
+      senderId: ref.watch(authProvider).data!.id!,
+      type: MessageType.un_melt,
+      timestamp: DateTime.now().toIso8601String(),
+      isRead: false,
+      message: "Un-melt Request",
+    );
+
+    ref
+        .read(sendMessageProvider.notifier)
+        .sendMessage(message, widget.connectionModel.connectionId);
   }
 
   Widget _blockDialog(BuildContext context, UserModel data) {

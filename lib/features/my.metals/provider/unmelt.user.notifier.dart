@@ -7,23 +7,23 @@ import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.explore.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.for.you.dart';
 
-class UnMeltUsersNotifier extends StateNotifier<UnMeltUsersState> {
-  UnMeltUsersNotifier(
+class deMeltUserNotifier extends StateNotifier<DeMeltUserState> {
+  deMeltUserNotifier(
     super.state,
     this.ref,
-    this.id,
+ 
   ) {
-    unmeltUser();
+  
   }
   final Ref ref;
-  final String id;
+ 
 
   // melt user
-  void unmeltUser() async {
+  void deMeltUser(id) async {
     try {
-      state = UnMeltUsersState.loading();
+      state = DeMeltUserState.loading();
       final homeRepository = ref.watch(homeRepositoryProvider);
-      final response = await homeRepository.unMeltUser(id);
+      final response = await homeRepository.deMeltUser(id);
 
       Fluttertoast.showToast(
           msg: "User unMelted",
@@ -33,20 +33,20 @@ class UnMeltUsersNotifier extends StateNotifier<UnMeltUsersState> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 16.0);
-      if (mounted) state = UnMeltUsersState.success(response.message!);
+      if (mounted) state = DeMeltUserState.success(response.message!);
       
       ref.read(getThoughtForYouProvider.notifier).getThoughtUpdate();
       ref.read(getThoughtExploreProvider.notifier).getThoughtUpdate();
     } catch (e, s) {
-      state = UnMeltUsersState.error(e.toString(), stackTrace: s);
+      state = DeMeltUserState.error(e.toString(), stackTrace: s);
     }
   }
 }
 
 // Define a type alias
-typedef UnMeltUsersState = BaseState<String>;
+typedef DeMeltUserState = BaseState<String>;
 
-final unmeltUserProvider = StateNotifierProvider.autoDispose
-    .family<UnMeltUsersNotifier, UnMeltUsersState, String>(
-  (ref, id) => UnMeltUsersNotifier(UnMeltUsersState.initial(), ref, id),
+final demeltUserProvider = StateNotifierProvider.autoDispose
+    <deMeltUserNotifier, DeMeltUserState>(
+  (ref) => deMeltUserNotifier(DeMeltUserState.initial(), ref),
 );

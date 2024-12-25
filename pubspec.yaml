@@ -4,7 +4,7 @@ description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
  
-version: 1.0.14+39
+version: 1.0.15+40
 
 
 environment:
@@ -72,6 +72,7 @@ dependencies:
   permission_handler: ^11.3.1
   audio_waveforms: ^1.2.0
   file_picker: ^8.1.4
+  cloud_functions: ^5.2.0
  
   
 

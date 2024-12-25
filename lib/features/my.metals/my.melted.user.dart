@@ -11,6 +11,7 @@ import 'package:metal/core/utils/constant/enums.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
+import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
@@ -50,7 +51,9 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
   @override
   Widget build(BuildContext context) {
     final checkMeltState = ref.watch(checkMeltProvider(widget.metalId));
-
+    final connection =
+        ref.watch(getMeltUserProvider.notifier).getMeltUserById(widget.metalId);
+    final connectionList = ref.watch(getMeltUserProvider).data;
     final myMelt = ref.watch(getUserProvider(widget.metalId));
     final meltState = ref.watch(meltUserProvider);
 
@@ -82,6 +85,11 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
               : ProfileHeader(
                   eye: false,
                   metalId: myMelt.data!.metal!,
+                  profileUrl: connection != null
+                      ? connection.isAnonymous
+                          ? null
+                          : myMelt.data!.profilePhoto
+                      : null,
                   child: Padding(
                     padding:
                         const EdgeInsets.only(top: 110, left: 20, right: 20),
@@ -111,13 +119,17 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5)),
                               ),
-                              child:
-                                  TextView(text: "@${myMelt.data!.username} "),
+                              child: TextView(
+                                  text: connection != null
+                                      ? connection.isAnonymous
+                                          ? "@${myMelt.data!.username} "
+                                          : "@${myMelt.data!.fullname} "
+                                      : "@${myMelt.data!.username} "),
                             ),
                           ),
                           const Gap(20),
-                          _buildMeltActionSection(
-                              checkMeltState, meltState, context),
+                          _buildMeltActionSection(checkMeltState, meltState,
+                              context, connectionList?.length ?? 0),
                           const Gap(10),
                           BaseTab(
                             tabs: [
@@ -172,7 +184,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
 
   // Widget to handle melt-related actions
   Widget _buildMeltActionSection(BaseState<MeltRequestState> checkMeltState,
-      MeltUsersState meltState, BuildContext context) {
+      MeltUsersState meltState, BuildContext context, int connectionInt) {
     if (checkMeltState.data == MeltRequestState.pending) {
       return PlainButton(
         enabled: false,
@@ -214,7 +226,13 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
       return BaseButton(
         loading: meltState.isLoading,
         onPressed: () {
-          ref.read(meltUserProvider.notifier).meltUser(widget.metalId);
+          connectionInt <= 10
+              ? ref.read(meltUserProvider.notifier).meltUser(widget.metalId)
+              : showDialog(
+                  context: context,
+                  builder: (BuildContext context) =>
+                      CustomDialog(content: _meltLimitDialog()),
+                );
         },
         fontSize: 15,
         buttonText: "Melt",
@@ -249,6 +267,42 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
         TextView(
           text: metal
               .desc, // Assuming `description` contains details about the metal
+          maxLines: 3,
+          textAlign: TextAlign.center,
+        ),
+        const Gap(38),
+        TextView(
+          text: "Cancel",
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          onTap: () => Navigator.pop(context),
+        ),
+        const Gap(21),
+      ],
+    );
+  }
+
+  Widget _meltLimitDialog() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Gap(38),
+        SvgPicture.asset(
+          Assets.icons.meltedMetalsSmileyXEyes.path,
+          height: 45,
+          width: 45,
+        ),
+        const Gap(15),
+        TextView(
+          text: "You are limited to a total of 10 Connection",
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
+          textAlign: TextAlign.center,
+        ),
+        const Gap(8),
+        TextView(
+          text:
+              "De-melt form previous connection to be able to connect to more metals", // Assuming `description` contains details about the metal
           maxLines: 3,
           textAlign: TextAlign.center,
         ),

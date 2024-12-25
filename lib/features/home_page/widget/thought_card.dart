@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
+import 'package:metal/features/home_page/provider/delete.thoughts.dart';
 
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/home_page/provider/react.thoughts.notifier.dart';
+import 'package:metal/features/home_page/widget/reaction.listtile.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -108,8 +111,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
                 const Gap(10),
                 _buildUserDetails(creatorUserdata!),
                 const Spacer(),
-                if (userdata?.id != thoughtModel.userId)
-                  _buildOptionsButton(context),
+                _buildOptionsButton(context),
               ],
             )
           : const SizedBox(),
@@ -153,24 +155,49 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     return SafeArea(
       child: Wrap(
         children: <Widget>[
-          ListTile(
-            title: const Text('Block Metal'),
-            onTap: () {
-              _showDialog(
-                context,
-                _blockDialog(context, thoughtModel, ref),
-              );
-            },
-          ),
-          ListTile(
-            title: const Text('Block and Report'),
-            onTap: () {
-              _showDialog(
-                context,
-                _blockAndReportDialog(context, thoughtModel, ref),
-              );
-            },
-          ),
+          if (widget.thoughtModel.userId == ref.watch(authProvider).data!.id)
+            ListTile(
+              title: const TextView(text: 'Delete Thoughts'),
+              onTap: () {
+                ref
+                    .read(deleteThoughtProvider.notifier)
+                    .deleteThought(widget.thoughtModel.id);
+                Navigator.pop(context);
+              },
+            ),
+          if (widget.thoughtModel.userId != ref.watch(authProvider).data!.id)
+            ListTile(
+              title: const TextView(text: 'Block Metal'),
+              onTap: () {
+                _showDialog(
+                  context,
+                  _blockDialog(context, thoughtModel, ref),
+                );
+              },
+            ),
+          if (widget.thoughtModel.userId != ref.watch(authProvider).data!.id)
+            ListTile(
+              title: const TextView(text: 'Block and Report'),
+              onTap: () {
+                _showDialog(
+                  context,
+                  _blockAndReportDialog(context, thoughtModel, ref),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _reactionList(BuildContext context) {
+    return SafeArea(
+      child: Wrap(
+        children: <Widget>[
+          for (var element in widget.thoughtModel.reactions)
+            ReactionListTile(
+              reactionModel: element,
+            )
         ],
       ),
     );
@@ -205,14 +232,23 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
       reactionText = '$totalReactions reacted';
     }
 
-    return Row(
-      children: [
-        for (var reaction in thoughtModel.reactions)
-          Text(
-            reaction.emoji,
-          ),
-        Text(reactionText),
-      ],
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet(
+          backgroundColor: Colors.white,
+          context: context,
+          builder: (BuildContext context) => _reactionList(context),
+        );
+      },
+      child: Row(
+        children: [
+          for (var reaction in thoughtModel.reactions)
+            TextView(
+              text: reaction.emoji,
+            ),
+          TextView(text: reactionText),
+        ],
+      ),
     );
   }
 

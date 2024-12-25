@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
@@ -46,6 +46,11 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(verficationProvider.notifier)
+          .sendVerificationCode(widget.argument.email!);
+    });
     super.initState();
     startTimer();
   }
@@ -72,7 +77,19 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
   Widget build(BuildContext context) {
     ref.listen<VerficationState>(verficationProvider, (prev, current) {
       if (current.isSuccess) {
-        Navigator.pushReplacementNamed(context, AppRoutes.welcomePage);
+        if (widget.argument.type == RouteFrom.AccountSetting) {
+          Navigator.pushReplacementNamed(context, AppRoutes.welcomePage);
+        }
+        if (widget.argument.type == RouteFrom.UpdatePhoneNumber) {
+          Navigator.pushReplacementNamed(context, AppRoutes.newPhoneNumberPage);
+        }
+        if (widget.argument.type == RouteFrom.UpdateEmail) {
+          Navigator.pushReplacementNamed(context, AppRoutes.newEmailPage);
+        }
+        if (widget.argument.type == RouteFrom.ForgetPassword) {
+          Navigator.pushReplacementNamed(context, AppRoutes.createNewPassword,
+              arguments: widget.argument.uuid);
+        }
       }
     });
 
@@ -166,9 +183,8 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                           GestureDetector(
                             onTap: () {
                               ref
-                                  .read(forgetPasswordProvider.notifier)
-                                  .forgetPassword(
-                                      email: widget.argument.email!);
+                                  .read(verficationProvider.notifier)
+                                  .sendVerificationCode(widget.argument.email!);
                               setState(() {
                                 _secondsRemaining = 60;
                                 startTimer();
@@ -190,16 +206,14 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                       ),
                     ],
                   )
-                : const Gap(0),
-            const Gap(23),
-            TextView(
-              text:
-                  "${formatDuration(Duration(seconds: _secondsRemaining))} Remaining",
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              textAlign: TextAlign.center,
-              color: AppColors.metalBrownColourForText,
-            ),
+                : TextView(
+                    text:
+                        "${formatDuration(Duration(seconds: _secondsRemaining))} Remaining",
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    textAlign: TextAlign.center,
+                    color: AppColors.metalBrownColourForText,
+                  ),
             const Gap(27),
             BaseButton(
               buttonText: "Verify Code",
@@ -215,29 +229,8 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
   }
 
   void checkCode(String value, context) {
-    if (value == widget.argument.code.toString()) {
-      if (widget.argument.type == RouteFrom.AccountSetting) {
-        ref.read(verficationProvider.notifier).activateAccount(
-              widget.argument.uuid!,
-            );
-      }
-      if (widget.argument.type == RouteFrom.UpdatePhoneNumber) {
-        Navigator.pushReplacementNamed(context, AppRoutes.newPhoneNumberPage);
-      }
-      if (widget.argument.type == RouteFrom.UpdateEmail) {
-        Navigator.pushReplacementNamed(context, AppRoutes.newEmailPage);
-      }
-      if (widget.argument.type == RouteFrom.ForgetPassword) {
-        Navigator.pushReplacementNamed(context, AppRoutes.createNewPassword,
-            arguments: widget.argument.uuid);
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid Code'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    ref
+        .read(verficationProvider.notifier)
+        .verifyCode(widget.argument.email!, value);
   }
 }

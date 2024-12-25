@@ -60,6 +60,8 @@ enum NotificationType {
   new_message,
   thought_created,
   reaction_added,
+  sparks_transaction
+
 }
 
 class NotificationAndroidNotification {

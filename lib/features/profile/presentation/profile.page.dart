@@ -29,6 +29,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       child: ProfileHeader(
         metalId: user.metal!,
         profileUrl: user.profilePhoto,
+        myProfile: true,
         child: Padding(
           padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
           child: Container(

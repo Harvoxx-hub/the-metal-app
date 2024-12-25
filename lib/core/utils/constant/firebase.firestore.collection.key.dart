@@ -6,5 +6,7 @@ class FirebaseFirestoreCollectionKeys {
   static const String connections = 'connections';
   static const String thoughts = 'thoughts';
    static const String sparksTransactions = 'sparksTransactions';
- 
+   static const String notification = 'notifications';
+  static const String blocked = 'blocked';
+  static const String message = 'messages';
 }

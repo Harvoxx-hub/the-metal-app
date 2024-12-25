@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
@@ -20,20 +21,23 @@ class UserProfilePage extends ConsumerWidget {
   static const name = 'userProfilePage';
   static const route = name;
   final UserModel user;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-      final metalProperties = ref.watch(metalPropertiesProvider).data;
+    final metalProperties = ref.watch(metalPropertiesProvider).data;
+    final connection =
+        ref.watch(getMeltUserProvider.notifier).getMeltUserById(user.id!);
 
- 
-  final metal = metalProperties!.metals!.firstWhere(
+    final metal = metalProperties!.metals!.firstWhere(
       (element) => element.id == user.metal,
-      orElse: () => metalProperties
-          .metals![0], // Fallback in case no match is found
+      orElse: () =>
+          metalProperties.metals![0], // Fallback in case no match is found
     );
     return BaseScreen(
       Header: "User Profile",
       body: ProfileHeader(
           eye: false,
+          myProfile: true,
           metalId: user.metal!,
           profileUrl: user.profilePhoto,
           child: Padding(
@@ -58,14 +62,21 @@ class UserProfilePage extends ConsumerWidget {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5)),
                       ),
-                      child: TextView(text: "@ ${user.username}"),
+                      child: TextView(
+                          text: connection != null
+                              ? connection.isAnonymous
+                                  ? "@${user.username} "
+                                  : "${user.fullname} "
+                              : "@${user.username} "),
                     ),
                     const Gap(40),
-                    // EditField(
-                    //   text: user.fullname!,
-                    //   floatingLabel: " First name & Last name",
-                    // ),
-                    //  const Gap(20),
+                    connection?.isAnonymous ?? true
+                        ? SizedBox()
+                        : EditField(
+                            text: user.fullname!,
+                            floatingLabel: " First name & Last name",
+                          ),
+                    const Gap(20),
                     EditField(
                       text: "@${user.username}",
                       floatingLabel: "Username",

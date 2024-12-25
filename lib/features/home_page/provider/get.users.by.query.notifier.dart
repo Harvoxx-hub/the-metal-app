@@ -16,7 +16,7 @@ class GetUsersNotifier extends StateNotifier<GetUsersState> {
       state = GetUsersState.loading();
       final homeRepository = ref.watch(homeRepositoryProvider);
       final response = await homeRepository.getUserByUsername(username: query);
-      print(response.data);
+ 
       if (mounted) {
         if (response.data is List) {
           // Check if every element in the list is a map

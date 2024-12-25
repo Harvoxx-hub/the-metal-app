@@ -10,34 +10,35 @@ import 'package:metal/widgets/text_views.dart';
 class BlockedCard extends ConsumerWidget {
   const BlockedCard({
     super.key,
-   
     required this.id,
   });
- 
+
   final String id;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final creatorUserdata = ref.watch(getUserProvider(id));
+   final creatorUserdata = ref.watch(getUserProvider(id));
     return Center(
-      child: creatorUserdata.isLoading?
-      CircularProgressIndicator.adaptive():
-      CardWithShadow(
-          onTap: () {
-            ref.read(blockUserProvider.notifier).unBlockUser(id);
-          },
-          height: 105,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-                ProfilePhoto(size: 56, verfly: true,meltId: creatorUserdata.data!.metal!, ),
-              const Gap(23),
-              TextView(
-                text: creatorUserdata.data!.username!,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ],
-          )),
+       child: creatorUserdata.isLoading
+          ? CircularProgressIndicator.adaptive()
+          : CardWithShadow(
+              onTap: () {
+                ref.read(blockUserProvider.notifier).unBlockUser(id);
+              },
+              height: 105,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ProfilePhoto(
+                    meltId: creatorUserdata.data!.metal!,
+                  ),
+                  const Gap(23),
+                  TextView(
+                    text: creatorUserdata.data!.username!,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ],
+              )),
     );
   }
 }

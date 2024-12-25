@@ -22,22 +22,20 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
       final homeRepository = ref.watch(homeRepositoryProvider);
       final response = await homeRepository.fetchConnections();
 
-response.listen((response) {
-  if (response.success?? false) {
-    print("Connections: ${response.data}");
-     final List<ConnectionModel> users = [];
-      for (var user in response.data) {
-        users.add(ConnectionModel.fromJson(user));
-      }
+      response.listen((response) {
+        if (response.success ?? false) {
+          final List<ConnectionModel> users = [];
+          for (var user in response.data) {
+            users.add(ConnectionModel.fromJson(user));
+          }
 
-      // Set the state to success and pass the list of users
-      state = GetMeltUsersState.success(users);
-  } else {
-        // In case of an error, set the state to error with the error message and stack trace
-      state = GetMeltUsersState.error(response.message??"");
-  }
-});
-     
+          // Set the state to success and pass the list of users
+          state = GetMeltUsersState.success(users);
+        } else {
+          // In case of an error, set the state to error with the error message and stack trace
+          state = GetMeltUsersState.error(response.message ?? "");
+        }
+      });
     } catch (e, s) {
       // In case of an error, set the state to error with the error message and stack trace
       state = GetMeltUsersState.error(e.toString(), stackTrace: s);
@@ -45,7 +43,7 @@ response.listen((response) {
   }
 
   // Update the list of Melt users manually
- 
+
   ConnectionModel? getMeltUserById(String id) {
     try {
       if (state.data != null) {
@@ -58,7 +56,6 @@ response.listen((response) {
 
       return null;
     } catch (e, s) {
-      print(e.toString());
       return null;
     }
   }

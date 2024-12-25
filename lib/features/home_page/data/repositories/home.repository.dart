@@ -223,28 +223,35 @@ class HomeRepository implements IHomeRepository {
     try {
       User? user = _firebaseService.auth.currentUser;
       String user1Id = user!.uid;
+
+      // Fetch connected user IDs
       final connectionListData = await getConnections(userId: user1Id);
       final connectedUserIds = connectionListData.data;
       List<String> otherUsersId = [];
       for (var i in connectedUserIds) {
         otherUsersId.add(i["users"].firstWhere(
           (user) => user != user1Id,
-          orElse: () =>
-              "", // Handle cases where all user IDs match the current user
+          orElse: () => "",
         ));
       }
-      // Fetch thoughts from users not in the connected user list
+
+      // Fetch blocked user IDs
+      final blockedUsers = await _firebaseService.readCollection(
+        collectionPath: "users/$user1Id/blocked",
+      );
+      final blockedUserIds = blockedUsers.map((doc) => doc['id']).toList();
+
+      // Fetch thoughts
       final thoughts = await _firebaseService.readCollection(
         collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
       );
 
-      // Filter thoughts locally to exclude connected users
-      final filteredThoughts = thoughts
-          .where((thought) {
-            return !otherUsersId.contains(thought['userId']);
-          })
-          .take(20)
-          .toList();
+      // Filter thoughts to exclude connected users and blocked users
+      final filteredThoughts = thoughts.where((thought) {
+        final thoughtUserId = thought['userId'];
+        return !otherUsersId.contains(thoughtUserId) &&
+            !blockedUserIds.contains(thoughtUserId);
+      }).toList();
 
       return Responses(
         success: true,
@@ -262,29 +269,37 @@ class HomeRepository implements IHomeRepository {
   @override
   Future<Responses> getThoughtForYou() async {
     try {
-      // Fetch connections of the current user
       User? user = _firebaseService.auth.currentUser;
       String user1Id = user!.uid;
+
+      // Fetch connected user IDs
       final connectionListData = await getConnections(userId: user1Id);
       final connectedUserIds = connectionListData.data;
       List<String> otherUsersId = [];
       for (var i in connectedUserIds) {
         otherUsersId.add(i["users"].firstWhere(
           (user) => user != user1Id,
-          orElse: () =>
-              "", // Handle cases where all user IDs match the current user
+          orElse: () => "",
         ));
       }
 
-      // Fetch thoughts from users not in the connected user list
+      // Fetch blocked user IDs
+      final blockedUsers = await _firebaseService.readCollection(
+        collectionPath: "users/$user1Id/blocked",
+      );
+      final blockedUserIds = blockedUsers.map((doc) => doc['id']).toList();
+
+      // Fetch thoughts
       final thoughts = await _firebaseService.readCollection(
         collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
       );
 
-      // Filter thoughts locally to exclude connected users
+      // Filter thoughts to include only connected users and exclude blocked users
       final filteredThoughts = thoughts
           .where((thought) {
-            return otherUsersId.contains(thought['userId']);
+            final thoughtUserId = thought['userId'];
+            return otherUsersId.contains(thoughtUserId) &&
+                !blockedUserIds.contains(thoughtUserId);
           })
           .take(20)
           .toList();
@@ -447,6 +462,43 @@ class HomeRepository implements IHomeRepository {
     }
   }
 
+  @override
+  Future<Responses> deleteThoughtById(String id) async {
+    try {
+      await _firebaseService.deleteDocument(
+        collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
+        documentId: id, // Use the unique ID for the thought
+      );
+
+      return Responses(
+        success: true,
+        message: "Thought deleted successfully.",
+      );
+    } catch (e) {
+      return Responses(
+        success: false,
+        message: "Failed to create thought: ${e.toString()}",
+      );
+    }
+  }
+
+  @override
+  Future<Responses> deMeltUser(String userToMelt) async {
+    try {
+      // Delete the connection document
+      await _firebaseService.deleteDocument(
+        collectionPath: FirebaseFirestoreCollectionKeys.connections,
+        documentId: userToMelt,
+      );
+
+      return Responses(
+        success: true,
+        message: "Connection deleted successfully.",
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
 
 final homeRepositoryProvider = Provider((ref) {

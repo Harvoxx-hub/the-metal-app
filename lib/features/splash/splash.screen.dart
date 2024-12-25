@@ -41,16 +41,14 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   Widget build(BuildContext context) {
     ref.listen<AuthState>(authProvider, (prev, current) {
       if (current.isSuccess) {
-        current.data!.emailVerified == false
+        (current.data?.emailVerified ?? false) == false
             ? Navigator.pushReplacementNamed(
                 context,
                 AppRoutes.verificationPage,
                 arguments: VerificationSentArgument(
                     type: RouteFrom.AccountSetting,
-                    code: 123456,
-                    uuid: current.data?.id ?? "",
-                    phoneNumber: current.data!.phone!,
-                    email: current.data!.phone!),
+                
+                    email: current.data!.email!),
               )
             : current.data!.profileUpdated ?? false
                 ? Navigator.pushReplacementNamed(

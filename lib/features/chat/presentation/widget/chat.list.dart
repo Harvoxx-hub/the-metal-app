@@ -3,12 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
 
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
-import 'package:metal/features/chat/domain/entries/conversations.model.dart';
-
-import 'package:metal/features/chat/provider/get.chatlist.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
@@ -126,8 +122,10 @@ class chatListItem extends ConsumerWidget {
               child: Row(
                 children: [
                   ProfilePhoto(
-                    meltId: getUser.data!.metal!,
-                  ),
+                      meltId: getUser.data!.metal!,
+                      imgUrl: conversationsModel.isAnonymous
+                          ? null
+                          : getUser.data!.profilePhoto!),
                   const Gap(16),
                   Expanded(
                     child: Column(

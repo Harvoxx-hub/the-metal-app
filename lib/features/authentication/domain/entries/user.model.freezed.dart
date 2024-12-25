@@ -48,7 +48,7 @@ mixin _$UserModel {
   double get sparkBalance => throw _privateConstructorUsedError;
   String? get distance => throw _privateConstructorUsedError;
   String? get id => throw _privateConstructorUsedError;
-  String get referralCode => throw _privateConstructorUsedError;
+  String? get referralCode => throw _privateConstructorUsedError;
   String? get referredBy => throw _privateConstructorUsedError;
   bool get showOnline => throw _privateConstructorUsedError;
   bool get alwaysMetal => throw _privateConstructorUsedError;
@@ -101,7 +101,7 @@ abstract class $UserModelCopyWith<$Res> {
       double sparkBalance,
       String? distance,
       String? id,
-      String referralCode,
+      String? referralCode,
       String? referredBy,
       bool showOnline,
       bool alwaysMetal,
@@ -160,7 +160,7 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? sparkBalance = null,
     Object? distance = freezed,
     Object? id = freezed,
-    Object? referralCode = null,
+    Object? referralCode = freezed,
     Object? referredBy = freezed,
     Object? showOnline = null,
     Object? alwaysMetal = null,
@@ -276,10 +276,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String?,
-      referralCode: null == referralCode
+      referralCode: freezed == referralCode
           ? _value.referralCode
           : referralCode // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       referredBy: freezed == referredBy
           ? _value.referredBy
           : referredBy // ignore: cast_nullable_to_non_nullable
@@ -418,7 +418,7 @@ abstract class _$$UserModelImplCopyWith<$Res>
       double sparkBalance,
       String? distance,
       String? id,
-      String referralCode,
+      String? referralCode,
       String? referredBy,
       bool showOnline,
       bool alwaysMetal,
@@ -479,7 +479,7 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? sparkBalance = null,
     Object? distance = freezed,
     Object? id = freezed,
-    Object? referralCode = null,
+    Object? referralCode = freezed,
     Object? referredBy = freezed,
     Object? showOnline = null,
     Object? alwaysMetal = null,
@@ -595,10 +595,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String?,
-      referralCode: null == referralCode
+      referralCode: freezed == referralCode
           ? _value.referralCode
           : referralCode // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       referredBy: freezed == referredBy
           ? _value.referredBy
           : referredBy // ignore: cast_nullable_to_non_nullable
@@ -685,7 +685,7 @@ class _$UserModelImpl implements _UserModel {
       this.sparkBalance = 0,
       this.distance,
       this.id,
-      this.referralCode = "",
+      this.referralCode,
       this.referredBy,
       this.showOnline = true,
       this.alwaysMetal = true,
@@ -778,8 +778,7 @@ class _$UserModelImpl implements _UserModel {
   @override
   final String? id;
   @override
-  @JsonKey()
-  final String referralCode;
+  final String? referralCode;
   @override
   final String? referredBy;
   @override
@@ -991,7 +990,7 @@ abstract class _UserModel implements UserModel {
       final double sparkBalance,
       final String? distance,
       final String? id,
-      final String referralCode,
+      final String? referralCode,
       final String? referredBy,
       final bool showOnline,
       final bool alwaysMetal,
@@ -1064,7 +1063,7 @@ abstract class _UserModel implements UserModel {
   @override
   String? get id;
   @override
-  String get referralCode;
+  String? get referralCode;
   @override
   String? get referredBy;
   @override

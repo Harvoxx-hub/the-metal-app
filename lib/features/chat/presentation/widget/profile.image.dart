@@ -13,6 +13,7 @@ class ProfileImage extends ConsumerWidget {
     this.width,
     this.onTap,
     this.id,
+    this.url,
   });
   final String metalID;
   final double? height;
@@ -20,6 +21,7 @@ class ProfileImage extends ConsumerWidget {
   final double? width;
   final bool isEdit = false;
   final Function()? onTap;
+  final String? url;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,20 +45,35 @@ class ProfileImage extends ConsumerWidget {
             ),
           ),
           child: Center(
-              child: CachedNetworkImage(
-                  imageUrl: metal.img,
-                  imageBuilder: (context, imageProvider) => CircleAvatar(
-                        radius: 33, // Image radius
-                        backgroundImage: imageProvider,
-                      ),
-                  placeholder: (context, url) => const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator
-                            .adaptive(), // Loading indicator
-                      ),
-                  errorWidget: (context, url, error) =>
-                      Assets.images.logo.image(height: 24, width: 24)))),
+              child: url != null
+                  ? CachedNetworkImage(
+                      imageUrl: url!,
+                      imageBuilder: (context, imageProvider) => CircleAvatar(
+                            radius: 33, // Image radius
+                            backgroundImage: imageProvider,
+                          ),
+                      placeholder: (context, url) => const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator
+                                .adaptive(), // Loading indicator
+                          ),
+                      errorWidget: (context, url, error) =>
+                          Assets.images.logo.image(height: 24, width: 24))
+                  : CachedNetworkImage(
+                      imageUrl: metal.img,
+                      imageBuilder: (context, imageProvider) => CircleAvatar(
+                            radius: 33, // Image radius
+                            backgroundImage: imageProvider,
+                          ),
+                      placeholder: (context, url) => const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator
+                                .adaptive(), // Loading indicator
+                          ),
+                      errorWidget: (context, url, error) =>
+                          Assets.images.logo.image(height: 24, width: 24)))),
     );
   }
 }

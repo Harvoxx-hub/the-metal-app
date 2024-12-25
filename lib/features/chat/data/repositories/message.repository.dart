@@ -1,24 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/model/responces.dart';
-import 'package:metal/core/services/api.service.dart';
-import 'package:metal/core/services/firebase.service.dart';
+import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/core/utils/constant/firebase.firestore.collection.key.dart';
-import 'package:metal/core/utils/uuid_center.dart';
 
-import 'package:metal/features/chat/domain/entries/conversations.model.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/domain/reprositries/imessage_repository.dart';
-import 'package:metal/features/notification/domain/entries/notification.model.dart';
 
 class MessageRepository implements IMessageRepository {
-  final FirebaseService _firebaseService = FirebaseService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
 
-  final ApiService _apiService = ApiService();
-
- 
+  final FirebaseServiceDb _db = FirebaseServiceDb.instance;
 
   @override
   Stream<List<MessageModel>> getMessages(String conversationId) {
@@ -48,7 +40,7 @@ class MessageRepository implements IMessageRepository {
     try {
       updateConversation(conversationsId, message.message, message.timestamp);
       createMessage(conversationsId, message);
-   
+
       // Return a successful response with the new conversation ID
       return Responses(success: true, data: conversationsId);
     } catch (e) {
@@ -65,8 +57,9 @@ class MessageRepository implements IMessageRepository {
   ) async {
     try {
       // Get a reference to the conversation document
-      final conversationDocRef =
-          _firestore.collection(FirebaseFirestoreCollectionKeys.connections).doc(conversationId);
+      final conversationDocRef = _firestore
+          .collection(FirebaseFirestoreCollectionKeys.connections)
+          .doc(conversationId);
 
       // Update the fields in the conversation document
       await conversationDocRef.update({
@@ -78,8 +71,7 @@ class MessageRepository implements IMessageRepository {
       rethrow;
     }
   }
- 
- 
+
   Future<void> createMessage(
       String conversationId, MessageModel messageModel) async {
     try {
@@ -95,21 +87,19 @@ class MessageRepository implements IMessageRepository {
     }
   }
 
-   
-  
-   
   @override
   updateGame(String id, String gameTile, {MessageModel? message}) async {
     try {
       // Get a reference to the conversation document
-      final conversationDocRef = _firestore.collection(FirebaseFirestoreCollectionKeys.connections).doc(id);
+      final conversationDocRef = _firestore
+          .collection(FirebaseFirestoreCollectionKeys.connections)
+          .doc(id);
 
       // Update the fields in the conversation document
       await conversationDocRef.update({
         'lastMessage': "Started a game",
         'game': gameTile,
       });
-      
     } catch (e) {
       print('Error updating conversation: $e');
       rethrow;
@@ -135,28 +125,51 @@ class MessageRepository implements IMessageRepository {
     }
   }
 
-   
   @override
-  Future<Responses> lastActiveTime(String id) async {
+  Future<Responses> unMelt(
+      String id, String messageId, Map<String, dynamic> data) async {
     try {
-      final response = await _apiService.post(
-        "user/get-last-seen",
-        body: {"user": id},
-      );
-      return response;
+      await _db.updateDocument(
+          collectionPath:
+              '${FirebaseFirestoreCollectionKeys.connections}/$id/${FirebaseFirestoreCollectionKeys.message}',
+          documentId: messageId,
+          data: data);
+      await _db.updateDocument(
+          collectionPath: FirebaseFirestoreCollectionKeys.connections,
+          documentId: id,
+          data: {"isAnonymous": false});
+
+      return Responses(success: true, message: "Un-melt Successfully");
     } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<Responses> deMelt(String id) async {
+  deleteMessage(String id, messageId) async {
     try {
-      final response = await _apiService.post(
-        "melt/de-melt",
-        body: {"userToDeMelt": id},
+      await _db.deleteDocument(
+        collectionPath:
+            '${FirebaseFirestoreCollectionKeys.connections}/$id/${FirebaseFirestoreCollectionKeys.message}',
+        documentId: messageId,
       );
-      return response;
+
+      return Responses(success: true, message: "Deleted Successfully");
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  updateMessage(String id, messageId, Map<String, dynamic> data) async {
+    try {
+      await _db.updateDocument(
+          collectionPath:
+              '${FirebaseFirestoreCollectionKeys.connections}/$id/${FirebaseFirestoreCollectionKeys.message}',
+          documentId: messageId,
+          data: data);
+
+      return Responses(success: true, message: "Deleted Successfully");
     } catch (e) {
       rethrow;
     }

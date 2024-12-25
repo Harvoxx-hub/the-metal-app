@@ -23,6 +23,7 @@ class ConnectionModel {
   final String? lastMessage;
   final String? lastUpdatedAt;
   final String? game;
+  
   final String connectedOn; // Timestamp when the connection was created
   final String status; // Status of the connection (e.g., "active", "blocked")
   final bool isAnonymous; // Whether the connection remains anonymous

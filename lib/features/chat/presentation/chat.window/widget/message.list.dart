@@ -44,6 +44,7 @@ class _MessageListState extends ConsumerState<MessageList> {
                           final message = messages.data![index];
                           return MessageBubble(
                             message: message,
+                            connectionId: widget.conversationId!,
                           );
                         },
                       )));

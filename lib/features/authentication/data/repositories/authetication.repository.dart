@@ -1,20 +1,19 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dio/dio.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/error/firebase.error.handle.dart';
 import 'package:metal/core/model/responces.dart';
 import 'package:metal/core/services/api.service.dart';
 
 import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/core/utils/constant/firebase.firestore.collection.key.dart';
-import 'package:metal/core/utils/uuid_center.dart';
+
 import 'package:metal/fcm/fcm_client.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 import 'package:metal/features/authentication/domain/repositories/iauthetication_repository.dart';
 
@@ -92,7 +91,11 @@ class AuthenticationRepository implements IAuthenticationRepository {
       return Responses(
           success: true, message: "Signup successful.", data: user);
     } catch (e) {
-      return Responses(success: false, message: "Signup failed: $e");
+      String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
+      return Responses(
+        success: false,
+        message: "Error: $errorMessage",
+      );
     }
   }
 
@@ -117,8 +120,11 @@ class AuthenticationRepository implements IAuthenticationRepository {
         message: "No user is currently logged in.",
       );
     } catch (e) {
+      String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
       return Responses(
-          success: false, message: "Failed to fetch current user data: $e");
+        success: false,
+        message: "Error: $errorMessage",
+      );
     }
   }
 
@@ -148,9 +154,10 @@ class AuthenticationRepository implements IAuthenticationRepository {
           message: "User information updated successfully.",
           data: response);
     } catch (e) {
+      String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
       return Responses(
         success: false,
-        message: "Failed to update user information: ${e.toString()}",
+        message: "Error: $errorMessage",
       );
     }
   }
@@ -211,9 +218,10 @@ class AuthenticationRepository implements IAuthenticationRepository {
         message: "Profile image uploaded successfully.",
       );
     } on FirebaseException catch (e) {
+      String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
       return Responses(
         success: false,
-        message: "Firebase error: ${e.message}",
+        message: "Error: $errorMessage",
       );
     } catch (e) {
       return Responses(
@@ -235,9 +243,10 @@ class AuthenticationRepository implements IAuthenticationRepository {
         message: "Feedback submitted successfully.",
       );
     } catch (e) {
+      String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
       return Responses(
         success: false,
-        message: "Failed to submit feedback: ${e.toString()}",
+        message: "Error: $errorMessage",
       );
     }
   }
@@ -260,8 +269,11 @@ class AuthenticationRepository implements IAuthenticationRepository {
 
       return Responses(success: true, message: "User deleted successfully.");
     } catch (e) {
+      String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
       return Responses(
-          success: false, message: "Failed to delete user: ${e.toString()}");
+        success: false,
+        message: "Error: $errorMessage",
+      );
     }
   }
 
@@ -350,33 +362,7 @@ class AuthenticationRepository implements IAuthenticationRepository {
       );
     }
   }
-// import 'package:cloud_functions/cloud_functions.dart';
-
-// Future<void> sendVerificationCode(String phoneNumber) async {
-//   try {
-//     final callable = FirebaseFunctions.instance.httpsCallable('sendVerificationCode');
-//     final response = await callable.call({'phoneNumber': phoneNumber});
-
-//     print(response.data['message']); // Output: Verification code sent to phone.
-//   } catch (e) {
-//     print('Failed to send verification code: $e');
-//   }
-// }
-
-// Future<void> verifyCode(String phoneNumber, String code) async {
-//   try {
-//     final callable = FirebaseFunctions.instance.httpsCallable('verifyCode');
-//     final response = await callable.call({'phoneNumber': phoneNumber, 'code': code});
-
-//     if (response.data['success']) {
-//       print("Phone number verified successfully.");
-//     } else {
-//       print("Verification failed: ${response.data['message']}");
-//     }
-//   } catch (e) {
-//     print('Failed to verify code: $e');
-//   }
-// }
+ 
 }
 
 final authenticationRepositoryProvider = Provider((ref) {

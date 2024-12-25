@@ -7,6 +7,7 @@ import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.explore.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.for.you.dart';
 import 'package:metal/features/settings/data/repositories/setting.repository.dart';
+import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 
 class BlockUsersNotifier extends StateNotifier<BlockUsersState> {
   BlockUsersNotifier(
@@ -30,7 +31,7 @@ class BlockUsersNotifier extends StateNotifier<BlockUsersState> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 16.0);
-
+      ref.read(getBlockUserProvider.notifier).getBlock();
       ref.read(getThoughtForYouProvider.notifier).getThoughtUpdate();
       ref.read(getThoughtExploreProvider.notifier).getThoughtUpdate();
       if (mounted) {
@@ -46,6 +47,7 @@ class BlockUsersNotifier extends StateNotifier<BlockUsersState> {
       state = BlockUsersState.loading();
       final repo = ref.watch(settingRepositoryProvider);
       final response = await repo.unBlockUser(id);
+      ref.read(getBlockUserProvider.notifier).getBlock();
       ref.read(getThoughtForYouProvider.notifier).getThoughtUpdate();
       ref.read(getThoughtExploreProvider.notifier).getThoughtUpdate();
 

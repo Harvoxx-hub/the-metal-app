@@ -19,8 +19,10 @@ abstract class IHomeRepository {
   Future<Responses> getThoughtForYou();
   Future<Responses> getThoughtExplore();
   Future<Responses> getThoughtById(String id);
+   Future<Responses> deleteThoughtById(String id);
   Future<Responses> getThoughtsByUserId(String id);
   Future<Responses> unMeltUser(String userToMelt);
+    Future<Responses> deMeltUser(String userToMelt);
   Stream<Responses> fetchConnections({String? userId});
   Future<Responses> checkMelt({required String user2Id});
   Future markUserOffline(String userId);

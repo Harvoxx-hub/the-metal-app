@@ -4,7 +4,7 @@ import 'package:metal/core/utils/timestamp_converter.dart';
 
 part 'message.model.g.dart';
 
-enum MessageType { text, audio }
+enum MessageType { text, audio, un_melt }
 
 enum MessageState { sending, sent, read, error }
 
@@ -15,6 +15,7 @@ class MessageModel {
 
   final MessageType type;
   String? content;
+   String? id;
 
   final String timestamp;
   final bool isRead;
@@ -24,6 +25,7 @@ class MessageModel {
     required this.senderId,
     required this.type,
     this.content,
+     this.id,
     required this.timestamp,
     required this.isRead,
   });
@@ -40,11 +42,21 @@ class MessageModel {
       content: data['content'],
       timestamp: data['timestamp'],
       isRead: data['isRead'],
+      id: snapshot.id
     );
   }
 
   static MessageType _convertStringToMessageType(String type) {
-    return type == 'text' ? MessageType.text : MessageType.audio;
+    switch (type) {
+      case 'text':
+        return MessageType.text;
+      case 'audio':
+        return MessageType.audio;
+      case 'un_melt':
+        return MessageType.un_melt;
+      default:
+        throw ArgumentError('Unknown message type: $type');
+    }
   }
 
   static MessageState _convertStringToMessageState(String state) {

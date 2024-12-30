@@ -9,8 +9,8 @@ import 'package:metal/features/home_page/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
 
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
-import 'package:metal/features/settings/presentation%20/delete.screen.dart';
-import 'package:metal/features/settings/presentation%20/edit.page.dart';
+import 'package:metal/features/settings/presentation/delete.screen.dart';
+import 'package:metal/features/settings/presentation/edit.page.dart';
 import 'package:metal/features/splash/splash.screen.dart';
 import 'package:camera/camera.dart';
 
@@ -53,9 +53,9 @@ import 'package:metal/features/profile/presentation/update.email/update.email.pa
 import 'package:metal/features/profile/presentation/update.phone.number/new.phone.number.page.dart';
 import 'package:metal/features/profile/presentation/update.phone.number/update.phone.number.page.dart';
 import 'package:metal/features/refer.earn/refer.earn.dart';
-import 'package:metal/features/settings/presentation%20/blocked.user.dart'
+import 'package:metal/features/settings/presentation/blocked.user.dart'
     as block;
-import 'package:metal/features/settings/presentation%20/settings.page.dart';
+import 'package:metal/features/settings/presentation/settings.page.dart';
 
 import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
 import 'package:metal/features/sparks_page/screens/refer.earn/refer.earn.dart';

@@ -9,7 +9,7 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/settings/presentation%20/widget/blocked.card.dart';
+import 'package:metal/features/settings/presentation/widget/blocked.card.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 

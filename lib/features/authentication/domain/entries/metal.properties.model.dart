@@ -38,11 +38,12 @@ class MetalPropertiesModel {
 
 @JsonSerializable()
 class Metal {
-  String? title;
-  String? desc;
-  String? img;
+  String title;
+  String desc;
+  String img;
+  String? id;
 
-  Metal({this.title, this.desc, this.img});
+  Metal({required this.title, required this.desc, required this.img, this.id});
 
   factory Metal.fromJson(Map<String, dynamic> json) => _$MetalFromJson(json);
 

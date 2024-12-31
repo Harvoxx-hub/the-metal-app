@@ -31,7 +31,8 @@ class DashWidget extends StatelessWidget {
       child: Container(
         // Adjust width as needed
         height: 1, // Adjust height as needed
-        margin: const EdgeInsets.symmetric(horizontal: 2), // Adjust spacing as needed
+        margin: const EdgeInsets.symmetric(
+            horizontal: 2), // Adjust spacing as needed
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(

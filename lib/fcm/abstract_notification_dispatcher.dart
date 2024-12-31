@@ -1,12 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
- 
+
 import 'package:flutter/material.dart';
 import 'package:metal/main.dart';
- 
 
 import 'models/notification_payload_model.dart';
 
- 
 abstract class AbstractNotificationDispatcher {
   NavigatorState? navState;
 
@@ -37,7 +35,6 @@ abstract class AbstractNotificationDispatcher {
   }
 }
 
- 
 class PushDispatcher {
   PushDispatcher._(this._dispatcher);
 
@@ -46,12 +43,11 @@ class PushDispatcher {
 
   final AbstractNotificationDispatcher _dispatcher;
 
- 
   static void initialize(AbstractNotificationDispatcher dispatcher) {
     _instance = PushDispatcher._(dispatcher);
     _initialized = true;
   }
- 
+
   static Future? dispatchNotification(
     NotificationPayloadModel? model, {
     bool removeUntil = false,
@@ -62,6 +58,7 @@ class PushDispatcher {
       'was not initialized for current app in main.dart file.',
     );
 
-    return _instance._dispatcher.dispatchNotification(model, removeUntil: removeUntil);
+    return _instance._dispatcher
+        .dispatchNotification(model, removeUntil: removeUntil);
   }
 }

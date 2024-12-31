@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
@@ -10,6 +10,7 @@ import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
+import 'package:metal/features/authentication/provider/forget.password.notifier.dart';
 import 'package:metal/features/authentication/provider/verfication.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
@@ -20,7 +21,12 @@ import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
-enum RouteFrom { AccountSetting, UpdatePhoneNumber, UpdateEmail }
+enum RouteFrom {
+  AccountSetting,
+  UpdatePhoneNumber,
+  UpdateEmail,
+  ForgetPassword
+}
 
 class VerificationPage extends ConsumerStatefulWidget {
   VerificationPage(this.argument, {super.key});
@@ -40,6 +46,11 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(verficationProvider.notifier)
+          .sendVerificationCode(widget.argument.email!);
+    });
     super.initState();
     startTimer();
   }
@@ -66,7 +77,19 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
   Widget build(BuildContext context) {
     ref.listen<VerficationState>(verficationProvider, (prev, current) {
       if (current.isSuccess) {
-        Navigator.pushReplacementNamed(context, AppRoutes.welcomePage);
+        if (widget.argument.type == RouteFrom.AccountSetting) {
+          Navigator.pushReplacementNamed(context, AppRoutes.welcomePage);
+        }
+        if (widget.argument.type == RouteFrom.UpdatePhoneNumber) {
+          Navigator.pushReplacementNamed(context, AppRoutes.newPhoneNumberPage);
+        }
+        if (widget.argument.type == RouteFrom.UpdateEmail) {
+          Navigator.pushReplacementNamed(context, AppRoutes.newEmailPage);
+        }
+        if (widget.argument.type == RouteFrom.ForgetPassword) {
+          Navigator.pushReplacementNamed(context, AppRoutes.createNewPassword,
+              arguments: widget.argument.uuid);
+        }
       }
     });
 
@@ -96,7 +119,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                 ),
                 TextView(
                   text:
-                      'Please input the OTP code sent to \n*${widget.argument.phoneNumber}*',
+                      'Please input the OTP code sent to \n*${widget.argument.email}*',
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.w300,
@@ -133,50 +156,64 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
               },
             ),
             const Gap(36),
-            const TextView(
-              text: "Didn’t receive the code? ",
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              textAlign: TextAlign.center,
-              fontStyle: FontStyle.italic,
-              color: AppColors.metalBrownColourForText,
-            ),
-            const TextView(
-              text: " Tap to resend via SMS or Phone call",
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              textAlign: TextAlign.center,
-              fontStyle: FontStyle.italic,
-              color: AppColors.metalBrownColourForText,
-            ),
             const Gap(33),
             _secondsRemaining == 0
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                ? Column(
                     children: [
-                      SvgPicture.asset(
-                        Assets.icons.verificationText.path,
-                        height: 50,
-                        width: 50.w,
+                      const TextView(
+                        text: "Didn’t receive the code? ",
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        textAlign: TextAlign.center,
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.metalBrownColourForText,
                       ),
-                      // Gap(10.w),
-                      // SvgPicture.asset(
-                      //   Assets.icons.verificationCall.path,
-                      //   height: 50 ,
-                      //   width: 50.w,
-                      // ),
+                      const TextView(
+                        text: " Tap to resend the OTP",
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        textAlign: TextAlign.center,
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.metalBrownColourForText,
+                      ),
+                      const Gap(33),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              ref
+                                  .read(verficationProvider.notifier)
+                                  .sendVerificationCode(widget.argument.email!);
+                              setState(() {
+                                _secondsRemaining = 60;
+                                startTimer();
+                              });
+                            },
+                            child: SvgPicture.asset(
+                              Assets.icons.verificationText.path,
+                              height: 50,
+                              width: 50,
+                            ),
+                          ),
+                          // Gap(10.w),
+                          // SvgPicture.asset(
+                          //   Assets.icons.verificationCall.path,
+                          //   height: 50 ,
+                          //   width: 50.w,
+                          // ),
+                        ],
+                      ),
                     ],
                   )
-                : const Gap(0),
-            const Gap(23),
-            TextView(
-              text:
-                  "${formatDuration(Duration(seconds: _secondsRemaining))} Remaining",
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              textAlign: TextAlign.center,
-              color: AppColors.metalBrownColourForText,
-            ),
+                : TextView(
+                    text:
+                        "${formatDuration(Duration(seconds: _secondsRemaining))} Remaining",
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    textAlign: TextAlign.center,
+                    color: AppColors.metalBrownColourForText,
+                  ),
             const Gap(27),
             BaseButton(
               buttonText: "Verify Code",
@@ -192,25 +229,8 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
   }
 
   void checkCode(String value, context) {
-    if (value == widget.argument.code.toString()) {
-      if (widget.argument.type == RouteFrom.AccountSetting) {
-        ref.read(verficationProvider.notifier).activateAccount(
-              widget.argument.uuid!,
-            );
-      }
-      if (widget.argument.type == RouteFrom.UpdatePhoneNumber) {
-        Navigator.pushReplacementNamed(context, AppRoutes.newPhoneNumberPage);
-      }
-      if (widget.argument.type == RouteFrom.UpdateEmail) {
-        Navigator.pushReplacementNamed(context, AppRoutes.newEmailPage);
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid Code'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    ref
+        .read(verficationProvider.notifier)
+        .verifyCode(widget.argument.email!, value);
   }
 }

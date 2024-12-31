@@ -60,15 +60,17 @@ Map<String, dynamic> _$MetalPropertiesModelToJson(
     };
 
 Metal _$MetalFromJson(Map<String, dynamic> json) => Metal(
-      title: json['title'] as String?,
-      desc: json['desc'] as String?,
-      img: json['img'] as String?,
+      title: json['title'] as String,
+      desc: json['desc'] as String,
+      img: json['img'] as String,
+      id: json['id'] as String?,
     );
 
 Map<String, dynamic> _$MetalToJson(Metal instance) => <String, dynamic>{
       'title': instance.title,
       'desc': instance.desc,
       'img': instance.img,
+      'id': instance.id,
     };
 
 Passion _$PassionFromJson(Map<String, dynamic> json) => Passion(

@@ -9,7 +9,8 @@ class SendMessageNotifier extends StateNotifier<SendMessageState> {
 
   final Ref ref;
 
-  Future<void> sendMessage(MessageModel message, String? conversationsId ) async {
+  Future<void> sendMessage(
+      MessageModel message, String? conversationsId) async {
     try {
       state = SendMessageState.loading();
 
@@ -20,11 +21,10 @@ class SendMessageNotifier extends StateNotifier<SendMessageState> {
 
       final messageRepository = ref.watch(messageRepositoryProvider);
       final response = await messageRepository.sendMessage(
-        message: message,
-        conversationsId: conversationsId
-      );
+          message: message, conversationsId: conversationsId!);
 
       if (response.success!) {
+        if(mounted)
         state = SendMessageState.success(response.data);
       } else {
         state = SendMessageState.error(

@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:metal/widgets/text_views.dart';
-
 import '../../res/colors/cr_colors.dart';
 
 class PhoneInput extends StatelessWidget {
   final String floatingLabel;
-  const PhoneInput(
-      {super.key, this.phoneController, this.floatingLabel = "Phone number"});
-// ignore: prefer_typing_uninitialized_variables
-  final phoneController;
+  final TextEditingController phoneController;
+  final void Function(String)? onPhoneNumberChanged;
+
+  const PhoneInput({
+    Key? key,
+    required this.phoneController,
+    this.floatingLabel = "Phone number",
+    this.onPhoneNumberChanged,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -27,11 +32,12 @@ class PhoneInput extends StatelessWidget {
         IntlPhoneField(
           dropdownIconPosition: IconPosition.trailing,
           style: const TextStyle(
-              fontFamily: 'Plus_Jakarta',
-              color: AppColors.metalBrownColourForText,
-              fontWeight: FontWeight.w300,
-              fontSize: 16,
-              fontStyle: FontStyle.normal),
+            fontFamily: 'Plus_Jakarta',
+            color: AppColors.metalBrownColourForText,
+            fontWeight: FontWeight.w300,
+            fontSize: 16,
+            fontStyle: FontStyle.normal,
+          ),
           decoration: InputDecoration(
             labelText: '81033000333',
             focusColor: AppColors.metalPinkColour,
@@ -58,9 +64,12 @@ class PhoneInput extends StatelessWidget {
           initialCountryCode: 'US',
           controller: phoneController,
           flagsButtonPadding: const EdgeInsets.all(10),
-          onChanged: (phone) {
-            print(phone.completeNumber);
-          },
+          onChanged: onPhoneNumberChanged != null
+              ? (phone) => onPhoneNumberChanged!(phone.completeNumber ?? '')
+              : null,
+          onSubmitted: onPhoneNumberChanged != null
+              ? (phone) => onPhoneNumberChanged!(phone)
+              : null,
         ),
       ],
     );

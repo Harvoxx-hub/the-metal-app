@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:metal/core/model/responces.dart';
 
 abstract class IAuthenticationRepository {
-  Future<Responses> signUp({
-    required String email,
-    required String password,
-    required String phoneNumber,
-  });
+  Future<Responses> signUp(
+      {required String email,
+      required String password,
+      required String phoneNumber,
+      String? referal});
 
   Future<Responses> logIn({
     required String email,
@@ -18,41 +18,30 @@ abstract class IAuthenticationRepository {
     required String email,
   });
 
-  Future<Responses> activateAccount(
-    String UUID,
-  );
-
   Future<Responses> getCurrentUser();
-  Future<Responses> getUserByID(
-    {
-      required String id
-    }
-  );
+  Future<Responses> getUserByID({required String id});
   // get metal properties
   Future<Responses> getMetalProperties();
 
   Future<Responses> updateUser(
-    Map<String, dynamic>  user,
+    Map<String, dynamic> user,
   );
 
-   Future<Responses> completeUser(
-    Map<String, dynamic>  user,
-  );
-   Future<Responses> DeleteUser(
-    
-  );
+  Future<Responses> DeleteUser();
 
-    Future<Responses> UpdateParticualarInfo(
-     Map<String, dynamic>  update,
-  );
-    Future<Responses> uploadProfileImage(
-     File  image,
+  Future<Responses> uploadProfileImage(
+    File image,
   );
 
+  Future<Responses> sendFeedback(
+    String feedback,
+  );
 
+  Future<Responses> forgetPassword(
+    String email,
+  );
 
-
-  //get user by
-
-  //verifi
+  Future<Responses> changePassword(String id, String password);
+  Future<Responses> getMetals();
+  
 }

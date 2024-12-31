@@ -6,7 +6,8 @@ class RatingWidget extends StatefulWidget {
   final int initialRating;
   final Function(int) onRatingChanged;
 
-  const RatingWidget({super.key, required this.initialRating, required this.onRatingChanged});
+  const RatingWidget(
+      {super.key, required this.initialRating, required this.onRatingChanged});
 
   @override
   _RatingWidgetState createState() => _RatingWidgetState();
@@ -25,7 +26,7 @@ class _RatingWidgetState extends State<RatingWidget> {
   Widget build(BuildContext context) {
     return Center(
       child: Row(
-        mainAxisAlignment: MainAxisAlignment .spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: List.generate(5, (index) {
           return GestureDetector(
             onTap: () {

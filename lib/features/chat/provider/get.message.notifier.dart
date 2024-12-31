@@ -28,14 +28,16 @@ class MessageListNotifier extends StateNotifier<MessageListState> {
           print(messages.length);
           if (mounted) {
             state = MessageListState.success(messages);
-     }
-     
+          }
         });
       }
-    } catch (e) {
-      print(e.toString());
-      state = MessageListState.error(e.toString());
+    } catch (e, s) {
+      state = MessageListState.error(e.toString(), stackTrace: s);
     }
+  }
+
+  void clearChat() {
+    ref.watch(messageRepositoryProvider).clearChat(id);
   }
 
   @override

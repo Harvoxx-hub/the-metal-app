@@ -1,28 +1,39 @@
 import 'dart:io';
+import 'dart:math';
 
-import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/error/firebase.error.handle.dart';
 import 'package:metal/core/model/responces.dart';
 import 'package:metal/core/services/api.service.dart';
+
+import 'package:metal/core/services/firebase.service.db.dart';
+import 'package:metal/core/utils/constant/firebase.firestore.collection.key.dart';
+
 import 'package:metal/fcm/fcm_client.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 import 'package:metal/features/authentication/domain/repositories/iauthetication_repository.dart';
 
 class AuthenticationRepository implements IAuthenticationRepository {
+  final FirebaseServiceDb _firebaseService = FirebaseServiceDb.instance;
   final ApiService _apiService = ApiService();
 
   @override
   Future<Responses> forgotPassword({required String email}) async {
     try {
-      final response = await _apiService.post(
-        "auth/forgot-password",
-        body: {
-          "email": email,
-        },
+      await _firebaseService.auth.sendPasswordResetEmail(email: email);
+      return Responses(
+        success: true,
+        message: "Password reset email sent successfully.",
       );
-      return response;
     } catch (e) {
-      rethrow;
+      return Responses(
+        success: false,
+        message: "Failed to send password reset email: ${e.toString()}",
+      );
     }
   }
 
@@ -30,71 +41,271 @@ class AuthenticationRepository implements IAuthenticationRepository {
   Future<Responses> logIn(
       {required String email, required String password}) async {
     try {
-      String? token = await FCMClient.instance.init();
-      final response = await _apiService.post(
-        "auth/login",
-        body: {
-          "username": email,
-          "password": password,
-          "fcmToken": token ?? ""
-        },
+      await _firebaseService.auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-      return response;
+      String? token = await FCMClient.instance.init();
+
+      Responses response = await updateUser({"fcmToken": token});
+
+      return Responses(
+          success: true,
+          data: response.data,
+          message: "Login successful, user data retrieved.");
     } catch (e) {
-      rethrow;
+      return Responses(success: false, message: "Login failed: $e");
     }
   }
 
   @override
-  Future<Responses> signUp(
-      {required String email,
-      required String password,
-      required String phoneNumber}) async {
+  Future<Responses> signUp({
+    required String email,
+    required String password,
+    required String phoneNumber,
+    String? referal,
+  }) async {
     try {
       String? token = await FCMClient.instance.init();
-      final response = await _apiService.post(
-        "auth/signup",
-        body: {
-          "email": email,
-          "password": password,
-          "phone": phoneNumber,
-          "fcmToken": token ?? ""
-        },
+      var rng = new Random();
+      var code = rng.nextInt(900000) + 100000;
+      UserCredential userCredential =
+          await _firebaseService.auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-      return response;
-    } catch (e) {
-      rethrow;
-    }
-  }
 
-  @override
-  Future<Responses> activateAccount(String UUID) async {
-    try {
-      final response = await _apiService
-          .patch("auth/activate-account", body: {"UUID": UUID});
-      return response;
+      final user = UserModel(
+          email: email,
+          phone: phoneNumber,
+          referralCode: code.toString(),
+          fcmToken: token,
+          referredBy: referal,
+          id: userCredential.user?.uid);
+
+      await _firebaseService.createDocument(
+          collectionPath: FirebaseFirestoreCollectionKeys.users,
+          documentId: userCredential.user?.uid,
+          data: user.toJson());
+
+      return Responses(
+          success: true, message: "Signup successful.", data: user);
     } catch (e) {
-      rethrow;
+      String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
+      return Responses(
+        success: false,
+        message: "Error: $errorMessage",
+      );
     }
   }
 
   @override
   Future<Responses> getCurrentUser() async {
     try {
-      final response = await _apiService.get("user/current-user");
-      return response;
+      User? user = _firebaseService.auth.currentUser;
+      if (user != null) {
+        final response = await _firebaseService.readDocument(
+            collectionPath: FirebaseFirestoreCollectionKeys.users,
+            documentId: user.uid);
+
+        if (response?.isNotEmpty ?? false) {
+          return Responses(
+              success: true,
+              data: response,
+              message: "User data retrieved successfully.");
+        }
+      }
+      return Responses(
+        success: false,
+        message: "No user is currently logged in.",
+      );
     } catch (e) {
-      rethrow;
+      String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
+      return Responses(
+        success: false,
+        message: "Error: $errorMessage",
+      );
     }
   }
 
   @override
   Future<Responses> updateUser(Map<String, dynamic> user) async {
     try {
-      final response = await _apiService.patch("user/update-info", body: user);
-      return response;
+      String? userId = _firebaseService.userId;
+      if (userId == null) {
+        return Responses(
+          success: false,
+          message: "User not logged in.",
+        );
+      }
+
+      await _firebaseService.updateDocument(
+          collectionPath: FirebaseFirestoreCollectionKeys.users,
+          documentId: userId,
+          data: user);
+
+      final response = await _firebaseService.readDocument(
+        collectionPath: FirebaseFirestoreCollectionKeys.users,
+        documentId: userId,
+      );
+
+      return Responses(
+          success: true,
+          message: "User information updated successfully.",
+          data: response);
     } catch (e) {
-      rethrow;
+      String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
+      return Responses(
+        success: false,
+        message: "Error: $errorMessage",
+      );
+    }
+  }
+
+  @override
+  Future<Responses> uploadProfileImage(File image) async {
+    try {
+      if (!image.existsSync()) {
+        return Responses(
+          success: false,
+          message: "The image file does not exist.",
+        );
+      }
+
+      String? userId = _firebaseService.userId;
+      if (userId == null) {
+        return Responses(
+          success: false,
+          message: "User not logged in.",
+        );
+      }
+
+      Reference storageRef =
+          _firebaseService.storage.ref().child('profileImages/$userId');
+      UploadTask uploadTask = storageRef.putFile(image);
+
+      TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
+      if (snapshot.state != TaskState.success) {
+        return Responses(
+          success: false,
+          message: "File upload failed.",
+        );
+      }
+
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      // Validate file existence
+      try {
+        await storageRef.getMetadata();
+      } catch (e) {
+        return Responses(
+          success: false,
+          message: "Uploaded file metadata not found. Upload may have failed.",
+        );
+      }
+
+      await _firebaseService.updateDocument(
+        collectionPath: FirebaseFirestoreCollectionKeys.users,
+        documentId: userId,
+        data: {
+          'profilePhoto': downloadUrl,
+        },
+      );
+
+      return Responses(
+        success: true,
+        data: downloadUrl,
+        message: "Profile image uploaded successfully.",
+      );
+    } on FirebaseException catch (e) {
+      String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
+      return Responses(
+        success: false,
+        message: "Error: $errorMessage",
+      );
+    } catch (e) {
+      return Responses(
+        success: false,
+        message: "Unexpected error: ${e.toString()}",
+      );
+    }
+  }
+
+  @override
+  Future<Responses> sendFeedback(String feedback) async {
+    try {
+      await _firebaseService.createDocument(
+          collectionPath: FirebaseFirestoreCollectionKeys.feedback,
+          data: {'feedback': feedback});
+
+      return Responses(
+        success: true,
+        message: "Feedback submitted successfully.",
+      );
+    } catch (e) {
+      String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
+      return Responses(
+        success: false,
+        message: "Error: $errorMessage",
+      );
+    }
+  }
+
+  @override
+  Future<Responses> DeleteUser() async {
+    try {
+      User? user = _firebaseService.auth.currentUser;
+      if (user == null) {
+        return Responses(success: false, message: "No user logged in.");
+      }
+
+      // Delete user data from Firestore
+      await _firebaseService.deleteDocument(
+          collectionPath: FirebaseFirestoreCollectionKeys.feedback,
+          documentId: user.uid);
+
+      // Delete user from Firebase Auth
+      await user.delete();
+
+      return Responses(success: true, message: "User deleted successfully.");
+    } catch (e) {
+      String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
+      return Responses(
+        success: false,
+        message: "Error: $errorMessage",
+      );
+    }
+  }
+
+  @override
+  Future<Responses> changePassword(String id, String password) async {
+    try {
+      User? user = _firebaseService.auth.currentUser;
+      if (user == null || user.uid != id) {
+        return Responses(
+            success: false, message: "Invalid user or not logged in.");
+      }
+
+      await user.updatePassword(password);
+
+      return Responses(
+          success: true, message: "Password changed successfully.");
+    } catch (e) {
+      return Responses(
+          success: false,
+          message: "Failed to change password: ${e.toString()}");
+    }
+  }
+
+  @override
+  Future<Responses> forgetPassword(String email) async {
+    try {
+      await _firebaseService.auth.sendPasswordResetEmail(email: email);
+      return Responses(success: true, message: "Password reset email sent.");
+    } catch (e) {
+      return Responses(
+          success: false,
+          message: "Failed to send reset email: ${e.toString()}");
     }
   }
 
@@ -109,61 +320,49 @@ class AuthenticationRepository implements IAuthenticationRepository {
   }
 
   @override
-  Future<Responses> completeUser(Map<String, dynamic> user) async {
-    try {
-      final response =
-          await _apiService.patch("user/complete-profile", body: user);
-      return response;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<Responses> DeleteUser() async {
-    try {
-      final response = await _apiService.post("user/delete-account", body: {});
-      return response;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
   Future<Responses> getUserByID({required String id}) async {
     try {
-      final response = await _apiService.get("user/user-by-id/$id");
-      return response;
+      final response = await _firebaseService.readDocument(
+          collectionPath: FirebaseFirestoreCollectionKeys.users,
+          documentId: id);
+
+      if (response?.isNotEmpty ?? false) {
+        return Responses(
+            success: true,
+            data: response,
+            message: "User data retrieved successfully.");
+      }
+
+      return Responses(success: false, message: "User not found.");
     } catch (e) {
-      rethrow;
+      return Responses(
+          success: false,
+          message: "Failed to retrieve user data: ${e.toString()}");
     }
   }
 
   @override
-  Future<Responses> UpdateParticualarInfo(Map<String, dynamic> update) async {
+  Future<Responses> getMetals() async {
     try {
-      final response =
-          await _apiService.post("user/update-particular-info", body: update);
-      return response;
-    } catch (e) {
-      rethrow;
-    }
-  }
+      // Reference to the Firestore collection
+      final collection = await _firebaseService.readCollection(
+          collectionPath: FirebaseFirestoreCollectionKeys.metals);
 
-  @override
-  Future<Responses> uploadProfileImage(File image) async {
-    try {
-      final response = await _apiService.post(
-        'user/upload-profile-image',
-        formData: FormData.fromMap({
-          "file": await MultipartFile.fromFile(image.path),
-        }),
+      // Return a successful response
+      return Responses(
+        success: true,
+        message: "Metals retrieved successfully.",
+        data: collection,
       );
-      return response;
     } catch (e) {
-      rethrow;
+      // Handle errors and return a failed response
+      return Responses(
+        success: false,
+        message: "Failed to retrieve metals: ${e.toString()}",
+      );
     }
   }
+ 
 }
 
 final authenticationRepositoryProvider = Provider((ref) {

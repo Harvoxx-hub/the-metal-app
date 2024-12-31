@@ -10,12 +10,12 @@ SubscribedPlanModel _$SubscribedPlanModelFromJson(Map<String, dynamic> json) =>
     SubscribedPlanModel(
       planName: json['planName'] as String,
       id: json['id'] as String,
-      duration: json['duration'] as int,
-      price: json['price'] as int,
+      duration: (json['duration'] as num).toInt(),
+      price: (json['price'] as num).toInt(),
       metaData:
           (json['metaData'] as List<dynamic>).map((e) => e as String).toList(),
-      startingDate: json['startingDate'] as int,
-      endingDate: json['endingDate'] as int,
+      startingDate: (json['startingDate'] as num).toInt(),
+      endingDate: (json['endingDate'] as num).toInt(),
     );
 
 Map<String, dynamic> _$SubscribedPlanModelToJson(

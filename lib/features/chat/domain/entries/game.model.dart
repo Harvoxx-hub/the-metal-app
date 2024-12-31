@@ -16,7 +16,7 @@ class GameModel {
 List<GameModel> gameData = [
   GameModel(
       title: "Two Truths and A lie",
-      emojiPart:  Assets.images.chatSmilingFaceEmoji1.path,
+      emojiPart: Assets.images.chatSmilingFaceEmoji1.path,
       about:
           "Two Truths and a Lie is a fun and easy icebreaker game that's perfect for getting to know a new person. The objective of the game is to correctly identify which statement is the false one.",
       rule:
@@ -28,17 +28,16 @@ List<GameModel> gameData = [
           "Never Have I Ever is a classic icebreaker game that involves each player taking turns making a statement about something they have never done, and the other player responding if they have done that thing.",
       rule:
           "Explain the Rules: Each player will write a statement starting with Never have I ever... and then completing the statement with something they have never done. The other player will respond if they have done that thing or not. Select a player to go first: Discuss and agree on the player to go first. This person will write a statement starting with Never have I ever... Respond: After the first player has written their statement, the other player will type No if they have never done that thing or Yes if they have done it. The game then moves on to the next player, who will make their own Never have I ever statement, and so on. Keep the game going for as long as you'd like, or until you run out of ideas. You can mix up the rules by adding a twist, such as making each of you who have done the thing tell the story of their experience, or having players who have never done the thing explain why they haven’t."),
- 
   GameModel(
       title: "Name A Thing",
-      emojiPart:     Assets.images.chatEmojiWomanRaisingHand1.path,
+      emojiPart: Assets.images.chatEmojiWomanRaisingHand1.path,
       about:
           "Name a Thing is a simple and fun game that can reveal some interesting and surprising things about the people you're playing with. It's an easy and fun icebreaker game",
       rule:
           "Explain the rules: Explain to the other player that each player will take turns choosing a category which the two of you will try to name things within that category. Choose a category: Select a category, such as types of fruit, “movies”, “songs”, ”famous actors”, “Persons starting with A”, Countries”, universities, streets, etc. Choose the first player: Discuss and agree on the player to go first. Set a timer: Set a timer for 10 seconds to 30 seconds, depending on the difficulty of the category. The players take turns in keeping time and calling out the names. Start the game: The first player starts the game by naming something that fits into the chosen category. For example, if the category is ”types of fruit”, they might say ”apple”. Pass the turn: The game then moves on to the next player, who must name something that fits into the category, such as ”banana”. Then it goes back to the first player until a player is unable to name a thing or inaccurately names a thing in the chosen category then the last player that named rightly wins the round. Change the category: You can mix up the game by changing the category after each round or choosing a new category every few turns. Score: Record the scores in your chat to track the winner. Update the scores as you complete new rounds."),
   GameModel(
       title: "Truth and Dare",
-      emojiPart:Assets.images.chatPersonSayingMoreEmoji1.path,
+      emojiPart: Assets.images.chatPersonSayingMoreEmoji1.path,
       about:
           "Truth or Dare is a fun and entertaining icebreaker game that can reveal some interesting and hilarious truths and dares, and can break down barriers and make people feel more comfortable around each other.",
       rule:

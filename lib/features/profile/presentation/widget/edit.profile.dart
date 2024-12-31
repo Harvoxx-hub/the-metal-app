@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 
@@ -20,6 +21,12 @@ class _EditProfileState extends ConsumerState<EditProfile> {
     final userState = ref.watch(authProvider).data;
     final metalProperties = ref.watch(metalPropertiesProvider).data;
 
+    final metal = metalProperties!.metals!.firstWhere(
+      (element) => element.id == userState!.metal,
+      orElse: () =>
+          metalProperties.metals![0], // Fallback in case no match is found
+    );
+
     return Column(
       children: [
         EditField(
@@ -28,7 +35,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
         ),
         const Gap(20),
         EditField(
-          text: "@${userState?.username}" ?? "Username",
+          text: "@${userState?.username}",
           floatingLabel: "Username",
         ),
         const Gap(20),
@@ -68,12 +75,15 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           ],
           editType: EditType.dropdown,
           onSubLabel: (value) {
-            updateUser(UserModel(gender: value));
+            updateUser(userState!.copyWith(gender: value)
+
+                //  UserModel(gender: value)
+                );
           },
         ),
         const Gap(20),
         EditField(
-          text: userState?.metal?.title ?? "Metal that represents your value",
+          text: metal.title ?? "Metal that represents your value",
           floatingLabel: " Metal that represents your value",
           subLabel: "Edit",
           dropDownItems: metalProperties!.metals!
@@ -88,8 +98,8 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                   (metal) => metal.title == value,
                 );
                 // Assign the selected metal object to the UserModel
-                updateUser(UserModel(metal: selectedMetal));
-                            }
+                updateUser(userState!.copyWith(metal: selectedMetal.id));
+              }
             }
           },
         ),
@@ -103,29 +113,31 @@ class _EditProfileState extends ConsumerState<EditProfile> {
               .toList(),
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(UserModel(passion: [p0!]));
+            updateUser(userState!.copyWith(passion: [p0!]));
           },
         ),
         const Gap(20),
         EditField(
-          text: userState?.extra_data?.marital_status ?? "Marital status",
+          text: userState?.extraData?.maritalStatus ?? "Marital status",
           floatingLabel: "Marital status",
           subLabel: "Edit",
           dropDownItems: metalProperties.marriageStatus,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(UserModel(extra_data: ExtraData(marital_status: p0)));
+            updateUser(userState!.copyWith(
+                extraData: userState.extraData!.copyWith(maritalStatus: p0)));
           },
         ),
         const Gap(20),
         EditField(
-          text: userState?.extra_data?.religion ?? "Religion",
+          text: userState?.extraData?.religion ?? "Religion",
           floatingLabel: "Religion",
           subLabel: "Edit",
           dropDownItems: metalProperties.religion,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(UserModel(extra_data: ExtraData(religion: p0)));
+            updateUser(userState!.copyWith(
+                extraData: userState.extraData!.copyWith(religion: p0)));
           },
         ),
         const Gap(20),
@@ -136,19 +148,20 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           editType: EditType.text,
           outboundWidget: true,
           onSubLabel: (p0) {
-            updateUser(UserModel(address: p0 as Address));
+            updateUser(userState.copyWith(address: p0 as Address));
           },
         ),
 
         const Gap(20),
         EditField(
-          text: userState.extra_data?.profession ?? "Proffession",
+          text: userState.extraData?.profession ?? "Proffession",
           floatingLabel: "Proffession",
           subLabel: "Edit",
           dropDownItems: metalProperties.profession,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(UserModel(extra_data: ExtraData(profession: p0)));
+            updateUser(userState.copyWith(
+                extraData: userState.extraData!.copyWith(profession: p0)));
           },
         ),
 
@@ -169,7 +182,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           subLabel: "Edit",
           editType: EditType.text,
           onSubLabel: (p0) {
-            updateUser(UserModel(description: p0));
+            updateUser(userState.copyWith(description: p0));
           },
         ),
 
@@ -179,6 +192,6 @@ class _EditProfileState extends ConsumerState<EditProfile> {
   }
 
   void updateUser(UserModel user) {
-    ref.watch(updateProfileProvider.notifier).updateParticularInfor(user);
+    ref.watch(updateProfileProvider.notifier).sendUserUpdate(user);
   }
 }

@@ -1,4 +1,3 @@
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
@@ -26,9 +25,8 @@ class GetAllEyeNotifier extends StateNotifier<GetAllEyeState> {
         eyes.add(StatusData.fromJson(element));
       });
       state = GetAllEyeState.success(eyes);
-    } catch (e) {
-      print(e.toString());
-      state = GetAllEyeState.error(e.toString());
+    } catch (e, s) {
+      state = GetAllEyeState.error(e.toString(), stackTrace: s);
     }
   }
 }

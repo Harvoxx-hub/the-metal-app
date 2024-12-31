@@ -27,12 +27,11 @@ class VerificationNotifier extends StateNotifier<VerificationState> {
       );
       print(info!.filesize.toString());
       final response = await verificationRepository.verification(info.file!);
-      ref.read(authProvider.notifier).getUpdatedUser();
+      await ref.read(authProvider.notifier).getUpdatedUser();
 
       state = VerificationState.success(response.message!);
-    } catch (e) {
-      print(e.toString());
-      state = VerificationState.error(e.toString());
+    } catch (e, s) {
+      state = VerificationState.error(e.toString(), stackTrace: s);
     }
   }
 }

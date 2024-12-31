@@ -16,14 +16,14 @@ class ComplecteProfileDialog extends StatelessWidget {
         Assets.images.meltProfile.image(),
         const Gap(15),
         const TextView(
-          text: "Complecte Profile Setup",
+          text: "Complete Profile Setup",
           fontSize: 20,
           fontWeight: FontWeight.w500,
         ),
         const Gap(15),
         const TextView(
           text:
-              "Complete your profile and let your personality shine! Show other users who you are and let the melting begin! 🔥 Your complete profile is the key to connecting with others and sparking meaningful conversations. Don't miss out on the fun, complete your profile now!",
+              "Complete your profile so your thoughts can be displayed on feed",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,

@@ -6,9 +6,9 @@ import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+
 import 'package:metal/gen/assets.gen.dart';
 
- 
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
@@ -116,14 +116,16 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
 
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
-    final ExtraData extraData = ExtraData();
-    extraData.marital_status = maritalStatus;
-    extraData.religion = religion;
-    extraData.profession = profession;
-    extraData.language = language!.join(',');
-    userData!.extra_data = extraData;
 
-    ref.read(updateProfileProvider.notifier).updateUserData(userData);
+    final extraData = ExtraData(
+        maritalStatus: maritalStatus ?? "",
+        religion: religion ?? "",
+        profession: profession ?? "",
+        language: language?.join(',') ?? "");
+
+    final updated = userData!.copyWith(extraData: extraData);
+
+    ref.read(updateProfileProvider.notifier).updateUserData(updated);
     Navigator.pushNamed(
       context,
       AppRoutes.moreAboutYouPage,

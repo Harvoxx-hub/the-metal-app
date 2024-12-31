@@ -2,7 +2,7 @@ class AppImages {
   AppImages._();
 
   static String greenLogo = 'assets/';
- 
+
   static String lionWeb =
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVK5zV5UIDtjBTCVPI2yyRCZsWQ8Wnhhq2e5C0q482&s';
 

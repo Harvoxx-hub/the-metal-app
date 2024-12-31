@@ -14,23 +14,22 @@ class ConversationsModel {
   @TimestampConverter()
   final DateTime lastUpdatedAt;
   final List<String> participantIds;
-    final String game;
+  final String game;
 
-  ConversationsModel({
-    required this.documentId,
-    required this.initiatedAt,
-    required this.lastMessage,
-    required this.lastUpdatedAt,
-    required this.participantIds,
-    required this.game
-  });
+  ConversationsModel(
+      {required this.documentId,
+      required this.initiatedAt,
+      required this.lastMessage,
+      required this.lastUpdatedAt,
+      required this.participantIds,
+      required this.game});
   factory ConversationsModel.fromJson(Map<String, dynamic> json) =>
       _$ConversationsModelFromJson(json);
   factory ConversationsModel.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     return ConversationsModel(
       documentId: snapshot.id,
-      game:  data['game'] ?? '',
+      game: data['game'] ?? '',
       initiatedAt: (data['initiatedAt'] as Timestamp).toDate(),
       lastMessage: data['lastMessage'] ?? '',
       lastUpdatedAt: (data['lastUpdatedAt'] as Timestamp).toDate(),

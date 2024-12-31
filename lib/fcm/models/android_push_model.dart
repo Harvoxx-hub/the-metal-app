@@ -1,5 +1,3 @@
-
-
 // todo starter: update Android push model
 import 'push_type.dart';
 

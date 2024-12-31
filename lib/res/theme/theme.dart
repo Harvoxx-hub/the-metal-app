@@ -1,5 +1,5 @@
 // // ignore_for_file: long-method
- 
+
 // import 'package:flutter/cupertino.dart' as theme;
 // import 'package:flutter/material.dart';
 // import 'package:metal/res/colors/cr_colors.dart';

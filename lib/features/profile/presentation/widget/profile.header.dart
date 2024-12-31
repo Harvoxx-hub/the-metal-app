@@ -2,33 +2,35 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:image_picker/image_picker.dart';
-import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
+
 import 'package:metal/features/profile/presentation/widget/appbar.background.dart';
 import 'package:metal/features/profile/provider/upload.profile.image.notifier.dart';
-import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/route/routes.dart';
+
 import 'package:metal/widgets/profile.photo.dart';
 
 class ProfileHeader extends ConsumerWidget {
   const ProfileHeader({
     super.key,
     required this.child,
-    required this.metal,
+    required this.metalId,
     this.eye = true,
+    this.myProfile = false,
     this.profileUrl,
   });
 
   final Widget child;
-  final Metal metal;
+  final String metalId;
   final String? profileUrl;
   final bool eye;
+  final bool myProfile;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileImage = ref.watch(profileImageProvider);
+    // final user = ref.watch(authProvider).data;
+
     return SingleChildScrollView(
       child: Stack(
         children: [
@@ -44,34 +46,22 @@ class ProfileHeader extends ConsumerWidget {
             left: 0,
             right: 0,
             child: profileImage.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator.adaptive())
                 : GestureDetector(
-                    onTap: () => _pickImage(context, ref),
+                    onTap: () {
+                      if (myProfile) {
+                        _pickImage(context, ref);
+                      }
+                    },
                     child: ProfilePhoto(
                       size: 170,
                       verfly: false,
-                      photourl: profileUrl?.isNotEmpty == true
-                          ? profileUrl
-                          : metal.img,
+                      imgUrl:
+                          profileUrl?.isNotEmpty == true ? profileUrl : null,
+                      meltId: metalId,
                     ),
                   ),
           ),
-          if (eye)
-            Positioned(
-              top: 140,
-              right: 50,
-              child: GestureDetector(
-                onTap: () => Navigator.pushNamed(
-                  context,
-                  AppRoutes.eyesIntro,
-                ),
-                child: SvgPicture.asset(
-                  Assets.icons.eye.path,
-                  height: 40,
-                  width: 40,
-                ),
-              ),
-            ),
         ],
       ),
     );

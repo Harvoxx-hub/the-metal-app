@@ -23,7 +23,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   final bool appBarEnabled; // New parameter to enable/disable the AppBar
 
-  const CustomAppBar({super.key, 
+  const CustomAppBar({
+    super.key,
     required this.appBarState,
     required this.onHamburgerPressed,
     required this.onBackButtonPressed,
@@ -40,7 +41,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     if (!appBarEnabled) {
-      return const SizedBox.shrink(); // Return an empty widget if AppBar is disabled
+      return const SizedBox
+          .shrink(); // Return an empty widget if AppBar is disabled
     }
 
     String leftIcon;

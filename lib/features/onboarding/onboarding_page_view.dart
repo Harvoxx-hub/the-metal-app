@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
-import 'package:metal/core/utils/screen.size.dart';
+
 import 'package:metal/core/utils/web_utils.dart';
 
 import 'package:metal/gen/assets.gen.dart';
@@ -34,33 +34,36 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
   final image3 = Assets.gifs.onboarding3.path;
   final PageController _controller = PageController();
   int currentPage = 0;
-  late Timer _timer;
+
   @override
   void initState() {
     super.initState();
-    // Start timer to move to the next page every 3 seconds
-    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (currentPage < 2) {
-        _controller.nextPage(
-            duration: const Duration(milliseconds: 500), curve: Curves.ease);
-      } else {
-        _controller.jumpToPage(0);
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Timer.periodic(const Duration(seconds: 3), (timer) {
+        if (currentPage < 2) {
+          _controller.nextPage(
+              duration: const Duration(milliseconds: 500), curve: Curves.ease);
+        } else {
+          _controller.jumpToPage(0);
+        }
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
+      isScrollable: true,
       appBarEnabled: false,
       bgImage: Assets.images.bg2.path,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 15.0, right: 15),
+      body: Padding(
+        padding: const EdgeInsets.only(left: 15.0, right: 15),
+        child: SingleChildScrollView(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
-                height: getDeviceHeight(context) * 0.55,
+                height: 500,
                 child: PageView(
                   controller: _controller,
                   onPageChanged: (value) {
@@ -137,6 +140,9 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                   ),
                   const Gap(5),
                   TextView(
+                    color: AppColors.metalPinkColour,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
                     onTap: () {
                       Navigator.pushNamed(
                         context,

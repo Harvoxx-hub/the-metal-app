@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/screen.size.dart';
- 
+
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
@@ -74,7 +74,7 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
     _cameraController = CameraController(back, ResolutionPreset.max);
     await _cameraController.initialize();
     setState(() => _isLoading = false);
-    }
+  }
 
   void startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -133,7 +133,7 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
                     child: Column(
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment .spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             GestureDetector(
                               onTap: () {
@@ -185,7 +185,7 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
                             const Spacer(),
                           ],
                         ),
-                        const Gap(20 ),
+                        const Gap(20),
                         Container(
                             height: 100,
                             decoration: BoxDecoration(
@@ -235,10 +235,8 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
       try {
         final image = await _cameraController.takePicture();
         // Do something with the captured image
-            Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,  
-            arguments: image
-                 );
-      
+        Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,
+            arguments: image);
       } catch (e) {
         print('Error taking picture: $e');
       }
@@ -265,10 +263,8 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
         setState(() {
           _isRecording = false;
         });
-            Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,  
-            arguments: video
-                 );
- 
+        Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,
+            arguments: video);
       } catch (e) {
         print('Error stopping video recording: $e');
       }
@@ -282,12 +278,8 @@ class _EyeSelectMediaState extends State<EyeSelectMedia> {
     final pickedFile = await picker.pickMedia();
     if (pickedFile != null) {
       // User picked an image
-          Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,  
-          arguments: pickedFile
-                 );
-     
+      Navigator.pushNamed(context, AppRoutes.eyePreviewMedia,
+          arguments: pickedFile);
     }
-
-     
   }
 }

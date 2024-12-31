@@ -1,8 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:gap/gap.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
@@ -12,9 +12,10 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
+import 'package:metal/features/dashboard.dart/widget/tutoral.dialog.dart';
+import 'package:metal/features/dashboard.dart/widget/verification.dialog.dart';
 
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
-import 'package:metal/features/settings/provider/get.block.user.notifier.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
@@ -24,9 +25,8 @@ import 'package:metal/features/sparks_page/screens/sparks_page.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 
-import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
-import 'package:metal/widgets/text_views.dart';
+import 'package:upgrader/upgrader.dart';
 
 import '../home_page/home_page.dart';
 
@@ -41,7 +41,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   int currentIndex = 0;
   @override
   void initState() {
-    // TODO: implement initState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userdata = ref.watch(authProvider).data;
       showAlertDialog(context, userdata!);
@@ -49,8 +48,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     super.initState();
   }
 
-  void showAlertDialog(context, UserModel userData) {
-    !userData.completed_profile!
+  Future<void> showAlertDialog(context, UserModel userData) async {
+    // await showDialog(
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return const CustomDialog(
+    //       content: TutoralDialog(),
+    //     );
+    //   },
+    // );
+    !(userData.completedProfile ?? false)
         ? showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -59,12 +66,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               );
             },
           )
-        : !userData.isVerified!
+        : !(userData.isVerified ?? false)
             ? showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return CustomDialog(
-                    content: verifyDialog(context),
+                  return const CustomDialog(
+                    content: VerificationDialog(),
                   );
                 },
               )
@@ -82,24 +89,50 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final user = ref.watch(authProvider);
     ref.watch(getMeltUserProvider);
     ref.watch(metalPropertiesProvider);
-    ref.watch(getBlockUserProvider);
+
     return BaseScreen(
       appBarState: AppBarState.Dashboard,
       body: user.isLoading
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : Column(
-              children: [
-                Expanded(
-                    child: Container(
-                  color: AppColors.metalWhite,
-                  child: Stack(
-                    children: [bottomNavPages[currentIndex]],
+          : UpgradeAlert(
+              dialogStyle: Platform.isIOS
+                  ? UpgradeDialogStyle.cupertino
+                  : UpgradeDialogStyle.material,
+              upgrader: Upgrader(
+
+                  // onIgnore: () {
+                  //   return false;
+                  // },
+                  // onLater: () {
+                  //   return false;
+                  // },
                   ),
-                )),
-              ],
+              child: Column(
+                children: [
+                  Expanded(
+                      child: Container(
+                    color: AppColors.metalWhite,
+                    child: Stack(
+                      children: [bottomNavPages[currentIndex]],
+                    ),
+                  )),
+                ],
+              ),
             ),
+      floatingActionButton: currentIndex == 0
+          ? FloatingActionButton(
+              backgroundColor: const Color(0xFFD2128B),
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
+              onPressed: () async {
+                await Navigator.pushNamed(context, AppRoutes.postThought,
+                    arguments: user.data);
+              })
+          : null,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: currentIndex,
@@ -131,48 +164,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               label: 'Profile'),
         ],
       ),
-    );
-  }
-
-  Widget verifyDialog(BuildContext context) {
-    return Column(
-      children: [
-        const Gap(38),
-        Assets.images.checkVerified.image(),
-        const Gap(15),
-        const TextView(
-          text: "Confirmation",
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
-        ),
-        const Gap(15),
-        const TextView(
-          text:
-              "Verifying your identity means telling other metals that you are authentic, and your information is accurate which helps to increase your chances for real connections and we can vouch that we know you. It takes a little fee!",
-          fontSize: 16,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
-        ),
-        const Gap(38),
-        BaseButton(
-            buttonText: "Verifly Me",
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.verificationVideo,
-              );
-
-              //  confirm(context);
-            }),
-        const Gap(23),
-        TextView(
-          text: "Skip for Now",
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          onTap: () => Navigator.pop(context),
-        ),
-        const Gap(21),
-      ],
     );
   }
 }

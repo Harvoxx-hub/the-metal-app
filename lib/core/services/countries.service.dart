@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 
 class CountriesService {
   Future<List<String>> getCountryNames() async {
-    String jsonString = await rootBundle.loadString('assets/json/countries.json');
+    String jsonString =
+        await rootBundle.loadString('assets/json/countries.json');
     List<dynamic> countriesList = json.decode(jsonString);
 
     List<String> countryNames = [];
@@ -16,7 +17,8 @@ class CountriesService {
   }
 
   Future<List<String>> getStateNames(String countryName) async {
-    String jsonString = await rootBundle.loadString('assets/json/countries.json');
+    String jsonString =
+        await rootBundle.loadString('assets/json/countries.json');
     List<dynamic> countriesList = json.decode(jsonString);
 
     List<String> stateNames = [];

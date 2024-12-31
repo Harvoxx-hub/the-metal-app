@@ -7,7 +7,7 @@ abstract class AppColors {
 
   // metalBrownColour/alpha 200 #290F0F (20%)
   static const Color metalBrownColour = Color(0x33290f0f);
- static const Color metalBrownColour1 = Color(0xFF290F0F);
+  static const Color metalBrownColour1 = Color(0xFF290F0F);
   //290F0F
 
   // metalPinkColour Color Swatch

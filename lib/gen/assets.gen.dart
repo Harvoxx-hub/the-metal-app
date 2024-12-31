@@ -8,17 +8,18 @@
 // ignore_for_file: directives_ordering,unnecessary_import,implicit_dynamic_list_literal,deprecated_member_use
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:vector_graphics/vector_graphics.dart';
 
 class $AssetsEnvGen {
   const $AssetsEnvGen();
 
   /// File path: assets/env/.env
-  String get env => 'assets/env/.env';
+  String get aEnv => 'assets/env/.env';
 
   /// List of all assets
-  List<String> get values => [env];
+  List<String> get values => [aEnv];
 }
 
 class $AssetsGifsGen {
@@ -26,6 +27,9 @@ class $AssetsGifsGen {
 
   /// File path: assets/gifs/empty.gif
   AssetGenImage get empty => const AssetGenImage('assets/gifs/empty.gif');
+
+  /// File path: assets/gifs/error.gif
+  AssetGenImage get error => const AssetGenImage('assets/gifs/error.gif');
 
   /// File path: assets/gifs/logo.gif
   AssetGenImage get logo => const AssetGenImage('assets/gifs/logo.gif');
@@ -44,7 +48,7 @@ class $AssetsGifsGen {
 
   /// List of all assets
   List<AssetGenImage> get values =>
-      [empty, logo, onboarding, onboarding2, onboarding3];
+      [empty, error, logo, onboarding, onboarding2, onboarding3];
 }
 
 class $AssetsIconsGen {
@@ -459,7 +463,7 @@ class $AssetsImagesGen {
   AssetGenImage get activeMessage =>
       const AssetGenImage('assets/images/active.message.png');
 
-  /// File path: assets/images/active ark.png
+  /// File path: assets/images/active.spark.png
   AssetGenImage get activeSpark =>
       const AssetGenImage('assets/images/active.spark.png');
 
@@ -490,7 +494,7 @@ class $AssetsImagesGen {
   /// File path: assets/images/bg.2.png
   AssetGenImage get bg2 => const AssetGenImage('assets/images/bg.2.png');
 
-  /// File path: assets/images/buy ark.png
+  /// File path: assets/images/buy.spark.png
   AssetGenImage get buySpark =>
       const AssetGenImage('assets/images/buy.spark.png');
 
@@ -591,7 +595,7 @@ class $AssetsImagesGen {
   AssetGenImage get inactiveMessage =>
       const AssetGenImage('assets/images/inactive.message.png');
 
-  /// File path: assets/images/inactive ark.png
+  /// File path: assets/images/inactive.spark.png
   AssetGenImage get inactiveSpark =>
       const AssetGenImage('assets/images/inactive.spark.png');
 
@@ -631,6 +635,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/logo.png
   AssetGenImage get logo => const AssetGenImage('assets/images/logo.png');
 
+  /// File path: assets/images/logo2.png
+  AssetGenImage get logo2 => const AssetGenImage('assets/images/logo2.png');
+
   /// File path: assets/images/magnesium.png
   AssetGenImage get magnesium =>
       const AssetGenImage('assets/images/magnesium.png');
@@ -658,7 +665,7 @@ class $AssetsImagesGen {
   AssetGenImage get meltProfile =>
       const AssetGenImage('assets/images/melt.profile.png');
 
-  /// File path: assets/images/melt ark.png
+  /// File path: assets/images/melt.spark.png
   AssetGenImage get meltSpark =>
       const AssetGenImage('assets/images/melt.spark.png');
 
@@ -731,7 +738,7 @@ class $AssetsImagesGen {
   AssetGenImage get rocketEmoji1 =>
       const AssetGenImage('assets/images/rocket emoji 1.png');
 
-  /// File path: assets/images/send ark.png
+  /// File path: assets/images/send.spark.png
   AssetGenImage get sendSpark =>
       const AssetGenImage('assets/images/send.spark.png');
 
@@ -811,6 +818,7 @@ class $AssetsImagesGen {
         like,
         location,
         logo,
+        logo2,
         magnesium,
         meltChat,
         meltClick,
@@ -866,12 +874,23 @@ class Assets {
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
   static const $AssetsJsonGen json = $AssetsJsonGen();
+  static const String shorebird = 'shorebird.yaml';
+
+  /// List of all assets
+  static List<String> get values => [shorebird];
 }
 
 class AssetGenImage {
-  const AssetGenImage(this._assetName);
+  const AssetGenImage(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+  });
 
   final String _assetName;
+
+  final Size? size;
+  final Set<String> flavors;
 
   Image image({
     Key? key,
@@ -943,9 +962,22 @@ class AssetGenImage {
 }
 
 class SvgGenImage {
-  const SvgGenImage(this._assetName);
+  const SvgGenImage(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+  }) : _isVecFormat = false;
+
+  const SvgGenImage.vec(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+  }) : _isVecFormat = true;
 
   final String _assetName;
+  final Size? size;
+  final Set<String> flavors;
+  final bool _isVecFormat;
 
   SvgPicture svg({
     Key? key,
@@ -960,19 +992,32 @@ class SvgGenImage {
     WidgetBuilder? placeholderBuilder,
     String? semanticsLabel,
     bool excludeFromSemantics = false,
-    SvgTheme theme = const SvgTheme(),
+    SvgTheme? theme,
     ColorFilter? colorFilter,
     Clip clipBehavior = Clip.hardEdge,
     @deprecated Color? color,
     @deprecated BlendMode colorBlendMode = BlendMode.srcIn,
     @deprecated bool cacheColorFilter = false,
   }) {
-    return SvgPicture.asset(
-      _assetName,
+    final BytesLoader loader;
+    if (_isVecFormat) {
+      loader = AssetBytesLoader(
+        _assetName,
+        assetBundle: bundle,
+        packageName: package,
+      );
+    } else {
+      loader = SvgAssetLoader(
+        _assetName,
+        assetBundle: bundle,
+        packageName: package,
+        theme: theme,
+      );
+    }
+    return SvgPicture(
+      loader,
       key: key,
       matchTextDirection: matchTextDirection,
-      bundle: bundle,
-      package: package,
       width: width,
       height: height,
       fit: fit,
@@ -981,10 +1026,8 @@ class SvgGenImage {
       placeholderBuilder: placeholderBuilder,
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
-      theme: theme,
-      colorFilter: colorFilter,
-      color: color,
-      colorBlendMode: colorBlendMode,
+      colorFilter: colorFilter ??
+          (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
       clipBehavior: clipBehavior,
       cacheColorFilter: cacheColorFilter,
     );

@@ -1,106 +1,120 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/error/error.handle.dart';
 import 'package:metal/core/model/responces.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class ApiService {
-  final Dio _dio = Dio(); // Create an instance of Dio
+  final Dio _dio;
   final String baseUrl = 'https://metal-server.vercel.app/api/v1';
-  final AuthManager _authManager = AuthManager();
 
-  ApiService() {
-    _dio.interceptors.add(
+  ApiService()
+      : _dio = Dio(BaseOptions(
+          connectTimeout: const Duration(seconds: 60),
+          receiveTimeout: const Duration(seconds: 60),
+        )) {
+    _dio.interceptors.addAll([
+      PrettyDioLogger(
+        requestHeader: true,
+        requestBody: true,
+        responseBody: false,
+        responseHeader: false,
+        error: true,
+        compact: false,
+        maxWidth: 90,
+      ),
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // Add the access token to the request header
-          options.headers['Authorization'] =
-              'Bearer ${await _authManager.getAccessToken()}';
-          return handler.next(options);
+          // Attach the token to each request
+          // options.headers['Authorization'] =
+          //     'Bearer ${await AuthManager.getAccessToken()}';
+          print('Network Call: ${options.path}');
+          handler.next(options);
         },
         onError: (DioError e, handler) async {
-          if (e.response?.statusCode == 401) {
-            // If a 401 response is received, refresh the access token
-            String newAccessToken = await _authManager.refreshToken();
-
-            // Update the request header with the new access token
-            e.requestOptions.headers['Authorization'] =
-                'Bearer $newAccessToken';
-
-            // Repeat the request with the updated header
-            return handler.resolve(await _dio.fetch(e.requestOptions));
-          }
-          return handler.next(e);
+          handler.next(e);
+        },
+        onResponse: (response, handler) {
+          handler.next(response);
         },
       ),
-    );
+    ]);
+  }
+
+  Future<String?> _refreshToken() async {
+    try {
+      final refreshToken = await AuthManager.getRefreshToken();
+      final response = await _dio.post(
+        '$baseUrl/auth/refresh-token', // Your refresh token endpoint
+        data: {'refreshtoken': refreshToken},
+      );
+
+      if (response.statusCode == 200) {
+        print(response.data);
+        final newAccessToken = response.data['access_token'];
+        await AuthManager.saveRefreshToken(response.data['refresh_token']);
+        print('Token refreshed successfully');
+        return newAccessToken;
+      }
+    } catch (e) {
+      print(
+        'Refresh token failed',
+      );
+    }
+    return null;
   }
 
   Future<dynamic> get(String endpoint) async {
     try {
-         log('Startted Calling ||||| $endpoint', level: 1000, );
-      final response = await _dio.get(
-        '$baseUrl/$endpoint',
-      );
+      final response = await _dio.get('$baseUrl/$endpoint');
       return _handleResponse(response);
-    } catch (error) {
-          log('DioError ||||| $error', level: 1000, error: error );
-      rethrow;
+    } catch (error, s) {
+      print('GET request error');
+      throw ErrorHandler.handle(error).failure;
     }
   }
 
   Future<dynamic> patch(String endpoint,
       {Map<String, dynamic>? body, FormData? formData}) async {
     try {
-         log('Startted Calling ||||| $endpoint', level: 1000, );
       final response = await _dio.patch(
         '$baseUrl/$endpoint',
         data: formData ?? (body != null ? jsonEncode(body) : null),
       );
       return _handleResponse(response);
-    } catch (error) {
-     log('DioError ||||| $error', level: 1000, error: error );
-      rethrow;
+    } catch (error, s) {
+      print('PATCH request error');
+      throw ErrorHandler.handle(error).failure;
     }
   }
 
   Future<dynamic> post(String endpoint,
       {Map<String, dynamic>? body, FormData? formData}) async {
     try {
-       log('Startted Calling ||||| $endpoint', level: 1000, );
       final response = await _dio.post(
         '$baseUrl/$endpoint',
         data: formData ?? jsonEncode(body),
       );
       return _handleResponse(response);
-    } catch (error) {
-      log('DioError ||||| $error', level: 1000, error: error );
-      
-      rethrow;
+    } catch (error, s) {
+      print('POST request error');
+      throw ErrorHandler.handle(error).failure;
     }
   }
 
   Future<Responses> _handleResponse(Response response) async {
-     log('Response ||||| $response', level: 1000, );
-
     final body = response.data;
     final data = Responses.fromJson(body);
+
     if (data.success!) {
-      print(data.data);
       return data;
     } else {
-      ErrorHandler.handleError(_createAppError(response.statusCode!, body));
-      throw _createAppError(response.statusCode!, body);
+      print("Network Error: ${data.message}");
+      Fluttertoast.showToast(msg: data.message.toString());
+      throw data;
     }
-  }
-
-  AppError _createAppError(int statusCode, dynamic body) {
-    return AppError(
-      code: body['code'] ?? 'unknown-error',
-      message: body['message'] ?? 'An error occurred.',
-      errorData: body['data']
-    );
   }
 }

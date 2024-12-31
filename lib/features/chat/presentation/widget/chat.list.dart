@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/core/utils/screen.size.dart';
+import 'package:metal/core/utils/date.formart.dart';
 
-import 'package:metal/features/chat/domain/entries/conversations.model.dart';
-import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
-import 'package:metal/features/chat/provider/get.chatlist.notifier.dart';
-import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+
+import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
@@ -28,8 +29,7 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final myMelt = ref.watch(getMeltUserProvider);
-    final chatList = ref.watch(chatListProvider);
+    final myMelt = ref.watch(getMeltUserProvider).data;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -42,46 +42,24 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
             fontWeight: FontWeight.w600,
           ),
           const Gap(10),
-          SizedBox(
-            height: getDeviceHeight(context) * 0.35,
-            child: _buildChatListContent(myMelt, chatList),
-          ),
+          _buildChatListContent(myMelt),
         ],
       ),
     );
   }
 
-  Widget _buildChatListContent(myMelt, chatList) {
-    if (chatList.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    } else if (chatList.isError) {
-      return Center(child: Text('Error: ${chatList.errorData.toString()}'));
-      // ignore: dead_code
-    } else if (chatList.data?.isEmpty ?? true) {
-      return _buildEmptyChatMessage();
-    } else {
-      return ListView.builder(
-        itemCount: chatList.data!.length,
+  Widget _buildChatListContent(List<ConnectionModel>? myMelt) {
+    return Expanded(
+      flex: 1,
+      child: ListView.builder(
+        itemCount: myMelt!.length,
         itemBuilder: (context, index) {
-          final message = chatList.data![index];
-
-          MeltUserModel? matchedData;
-          for (var element in myMelt.data) {
-            bool data = message.participantIds.contains(element.id);
-            if (data) matchedData = element;
-          }
-
-          if (matchedData == null) {
-            return const SizedBox(); // Return an empty widget if no match is found
-          }
-
           return chatListItem(
-            data: matchedData,
-            conversationsModel: message,
+            conversationsModel: myMelt[index],
           );
         },
-      );
-    }
+      ),
+    );
   }
 
   Widget _buildEmptyChatMessage() {
@@ -90,8 +68,8 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
       child: Center(
         child: Column(
           children: [
-            const Gap(30),
-            Assets.images.emptyChat.image(),
+            const Gap(10),
+            Assets.images.emptyChat.image(height: 121),
             const Gap(20),
             const TextView(
               text: "You have no messages yet",
@@ -112,59 +90,69 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
   }
 }
 
-class chatListItem extends StatelessWidget {
+class chatListItem extends ConsumerWidget {
   const chatListItem({
     Key? key,
-    required this.data,
     required this.conversationsModel,
   }) : super(key: key);
 
-  final MeltUserModel data;
-  final ConversationsModel conversationsModel;
+  final ConnectionModel conversationsModel;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(authProvider).data;
+    final metalId = conversationsModel.users.firstWhere(
+      (user) => user != currentUser!.id,
+      orElse: () =>
+          "", // Handle cases where all user IDs match the current user
+    );
+    final getUser = ref.watch(getUserProvider(metalId));
+
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(
-          context,
-          AppRoutes.chatWindowsPage,
-          arguments: ChatWindowArgument(
-            user: data,
-            conversationId: conversationsModel.documentId,
-          ),
-        );
+        Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
+            arguments: getUser.data!.id);
       },
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          children: [
-            const ProfilePhoto(),
-            const Gap(16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextView(
-                  text: data.name ?? "Unknown",
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-                TextView(
-                  text: conversationsModel.lastMessage,
-                  fontWeight: FontWeight.w300,
-                  fontSize: 13,
-                ),
-              ],
+      child: getUser.isLoading
+          ? Center(
+              child: CircularProgressIndicator.adaptive(),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  ProfilePhoto(
+                      meltId: getUser.data!.metal!,
+                      imgUrl: conversationsModel.isAnonymous
+                          ? null
+                          : getUser.data!.profilePhoto!),
+                  const Gap(16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextView(
+                          text: getUser.data!.username ?? "Unknown",
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        TextView(
+                          text: conversationsModel.lastMessage ?? "",
+                          fontWeight: FontWeight.w300,
+                          fontSize: 13,
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextView(
+                    text: formatTime(
+                        isoDateString: conversationsModel.lastUpdatedAt),
+                    fontWeight: FontWeight.w300,
+                    fontSize: 13,
+                  ),
+                ],
+              ),
             ),
-            const Spacer(),
-            TextView(
-              text: formatChatTime(conversationsModel.lastUpdatedAt),
-              fontWeight: FontWeight.w300,
-              fontSize: 13,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

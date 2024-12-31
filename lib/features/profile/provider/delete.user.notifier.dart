@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
- 
+
 class DeleteUsersNotifier extends StateNotifier<DeleteUsersState> {
   DeleteUsersNotifier(
     super.state,
@@ -19,12 +19,10 @@ class DeleteUsersNotifier extends StateNotifier<DeleteUsersState> {
       if (mounted) {
         state = DeleteUsersState.success(response.message!);
       }
-    } catch (e) {
-      print(e.toString());
-      state = DeleteUsersState.error(e.toString());
+    } catch (e, s) {
+      state = DeleteUsersState.error(e.toString(), stackTrace: s);
     }
   }
-  
 }
 
 // Define a type alias

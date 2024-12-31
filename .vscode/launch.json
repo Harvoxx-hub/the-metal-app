@@ -5,10 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         
+
+        
         {
             "name": "metal",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "flutterMode": "debug"
         },
         {
             "name": "metal (profile mode)",

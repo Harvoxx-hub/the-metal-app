@@ -164,8 +164,8 @@ class _EditAddressState extends State<EditAddress> {
               buttonText: "Save",
               onPressed: () {
                 final address = Address(
-                    apartment_number: _apartmentNoController.text,
-                    house_number: _houseNumberController.text,
+                    apartmentNumber: _apartmentNoController.text,
+                    houseNumber: _houseNumberController.text,
                     postalCode: _postalCodeController.text,
                     streetName: _streetNameController.text,
                     state: _selectedState,

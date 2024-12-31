@@ -4,7 +4,7 @@ import 'package:metal/core/utils/timestamp_converter.dart';
 
 part 'message.model.g.dart';
 
-enum MessageType { text, audio }
+enum MessageType { text, audio, un_melt }
 
 enum MessageState { sending, sent, read, error }
 
@@ -12,21 +12,22 @@ enum MessageState { sending, sent, read, error }
 class MessageModel {
   final String message;
   final String senderId;
-  final String recipientId;
+
   final MessageType type;
   String? content;
-  @TimestampConverter()
-  final DateTime timestamp;
-  final MessageState state;
+   String? id;
+
+  final String timestamp;
+  final bool isRead;
 
   MessageModel({
     required this.message,
-    required this.recipientId,
     required this.senderId,
     required this.type,
     this.content,
+     this.id,
     required this.timestamp,
-    required this.state,
+    required this.isRead,
   });
   factory MessageModel.fromJson(Map<String, dynamic> json) =>
       _$MessageModelFromJson(json);
@@ -37,16 +38,25 @@ class MessageModel {
     return MessageModel(
       message: data['message'] ?? '',
       senderId: data['senderId'] ?? '',
-      recipientId: data['recipientId'] ?? '',
       type: _convertStringToMessageType(data['type'] ?? ''),
       content: data['content'],
-      timestamp: (data['timestamp'] as Timestamp).toDate(),
-      state: _convertStringToMessageState(data['state'] ?? ''),
+      timestamp: data['timestamp'],
+      isRead: data['isRead'],
+      id: snapshot.id
     );
   }
 
   static MessageType _convertStringToMessageType(String type) {
-    return type == 'text' ? MessageType.text : MessageType.audio;
+    switch (type) {
+      case 'text':
+        return MessageType.text;
+      case 'audio':
+        return MessageType.audio;
+      case 'un_melt':
+        return MessageType.un_melt;
+      default:
+        throw ArgumentError('Unknown message type: $type');
+    }
   }
 
   static MessageState _convertStringToMessageState(String state) {

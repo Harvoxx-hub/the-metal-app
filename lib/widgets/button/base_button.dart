@@ -70,9 +70,9 @@ class BaseButton extends StatelessWidget {
                     const Color(0xFFD2128B)
                   ]
                 : [
-                    const Color(0xFFCE0D87).withOpacity(0.3),
-                    const Color(0xFFFF5553).withOpacity(0.3),
-                    const Color(0xFFD2128B).withOpacity(0.3)
+                    Color.fromARGB(255, 239, 172, 215),
+                    Color.fromARGB(255, 212, 181, 181),
+                    const Color(0xFFD2128B)
                   ],
           ),
           shape: RoundedRectangleBorder(

@@ -1,14 +1,15 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:gap/gap.dart';
-import 'package:metal/core/services/auth.pref.service.dart';
+import 'package:metal/core/services/firebase.service.db.dart';
+import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
+import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
+
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
-
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -24,33 +25,45 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 3), () {
-      ref.read(authManagerProvider).getLoginState().then((value) {
-        if (value == LoginState.loggedIn) {
-          ref.read(authProvider.notifier).getCurrentUser();
-        } else {
-          Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
-        }
-      });
-    });
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = FirebaseServiceDb.instance.auth.currentUser;
+      if (user == null) {
+        Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+      } else {
+        ref.read(authProvider.notifier).getCurrentUser();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     ref.listen<AuthState>(authProvider, (prev, current) {
       if (current.isSuccess) {
-        current.data!.profile_updated ?? false
-            ? Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage)
-            : Navigator.pushReplacementNamed(context, AppRoutes.welcomePage);
+        (current.data?.emailVerified ?? false) == false
+            ? Navigator.pushReplacementNamed(
+                context,
+                AppRoutes.verificationPage,
+                arguments: VerificationSentArgument(
+                    type: RouteFrom.AccountSetting,
+                
+                    email: current.data!.email!),
+              )
+            : current.data!.profileUpdated ?? false
+                ? Navigator.pushReplacementNamed(
+                    context, AppRoutes.dashboardPage)
+                : Navigator.pushReplacementNamed(
+                    context, AppRoutes.welcomePage);
       }
       if (current.isError) {
         Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
       }
     });
+
     return Scaffold(
       body: Container(
-        /// We need use decoration to occupy entire screen
+        /// We need to use decoration to occupy the entire screen
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage(_asset),
@@ -77,7 +90,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                 text: '...True Friendship is built \n on real connections',
                 fontSize: 16,
                 textAlign: TextAlign.center,
-              )
+              ),
             ],
           ),
         ),

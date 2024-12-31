@@ -75,7 +75,9 @@ class _EyePreviewMediaState extends ConsumerState<EyePreviewMedia> {
     final eyeState = ref.watch(uploadEyesProvider);
     ref.listen<UploadEyeState>(uploadEyesProvider, (prev, current) {
       if (current.isSuccess) {
-        Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
+        Navigator.pop(context);
+        // Navigator.pop(context);
+        //  Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
       }
     });
 
@@ -162,12 +164,15 @@ class _EyePreviewMediaState extends ConsumerState<EyePreviewMedia> {
                           )
                         : Center(
                             child: GestureDetector(
-                              onTap: () => ref
-                                  .read(uploadEyesProvider.notifier)
-                                  .uploadEyes(
-                                    _controller.text,
-                                    File(widget.media.path),
-                                  ),
+                              onTap: () {
+                                FocusScope.of(context).unfocus();
+                                ref
+                                    .read(uploadEyesProvider.notifier)
+                                    .uploadEyes(
+                                      _controller.text,
+                                      File(widget.media.path),
+                                    );
+                              },
                               child: SvgPicture.asset(
                                 Assets.icons.chatsWindowactiveSend.path,
                                 height: 24,

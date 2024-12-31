@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
- 
+
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
- 
+
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
- 
+
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/dashboard.dart/widget/nav.drawer.dart';
- 
+
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 
@@ -30,7 +30,8 @@ class BaseScreen extends StatefulWidget {
   final bool authFlow;
   // New parameter to indicate loading state
 
-  const BaseScreen({super.key, 
+  const BaseScreen({
+    super.key,
     this.bgImage,
     required this.body,
     this.subAppBar = false,
@@ -67,12 +68,11 @@ class _BaseScreenState extends State<BaseScreen> {
                 _key.currentState!.openDrawer();
               },
               onBackButtonPressed: () {
-            Navigator.pop(context);
+                Navigator.pop(context);
               },
               onSkipButtonPressed: () {},
               onNotificationPressed: () {
                 Navigator.pushNamed(context, AppRoutes.notificationPage);
-            
               },
               headerText: widget.Header!,
               appBarEnabled: widget.appBarEnabled,
@@ -181,7 +181,7 @@ class _BaseScreenState extends State<BaseScreen> {
         children: [
           GestureDetector(
             onTap: () {
-    Navigator.pop(context);
+              Navigator.pop(context);
             },
             child: Padding(
               padding: const EdgeInsets.only(left: 8.0),

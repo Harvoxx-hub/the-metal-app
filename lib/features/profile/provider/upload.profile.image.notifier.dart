@@ -19,13 +19,15 @@ class ProfileImageNotifier extends StateNotifier<ProfileImageState> {
       state = ProfileImageState.loading();
       final repo = ref.watch(authenticationRepositoryProvider);
       final response = await repo.uploadProfileImage(image);
-      ref.watch(authProvider.notifier).getUpdatedUser();
-      if (mounted) {
-        state = ProfileImageState.success(response.message!);
+
+      if (response.success == false) {
+        state = ProfileImageState.error(response.message!);
+      } else {
+        ref.watch(authProvider.notifier).getUpdatedUser();
+        state = ProfileImageState.success("");
       }
-    } catch (e) {
-      print(e.toString());
-      state = ProfileImageState.error(e.toString());
+    } catch (e, s) {
+      state = ProfileImageState.error(e.toString(), stackTrace: s);
     }
   }
 }

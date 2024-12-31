@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/services/firebase.remote.config.service.dart';
 
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
@@ -17,14 +18,20 @@ class MetalPropertiesNotifier extends StateNotifier<MetalPropertiesState> {
   void getMetalProperties() async {
     state = MetalPropertiesState.loading();
     try {
-      final authenticationRepository =
-          ref.watch(authenticationRepositoryProvider);
-      final response = await authenticationRepository.getMetalProperties();
-      final metalPropertires = MetalPropertiesModel.fromJson(response.data);
+      final metalPropertires =
+          MetalPropertiesModel.fromJson(metalPropertiesJson!);
+      final repo = ref.watch(authenticationRepositoryProvider);
+      final response = await repo.getMetals();
+    
+      List<Metal> metals = [];
+      response.data.forEach((element) {
+        metals.add(Metal.fromJson(element));
+      });
+      metalPropertires.metals = metals;
+
       state = MetalPropertiesState.success(metalPropertires);
-    } catch (e) {
-      print(e.toString());
-      state = MetalPropertiesState.error(e.toString());
+    } catch (e, s) {
+      state = MetalPropertiesState.error(e.toString(), stackTrace: s);
     }
   }
 }

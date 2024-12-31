@@ -18,7 +18,8 @@ class TextView extends StatelessWidget {
   final bool underline;
   final String boldSymbol;
 
-  const TextView({super.key, 
+  const TextView({
+    super.key,
     required this.text,
     this.textOverflow = TextOverflow.clip,
     this.textAlign = TextAlign.left,

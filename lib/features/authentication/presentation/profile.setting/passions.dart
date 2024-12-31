@@ -5,10 +5,10 @@ import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
- 
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
@@ -48,28 +48,31 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
               children: [
                 ShimmerLoading(
                     isLoading: metalProps.isLoading,
-                    child: SizedBox(
-                      height: getDeviceHeight(context) * 0.59,
-                      child: GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount:
-                              2, // You can adjust the number of columns here
-                          crossAxisSpacing: 10.0,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 60.0),
+                      child: SizedBox(
+                        height: getDeviceHeight(context) * 0.59,
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount:
+                                2, // You can adjust the number of columns here
+                            crossAxisSpacing: 10.0,
 
-                          mainAxisSpacing: 10.0,
-                          childAspectRatio: 16 / 6,
+                            mainAxisSpacing: 10.0,
+                            childAspectRatio: 16 / 6,
+                          ),
+                          itemCount: metalProps.data?.passions?.length ?? 0,
+                          itemBuilder: (BuildContext context, int index) {
+                            final model =
+                                metalProps.data?.passions?[index] ?? Passion();
+                            return PassionsCard(
+                              model: model,
+                              onTap: () => updateMetal(model.title!),
+                              selected: _seletedPassion.contains(model.title),
+                            );
+                          },
                         ),
-                        itemCount: metalProps.data?.passions?.length ?? 0,
-                        itemBuilder: (BuildContext context, int index) {
-                          final model =
-                              metalProps.data?.passions?[index] ?? Passion();
-                          return PassionsCard(
-                            model: model,
-                            onTap: () => updateMetal(model.title!),
-                            selected: _seletedPassion.contains(model.title),
-                          );
-                        },
                       ),
                     )),
                 Positioned(
@@ -98,8 +101,8 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
 
   void _onNextPressed() {
     final userData = ref.watch(updateProfileProvider).data;
-    userData!.passion = _seletedPassion;
-    ref.read(updateProfileProvider.notifier).updateUserData(userData);
+    final updated = userData!.copyWith(passion: _seletedPassion);
+    ref.read(updateProfileProvider.notifier).updateUserData(updated);
     Navigator.pushNamed(
       context,
       AppRoutes.aboutYouPage,

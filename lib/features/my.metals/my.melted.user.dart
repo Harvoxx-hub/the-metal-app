@@ -1,162 +1,254 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+
 import 'package:gap/gap.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/state/base.state.dart';
+import 'package:metal/core/utils/constant/enums.dart';
+
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-
-import 'package:metal/features/chat/presentation/chat.window/chat.window.argument.dart';
-
-import 'package:metal/features/home_page/domain/entries/melt.user.model.dart';
+import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
+import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
-import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
+import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
+
+import 'package:metal/features/my.metals/metal.tabs/metal.details.dart';
+
+import 'package:metal/features/profile/presentation/tab.screen/thought.tab.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
- 
-import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
-import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
+
 import 'package:metal/widgets/button/base_button.dart';
+import 'package:metal/widgets/button/outiline.button.dart';
+import 'package:metal/widgets/button/plain.button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
+
+import 'package:metal/widgets/tab/base.tab.dart';
 import 'package:metal/widgets/text_views.dart';
 
-class MyMeltedUser extends ConsumerWidget {
-  const MyMeltedUser(this.UserId, {super.key});
+class MyMeltedUser extends ConsumerStatefulWidget {
+  const MyMeltedUser({super.key, required this.metalId});
 
-  final String UserId;
+  final String metalId;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final myMelt = ref.watch(getUserProvider(UserId));
+  ConsumerState<MyMeltedUser> createState() => _MyMeltedUserState();
+}
+
+class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final checkMeltState = ref.watch(checkMeltProvider(widget.metalId));
+    final connection =
+        ref.watch(getMeltUserProvider.notifier).getMeltUserById(widget.metalId);
+    final connectionList = ref.watch(getMeltUserProvider).data;
+    final myMelt = ref.watch(getUserProvider(widget.metalId));
+    final meltState = ref.watch(meltUserProvider);
+
+    ref.listen<CheckMeltState>(checkMeltProvider(widget.metalId),
+        (prev, current) {
+      if (current.isSuccess) {
+        if (meltState.isSuccess && current.data == MeltRequestState.mutual) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.meltMetal,
+            arguments: widget.metalId,
+          );
+        }
+      }
+    });
 
     return BaseScreen(
-      Header: "My melted metals",
+      Header: "Metal Profile",
       body: myMelt.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : ProfileHeader(
-              eye: false,
-              metal: myMelt.data!.metal!,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
-                child: Container(
-                  padding: const EdgeInsets.only(
-                    top: 122,
-                  ),
-                  decoration: const BoxDecoration(
-                      color: AppColors.metalWhite,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(35),
-                          topRight: Radius.circular(35))),
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Container(
+          : myMelt.isError
+              ? Padding(
+                  padding: const EdgeInsets.all(40.0),
+                  child: _buildErrorSection(myMelt.errorMessage.toString(), () {
+                    // Retry the request by refreshing the notifier
+                    ref.refresh(getUserProvider(widget.metalId));
+                  }),
+                )
+              : ProfileHeader(
+                  eye: false,
+                  metalId: myMelt.data!.metal!,
+                  profileUrl: connection != null
+                      ? connection.isAnonymous
+                          ? null
+                          : myMelt.data!.profilePhoto
+                      : null,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(top: 110, left: 20, right: 20),
+                    child: Container(
+                      padding: const EdgeInsets.only(
+                        top: 122,
+                      ),
+                      decoration: const BoxDecoration(
+                          color: AppColors.metalWhite,
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(35),
+                              topRight: Radius.circular(35))),
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) => CustomDialog(
+                                    content: _buildDialog(user: myMelt.data!)),
+                              );
+                            },
+                            child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: ShapeDecoration(
                                 color: const Color(0x0CD9197B),
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5)),
                               ),
-                              child:
-                                  TextView(text: "@${myMelt.data!.username}"),
+                              child: TextView(
+                                  text: connection != null
+                                      ? connection.isAnonymous
+                                          ? "@${myMelt.data!.username} "
+                                          : "@${myMelt.data!.fullname} "
+                                      : "@${myMelt.data!.username} "),
                             ),
-                            const Gap(40),
-                            EditField(
-                              text:
-                                  "Go to ${myMelt.data!.username} metal profile",
-                              onTap: () {
-                                Navigator.pushNamed(
-                                    context, AppRoutes.userProfilePage,
-                                    arguments: myMelt.data);
-                              },
-                              floatingLabel: " View profile",
-                              suffixIcon: SvgPicture.asset(
-                                Assets.icons.meltedMetalsArrowUpRight.path,
-                                height: 21,
-                                width: 21,
-                              ),
-                            ),
-                            const Gap(20),
-                            EditField(
-                              text: "Send and receive messages ",
-                              onTap: () {
-                                Navigator.pushNamed(
-                                    context, AppRoutes.chatWindowsPage,
-                                    arguments: ChatWindowArgument(
-                                      user: MeltUserModel(
-                                          gender: myMelt.data!.gender,
-                                          name: myMelt.data!.username,
-                                          metal: myMelt.data!.metal,
-                                          phone: myMelt.data!.phone,
-                                          id: myMelt.data!.id),
-                                    ));
-                              },
-                              floatingLabel: "Start a conversation",
-                              suffixIcon: Image.asset(
-                                Assets.images.inactiveMessage.path,
-                                height: 21,
-                                width: 21,
-                              ),
-                            ),
-                            const Gap(20),
-                            EditField(
-                              text:
-                                  "De-melt ${myMelt.data!.username}  from your metal list",
-                              floatingLabel: "Remove from my list of metals",
-                              suffixIcon: SvgPicture.asset(
-                                Assets.icons.meltedMetalsTrash01.path,
-                                height: 21,
-                                width: 21,
-                              ),
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return CustomDialog(
-                                        content: _ceMeltDialog(
-                                            context, myMelt.data!, ref));
-                                  },
-                                );
-                              },
-                            ),
-                            const Gap(20),
-                            EditField(
-                              text:
-                                  "Block ${myMelt.data!.username}  from reaching you",
-                              floatingLabel: "Block from viewing my profile",
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return CustomDialog(
-                                        content: _blockDialog(
-                                            context, myMelt.data!, ref));
-                                  },
-                                );
-                              },
-                              suffixIcon: SvgPicture.asset(
-                                Assets.icons.meltedMetalsSmileyXEyes.path,
-                                height: 21,
-                                width: 21,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                          const Gap(20),
+                          _buildMeltActionSection(checkMeltState, meltState,
+                              context, connectionList?.length ?? 0),
+                          const Gap(10),
+                          BaseTab(
+                            tabs: [
+                              BaseTabModel(
+                                  child: MyThoughtTab(id: myMelt.data!.id),
+                                  title: 'Metal Thought'),
+                              BaseTabModel(
+                                  child: MetalDetailsTab(
+                                    melted: checkMeltState.data ==
+                                        MeltRequestState.mutual,
+                                    userModel: myMelt.data!,
+                                  ),
+                                  title: 'Metal Details '),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-              )),
     );
   }
 
-  Widget _blockDialog(BuildContext context, UserModel data, WidgetRef ref) {
+  // Widget to handle and display error with retry button
+  Widget _buildErrorSection(String errorMessage, VoidCallback onRetry) {
+    return Center(
+      child: Column(
+        children: [
+          const Gap(10),
+          Assets.gifs.error.image(),
+          const Gap(30),
+          const TextView(
+            text: "Error ",
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+          const Gap(10),
+          const TextView(
+            text: "Connection Could not be made",
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+          ),
+          const Gap(10),
+          OutilineButton(
+            buttonText: "Try Again",
+            onPressed: onRetry,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget to handle melt-related actions
+  Widget _buildMeltActionSection(BaseState<MeltRequestState> checkMeltState,
+      MeltUsersState meltState, BuildContext context, int connectionInt) {
+    if (checkMeltState.data == MeltRequestState.pending) {
+      return PlainButton(
+        enabled: false,
+        loading: meltState.isLoading,
+        onPressed: null,
+        fontSize: 15,
+        textColor: Colors.grey,
+        buttonText: "Melt Requested",
+      );
+    } else if (checkMeltState.data == MeltRequestState.mutual) {
+      return Row(
+        children: [
+          Expanded(
+            child: BaseButton(
+              onPressed: () {
+                Navigator.pushReplacementNamed(
+                  context,
+                  AppRoutes.sendSpark,
+                );
+              },
+              fontSize: 15,
+              buttonText: "Send Spark",
+            ),
+          ),
+          const Gap(30),
+          Expanded(
+            child: OutilineButton(
+              onPressed: () {
+                Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
+                    arguments: widget.metalId);
+              },
+              fontSize: 15,
+              buttonText: "Message",
+            ),
+          ),
+        ],
+      );
+    } else {
+      return BaseButton(
+        loading: meltState.isLoading,
+        onPressed: () {
+          connectionInt <= 10
+              ? ref.read(meltUserProvider.notifier).meltUser(widget.metalId)
+              : showDialog(
+                  context: context,
+                  builder: (BuildContext context) =>
+                      CustomDialog(content: _meltLimitDialog()),
+                );
+        },
+        fontSize: 15,
+        buttonText: "Melt",
+      );
+    }
+  }
+
+  Widget _buildDialog({required UserModel user}) {
+    final getMetalProperties = ref.watch(metalPropertiesProvider);
+
+    final metal = getMetalProperties.data!.metals!.firstWhere(
+      (element) => element.id == user.metal,
+      orElse: () => getMetalProperties
+          .data!.metals![0], // Fallback in case no match is found
+    );
+
     return Column(
       children: [
         const Gap(38),
@@ -167,29 +259,18 @@ class MyMeltedUser extends ConsumerWidget {
         ),
         const Gap(15),
         TextView(
-          text: "Block  ${data.username} ",
+          text: metal.title,
           fontSize: 20,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
         ),
-        const Gap(15),
-        const TextView(
-          text:
-              "Blocked metals cannot call or send you messages. This Metal will not be notified",
-          fontSize: 16,
+        const Gap(8),
+        TextView(
+          text: metal
+              .desc, // Assuming `description` contains details about the metal
+          maxLines: 3,
           textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
         ),
         const Gap(38),
-        BaseButton(
-            buttonText: "Block  ${data.username}",
-            onPressed: () {
-              ref
-                  .read(blockUserProvider.notifier)
-                  .BlockUser(data.username!, data.id!);
-              Navigator.pop(context);
-              Navigator.pop(context);
-            }),
-        const Gap(23),
         TextView(
           text: "Cancel",
           fontSize: 16,
@@ -201,38 +282,31 @@ class MyMeltedUser extends ConsumerWidget {
     );
   }
 
-  Widget _ceMeltDialog(BuildContext context, UserModel data, WidgetRef ref) {
-    // ref.watch(unmeltUserProvider(data.id!));
+  Widget _meltLimitDialog() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const Gap(38),
         SvgPicture.asset(
-          Assets.icons.meltedMetalsTrash01.path,
+          Assets.icons.meltedMetalsSmileyXEyes.path,
           height: 45,
           width: 45,
         ),
         const Gap(15),
         TextView(
-          text: "De-melt  ${data.username}",
+          text: "You are limited to a total of 10 Connection",
           fontSize: 20,
-          fontWeight: FontWeight.w700,
-        ),
-        const Gap(15),
-        const TextView(
-          text: "De-melted metals will have to request to melt with you again",
-          fontSize: 16,
+          fontWeight: FontWeight.w800,
           textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
+        ),
+        const Gap(8),
+        TextView(
+          text:
+              "De-melt form previous connection to be able to connect to more metals", // Assuming `description` contains details about the metal
+          maxLines: 3,
+          textAlign: TextAlign.center,
         ),
         const Gap(38),
-        BaseButton(
-            buttonText: "De-melt  ${data.username}",
-            onPressed: () {
-              ref.read(unmeltUserProvider(data.id!));
-              Navigator.pop(context);
-              Navigator.pop(context);
-            }),
-        const Gap(23),
         TextView(
           text: "Cancel",
           fontSize: 16,

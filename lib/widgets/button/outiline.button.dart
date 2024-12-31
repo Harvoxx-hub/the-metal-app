@@ -27,7 +27,8 @@ class OutilineButton extends StatelessWidget {
 
   final Widget? rightIcon;
 
-  const OutilineButton({super.key, 
+  const OutilineButton({
+    super.key,
     required this.buttonText,
     required this.onPressed,
     this.textOverflow = TextOverflow.clip,

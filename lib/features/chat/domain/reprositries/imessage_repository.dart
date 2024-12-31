@@ -5,12 +5,14 @@ import '../entries/message.model.dart';
 
 abstract class IMessageRepository {
   Future<Responses> sendMessage(
-      {required MessageModel message, String? conversationsId});
+      {required MessageModel message, required String conversationsId});
   Stream<List<MessageModel>> getMessages(String conversationId);
 
-  Stream<ConversationsModel> conversation(String conversation);
+  updateGame(String id, String gameTile, {MessageModel? message});
+  clearChat(String id);
 
-  Stream<List<ConversationsModel>> getChatList(String userId);
-  Future<String> checkConversationId(String id, String recepintId);
-     updateGame(String id, String gameTile);
+   updateMessage(String id, messageId, Map<String, dynamic> data);
+    deleteMessage(String id, messageId);
+
+  Future<Responses> unMelt(String id, String messageId,  Map<String, dynamic> data);
 }

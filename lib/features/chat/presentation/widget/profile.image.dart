@@ -1,23 +1,39 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
- 
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+
+import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/gen/assets.gen.dart';
 
 class ProfileImage extends ConsumerWidget {
-  const ProfileImage(
-      {super.key, this.imageUrl, this.height, this.width, this.onTap, this.id, });
-  final String? imageUrl;
+  const ProfileImage({
+    super.key,
+    required this.metalID,
+    this.height,
+    this.width,
+    this.onTap,
+    this.id,
+    this.url,
+  });
+  final String metalID;
   final double? height;
   final String? id;
   final double? width;
   final bool isEdit = false;
   final Function()? onTap;
+  final String? url;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userdata = ref.watch(authProvider).data;
+    final metalProperties = ref.watch(metalPropertiesProvider).data;
+
+    final metal = metalProperties!.metals!.firstWhere(
+      (element) => element.id == metalID,
+      orElse: () =>
+          metalProperties.metals![0], // Fallback in case no match is found
+    );
     return GestureDetector(
-      onTap:  onTap,
+      onTap: onTap,
       child: Container(
           width: width ?? 66,
           height: height ?? 66,
@@ -29,22 +45,35 @@ class ProfileImage extends ConsumerWidget {
             ),
           ),
           child: Center(
-            child: imageUrl != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(33),
-                    child: Image.network(
-                      imageUrl!,
-                      fit: BoxFit.cover,
-                    ),
-                  )
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(33),
-                    child: Image.network(
-                      userdata!.metal!.img!,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-          )),
+              child: url != null
+                  ? CachedNetworkImage(
+                      imageUrl: url!,
+                      imageBuilder: (context, imageProvider) => CircleAvatar(
+                            radius: 33, // Image radius
+                            backgroundImage: imageProvider,
+                          ),
+                      placeholder: (context, url) => const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator
+                                .adaptive(), // Loading indicator
+                          ),
+                      errorWidget: (context, url, error) =>
+                          Assets.images.logo.image(height: 24, width: 24))
+                  : CachedNetworkImage(
+                      imageUrl: metal.img,
+                      imageBuilder: (context, imageProvider) => CircleAvatar(
+                            radius: 33, // Image radius
+                            backgroundImage: imageProvider,
+                          ),
+                      placeholder: (context, url) => const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator
+                                .adaptive(), // Loading indicator
+                          ),
+                      errorWidget: (context, url, error) =>
+                          Assets.images.logo.image(height: 24, width: 24)))),
     );
   }
 }

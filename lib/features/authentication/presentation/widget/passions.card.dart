@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
-
 
 import 'package:metal/widgets/text_views.dart';
 
@@ -23,7 +22,7 @@ class PassionsCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(4),
         decoration: selected
             ? ShapeDecoration(
                 color: const Color(0xFFFBF0F8),
@@ -61,13 +60,14 @@ class PassionsCard extends StatelessWidget {
               height: 20,
               width: 20,
             ),
-            Gap(8.w),
-            TextView(
-              text: model.title!,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+            Gap(8),
+            Expanded(
+              child: TextView(
+                text: model.title!,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            const Spacer(),
           ],
         ),
       ),

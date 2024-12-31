@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
@@ -39,7 +39,7 @@ class WelcomePage extends ConsumerWidget {
                 Image.asset(
                   Assets.images.logo.path,
                   height: 27,
-                  width: 23.w,
+                  width: 23,
                 )
               ],
             ),

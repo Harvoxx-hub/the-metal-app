@@ -49,7 +49,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '266202752447',
     projectId: 'metal-ad87d',
     authDomain: 'metal-ad87d.firebaseapp.com',
-    storageBucket: 'metal-ad87d.appspot.com',
+    storageBucket: 'metal-ad87d.firebasestorage.app',
     measurementId: 'G-G1Z73JWRXY',
   );
 
@@ -58,7 +58,7 @@ class DefaultFirebaseOptions {
     appId: '1:266202752447:android:fc7f82137ff3664dc16d0a',
     messagingSenderId: '266202752447',
     projectId: 'metal-ad87d',
-    storageBucket: 'metal-ad87d.appspot.com',
+    storageBucket: 'metal-ad87d.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -66,7 +66,7 @@ class DefaultFirebaseOptions {
     appId: '1:266202752447:ios:22ab4734ad166d45c16d0a',
     messagingSenderId: '266202752447',
     projectId: 'metal-ad87d',
-    storageBucket: 'metal-ad87d.appspot.com',
+    storageBucket: 'metal-ad87d.firebasestorage.app',
     iosBundleId: 'com.bwh.metal',
   );
 
@@ -75,7 +75,7 @@ class DefaultFirebaseOptions {
     appId: '1:266202752447:ios:df65c41c1988ceb9c16d0a',
     messagingSenderId: '266202752447',
     projectId: 'metal-ad87d',
-    storageBucket: 'metal-ad87d.appspot.com',
+    storageBucket: 'metal-ad87d.firebasestorage.app',
     iosBundleId: 'com.bwh.metal.RunnerTests',
   );
 }

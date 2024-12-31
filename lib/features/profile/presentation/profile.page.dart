@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-
+ 
 import 'package:metal/features/profile/presentation/tab.screen/discovery.tab.dart';
-import 'package:metal/features/profile/presentation/tab.screen/metal.plan.tab.dart';
+
 import 'package:metal/features/profile/presentation/tab.screen/personal.tab.dart';
+import 'package:metal/features/profile/presentation/tab.screen/thought.tab.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
@@ -26,8 +27,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     return SingleChildScrollView(
       child: ProfileHeader(
-        metal: user.metal!,
+        metalId: user.metal!,
         profileUrl: user.profilePhoto,
+        myProfile: true,
         child: Padding(
           padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
           child: Container(
@@ -43,9 +45,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               children: [
                 BaseTab(
                   tabs: [
+                    BaseTabModel(
+                        child: const MyThoughtTab(), title: 'Thoughts'),
                     BaseTabModel(child: const PersonalTab(), title: 'Personal'),
-                    // BaseTabModel(
-                    //     child: const MetalPlanTab(), title: 'Metal Plan'),
                     BaseTabModel(
                         child: const DiscoveryTab(), title: 'Discovery'),
                   ],

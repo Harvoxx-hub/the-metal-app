@@ -1,4 +1,3 @@
- 
 import 'package:flutter/material.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -7,7 +6,7 @@ class ButtonDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  const Row(
+    return const Row(
       children: [
         Expanded(
           child: Divider(
@@ -15,12 +14,11 @@ class ButtonDivider extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: TextView(text: 'Or')
-        ),
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: TextView(text: 'Or')),
         Expanded(
           child: Divider(
-            color:Colors.grey,
+            color: Colors.grey,
           ),
         ),
       ],

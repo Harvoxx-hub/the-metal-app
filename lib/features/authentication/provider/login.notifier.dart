@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/core/error/error.handle.dart';
- 
+
 import 'package:metal/core/services/auth.pref.service.dart';
 
 import 'package:metal/core/state/base.state.dart';
@@ -29,18 +28,20 @@ class LoginNotifier extends StateNotifier<LoginStates> {
         email: email,
         password: password,
       );
-      final tokenManager = ref.read(authManagerProvider);
-      await tokenManager.saveAccessToken(response.data['access_token']);
-      await tokenManager.saveRefreshToken(response.data['refresh_token']);
-      await tokenManager.saveLoginState(LoginState.loggedIn);
-      ref
-          .read(authProvider.notifier)
-          .updateUserData(UserModel.fromJson(response.data));
-      state = LoginStates.success(UserModel.fromJson(response.data));
-    } catch (e) {
-      AppError error = e as AppError;
 
-      state = LoginStates.error(error.message, errorData: e.errorData);
+      if (response.success!) {
+        final Map<String, dynamic> data = response.data;
+        ref
+            .read(authProvider.notifier)
+            .updateUserData(UserModel.fromJson(data));
+        state = LoginStates.success(UserModel.fromJson(data));
+      } else {
+        state = LoginStates.error(
+          response.message!,
+        );
+      }
+    } catch (e, s) {
+      state = LoginStates.error(e.toString(), stackTrace: s);
     }
   }
 }

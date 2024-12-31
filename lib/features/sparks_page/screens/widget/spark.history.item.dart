@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/sparks_page/domain/entries/spark.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -10,20 +11,53 @@ enum SparkHistoryType { Purchase, Sent, Referred }
 class SparkHistoryItem extends StatelessWidget {
   const SparkHistoryItem({
     super.key,
-    required this .sparkModel,
+    required this.sparkModel,
   });
+
   final SparkModel sparkModel;
 
-  // String getImagePath() {
-  //   switch (sparkModel.type) {
-  //     case SparkHistoryType.send.name:
-  //       return Assets.icons.sendSparks.path;
-  //     case SparkHistoryType.recived:
-  //       return Assets.icons.buySparks.path;
-  //     case SparkHistoryType.referred:
-  //       return Assets.icons.referred.path;
-  //   }
-  // }
+  /// Helper to get the image path based on Spark type
+  String _getImagePath() {
+    switch (sparkModel.type) {
+      case 'Sent':
+        return Assets.icons.sendSparks.path;
+      case 'Purchase':
+        return Assets.icons.buySparks.path;
+      case 'Referred':
+        return Assets.icons.referred.path;
+      default:
+        return Assets
+            .icons.iconlyLightProfile.path; // Use a default icon for fallback
+    }
+  }
+
+  /// Helper to get the main text that explains the spark activity
+  String _getMainText() {
+    switch (sparkModel.type) {
+      case 'Sent':
+        return "You sent ${sparkModel.sparks} sparks";
+      case 'Purchase':
+        return "You purchased ${sparkModel.sparks} sparks";
+      case 'Referred':
+        return "Referred new users";
+      default:
+        return "Unknown spark activity";
+    }
+  }
+
+  /// Helper to get the subtext providing additional details about the spark activity
+  String _getSubText() {
+    switch (sparkModel.type) {
+      case 'Sent':
+        return "Sent to @${'Unknown recipient'}"; // Replace with actual recipient if available
+      case 'Purchase':
+        return "Purchased from @Metal"; // Replace '@Metal' with relevant source if needed
+      case 'Referred':
+        return "Earned ${sparkModel.sparks} sparks for referrals";
+      default:
+        return "No additional details available";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +66,7 @@ class SparkHistoryItem extends StatelessWidget {
       child: Row(
         children: [
           SvgPicture.asset(
-            sparkModel.type == SparkHistoryType.Sent.name
-                ? Assets.icons.sendSparks.path
-                : sparkModel.type == SparkHistoryType.Purchase.name
-                    ? Assets.icons.buySparks.path
-                    : Assets.icons.referred.path,
+            _getImagePath(),
             height: 24,
             width: 24,
           ),
@@ -45,39 +75,27 @@ class SparkHistoryItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextView(
-                text: sparkModel.type == SparkHistoryType.Sent.name
-                    ? "Sent ${sparkModel.numberOfSparks} sparks"
-                    : sparkModel.type == SparkHistoryType.Purchase.name
-                        ? "Received ${sparkModel.numberOfSparks} sparks "
-                        : "Referred ${sparkModel.numberOfSparks} people",
+                text: _getMainText(),
                 fontWeight: FontWeight.w500,
                 fontSize: 15,
               ),
               TextView(
-                text: sparkModel.type == SparkHistoryType.Sent.name
-                    ? "To @${sparkModel.receiver}"
-                    : sparkModel.type == SparkHistoryType.Purchase.name
-                        ? "From @metal"
-                        : "Earned ${sparkModel.numberOfSparks} sparks",
+                text: _getSubText(),
                 fontWeight: FontWeight.w300,
                 fontSize: 13,
-              )
+              ),
             ],
           ),
           const Spacer(),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.end, // Align time to the right
             children: [
               TextView(
-                text: sparkModel.date!,
+                text: formatTime(isoDateString: sparkModel.timestamp),
                 fontWeight: FontWeight.w300,
                 fontSize: 13,
               ),
-              TextView(
-                text: sparkModel.time!,
-                fontWeight: FontWeight.w300,
-                fontSize: 13,
-              )
             ],
           ),
         ],

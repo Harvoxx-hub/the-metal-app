@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
- 
 
 import '../../res/colors/cr_colors.dart';
 
@@ -28,7 +27,8 @@ class PlainButton extends StatelessWidget {
 
   final Widget? rightIcon;
 
-  const PlainButton({super.key, 
+  const PlainButton({
+    super.key,
     required this.buttonText,
     required this.onPressed,
     this.textOverflow = TextOverflow.clip,

@@ -142,10 +142,10 @@ class _noSubscriptionContent extends StatelessWidget {
         BaseButton(
             buttonText: "Subscribe",
             onPressed: () {
-                                Navigator.pushNamed(context, AppRoutes.upgradePage,
-                );
- 
-            
+              Navigator.pushNamed(
+                context,
+                AppRoutes.upgradePage,
+              );
             }),
       ],
     );

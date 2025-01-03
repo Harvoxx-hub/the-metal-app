@@ -9,8 +9,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
-import 'package:instabug_flutter/instabug_flutter.dart';
-
 /// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
 
@@ -23,11 +21,6 @@ void main() async {
   await initializeFirebase();
   initializeAuthManager();
 
-  Instabug.init(token: "35773fb6523ba7aa0ca63a8bb8d55099", invocationEvents: [
-    InvocationEvent.shake,
-    InvocationEvent.screenshot,
-  ]);
-  CrashReporting.setEnabled(true);
   runApp(
     ProviderScope(
       child: MyApp(),

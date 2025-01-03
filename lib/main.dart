@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,49 +10,57 @@ import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-
 import 'package:instabug_flutter/instabug_flutter.dart';
 
-/// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
-
-/// Convenience getter for accessing the current [NavigatorState]
 NavigatorState? get nav => navKey.currentState;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await initializeFirebase();
-  initializeAuthManager();
+  try {
+    await initializeFirebase();
+    await initializeAuthManager();
+    debugPrint("Initialization Firebase");
+  } catch (e, stacktrace) {
+    debugPrint("Initialization error: $e");
+    debugPrint(stacktrace.toString());
+  }
 
-  Instabug.init(token: "35773fb6523ba7aa0ca63a8bb8d55099", invocationEvents: [
-    InvocationEvent.shake,
-    InvocationEvent.screenshot,
-  ]);
-  CrashReporting.setEnabled(true);
-  runApp(
-    ProviderScope(
-      child: MyApp(),
-    ),
+  Instabug.init(
+    token: "35773fb6523ba7aa0ca63a8bb8d55099",
+    invocationEvents: [
+      InvocationEvent.shake,
+      InvocationEvent.screenshot,
+    ],
   );
-  final userId = FirebaseAuth.instance.currentUser?.uid;
+  CrashReporting.setEnabled(true);
 
-  if (userId != null)
+  runApp(const ProviderScope(child: MyApp()));
+
+  final userId = FirebaseAuth.instance.currentUser?.uid;
+  if (userId != null) {
     WidgetsBinding.instance.addObserver(AppLifecycleHandler(userId));
+  }
 }
 
-/// Initializes Firebase and sets analytics
 Future<void> initializeFirebase() async {
   try {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
     FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
     await FirebaseRemoteConfigService().initialize();
-  } catch (e) {}
+  } catch (e) {
+    debugPrint('Error initializing Firebase: $e');
+  }
 }
 
 Future<void> initializeAuthManager() async {
-  await AuthManager.ensureInitialized();
+  try {
+    await AuthManager.ensureInitialized();
+  } catch (e) {
+    debugPrint('Error initializing AuthManager: $e');
+  }
 }
 
 class MyApp extends ConsumerStatefulWidget {
@@ -75,5 +85,11 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       onGenerateRoute: AppRoutes.generateRoute,
       debugShowCheckedModeBanner: false,
     );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 }

@@ -1,10 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:metal/core/services/auth.pref.service.dart';
-
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
-
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
@@ -21,6 +18,7 @@ class LoginNotifier extends StateNotifier<LoginStates> {
     required String password,
   }) async {
     state = LoginStates.loading();
+    debugPrint("LOGIN STATE:$state");
     try {
       final authenticationRepository =
           ref.watch(authenticationRepositoryProvider);
@@ -35,12 +33,15 @@ class LoginNotifier extends StateNotifier<LoginStates> {
             .read(authProvider.notifier)
             .updateUserData(UserModel.fromJson(data));
         state = LoginStates.success(UserModel.fromJson(data));
+        debugPrint("LOGIN RESPONSE SUCCESS:${response.success}");
       } else {
+        debugPrint("LOGIN ERROR RESPONSE:$response");
         state = LoginStates.error(
           response.message!,
         );
       }
     } catch (e, s) {
+      debugPrint('LOGIN Error: $e, LOGIN StackTrace: $s');
       state = LoginStates.error(e.toString(), stackTrace: s);
     }
   }

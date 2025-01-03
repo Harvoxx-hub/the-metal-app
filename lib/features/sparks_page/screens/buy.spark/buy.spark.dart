@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
@@ -10,9 +9,7 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/features/sparks_page/provider/buy.spark.notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
-import 'package:metal/features/upgrade/payment.config.dart';
 
-import 'package:metal/features/upgrade/payment.core.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';

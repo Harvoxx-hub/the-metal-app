@@ -5,7 +5,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 
 import 'package:metal/gen/assets.gen.dart';
@@ -52,8 +51,8 @@ class BlockedUser extends ConsumerWidget {
               ],
             ),
             blockedUserList.isEmpty
-                ? Center(
-                    child: const EmptyState(text: "No Metal Has been Blocked"))
+                ? const Center(
+                    child: EmptyState(text: "No Metal Has been Blocked"))
                 : Padding(
                     padding: const EdgeInsets.only(top: 29, left: 9, right: 9),
                     child: Container(

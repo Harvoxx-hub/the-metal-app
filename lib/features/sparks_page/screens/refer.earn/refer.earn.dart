@@ -21,7 +21,6 @@ class ReferEarnSpark extends ConsumerWidget {
   const ReferEarnSpark({super.key});
   static const name = 'referEarnSpark';
   static const route = name;
-  static final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   // final TextEditingController _phoneController = TextEditingController();
 

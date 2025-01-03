@@ -29,21 +29,21 @@ class CustomShimmerLoader extends StatelessWidget {
         );
       case ShimmerItemType.list:
         return ListView.separated(
-          padding: EdgeInsets.only(top: 10),
+          padding: const EdgeInsets.only(top: 10),
           shrinkWrap: true,
           itemBuilder: (context, index) => Shimmer.fromColors(
             baseColor: Colors.grey.shade200,
             highlightColor: Colors.grey.shade100,
             child: loaderWidget,
           ),
-          separatorBuilder: (context, index) => SizedBox(
+          separatorBuilder: (context, index) => const SizedBox(
             height: 10,
           ),
           itemCount: 4,
         );
       case ShimmerItemType.responsive:
         return GridView.builder(
-          padding: EdgeInsets.only(top: 10),
+          padding: const EdgeInsets.only(top: 10),
           shrinkWrap: true,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisSpacing: 10,
@@ -52,10 +52,10 @@ class CustomShimmerLoader extends StatelessWidget {
               context,
               defaultValue: 2,
               conditionalValues: [
-                Condition.smallerThan(name: MOBILE, value: 2),
-                Condition.largerThan(name: TABLET, value: 3),
+                const Condition.smallerThan(name: MOBILE, value: 2),
+                const Condition.largerThan(name: TABLET, value: 3),
               ],
-            ).value!,
+            ).value,
             childAspectRatio: 0.8,
           ),
           itemCount: 10,

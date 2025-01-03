@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
@@ -19,8 +18,8 @@ import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
-  static const name = 'loginPage';
+  const LoginPage({super.key});
+  static const name = 'login';
   static const route = '/$name';
 
   @override
@@ -53,9 +52,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final loginState = ref.watch(loginProvider);
+    debugPrint('Build was called...');
     ref.listen<LoginStates>(loginProvider, (prev, current) {
+      debugPrint('Login state changed: $current');
       if (current.isSuccess) {
+        debugPrint('Login success. Proceeding to next page.');
         !(current.data!.emailVerified ?? false)
             ? Navigator.pushReplacementNamed(
                 context,
@@ -74,7 +75,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     : AppRoutes.welcomePage,
               );
       }
+      debugPrint('Navigating to the last');
     });
+
+    final loginState = ref.watch(loginProvider);
 
     return BaseScreen(
       authFlow: true,
@@ -114,11 +118,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     label: 'Enter your email address',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    prefixWidget: SvgPicture.asset(
-                      Assets.icons.user.path,
-                      height: 24,
-                      width: 24,
-                    ),
+                    prefixWidget: Assets.icons.sms.svg(height: 24),
                     validator: Validators.validateEmail(),
                   ),
                   const Gap(16),
@@ -128,11 +128,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     obscureText: true,
                     controller: _passwordController,
                     keyboardType: TextInputType.visiblePassword,
-                    prefixWidget: SvgPicture.asset(
-                      Assets.icons.passwordIcon.path,
-                      height: 24,
-                      width: 24,
-                    ),
+                    prefixWidget: Assets.icons.passwordIcon.svg(height: 24),
                     validator: Validators.validatePlainPassword(),
                   ),
                   const Gap(16),

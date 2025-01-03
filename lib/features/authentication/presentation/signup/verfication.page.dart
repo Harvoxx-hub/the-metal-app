@@ -10,7 +10,6 @@ import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
-import 'package:metal/features/authentication/provider/forget.password.notifier.dart';
 import 'package:metal/features/authentication/provider/verfication.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 

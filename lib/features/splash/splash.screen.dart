@@ -47,7 +47,6 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                 AppRoutes.verificationPage,
                 arguments: VerificationSentArgument(
                     type: RouteFrom.AccountSetting,
-                
                     email: current.data!.email!),
               )
             : current.data!.profileUpdated ?? false

@@ -36,6 +36,12 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
   int currentPage = 0;
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -144,6 +150,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                     onTap: () {
+                      debugPrint('Navigating to login page');
                       Navigator.pushNamed(
                         context,
                         AppRoutes.login,

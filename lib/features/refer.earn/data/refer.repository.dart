@@ -8,7 +8,6 @@ import 'package:metal/features/refer.earn/domain/irefer.repository.dart';
 class ReferRepository implements IReferRepository {
   final FirebaseServiceDb _firebaseService = FirebaseServiceDb.instance;
 
-  @override
   Future<Responses> buySpark({
     required double numberOfSpark,
     required double amount,

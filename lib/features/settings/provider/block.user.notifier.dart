@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.explore.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.for.you.dart';
 import 'package:metal/features/settings/data/repositories/setting.repository.dart';

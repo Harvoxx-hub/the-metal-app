@@ -11,7 +11,6 @@ import 'package:metal/widgets/shimmer/custom_shimmer_loader.dart';
 import 'package:metal/widgets/shimmer/feed_shimmer_widget.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
-import 'package:metal/widgets/text_views.dart';
 
 class MyThoughtTab extends ConsumerStatefulWidget {
   const MyThoughtTab({super.key, this.id, this.toughtID});

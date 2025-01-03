@@ -11,7 +11,6 @@ import 'package:metal/features/verification/provider/verification.notifier.dart'
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
-import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class VerificationVideo extends ConsumerStatefulWidget {

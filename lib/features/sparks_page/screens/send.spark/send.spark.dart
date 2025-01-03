@@ -62,7 +62,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
     super.dispose();
   }
 
-  String SelectedUserId = "";
+  String selectedUserId = "";
   @override
   Widget build(BuildContext context) {
     final users = ref.watch(getUserByNameProvider);
@@ -144,7 +144,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
                                             onTap: () {
                                               _userNameController.text =
                                                   user["username"];
-                                              SelectedUserId = user["id"];
+                                              selectedUserId = user["id"];
                                             }),
                                       )
                                   ],
@@ -199,7 +199,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
                             loading: sendSpark.isLoading,
                             onPressed: () {
                               if (_form.currentState!.validate() &&
-                                  SelectedUserId != "") {
+                                  selectedUserId != "") {
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -257,7 +257,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
             onPressed: () {
               Navigator.pop(context);
               ref.read(sendSparkProvider.notifier).sendSpark(
-                  receiverId: SelectedUserId,
+                  receiverId: selectedUserId,
                   numberOfSparks: double.parse(_sparkNumberController.text));
             }),
         const Gap(23),

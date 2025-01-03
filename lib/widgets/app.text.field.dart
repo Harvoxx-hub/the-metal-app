@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import '../res/colors/cr_colors.dart';
 import 'text_views.dart';
 
+// ignore: must_be_immutable
 class AppTextField extends StatelessWidget {
   AppTextField(
       {this.minLines = 1,

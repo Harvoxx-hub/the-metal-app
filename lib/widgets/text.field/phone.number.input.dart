@@ -10,11 +10,11 @@ class PhoneInput extends StatelessWidget {
   final void Function(String)? onPhoneNumberChanged;
 
   const PhoneInput({
-    Key? key,
+    super.key,
     required this.phoneController,
     this.floatingLabel = "Phone number",
     this.onPhoneNumberChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -6,7 +6,6 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/chat/domain/entries/conversations.model.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 
@@ -17,9 +16,7 @@ import 'package:metal/features/chat/presentation/chat.window/widget/game.tile.da
 import 'package:metal/features/chat/presentation/chat.window/widget/message.list.dart';
 
 import 'package:metal/features/chat/provider/game.conversation.notifier.dart';
-import 'package:metal/features/chat/provider/get.converation.notifier.dart';
 
-import 'package:metal/features/chat/provider/send.message.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
@@ -48,7 +45,6 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
   ConnectionModel? _connectionModdel;
   @override
   void initState() {
-   
     getMeltMetal();
     super.initState();
   }
@@ -90,7 +86,6 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
               ChatBottomSheet(
                 meltUserModel: _meltUserModel!,
                 connectionModel: _connectionModdel!,
-                 
                 onGameClick: () async {
                   final gameModel = await Navigator.pushNamed(
                     context,
@@ -116,19 +111,16 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
                   }
                 },
               )
-   
             ],
           ),
         ),
       ),
     );
   }
-
- 
 }
 
-class dateDivider extends StatelessWidget {
-  const dateDivider({
+class DateDivider extends StatelessWidget {
+  const DateDivider({
     super.key,
   });
 

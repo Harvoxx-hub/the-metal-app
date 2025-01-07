@@ -110,9 +110,10 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
         lng: _currentPosition!.longitude,
       );
 
-      final updated = userData!.copyWith(location: location , profileUpdated: true );
+      final updated =
+          userData?.copyWith(location: location, profileUpdated: true);
 
-      ref.read(updateProfileProvider.notifier).updateUserData(updated);
+      ref.read(updateProfileProvider.notifier).updateUserData(updated!);
 
       updateProfile(updated);
     }

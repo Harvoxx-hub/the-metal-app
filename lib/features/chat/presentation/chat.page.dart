@@ -6,12 +6,9 @@ import 'package:gap/gap.dart';
 
 import 'package:metal/features/chat/presentation/widget/chat.list.dart';
 
-import 'package:metal/features/chat/presentation/widget/status/status.widget.dart';
 import 'package:metal/gen/assets.gen.dart';
 
-import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
-import 'package:metal/widgets/text_views.dart';
 
 class ChatPage extends ConsumerStatefulWidget {
   const ChatPage({super.key});
@@ -76,7 +73,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
           ),
         ),
         const Gap(26),
-        Expanded(child: const ChatListWidget())
+        const Expanded(child: ChatListWidget())
       ],
     );
   }

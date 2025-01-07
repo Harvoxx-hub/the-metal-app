@@ -3,18 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/state/base.state.dart';
 
-import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 
 import 'package:metal/features/home_page/provider/get.thoughts.explore.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.for.you.dart';
 
 import 'package:metal/features/home_page/widget/thought_card.dart';
-import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/widgets/button/outiline.button.dart';
-import 'package:metal/widgets/button/plain.button.dart';
-import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/shimmer/custom_shimmer_loader.dart';
 import 'package:metal/widgets/shimmer/feed_shimmer_widget.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';

@@ -114,7 +114,7 @@ class chatListItem extends ConsumerWidget {
             arguments: getUser.data!.id);
       },
       child: getUser.isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator.adaptive(),
             )
           : Padding(

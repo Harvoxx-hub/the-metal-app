@@ -28,9 +28,9 @@ class ThoughtCard extends ConsumerStatefulWidget {
   final ThoughtModel thoughtModel;
 
   const ThoughtCard({
-    Key? key,
+    super.key,
     required this.thoughtModel,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<ThoughtCard> createState() => _ThoughtCardState();

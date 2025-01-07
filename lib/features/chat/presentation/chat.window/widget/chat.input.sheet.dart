@@ -20,8 +20,6 @@ import 'package:metal/widgets/text.field/edit.from.field.dart';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 
-import 'package:file_picker/file_picker.dart';
-
 import 'package:path_provider/path_provider.dart';
 
 class ChatBottomSheet extends ConsumerStatefulWidget {

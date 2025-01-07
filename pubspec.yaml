@@ -63,7 +63,6 @@ dependencies:
   share_plus: ^10.0.2
   flutter_dropzone: ^4.0.3
   cached_network_image: ^3.3.1
-  instabug_flutter: ^13.4.0
   timeago: ^3.7.0
   firebase_auth: ^5.3.3
   firebase_remote_config: ^5.1.5
@@ -71,6 +70,8 @@ dependencies:
   audio_waveforms: ^1.2.0
   file_picker: ^8.1.4
   cloud_functions: ^5.2.0
+  zego_uikit_prebuilt_call: ^4.16.20
+  zego_uikit_signaling_plugin: ^2.4.4
  
   
 

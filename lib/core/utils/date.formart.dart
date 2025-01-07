@@ -14,15 +14,20 @@ String formatDuration(Duration duration) {
   return '$minutes:$seconds';
 }
 
-String formatTime({String? isoDateString, DateTime? datetime}) {
-  // Parse the ISO 8601 date string to a DateTime object
+String formatTime({
+  String? isoDateString,
+  DateTime? datetime,
+  String locale = 'en',
+}) {
+  // Parse the date and convert to local time
   DateTime date = datetime ??
-      DateTime.parse(isoDateString ?? DateTime.now().toIso8601String())
-          .toLocal();
+      DateTime.parse(isoDateString ?? DateTime.now().toIso8601String());
 
-  // Use timeago to generate a relative time string
-  return timeago.format(date,
-      locale: 'en'); // Change 'en' to other locales if needed
+  // Convert to local time for display
+  DateTime localDate = date.toLocal();
+
+  // Return relative time string based on local time
+  return timeago.format(localDate, locale: locale);
 }
 
 String ActiveTime({String? isoDateString, DateTime? datetime}) {

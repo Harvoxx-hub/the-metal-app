@@ -34,9 +34,11 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
   final image3 = Assets.gifs.onboarding3.path;
   final PageController _controller = PageController();
   int currentPage = 0;
+  Timer? _timer;
 
   @override
   void dispose() {
+    _timer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -45,12 +47,17 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Timer.periodic(const Duration(seconds: 3), (timer) {
-        if (currentPage < 2) {
-          _controller.nextPage(
-              duration: const Duration(milliseconds: 500), curve: Curves.ease);
-        } else {
-          _controller.jumpToPage(0);
+      _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+        if (_controller.hasClients) {
+          // Check if controller has clients
+          if (currentPage < 2) {
+            _controller.nextPage(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.ease,
+            );
+          } else {
+            _controller.jumpToPage(0);
+          }
         }
       });
     });

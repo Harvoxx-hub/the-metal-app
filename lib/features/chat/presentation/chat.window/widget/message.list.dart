@@ -28,24 +28,26 @@ class _MessageListState extends ConsumerState<MessageList> {
     final messages = ref.watch(getMessageList(conversationId!));
 
     return Expanded(
-        child: Padding(
-            padding: const EdgeInsets.only(left: 18, right: 18),
-            child: messages.isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : messages.isError
-                    ? const Center(child: TextView(text: "No message "))
-                    : ListView.builder(
-                        reverse: true,
-                        itemCount: messages.data?.length ?? 0,
-                        itemBuilder: (context, index) {
-                          final message = messages.data![index];
-                          return MessageBubble(
-                            message: message,
-                            connectionId: widget.conversationId!,
-                          );
-                        },
-                      )));
+      child: Padding(
+        padding: const EdgeInsets.only(left: 18, right: 18),
+        child: messages.isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : messages.isError
+                ? const Center(child: TextView(text: "No message "))
+                : ListView.builder(
+                    reverse: true,
+                    itemCount: messages.data?.length ?? 0,
+                    itemBuilder: (context, index) {
+                      final message = messages.data![index];
+                      return MessageBubble(
+                        message: message,
+                        connectionId: widget.conversationId!,
+                      );
+                    },
+                  ),
+      ),
+    );
   }
 }

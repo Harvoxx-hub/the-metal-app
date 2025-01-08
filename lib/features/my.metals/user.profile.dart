@@ -71,7 +71,7 @@ class UserProfilePage extends ConsumerWidget {
                     ),
                     const Gap(40),
                     connection?.isAnonymous ?? true
-                        ? SizedBox()
+                        ? const SizedBox()
                         : EditField(
                             text: user.fullname!,
                             floatingLabel: " First name & Last name",

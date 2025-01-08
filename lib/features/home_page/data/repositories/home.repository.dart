@@ -428,6 +428,7 @@ class HomeRepository implements IHomeRepository {
     try {
       User? user = _firebaseService.auth.currentUser;
       String user1Id = user!.uid;
+
       // Query to check if user1 has sent a melt request to user2
       final user1ToUser2Request = await _firebaseService.firestore
           .collection(FirebaseFirestoreCollectionKeys.meltRequests)
@@ -443,6 +444,7 @@ class HomeRepository implements IHomeRepository {
           .get();
 
       MeltRequestState? meltState;
+
       if (user1ToUser2Request.docs.isNotEmpty &&
           user2ToUser1Request.docs.isNotEmpty) {
         // Both users have sent a request, state is "Mutual"
@@ -456,7 +458,9 @@ class HomeRepository implements IHomeRepository {
       }
 
       return Responses(
-          success: true, message: "successfully.", data: meltState);
+          success: true,
+          message: "Successfully retrieved melt state.",
+          data: meltState);
     } catch (e) {
       throw Exception('An error occurred while checking the melt state: $e');
     }

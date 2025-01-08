@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
@@ -10,8 +9,6 @@ import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/my.metals/widget/melt.card.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
-
-import 'package:metal/widgets/text_views.dart';
 
 class MyMeltedMetals extends ConsumerStatefulWidget {
   const MyMeltedMetals({super.key});

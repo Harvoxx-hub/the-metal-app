@@ -67,6 +67,12 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
             arguments: widget.metalId,
           );
         }
+        // Handle unmelt transition
+        if (meltState.isSuccess &&
+            prev?.data == MeltRequestState.pending &&
+            current.data != MeltRequestState.pending) {
+          ref.read(meltUserProvider.notifier).resetState();
+        }
       }
     });
 
@@ -98,10 +104,12 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                         top: 122,
                       ),
                       decoration: const BoxDecoration(
-                          color: AppColors.metalWhite,
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(35),
-                              topRight: Radius.circular(35))),
+                        color: AppColors.metalWhite,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(35),
+                          topRight: Radius.circular(35),
+                        ),
+                      ),
                       child: Column(
                         children: [
                           GestureDetector(
@@ -119,12 +127,25 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5)),
                               ),
-                              child: TextView(
-                                  text: connection != null
-                                      ? connection.isAnonymous
-                                          ? "@${myMelt.data!.username} "
-                                          : "@${myMelt.data!.fullname} "
-                                      : "@${myMelt.data!.username} "),
+                              child: Column(
+                                children: [
+                                  TextView(
+                                    text: connection != null
+                                        ? connection.isAnonymous
+                                            ? "@${myMelt.data!.username} "
+                                            : "@${myMelt.data!.fullname} "
+                                        : "@${myMelt.data!.username} ",
+                                  ),
+                                  const Gap(5),
+                                  TextView(
+                                    text: myMelt.data?.address != null
+                                        ? connection?.isAnonymous == true
+                                            ? "Anonymous User"
+                                            : "${myMelt.data!.address?.state}, ${myMelt.data!.address?.country}"
+                                        : "No Address Found",
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           const Gap(20),
@@ -187,9 +208,10 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
       MeltUsersState meltState, BuildContext context, int connectionInt) {
     if (checkMeltState.data == MeltRequestState.pending) {
       return PlainButton(
-        enabled: false,
+        // enabled: true,
         loading: meltState.isLoading,
-        onPressed: null,
+        onPressed: () =>
+            ref.read(meltUserProvider.notifier).unMeltUser(widget.metalId),
         fontSize: 15,
         textColor: Colors.grey,
         buttonText: "Melt Requested",
@@ -223,7 +245,8 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
         ],
       );
     } else {
-      return BaseButton(
+      return PlainButton(
+        enabled: true,
         loading: meltState.isLoading,
         onPressed: () {
           connectionInt <= 10
@@ -293,14 +316,14 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
           width: 45,
         ),
         const Gap(15),
-        TextView(
+        const TextView(
           text: "You are limited to a total of 10 Connection",
           fontSize: 20,
           fontWeight: FontWeight.w800,
           textAlign: TextAlign.center,
         ),
         const Gap(8),
-        TextView(
+        const TextView(
           text:
               "De-melt form previous connection to be able to connect to more metals", // Assuming `description` contains details about the metal
           maxLines: 3,

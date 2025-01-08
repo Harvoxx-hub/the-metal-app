@@ -60,18 +60,13 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
     ref.listen<CheckMeltState>(checkMeltProvider(widget.metalId),
         (prev, current) {
       if (current.isSuccess) {
+        // Handle mutual melt case
         if (meltState.isSuccess && current.data == MeltRequestState.mutual) {
           Navigator.pushNamed(
             context,
             AppRoutes.meltMetal,
             arguments: widget.metalId,
           );
-        }
-        // Handle unmelt transition
-        if (meltState.isSuccess &&
-            prev?.data == MeltRequestState.pending &&
-            current.data != MeltRequestState.pending) {
-          ref.read(meltUserProvider.notifier).resetState();
         }
       }
     });
@@ -208,7 +203,6 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
       MeltUsersState meltState, BuildContext context, int connectionInt) {
     if (checkMeltState.data == MeltRequestState.pending) {
       return PlainButton(
-        // enabled: true,
         loading: meltState.isLoading,
         onPressed: () =>
             ref.read(meltUserProvider.notifier).unMeltUser(widget.metalId),
@@ -245,17 +239,18 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
         ],
       );
     } else {
-      return PlainButton(
-        enabled: true,
+      return BaseButton(
         loading: meltState.isLoading,
         onPressed: () {
-          connectionInt <= 10
-              ? ref.read(meltUserProvider.notifier).meltUser(widget.metalId)
-              : showDialog(
-                  context: context,
-                  builder: (BuildContext context) =>
-                      CustomDialog(content: _meltLimitDialog()),
-                );
+          if (connectionInt <= 10) {
+            ref.read(meltUserProvider.notifier).meltUser(widget.metalId);
+          } else {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) =>
+                  CustomDialog(content: _meltLimitDialog()),
+            );
+          }
         },
         fontSize: 15,
         buttonText: "Melt",

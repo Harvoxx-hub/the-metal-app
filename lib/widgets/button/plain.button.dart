@@ -59,9 +59,7 @@ class PlainButton extends StatelessWidget {
         width: width,
         height: height,
         decoration: ShapeDecoration(
-          color: enabled // Use enabled state to determine gradient colors
-              ? color
-              : color?.withOpacity(0.07),
+          color: color?.withOpacity(0.07),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: thickBorder

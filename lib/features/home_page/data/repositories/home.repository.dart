@@ -140,21 +140,49 @@ class HomeRepository implements IHomeRepository {
         .set(melt.toJson());
   }
 
+  // @override
+  // Future<Responses> unMeltUser(String connectionId) async {
+  //   try {
+  //     // Delete the connection document
+  //     await _firebaseService.deleteDocument(
+  //       collectionPath: FirebaseFirestoreCollectionKeys.connections,
+  //       documentId: connectionId,
+  //     );
+
+  //     return Responses(
+  //       success: true,
+  //       message: "Connection deleted successfully.",
+  //     );
+  //   } catch (e) {
+  //     rethrow;
+  //   }
+  // }
+
   @override
-  Future<Responses> unMeltUser(String connectionId) async {
+  Future<Responses> unMeltUser(String recipientId) async {
     try {
-      // Delete the connection document
-      await _firebaseService.deleteDocument(
-        collectionPath: FirebaseFirestoreCollectionKeys.connections,
-        documentId: connectionId,
-      );
+      User? user = _firebaseService.auth.currentUser;
+      String requesterId = user!.uid;
+
+      // Find and delete the melt request document
+      final querySnapshot = await _firebaseService.firestore
+          .collection(FirebaseFirestoreCollectionKeys.meltRequests)
+          .where('requesterId', isEqualTo: requesterId)
+          .where('recipientId', isEqualTo: recipientId)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Delete the found document
+        await _firebaseService.firestore
+            .collection(FirebaseFirestoreCollectionKeys.meltRequests)
+            .doc(querySnapshot.docs.first.id)
+            .delete();
+      }
 
       return Responses(
-        success: true,
-        message: "Connection deleted successfully.",
-      );
+          success: true, message: "Successfully unmelted.", data: null);
     } catch (e) {
-      rethrow;
+      throw Exception('An error occurred while unmelting: $e');
     }
   }
 

@@ -19,7 +19,10 @@ class CheckMeltStatusNotifier extends StateNotifier<CheckMeltState> {
       final response = await repository.checkMelt(user2Id: id);
 
       if (mounted) {
-        state = CheckMeltState.success(response.data);
+        // Only update state if it's different from current
+        if (state.data != response.data) {
+          state = CheckMeltState.success(response.data);
+        }
       }
     } catch (e, s) {
       state = CheckMeltState.error(e.toString(), stackTrace: s);

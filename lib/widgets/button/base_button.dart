@@ -69,8 +69,8 @@ class BaseButton extends StatelessWidget {
                     const Color(0xFFD2128B)
                   ]
                 : [
-                    Color.fromARGB(255, 239, 172, 215),
-                    Color.fromARGB(255, 212, 181, 181),
+                    const Color.fromARGB(255, 239, 172, 215),
+                    const Color.fromARGB(255, 212, 181, 181),
                     const Color(0xFFD2128B)
                   ],
           ),

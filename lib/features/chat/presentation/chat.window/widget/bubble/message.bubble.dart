@@ -15,11 +15,11 @@ class MessageBubble extends ConsumerWidget {
   final MessageModel message;
   final String connectionId;
 
-  MessageBubble({
-    Key? key,
+  const MessageBubble({
+    super.key,
     required this.message,
     required this.connectionId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/core/utils/constant/enums.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
@@ -48,16 +49,18 @@ class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
       state = MeltUsersState.loading();
       final homeRepository = ref.watch(homeRepositoryProvider);
 
-      final response = await homeRepository.unMeltUser(id);
-      ref.read(checkMeltProvider(id).notifier).checkStatus();
-      state = MeltUsersState.success({"data": response.data});
+      await homeRepository.unMeltUser(id);
+
+      // Force state update to noRequest after unmelt
+      state = MeltUsersState.success({"data": MeltRequestState.noRequest});
+
+      // Update the check melt status
+      if (ref.read(checkMeltProvider(id).notifier).mounted) {
+        ref.read(checkMeltProvider(id).notifier).checkStatus();
+      }
     } catch (e, s) {
       state = MeltUsersState.error(e.toString(), stackTrace: s);
     }
-  }
-
-  void resetState() {
-    state = MeltUsersState.initial();
   }
 }
 

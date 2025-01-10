@@ -12,7 +12,6 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
-import 'package:metal/features/dashboard.dart/widget/tutoral.dialog.dart';
 import 'package:metal/features/dashboard.dart/widget/verification.dialog.dart';
 
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
@@ -124,7 +123,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       floatingActionButton: currentIndex == 0
           ? FloatingActionButton(
               backgroundColor: const Color(0xFFD2128B),
-              child: Icon(
+              child: const Icon(
                 Icons.add,
                 color: Colors.white,
               ),

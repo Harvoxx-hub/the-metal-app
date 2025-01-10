@@ -10,12 +10,12 @@ class DeleteUsersNotifier extends StateNotifier<DeleteUsersState> {
   );
   final Ref ref;
 
-  // melt user
-  void DeleteUser() async {
+// melt user
+  void deleteUser() async {
     try {
       state = DeleteUsersState.loading();
       final repo = ref.watch(authenticationRepositoryProvider);
-      final response = await repo.DeleteUser();
+      final response = await repo.deleteUser();
       if (mounted) {
         state = DeleteUsersState.success(response.message!);
       }

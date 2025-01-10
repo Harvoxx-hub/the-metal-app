@@ -58,21 +58,20 @@ class ChooseMetalCard extends StatelessWidget {
             Row(
               children: [
                 TextView(
-                  text: model.title!,
+                  text: model.title,
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),
                 const Spacer(),
-                
                 Image.network(
-                  model.img!,
+                  model.img,
                   height: 40,
                   width: 40,
                 )
               ],
             ),
             TextView(
-              text: model.desc!,
+              text: model.desc,
               fontSize: 13,
               fontWeight: FontWeight.w400,
               color: AppColors.metalBrownColourForText.withOpacity(0.5),

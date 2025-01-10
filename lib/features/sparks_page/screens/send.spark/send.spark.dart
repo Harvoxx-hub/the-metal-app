@@ -36,7 +36,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
 
   final TextEditingController _transferFeeController = TextEditingController();
 
-  final TextEditingController _TotalSparkController = TextEditingController();
+  final TextEditingController _totalSparkController = TextEditingController();
   static final GlobalKey<FormState> _form = GlobalKey<FormState>();
   @override
   void initState() {
@@ -182,7 +182,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
                           EditFormField(
                             floatingLabel: 'Total Sparks used ',
                             label: '0.00',
-                            controller: _TotalSparkController,
+                            controller: _totalSparkController,
                             keyboardType: TextInputType.number,
                             prefixWidget: SvgPicture.asset(
                               Assets.icons.star05.path,

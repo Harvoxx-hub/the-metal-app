@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
+import 'package:metal/core/utils/constant/constants.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
@@ -364,8 +365,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
       MaterialPageRoute(
         builder: (context) => ZegoUIKitPrebuiltCall(
           appID: 918677174,
-          appSign:
-              'a593a3eacbd96523d72730d336acaf02574848a9fda4f4fdb3110cb18b3c23f0',
+          appSign: appSignKey,
           userID: ref.watch(authProvider).data!.id!,
           userName: ref.watch(authProvider).data!.username!,
           callID: widget.connectionModel.connectionId,
@@ -381,9 +381,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
       context,
       MaterialPageRoute(
         builder: (context) => ZegoUIKitPrebuiltCall(
-          appID: 918677174,
-          appSign:
-              'a593a3eacbd96523d72730d336acaf02574848a9fda4f4fdb3110cb18b3c23f0',
+          appID: appIDKey,
+          appSign: appSignKey,
           userID: ref.watch(authProvider).data!.id!,
           userName: ref.watch(authProvider).data!.username!,
           callID: widget.connectionModel.connectionId,

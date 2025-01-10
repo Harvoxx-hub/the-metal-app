@@ -16,15 +16,19 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
       state = GetUserState.loading();
       final homeRepository = ref.watch(authenticationRepositoryProvider);
       final response = await homeRepository.getUserByID(id: id);
- 
 
-      state = GetUserState.success(UserModel.fromJson(response.data));
+      if (response.success == false) {
+        state = GetUserState.error('No user data available');
+      } else {
+        final userData = UserModel.fromJson(response.data);
+
+        state = GetUserState.success(userData);
+      }
     } catch (e, s) {
       state = GetUserState.error(e.toString(), stackTrace: s);
     }
   }
-
- }
+}
 
 // Define a type alias
 typedef GetUserState = BaseState<UserModel>;

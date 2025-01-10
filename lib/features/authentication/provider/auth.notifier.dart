@@ -4,6 +4,8 @@ import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 // import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 // import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
@@ -11,8 +13,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier(
     super.state,
     this.ref,
-  ) {
-  }
+  ) {}
 
   final Ref ref;
 
@@ -23,11 +24,31 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final authenticationRepository =
           ref.watch(authenticationRepositoryProvider);
       final response = await authenticationRepository.getCurrentUser();
+
+      // Add null check
+      if (response.data == null) {
+        state = AuthState.error('No user data available');
+        return;
+      }
+
       final userData = UserModel.fromJson(response.data);
       state = AuthState.success(userData);
-      // initZIMKIt();
     } catch (e, s) {
       state = AuthState.error(e.toString(), stackTrace: s);
+    }
+  }
+
+  Future initializeZegoUiKit() async {
+    final user = ref.watch(authProvider).data;
+    if (user != null) {
+      ZegoUIKitPrebuiltCallInvitationService().init(
+        appID: 918677174,
+        appSign:
+            'a593a3eacbd96523d72730d336acaf02574848a9fda4f4fdb3110cb18b3c23f0',
+        userID: user.id!,
+        userName: user.username!,
+        plugins: [ZegoUIKitSignalingPlugin()],
+      );
     }
   }
 
@@ -58,7 +79,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     //   plugins: [ZegoUIKitSignalingPlugin()],
     // );
   }
- 
 }
 
 // Define a type alias

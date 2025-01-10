@@ -13,7 +13,6 @@ import 'package:metal/core/utils/constant/firebase.firestore.collection.key.dart
 
 import 'package:metal/fcm/fcm_client.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
 import 'package:metal/features/authentication/domain/repositories/iauthetication_repository.dart';
 
@@ -252,7 +251,7 @@ class AuthenticationRepository implements IAuthenticationRepository {
   }
 
   @override
-  Future<Responses> DeleteUser() async {
+  Future<Responses> deleteUser() async {
     try {
       User? user = _firebaseService.auth.currentUser;
       if (user == null) {
@@ -362,7 +361,6 @@ class AuthenticationRepository implements IAuthenticationRepository {
       );
     }
   }
- 
 }
 
 final authenticationRepositoryProvider = Provider((ref) {

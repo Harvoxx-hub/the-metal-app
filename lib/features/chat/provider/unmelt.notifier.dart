@@ -36,6 +36,26 @@ class UnmeltNotifier extends StateNotifier<UnmeltState> {
       state = UnmeltState.error('Failed to send message: $e');
     }
   }
+
+  /// **Mark a message as read in Firestore**
+  Future<void> markMessageAsRead(String connectionID, String messageId) async {
+    if (connectionID.isEmpty || messageId.isEmpty) {
+      print("Invalid connectionID or messageId");
+      return;
+    }
+
+    try {
+      final repository = ref.watch(messageRepositoryProvider);
+      await repository.updateMessage(connectionID, messageId, {'isRead': true});
+    } catch (e) {
+      // Check if the notifier is still mounted before updating the state
+      if (mounted) {
+        state = UnmeltState.error('Failed to mark message as read: $e');
+      } else {
+        print("UnmeltNotifier is disposed. Error: $e");
+      }
+    }
+  }
 }
 
 typedef UnmeltState = BaseState<String>;

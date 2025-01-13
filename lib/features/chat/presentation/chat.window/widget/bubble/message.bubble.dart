@@ -15,11 +15,11 @@ class MessageBubble extends ConsumerWidget {
   final MessageModel message;
   final String connectionId;
 
-  MessageBubble({
-    Key? key,
+  const MessageBubble({
+    super.key,
     required this.message,
     required this.connectionId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,6 +32,13 @@ class MessageBubble extends ConsumerWidget {
     final isSender = message.senderId == userData.id;
     final isAdmin = message.senderId == "admin";
 
+    // Mark message as read when displayed
+    if (!message.isRead && !isSender) {
+      ref
+          .read(unMeltProvider.notifier)
+          .markMessageAsRead(connectionId, message.id!);
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
       child: Row(
@@ -42,56 +49,20 @@ class MessageBubble extends ConsumerWidget {
                 : MainAxisAlignment.start,
         children: [
           GestureDetector(
-            onLongPress: () {
-              // Show a confirmation dialog before deleting
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text("Delete Message"),
-                    content:
-                        Text("Are you sure you want to delete this message?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
-                        },
-                        child: Text("Cancel"),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Delete the message using your provider or state management logic
-                          ref.read(unMeltProvider.notifier).deleteMessage(
-                                connectionId,
-                                message.id,
-                              );
-                          Navigator.of(context).pop(); // Close the dialog
-                        },
-                        child: Text(
-                          "Delete",
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            child: _buildMessageContent(isSender, isAdmin, userData.id!, ref),
+            onLongPress: () => _showDeleteDialog(context, ref),
+            child: _buildMessageContent(isSender, isAdmin, ref),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMessageContent(bool isSender, bool isAdmin, String userId, ref) {
+  Widget _buildMessageContent(bool isSender, bool isAdmin, WidgetRef ref) {
     switch (message.type) {
       case MessageType.text:
         return _buildTextMessage(isSender, isAdmin);
       case MessageType.audio:
         return _buildAudioMessage(isSender);
-      case MessageType.un_melt:
-        return _buildUnsupportedMessage(isSender, isAdmin, ref);
       default:
         return _buildUnsupportedMessage(isSender, isAdmin, ref);
     }
@@ -120,6 +91,7 @@ class MessageBubble extends ConsumerWidget {
             fontSize: 10,
             color: AppColors.metalBlack50,
           ),
+        _buildReadReceipt(isSender),
       ],
     );
   }
@@ -137,6 +109,7 @@ class MessageBubble extends ConsumerWidget {
           text: formatTime(isoDateString: message.timestamp),
           fontSize: 10,
         ),
+        _buildReadReceipt(isSender),
       ],
     );
   }
@@ -147,86 +120,131 @@ class MessageBubble extends ConsumerWidget {
           isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
         Container(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           constraints: const BoxConstraints(minWidth: 100, maxWidth: 200),
           decoration: BoxDecoration(
             color: _getMessageBubbleColor(isSender, isAdmin),
             borderRadius: _getMessageBubbleBorderRadius(isSender, isAdmin),
           ),
-          child: message.message == "cancel"
-              ? TextView(
-                  text: "Un-melt Request Cancel",
-                )
-              : message.message == "approved"
-                  ? TextView(
-                      text: "Un-melt Request Approved",
-                    )
-                  : message.message == "rejeted"
-                      ? TextView(
-                          text: "Un-melt Request Rejeted",
-                        )
-                      : Column(
-                          children: [
-                            TextView(
-                                text: isSender
-                                    ? 'Un-Melt Requested'
-                                    : 'Un-Melt Request'),
-                            const Gap(10),
-                            TextView(
-                              text: isSender
-                                  ? "Requesting un-melt request, you will gain access to the rest of your currently hidden information and will also be able to make video and audio calls."
-                                  : 'By accepting this un-melt request, the user will gain access to the rest of your currently hidden information and will also be able to make video and audio calls.',
-                              fontSize: 12,
-                            ),
-                            const Gap(10),
-                            isSender
-                                ? OutilineButton(
-                                    buttonText: 'Cancel',
-                                    onPressed: () {
-                                      ref
-                                          .read(unMeltProvider.notifier)
-                                          .updateMessage(
-                                              connectionId,
-                                              message.id,
-                                              {"message": "cancel"});
-                                    },
-                                  )
-                                : Column(
-                                    children: [
-                                      OutilineButton(
-                                        buttonText: 'Un-metal',
-                                        onPressed: () {
-                                          ref
-                                              .read(unMeltProvider.notifier)
-                                              .unmelter(
-                                                  connectionId,
-                                                  message.id,
-                                                  {"message": "approved"});
-                                        },
-                                      ),
-                                      const Gap(10),
-                                      OutilineButton(
-                                        buttonText: 'Reject',
-                                        onPressed: () {
-                                          ref
-                                              .read(unMeltProvider.notifier)
-                                              .updateMessage(
-                                                  connectionId,
-                                                  message.id,
-                                                  {"message": "rejeted"});
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                          ],
-                        ),
+          child: _buildUnmeltContent(isSender, ref),
         ),
         TextView(
           text: formatTime(isoDateString: message.timestamp),
           fontSize: 10,
           color: AppColors.metalBlack50,
         ),
+        _buildReadReceipt(isSender),
       ],
+    );
+  }
+
+  Widget _buildUnmeltContent(bool isSender, WidgetRef ref) {
+    return message.message == "cancel"
+        ? const TextView(text: "Un-melt Request Cancelled")
+        : message.message == "approved"
+            ? const TextView(text: "Un-melt Request Approved")
+            : message.message == "rejected"
+                ? const TextView(text: "Un-melt Request Rejected")
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextView(
+                        text:
+                            isSender ? 'Un-Melt Requested' : 'Un-Melt Request',
+                      ),
+                      const Gap(10),
+                      isSender
+                          ? OutilineButton(
+                              buttonText: 'Cancel',
+                              onPressed: () {
+                                ref.read(unMeltProvider.notifier).updateMessage(
+                                  connectionId,
+                                  message.id,
+                                  {"message": "cancel"},
+                                );
+                              },
+                            )
+                          : Row(
+                              children: [
+                                Expanded(
+                                  child: OutilineButton(
+                                    buttonText: 'Approve',
+                                    onPressed: () {
+                                      ref
+                                          .read(unMeltProvider.notifier)
+                                          .unmelter(
+                                        connectionId,
+                                        message.id,
+                                        {"message": "approved"},
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const Gap(10),
+                                Expanded(
+                                  child: OutilineButton(
+                                    buttonText: 'Reject',
+                                    onPressed: () {
+                                      ref
+                                          .read(unMeltProvider.notifier)
+                                          .updateMessage(
+                                        connectionId,
+                                        message.id,
+                                        {"message": "rejected"},
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ],
+                  );
+  }
+
+  Widget _buildReadReceipt(bool isSender) {
+    if (isSender) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Icon(
+            message.isRead ? Icons.done_all : Icons.check,
+            color: message.isRead ? Colors.blue : Colors.grey,
+            size: 16,
+          ),
+        ],
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  void _showDeleteDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Delete Message"),
+          content: const Text("Are you sure you want to delete this message?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                ref.read(unMeltProvider.notifier).deleteMessage(
+                      connectionId,
+                      message.id,
+                    );
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                "Delete",
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -161,16 +161,32 @@ class MessageRepository implements IMessageRepository {
   }
 
   @override
-  updateMessage(String id, messageId, Map<String, dynamic> data) async {
+  updateMessage(String id, dynamic messageId, Map<String, dynamic> data) async {
     try {
-      await _db.updateDocument(
-          collectionPath:
-              '${FirebaseFirestoreCollectionKeys.connections}/$id/${FirebaseFirestoreCollectionKeys.message}',
-          documentId: messageId,
-          data: data);
+      // Validate input to ensure no empty values
+      if (id.isEmpty || messageId == null || messageId.toString().isEmpty) {
+        throw Exception("Invalid connection ID or message ID");
+      }
 
-      return Responses(success: true, message: "Deleted Successfully");
+      // Build the collection path safely
+      final collectionPath =
+          '${FirebaseFirestoreCollectionKeys.connections}/$id/${FirebaseFirestoreCollectionKeys.message}';
+
+      // Ensure the collectionPath is valid
+      if (collectionPath.contains("//")) {
+        throw Exception("Invalid collection path: $collectionPath");
+      }
+
+      // Update the document in Firestore
+      await _db.updateDocument(
+        collectionPath: collectionPath,
+        documentId: messageId.toString(),
+        data: data,
+      );
+
+      return Responses(success: true, message: "Message updated successfully");
     } catch (e) {
+      print("Error in updateMessage: $e");
       rethrow;
     }
   }

@@ -52,7 +52,7 @@ class _MeltMetalState extends ConsumerState<MeltMetal> {
       appBarState: AppBarState.HambugerWithHeader,
       Header: "My melted metals",
       body: meltUserData == null
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator.adaptive(),
             )
           : Column(children: [

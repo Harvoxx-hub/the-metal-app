@@ -19,18 +19,18 @@ class MessageListNotifier extends StateNotifier<MessageListState> {
       if (id.isEmpty) {
         print("Conversation Id missing");
         state = MessageListState.error("No Message");
-      } else {
-        state = MessageListState.loading();
-        final messageRepository = ref.watch(messageRepositoryProvider);
-
-        _messageSubscription =
-            messageRepository.getMessages(id).listen((messages) {
-          print(messages.length);
-          if (mounted) {
-            state = MessageListState.success(messages);
-          }
-        });
+        return; // Add this return to stop further execution
       }
+
+      state = MessageListState.loading();
+      final messageRepository = ref.watch(messageRepositoryProvider);
+
+      _messageSubscription =
+          messageRepository.getMessages(id).listen((messages) {
+        if (mounted) {
+          state = MessageListState.success(messages);
+        }
+      });
     } catch (e, s) {
       state = MessageListState.error(e.toString(), stackTrace: s);
     }

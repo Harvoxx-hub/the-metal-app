@@ -55,6 +55,9 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   Widget build(BuildContext context) {
     // final time = ref.watch(lastActiveProvider).data;
     int dayRemaining = daysRemaining(widget.connectionModel.connectedOn, 5);
+    // final connection = ref
+    //     .watch(getMeltUserProvider.notifier)
+    //     .getMeltUserById(ref.watch(authProvider).data!.id!);
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),
       child: Row(
@@ -80,7 +83,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextView(
-                text: "@${widget.meltUserModel.username! ?? ""}",
+                text: "@${widget.meltUserModel.username!}",
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
@@ -100,12 +103,12 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           const Spacer(),
           JustTheTooltip(
             controller: tooltipController,
-            content: SizedBox(
+            content: const SizedBox(
               width: 180,
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: Text(
-                  'Video call features are enabled after 5 days. $dayRemaining days remaining. Please wait.',
+                  'Video call features are enabled after un-melting.',
                 ),
               ),
             ),
@@ -114,18 +117,25 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               shape: const CircleBorder(),
               child: GestureDetector(
                 onTap: () {
-                  makeVideoCall(context);
-                  // if (hasDurationReached(
-                  //     widget.connectionModel.connectedOn, 5)) {
-
-                  // } else {
-                  //   tooltipController.showTooltip();
-                  // }
+                  if (hasDurationReached(
+                      widget.connectionModel.connectedOn, 15)) {
+                    if (widget.connectionModel.isAnonymous) {
+                      tooltipController.showTooltip();
+                    } else {
+                      makeVideoCall(context);
+                    }
+                  } else {
+                    tooltipController.showTooltip();
+                  }
                 },
                 child: SvgPicture.asset(
                   Assets.icons.chatsWindowactiveVideoRecorder.path,
                   height: 30,
                   width: 30,
+                  color:
+                      hasDurationReached(widget.connectionModel.connectedOn, 15)
+                          ? Colors.black
+                          : Colors.grey,
                 ),
               ),
             ),
@@ -133,12 +143,12 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           const Gap(15),
           JustTheTooltip(
             controller: tooltipController2,
-            content: SizedBox(
+            content: const SizedBox(
               width: 180,
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: Text(
-                  'Voice call features are enabled after 5 days. $dayRemaining days remaining. Please wait.',
+                  'Voice call features are enabled after un-melting.',
                 ),
               ),
             ),
@@ -147,22 +157,29 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               shape: const CircleBorder(),
               child: GestureDetector(
                 onTap: () {
-                  makeVoiceCall(context);
-                  // if (hasDurationReached(
-                  //     widget.connectionModel.connectedOn, 5)) {
-                  // } else {
-                  //   tooltipController2.showTooltip();
-                  // }
+                  if (hasDurationReached(
+                      widget.connectionModel.connectedOn, 15)) {
+                    if (widget.connectionModel.isAnonymous) {
+                      tooltipController2.showTooltip();
+                    } else {
+                      makeVoiceCall(context);
+                    }
+                  } else {
+                    tooltipController2.showTooltip();
+                  }
                 },
                 child: SvgPicture.asset(
                   Assets.icons.chatsWindowactiveFill.path,
                   height: 24,
                   width: 24,
+                  color:
+                      hasDurationReached(widget.connectionModel.connectedOn, 15)
+                          ? Colors.black
+                          : Colors.grey,
                 ),
               ),
             ),
           ),
-          const Gap(15),
           const Gap(15),
           PopupMenuButton(
             color: Colors.white,
@@ -186,7 +203,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                     arguments: widget.meltUserModel.id!);
               } else if (value == "Clear chat") {
                 ref
-                    .read(getMessageList(widget.connectionModel.connectionId!)
+                    .read(getMessageList(widget.connectionModel.connectionId)
                         .notifier)
                     .clearChat();
                 Navigator.pop(context);
@@ -255,7 +272,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -295,6 +312,40 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             }),
         const Gap(23),
       ],
+    );
+  }
+
+  // Handle video call initialization
+  void makeVideoCall(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ZegoUIKitPrebuiltCall(
+          appID: appIDKey,
+          appSign: appSignKey,
+          userID: ref.watch(authProvider).data!.id!,
+          userName: ref.watch(authProvider).data!.username!,
+          callID: widget.connectionModel.connectionId,
+          config: ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall(),
+        ),
+      ),
+    );
+  }
+
+  // Handle voice call initialization
+  void makeVoiceCall(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ZegoUIKitPrebuiltCall(
+          appID: appIDKey,
+          appSign: appSignKey,
+          userID: ref.watch(authProvider).data!.id!,
+          userName: ref.watch(authProvider).data!.username!,
+          callID: widget.connectionModel.connectionId,
+          config: ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall(),
+        ),
+      ),
     );
   }
 
@@ -355,40 +406,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         ),
         const Gap(21),
       ],
-    );
-  }
-
-  // Initialize a video call session
-  void makeVideoCall(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ZegoUIKitPrebuiltCall(
-          appID: 918677174,
-          appSign: appSignKey,
-          userID: ref.watch(authProvider).data!.id!,
-          userName: ref.watch(authProvider).data!.username!,
-          callID: widget.connectionModel.connectionId,
-          config: ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall(),
-        ),
-      ),
-    );
-  }
-
-  // Initialize a voice call session
-  void makeVoiceCall(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ZegoUIKitPrebuiltCall(
-          appID: appIDKey,
-          appSign: appSignKey,
-          userID: ref.watch(authProvider).data!.id!,
-          userName: ref.watch(authProvider).data!.username!,
-          callID: widget.connectionModel.connectionId,
-          config: ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall(),
-        ),
-      ),
     );
   }
 }

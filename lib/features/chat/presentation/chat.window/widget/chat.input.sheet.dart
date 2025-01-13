@@ -196,7 +196,7 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
                                       content: SizedBox(
                                         width: 180,
                                         child: Padding(
-                                          padding: EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.all(8.0),
                                           child: Text(
                                             'Voice note features are enabled after 5 days. $dayRemaining remaining of chatting with this metal. Please contact them through messages',
                                           ),

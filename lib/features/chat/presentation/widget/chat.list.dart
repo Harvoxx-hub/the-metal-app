@@ -125,7 +125,7 @@ class chatListItem extends ConsumerWidget {
                       meltId: getUser.data!.metal!,
                       imgUrl: conversationsModel.isAnonymous
                           ? null
-                          : getUser.data!.profilePhoto!),
+                          : getUser.data!.profilePhoto ?? null),
                   const Gap(16),
                   Expanded(
                     child: Column(

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
@@ -265,13 +264,13 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(40),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const Expanded(
+                Expanded(
                   child: TextView(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
@@ -280,7 +279,7 @@ class NavDrawer extends ConsumerWidget {
                           "...when our eyes are closed, our hearts talk and create real, lasting communications."),
                 ),
                 Gap(19),
-                const TextView(
+                TextView(
                   text: "V 1.10",
                   fontSize: 12,
                   fontWeight: FontWeight.w500,

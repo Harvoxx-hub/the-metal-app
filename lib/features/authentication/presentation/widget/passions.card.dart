@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 
@@ -55,12 +54,12 @@ class PassionsCard extends StatelessWidget {
               ),
         child: Row(
           children: [
-            SvgPicture.network(
-              model.img!,
-              height: 20,
-              width: 20,
-            ),
-            Gap(8),
+            // SvgPicture.network(
+            //   model.img!,
+            //   height: 20,
+            //   width: 20,
+            // ),
+            const Gap(8),
             Expanded(
               child: TextView(
                 text: model.title!,

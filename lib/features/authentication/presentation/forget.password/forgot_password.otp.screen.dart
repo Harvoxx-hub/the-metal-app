@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
@@ -18,7 +17,7 @@ import 'package:metal/widgets/text_views.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 class ForgetPasswordOTPPage extends ConsumerStatefulWidget {
-  ForgetPasswordOTPPage({super.key});
+  const ForgetPasswordOTPPage({super.key});
   static const name = 'forgetPasswordOtpPage';
   static const route = name;
 
@@ -124,7 +123,7 @@ class _ForgetPasswordOTPPageState extends ConsumerState<ForgetPasswordOTPPage> {
               height: 50,
               width: 50,
             ),
-            Gap(10),
+            const Gap(10),
             SvgPicture.asset(
               Assets.icons.verificationCall.path,
               height: 50,

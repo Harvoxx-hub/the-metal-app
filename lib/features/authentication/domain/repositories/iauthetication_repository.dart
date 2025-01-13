@@ -27,7 +27,7 @@ abstract class IAuthenticationRepository {
     Map<String, dynamic> user,
   );
 
-  Future<Responses> DeleteUser();
+  Future<Responses> deleteUser();
 
   Future<Responses> uploadProfileImage(
     File image,
@@ -43,5 +43,4 @@ abstract class IAuthenticationRepository {
 
   Future<Responses> changePassword(String id, String password);
   Future<Responses> getMetals();
-  
 }

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
-import 'package:metal/features/notification/domain/entries/notification.model.dart';
 
 class MetalHelper {
   static Map<String, dynamic>? parseJson(String jsonString) {
@@ -32,6 +31,4 @@ class MetalHelper {
 
     return thoughts;
   }
-
- 
 }

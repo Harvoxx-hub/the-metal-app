@@ -133,15 +133,15 @@ class BuySpark extends ConsumerWidget {
     final userData = ref!.watch(authProvider).data;
     return Column(
       children: [
-        Gap(38),
+        const Gap(38),
         Image.asset(Assets.images.eyesEmoji.path),
-        Gap(15),
+        const Gap(15),
         const TextView(
           text: "Confirmation",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
-        Gap(15),
+        const Gap(15),
         TextView(
           text:
               "Confirm you want to buy *$ammount sparks* with Dollar equivalence of *$ammount*",
@@ -149,7 +149,7 @@ class BuySpark extends ConsumerWidget {
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        Gap(38),
+        const Gap(38),
         BaseButton(
             buttonText: "Confirm",
             onPressed: () {
@@ -165,14 +165,14 @@ class BuySpark extends ConsumerWidget {
               //           );
               //     });
             }),
-        Gap(23),
+        const Gap(23),
         TextView(
           text: "Not Now",
           fontSize: 16,
           fontWeight: FontWeight.w500,
           onTap: () => Navigator.pop(context),
         ),
-        Gap(21),
+        const Gap(21),
       ],
     );
   }

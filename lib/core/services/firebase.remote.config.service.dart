@@ -22,20 +22,21 @@ class FirebaseRemoteConfigService {
     await _setConfigSettings();
     await _setDefaults();
     await fetchAndActivate();
-}
+  }
 
-Future<void> _setConfigSettings() async => _remoteConfig.setConfigSettings(
-    RemoteConfigSettings(
-      fetchTimeout: const Duration(minutes: 1),
-      minimumFetchInterval: const Duration(hours: 12),
-    ),
-  );
+  Future<void> _setConfigSettings() async => _remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: const Duration(minutes: 1),
+          minimumFetchInterval: const Duration(hours: 12),
+        ),
+      );
 
   Future<void> _setDefaults() async => _remoteConfig.setDefaults(
-    const {
-      FirebaseRemoteConfigKeys.metalProperties: '',
-    },
-  );
+        const {
+          FirebaseRemoteConfigKeys.metalProperties: '',
+          FirebaseRemoteConfigKeys.daysRequiredToUnMelt: 0,
+        },
+      );
 
   Future<void> fetchAndActivate() async {
     bool updated = await _remoteConfig.fetchAndActivate();
@@ -48,7 +49,5 @@ Future<void> _setConfigSettings() async => _remoteConfig.setConfigSettings(
   }
 }
 
-final metalPropertiesJson = 
- MetalHelper.parseJson(FirebaseRemoteConfigService()
+final metalPropertiesJson = MetalHelper.parseJson(FirebaseRemoteConfigService()
     .getString(FirebaseRemoteConfigKeys.metalProperties));
- 

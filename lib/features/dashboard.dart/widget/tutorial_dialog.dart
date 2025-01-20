@@ -36,6 +36,18 @@ class TutorialDialog extends StatelessWidget {
                 context,
                 AppRoutes.onboardingTutorialView,
               );
+              // Navigator.push(
+              //   context,
+              //   PageRouteBuilder(
+              //     opaque: false,
+              //     pageBuilder: (BuildContext context, _, __) =>
+              //         const OnboardingFlowView(),
+              //     transitionsBuilder:
+              //         (context, animation, secondaryAnimation, child) {
+              //       return FadeTransition(opacity: animation, child: child);
+              //     },
+              //   ),
+              // );
             }),
         const Gap(23),
         TextView(

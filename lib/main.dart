@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
-import 'package:metal/features/onboarding/onboarding_tutorial_view.dart';
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/route/routes.dart';
@@ -69,8 +68,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     return MaterialApp(
       title: 'Metal',
       key: navKey,
-      // initialRoute: '/onboardingTutorialView',
-      home: const OnboardingTutorialView(),
+      initialRoute: '/',
+      // home: const OnboardingFlowView(),
       onGenerateRoute: AppRoutes.generateRoute,
       debugShowCheckedModeBanner: false,
     );

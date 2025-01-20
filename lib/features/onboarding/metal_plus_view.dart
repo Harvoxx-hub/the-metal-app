@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:metal/features/onboarding/unmetal_view.dart';
+import 'package:gap/gap.dart';
+import 'package:metal/gen/assets.gen.dart';
 
-class MetalPlusScreen extends StatelessWidget {
-  const MetalPlusScreen({super.key});
+class MetalPlusView extends StatelessWidget {
+  const MetalPlusView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +12,6 @@ class MetalPlusScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
@@ -20,13 +20,15 @@ class MetalPlusScreen extends StatelessWidget {
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () => Navigator.pop(context),
                   ),
-                  const SizedBox(width: 8),
+                  const Spacer(),
                   Row(
                     children: [
                       Image.asset(
-                        'assets/metal_logo.png', // Make sure to add this asset
-                        height: 24,
+                        Assets.gifs.logo.path,
+                        width: 40,
+                        height: 40,
                       ),
+                      const Gap(10),
                       const Text(
                         'Metal',
                         style: TextStyle(
@@ -52,10 +54,10 @@ class MetalPlusScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const Spacer(),
                 ],
               ),
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 child: Padding(
@@ -71,7 +73,7 @@ class MetalPlusScreen extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const Gap(12),
                       Text(
                         'There are exciting features you would experience when you upgrade your account to Metal Plus.',
                         style: TextStyle(
@@ -79,7 +81,7 @@ class MetalPlusScreen extends StatelessWidget {
                           fontSize: 16,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const Gap(24),
                       const Text(
                         'With Metal Plus, you can:',
                         style: TextStyle(
@@ -88,15 +90,13 @@ class MetalPlusScreen extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const Gap(16),
                       _buildFeaturesList(),
                     ],
                   ),
                 ),
               ),
             ),
-
-            // Next Button
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
@@ -107,7 +107,7 @@ class MetalPlusScreen extends StatelessWidget {
                       Navigator.pushNamed(context, '/unmetal');
                     },
                     child: const Row(
-                      children: const [
+                      children: [
                         Text(
                           'NEXT',
                           style: TextStyle(
@@ -115,7 +115,7 @@ class MetalPlusScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(width: 4),
+                        Gap(4),
                         Icon(Icons.arrow_forward, color: Colors.white),
                       ],
                     ),

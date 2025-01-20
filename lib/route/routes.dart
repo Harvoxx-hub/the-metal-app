@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:metal/core/utils/metal.helper.dart';
 import 'package:metal/features/authentication/presentation/forget.password/create.new.password.dart';
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.otp.screen.dart';
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
@@ -11,7 +10,8 @@ import 'package:metal/features/my.metals/melt.metal.dart';
 import 'package:metal/features/onboarding/metal_plus_view.dart';
 
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
-import 'package:metal/features/onboarding/onboarding_tutorial_view.dart';
+import 'package:metal/features/onboarding/onboarding_flow_view.dart';
+import 'package:metal/features/onboarding/sparks_info_switch_view.dart';
 import 'package:metal/features/onboarding/unmetal_view.dart';
 import 'package:metal/features/settings/presentation/delete.screen.dart';
 import 'package:metal/features/settings/presentation/edit.page.dart';
@@ -76,6 +76,7 @@ class AppRoutes {
   static const String onboardingTutorialView = '/onboardingTutorialView';
   static const String unmetalView = '/unmetal';
   static const String metalPlusView = '/metalPlusView';
+  static const String sparkInfoSwitchView = '/sparkInfoSwitchView';
   static const String login = '/login';
   static const String forgetPassword = '/forgetPassword';
   static const String forgetPasswordOTP = '/forgetPasswordOTP';
@@ -135,9 +136,10 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const UnmetalView());
       case metalPlusView:
         return MaterialPageRoute(builder: (_) => const MetalPlusView());
+      case sparkInfoSwitchView:
+        return MaterialPageRoute(builder: (_) => const SparksInfoSwitchView());
       case onboardingTutorialView:
-        return MaterialPageRoute(
-            builder: (_) => const OnboardingTutorialView());
+        return MaterialPageRoute(builder: (_) => const OnboardingFlowView());
       case login:
         return MaterialPageRoute(builder: (_) => const LoginPage());
       case forgetPassword:

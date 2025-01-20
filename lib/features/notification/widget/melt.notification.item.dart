@@ -83,6 +83,7 @@ class MeltNotificationItem extends BaseNotificationItem {
         break;
       case NotificationType.thought_created:
         // Handle thought creation notification
+        _navigateTo(context, AppRoutes.postThought, userId);
         break;
       default:
         // Handle other notification types
@@ -93,7 +94,8 @@ class MeltNotificationItem extends BaseNotificationItem {
   void _navigateTo(BuildContext context, String route, String userId) {
     final metalId = notificationModel.recipientIds.firstWhere(
       (user) => user != userId,
-      orElse: () => "", // Handle cases where all user IDs match the current user
+      orElse: () =>
+          "", // Handle cases where all user IDs match the current user
     );
 
     Navigator.pushNamed(context, route, arguments: metalId);
@@ -115,7 +117,7 @@ class MeltNotificationItem extends BaseNotificationItem {
       case NotificationType.thought_created:
         iconPath = Assets.images.activeMessage.path;
         break;
-       case NotificationType.sparks_transaction:
+      case NotificationType.sparks_transaction:
         iconPath = Assets.images.sparkNotification.path;
         break;
       default:

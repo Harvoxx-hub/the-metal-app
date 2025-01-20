@@ -4,6 +4,7 @@ class NotificationModel {
   final List<String> recipientIds; // List of recipient IDs
   final String title; // Notification title
   final String subTitle; // Notification subtitle
+  final String thoughtId; // Notification subtitle
   final NotificationType type; // Enum for notification type
   final Map<String, dynamic>
       data; // Additional data (e.g., connectionId, status)
@@ -25,6 +26,7 @@ class NotificationModel {
     required this.iosNotification,
     required this.timestamp,
     required this.id,
+    required this.thoughtId,
     required this.isFromMeltedMetal, // Initialize this field
   });
 
@@ -41,6 +43,7 @@ class NotificationModel {
       'timestamp': timestamp.toIso8601String(),
       'id': id,
       'isFromMeltedMetal': isFromMeltedMetal, // Serialize this field
+      'thoughtId': thoughtId, // Serialize this field
     };
   }
 
@@ -59,6 +62,7 @@ class NotificationModel {
           NotificationIosNotification.fromJson(json['iosNotification']),
       timestamp: DateTime.parse(json['timestamp']),
       id: json['id'],
+      thoughtId: json['thoughtId'],
       isFromMeltedMetal: json['isFromMeltedMetal'], // Parse this field
     );
   }

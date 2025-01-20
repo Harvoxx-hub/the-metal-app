@@ -100,7 +100,7 @@ class UnmetalView extends StatelessWidget {
                 children: [
                   TextButton(
                     onPressed: () {
-                      // Navigate to the main app or next screen
+                      Navigator.pushNamed(context, '/sparkInfoSwitchView');
                     },
                     child: const Row(
                       children: const [

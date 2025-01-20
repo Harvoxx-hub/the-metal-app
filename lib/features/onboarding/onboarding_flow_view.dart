@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:metal/features/onboarding/metal_plus_view.dart';
 
-class OnboardingTutorialView extends StatefulWidget {
-  const OnboardingTutorialView({super.key});
+class OnboardingFlowView extends StatefulWidget {
+  const OnboardingFlowView({super.key});
 
   @override
-  _OnboardingTutorialViewState createState() => _OnboardingTutorialViewState();
+  _OnboardingFlowViewState createState() => _OnboardingFlowViewState();
 }
 
-class _OnboardingTutorialViewState extends State<OnboardingTutorialView> {
+class _OnboardingFlowViewState extends State<OnboardingFlowView> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  bool _isMainOnboardingDone = false;
 
   final List<OnboardingItem> _pages = [
     OnboardingItem(
@@ -40,6 +42,10 @@ class _OnboardingTutorialViewState extends State<OnboardingTutorialView> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isMainOnboardingDone) {
+      return const MetalPlusView();
+    }
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
@@ -49,6 +55,13 @@ class _OnboardingTutorialViewState extends State<OnboardingTutorialView> {
             onPageChanged: (int page) {
               setState(() {
                 _currentPage = page;
+                if (page == _pages.length - 1) {
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    setState(() {
+                      _isMainOnboardingDone = true;
+                    });
+                  });
+                }
               });
             },
             itemCount: _pages.length,
@@ -83,7 +96,7 @@ class _OnboardingTutorialViewState extends State<OnboardingTutorialView> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
+              // borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(
               item.icon,

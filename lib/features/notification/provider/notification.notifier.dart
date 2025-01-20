@@ -22,7 +22,8 @@ class NotificationNotifier extends StateNotifier<GetNotification> {
       final List<NotificationModel> notification = [];
       response.data.forEach((element) {
         final notificationModel = NotificationModel.fromJson(element);
-        if (!notificationModel.isFromMeltedMetal) {
+        // Check if the notification is for un-melted thoughts
+        if (notificationModel.recipientIds.isNotEmpty) {
           notification.add(notificationModel);
         }
       });

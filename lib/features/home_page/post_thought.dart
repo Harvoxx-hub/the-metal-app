@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
 import 'package:metal/features/home_page/provider/send.thoughts.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/widgets/button/plain.button.dart';
+import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -20,6 +22,7 @@ class PostThought extends ConsumerStatefulWidget {
 
 class _PostThoughtState extends ConsumerState<PostThought> {
   TextEditingController controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final sendThoughtState = ref.watch(sendThoughtProvider);
@@ -56,9 +59,20 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                       buttonText: "Post",
                       onPressed: () {
                         FocusScope.of(context).unfocus();
-                        ref
-                            .read(sendThoughtProvider.notifier)
-                            .sendThought(controller.text.trim());
+                        if (!(widget.userModel.completedProfile ?? false)) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return const CustomDialog(
+                                content: ComplecteProfileDialog(),
+                              );
+                            },
+                          );
+                        } else {
+                          ref
+                              .read(sendThoughtProvider.notifier)
+                              .sendThought(controller.text.trim());
+                        }
                       },
                       width: 100,
                       loading: sendThoughtState.isLoading),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:metal/features/onboarding/metal_plus_view.dart';
+import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/widgets/text_views.dart';
 
 class OnboardingFlowView extends StatefulWidget {
   const OnboardingFlowView({super.key});
@@ -96,7 +99,7 @@ class _OnboardingFlowViewState extends State<OnboardingFlowView> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.1),
-              // borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(
               item.icon,
@@ -104,23 +107,20 @@ class _OnboardingFlowViewState extends State<OnboardingFlowView> {
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 40),
-          Text(
-            item.title,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+          const Gap(40),
+          TextView(
+            text: item.title,
+            color: AppColors.metalWhite,
             textAlign: TextAlign.center,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(height: 20),
-          Text(
-            item.description,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white.withOpacity(0.8),
-            ),
+          const Gap(20),
+          TextView(
+            text: item.description,
+            color: AppColors.metalWhite.withOpacity(0.8),
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
             textAlign: TextAlign.center,
           ),
         ],

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:metal/features/onboarding/chat_info_view.dart';
+import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/widgets/text_views.dart';
 
 class SparksInfoSwitchView extends StatelessWidget {
   const SparksInfoSwitchView({super.key});
@@ -11,7 +15,6 @@ class SparksInfoSwitchView extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Back Button
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Align(
@@ -22,38 +25,31 @@ class SparksInfoSwitchView extends StatelessWidget {
                 ),
               ),
             ),
-            // Main Content
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.auto_awesome,
-                    color: Colors.white,
-                    size: 48,
+                  Image.asset(
+                    Assets.images.onboard2.path,
                   ),
-                  const SizedBox(height: 24),
-                  // Title
-                  const Text(
-                    'About Sparks!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  const Gap(24),
+                  const TextView(
+                    text: 'About Sparks!',
+                    color: AppColors.metalWhite,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
                   ),
-                  const SizedBox(height: 16),
-                  // Description
+                  const Gap(16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Text(
-                      'Our point payment in-app system.\n1 Dollar = 10 Sparks. You can refer friends and earn more sparks. You can also send and buy Sparks.',
+                    child: TextView(
+                      text:
+                          'Our point payment in-app system.\n1 Dollar = 10 Sparks. You can refer friends and earn more sparks. You can also send and buy Sparks',
+                      color: AppColors.metalWhite.withOpacity(0.8),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      height: 1.5,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 16,
-                        height: 1.5,
-                      ),
                     ),
                   ),
                 ],
@@ -75,14 +71,12 @@ class SparksInfoSwitchView extends StatelessWidget {
                     },
                     child: const Row(
                       children: [
-                        Text(
-                          'NEXT',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        TextView(
+                          text: 'NEXT',
+                          color: AppColors.metalWhite,
+                          fontWeight: FontWeight.bold,
                         ),
-                        SizedBox(width: 4),
+                        Gap(4),
                         Icon(Icons.arrow_forward, color: Colors.white),
                       ],
                     ),

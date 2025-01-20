@@ -17,6 +17,7 @@ class TextView extends StatelessWidget {
   final bool heading;
   final bool underline;
   final String boldSymbol;
+  final double? height;
 
   const TextView({
     super.key,
@@ -34,6 +35,7 @@ class TextView extends StatelessWidget {
     this.heading = false,
     this.boldSymbol = '*',
     this.underline = false,
+    this.height,
   });
 
   @override
@@ -47,6 +49,7 @@ class TextView extends StatelessWidget {
       decoration: underline ? TextDecoration.underline : TextDecoration.none,
       fontSize: fontSize,
       fontStyle: fontStyle,
+      height: height,
     );
 
     for (int i = 0; i < parts.length; i++) {

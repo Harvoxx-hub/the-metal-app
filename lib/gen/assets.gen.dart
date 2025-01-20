@@ -7,10 +7,10 @@
 // ignore_for_file: type=lint
 // ignore_for_file: directives_ordering,unnecessary_import,implicit_dynamic_list_literal,deprecated_member_use
 
-import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:vector_graphics/vector_graphics.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/flutter_svg.dart' as _svg;
+import 'package:vector_graphics/vector_graphics.dart' as _vg;
 
 class $AssetsEnvGen {
   const $AssetsEnvGen();
@@ -74,6 +74,9 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/User.3.svg
   SvgGenImage get user3 => const SvgGenImage('assets/icons/User.3.svg');
+
+  /// File path: assets/icons/User.svg
+  SvgGenImage get user => const SvgGenImage('assets/icons/User.svg');
 
   /// File path: assets/icons/VideoCamera.svg
   SvgGenImage get videoCamera =>
@@ -334,9 +337,6 @@ class $AssetsIconsGen {
   AssetGenImage get unchecked =>
       const AssetGenImage('assets/icons/unchecked.png');
 
-  /// File path: assets/icons/user.svg
-  SvgGenImage get user => const SvgGenImage('assets/icons/user.svg');
-
   /// File path: assets/icons/verification.call.svg
   SvgGenImage get verificationCall =>
       const SvgGenImage('assets/icons/verification.call.svg');
@@ -367,6 +367,7 @@ class $AssetsIconsGen {
         tickSquare,
         user2,
         user3,
+        user,
         videoCamera,
         ageRange,
         alertTriangle,
@@ -438,7 +439,6 @@ class $AssetsIconsGen {
         srMenuVerticalLite,
         star05,
         unchecked,
-        user,
         verificationCall,
         verificationText,
         videoSquare,
@@ -508,6 +508,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/chat-astonished-face-emoji-1.png
   AssetGenImage get chatAstonishedFaceEmoji1 =>
       const AssetGenImage('assets/images/chat-astonished-face-emoji-1.png');
+
+  /// File path: assets/images/chat-circle.png
+  AssetGenImage get chatCircle =>
+      const AssetGenImage('assets/images/chat-circle.png');
 
   /// File path: assets/images/chat-emoji-woman-raising-hand-1.png
   AssetGenImage get chatEmojiWomanRaisingHand1 =>
@@ -681,6 +685,14 @@ class $AssetsImagesGen {
   AssetGenImage get notificationProfile =>
       const AssetGenImage('assets/images/notification.profile.png');
 
+  /// File path: assets/images/onboard-1.png
+  AssetGenImage get onboard1 =>
+      const AssetGenImage('assets/images/onboard-1.png');
+
+  /// File path: assets/images/onboard-2.png
+  AssetGenImage get onboard2 =>
+      const AssetGenImage('assets/images/onboard-2.png');
+
   /// File path: assets/images/partpoppercelebrationemoji.png
   AssetGenImage get partpoppercelebrationemoji =>
       const AssetGenImage('assets/images/partpoppercelebrationemoji.png');
@@ -785,6 +797,7 @@ class $AssetsImagesGen {
         calcium,
         cardBackground,
         chatAstonishedFaceEmoji1,
+        chatCircle,
         chatEmojiWomanRaisingHand1,
         chatFrame3049,
         chatPersonSayingMoreEmoji1,
@@ -830,6 +843,8 @@ class $AssetsImagesGen {
         navBarProfile,
         notification,
         notificationProfile,
+        onboard1,
+        onboard2,
         partpoppercelebrationemoji,
         paymentCard,
         potassium,
@@ -910,7 +925,7 @@ class AssetGenImage {
     ImageRepeat repeat = ImageRepeat.noRepeat,
     Rect? centerSlice,
     bool matchTextDirection = false,
-    bool gaplessPlayback = false,
+    bool gaplessPlayback = true,
     bool isAntiAlias = false,
     String? package,
     FilterQuality filterQuality = FilterQuality.low,
@@ -979,7 +994,7 @@ class SvgGenImage {
   final Set<String> flavors;
   final bool _isVecFormat;
 
-  SvgPicture svg({
+  _svg.SvgPicture svg({
     Key? key,
     bool matchTextDirection = false,
     AssetBundle? bundle,
@@ -992,29 +1007,29 @@ class SvgGenImage {
     WidgetBuilder? placeholderBuilder,
     String? semanticsLabel,
     bool excludeFromSemantics = false,
-    SvgTheme? theme,
+    _svg.SvgTheme? theme,
     ColorFilter? colorFilter,
     Clip clipBehavior = Clip.hardEdge,
     @deprecated Color? color,
     @deprecated BlendMode colorBlendMode = BlendMode.srcIn,
     @deprecated bool cacheColorFilter = false,
   }) {
-    final BytesLoader loader;
+    final _svg.BytesLoader loader;
     if (_isVecFormat) {
-      loader = AssetBytesLoader(
+      loader = _vg.AssetBytesLoader(
         _assetName,
         assetBundle: bundle,
         packageName: package,
       );
     } else {
-      loader = SvgAssetLoader(
+      loader = _svg.SvgAssetLoader(
         _assetName,
         assetBundle: bundle,
         packageName: package,
         theme: theme,
       );
     }
-    return SvgPicture(
+    return _svg.SvgPicture(
       loader,
       key: key,
       matchTextDirection: matchTextDirection,

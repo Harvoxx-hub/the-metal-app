@@ -41,7 +41,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                   )),
             ),
             notificationData.isLoading
-                ? const Center(child: const CupertinoActivityIndicator())
+                ? const Center(child: CupertinoActivityIndicator())
                 : notificationData.isError
                     ? ErrorState(
                         retry: () {

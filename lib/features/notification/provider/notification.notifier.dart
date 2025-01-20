@@ -21,7 +21,10 @@ class NotificationNotifier extends StateNotifier<GetNotification> {
       final response = await repo.getNotification();
       final List<NotificationModel> notification = [];
       response.data.forEach((element) {
-        notification.add(NotificationModel.fromJson(element));
+        final notificationModel = NotificationModel.fromJson(element);
+        if (!notificationModel.isFromMeltedMetal) {
+          notification.add(notificationModel);
+        }
       });
       state = GetNotification.success(notification);
     } catch (e, s) {
@@ -30,7 +33,6 @@ class NotificationNotifier extends StateNotifier<GetNotification> {
   }
 }
 
-// Define a type alias
 typedef GetNotification = BaseState<List<NotificationModel>>;
 
 final notificationProvider =

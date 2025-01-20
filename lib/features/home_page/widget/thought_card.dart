@@ -8,7 +8,9 @@ import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
+import 'package:metal/features/home_page/post_thought.dart';
 import 'package:metal/features/home_page/provider/delete.thoughts.dart';
+import 'package:metal/features/home_page/provider/edit.thoughts.dart';
 
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/home_page/provider/react.thoughts.notifier.dart';
@@ -155,6 +157,21 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     return SafeArea(
       child: Wrap(
         children: <Widget>[
+          if (widget.thoughtModel.userId == ref.watch(authProvider).data!.id)
+            ListTile(
+              title: const TextView(text: 'Edit Thoughts'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PostThought(
+                      userModel: ref.watch(authProvider).data!,
+                      thoughtModel: widget.thoughtModel,
+                    ),
+                  ),
+                );
+              },
+            ),
           if (widget.thoughtModel.userId == ref.watch(authProvider).data!.id)
             ListTile(
               title: const TextView(text: 'Delete Thoughts'),

@@ -14,7 +14,6 @@ class NotificationModel {
       iosNotification; // iOS-specific notification
   final DateTime timestamp; // When the notification was sent
   final String id; // Unique ID
-  final bool isFromMeltedMetal; // Whether the thought is from a melted metal
 
   NotificationModel({
     required this.recipientIds,
@@ -27,7 +26,6 @@ class NotificationModel {
     required this.timestamp,
     required this.id,
     required this.thoughtId,
-    required this.isFromMeltedMetal, // Initialize this field
   });
 
   // Convert a NotificationModel instance to a JSON map
@@ -42,7 +40,6 @@ class NotificationModel {
       'iosNotification': iosNotification.toJson(),
       'timestamp': timestamp.toIso8601String(),
       'id': id,
-      'isFromMeltedMetal': isFromMeltedMetal, // Serialize this field
       'thoughtId': thoughtId, // Serialize this field
     };
   }
@@ -63,7 +60,6 @@ class NotificationModel {
       timestamp: DateTime.parse(json['timestamp']),
       id: json['id'],
       thoughtId: json['thoughtId'],
-      isFromMeltedMetal: json['isFromMeltedMetal'], // Parse this field
     );
   }
 }

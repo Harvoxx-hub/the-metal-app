@@ -121,7 +121,7 @@ class chatListItem extends ConsumerWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  ProfilePhoto(
+                 ProfilePhoto(
                       meltId: getUser.data!.metal!,
                       imgUrl: conversationsModel.isAnonymous
                           ? null

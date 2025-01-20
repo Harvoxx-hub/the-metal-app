@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:metal/core/state/base.state.dart';
+
 import 'package:metal/features/notification/data/repositories/notification.repository.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
 
@@ -19,11 +21,7 @@ class NotificationNotifier extends StateNotifier<GetNotification> {
       final response = await repo.getNotification();
       final List<NotificationModel> notification = [];
       response.data.forEach((element) {
-        final notificationModel = NotificationModel.fromJson(element);
-        // Check if the notification is for un-melted thoughts
-        if (notificationModel.recipientIds.isNotEmpty) {
-          notification.add(notificationModel);
-        }
+        notification.add(NotificationModel.fromJson(element));
       });
       state = GetNotification.success(notification);
     } catch (e, s) {

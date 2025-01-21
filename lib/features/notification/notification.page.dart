@@ -1,16 +1,11 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
-
 import 'package:metal/features/notification/provider/notification.notifier.dart';
 import 'package:metal/features/notification/widget/melt.notification.item.dart';
-import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
-import 'package:metal/widgets/text_views.dart';
 
 class NotificationPage extends ConsumerStatefulWidget {
   const NotificationPage({super.key});
@@ -46,7 +41,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                   )),
             ),
             notificationData.isLoading
-                ? Center(child: const CupertinoActivityIndicator())
+                ? const Center(child: const CupertinoActivityIndicator())
                 : notificationData.isError
                     ? ErrorState(
                         retry: () {
@@ -57,7 +52,8 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                         text: notificationData.errorMessage,
                       )
                     : notificationData.data?.isEmpty ?? true
-                        ? EmptyState(text: "You have no notifications yet")
+                        ? const EmptyState(
+                            text: "You have no notifications yet")
                         : Expanded(
                             child: ListView.builder(
                               shrinkWrap: true,

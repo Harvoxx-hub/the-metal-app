@@ -4,15 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
+import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/constant/constants.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
 import 'package:metal/features/chat/provider/get.last.active.notifier.dart';
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
+ 
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
@@ -55,6 +58,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   Widget build(BuildContext context) {
     // final time = ref.watch(lastActiveProvider).data;
     int dayRemaining = daysRemaining(widget.connectionModel.connectedOn, 5);
+    // final messages =
+    //     ref.watch(getMessageList(widget.connectionModel.connectionId));
     // final connection = ref
     //     .watch(getMeltUserProvider.notifier)
     //     .getMeltUserById(ref.watch(authProvider).data!.id!);
@@ -198,6 +203,19 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                     );
                   },
                 );
+              } else if (value == "rejected") {
+                // ref.read(unMeltProvider.notifier).updateMessage(
+                //     widget.connectionModel.connectionId,
+                //     messages,
+                //     {"message": "rejected"});
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return CustomDialog(
+                      content: unmetalRequestDialog(context),
+                    );
+                  },
+                );
               } else if (value == "View contact") {
                 Navigator.pushNamed(context, AppRoutes.myMeltedUser,
                     arguments: widget.meltUserModel.id!);
@@ -279,6 +297,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   }
 
   Widget unmetalDialog(BuildContext context, int remaining) {
+ 
     return Column(
       children: [
         const Gap(38),
@@ -290,26 +309,63 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         const Gap(15),
         TextView(
           text:
-              "To Unmetal, we require a minimum of 5days and 5 sessions of conversations between you and @${widget.meltUserModel.username}",
+              "To Unmetal, we require a minimum of $daysRequiredToUnMelt days and 10 sessions of conversations between you and @${widget.meltUserModel.username}",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(15),
         TextView(
+          text: "You have had * $remaining days* and *3 interactions*",
+          fontSize: 16,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.w400,
+        ),
+        const Gap(38),
+        if (hasDurationReached(widget.connectionModel.connectedOn, daysRequiredToUnMelt))
+          BaseButton(
+            buttonText: "Un-Melt Request",
+            onPressed: () {
+              sendUnmelt();
+              Navigator.pop(context);
+            },
+          )
+        else
+          BaseButton(
+            buttonText: "Return to chat",
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        const Gap(23),
+      ],
+    );
+  }
+
+  Widget unmetalRequestDialog(BuildContext context) {
+    return Column(
+      children: [
+        const Gap(38),
+        const TextView(
+          text: "Unmetal request",
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+        const Gap(15),
+        TextView(
           text:
-              "You have had * $remaining Remaining days* and *0 interactions*",
+              "@${widget.meltUserModel.username} has opted to always be a metal.\nThis request cannot be sent.",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
         BaseButton(
-            buttonText: "Un-Melt Request",
-            onPressed: () {
-              sendUnmelt();
-              Navigator.pop(context);
-            }),
+          buttonText: "Return to chat",
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         const Gap(23),
       ],
     );
@@ -393,8 +449,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               ref
                   .read(blockUserProvider.notifier)
                   .BlockUser(data.username!, data.id!);
-
-              Navigator.pop(context);
               Navigator.pop(context);
             }),
         const Gap(23),

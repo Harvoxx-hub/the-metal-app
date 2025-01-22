@@ -1,33 +1,29 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:metal/features/dashboard.dart/widget/tutorial_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
 import 'package:metal/features/dashboard.dart/widget/verification.dialog.dart';
-
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
-
+import 'package:metal/features/onboarding/onboarding_flow_view.dart';
 import 'package:metal/gen/assets.gen.dart';
-
 import 'package:metal/features/profile/presentation/profile.page.dart';
-
 import 'package:metal/features/sparks_page/screens/sparks_page.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
-
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:upgrader/upgrader.dart';
-
 import '../home_page/home_page.dart';
+import 'package:metal/widgets/button/base_button.dart';
+import 'package:gap/gap.dart';
+import 'package:metal/widgets/text_views.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -38,43 +34,57 @@ class DashboardPage extends ConsumerStatefulWidget {
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
   int currentIndex = 0;
+
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userdata = ref.watch(authProvider).data;
-      showAlertDialog(context, userdata!);
-    });
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final userdata = ref.watch(authProvider).data;
+      await _checkOnboarding(context, userdata!);
+    });
   }
 
-  Future<void> showAlertDialog(context, UserModel userData) async {
-    // await showDialog(
-    //   context: context,
-    //   builder: (BuildContext context) {
-    //     return const CustomDialog(
-    //       content: TutoralDialog(),
-    //     );
-    //   },
-    // );
-    !(userData.completedProfile ?? false)
-        ? showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return const CustomDialog(
-                content: ComplecteProfileDialog(),
-              );
-            },
-          )
-        : !(userData.isVerified ?? false)
-            ? showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return const CustomDialog(
-                    content: VerificationDialog(),
-                  );
-                },
-              )
-            : {};
+  Future<void> _checkOnboarding(
+      BuildContext context, UserModel userData) async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+
+    if (!hasSeenOnboarding) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const CustomDialog(
+            content: TutorialDialog(),
+          );
+        },
+      );
+      await prefs.setBool('hasSeenOnboarding', true);
+    }
+
+    await showAlertDialog(context, userData);
+  }
+
+  Future<void> showAlertDialog(BuildContext context, UserModel userData) async {
+    if (!(userData.completedProfile ?? false)) {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const CustomDialog(
+            content: ComplecteProfileDialog(),
+          );
+        },
+      );
+    } else if (!(userData.isVerified ?? false)) {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const CustomDialog(
+            content: VerificationDialog(),
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -99,24 +109,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               dialogStyle: Platform.isIOS
                   ? UpgradeDialogStyle.cupertino
                   : UpgradeDialogStyle.material,
-              upgrader: Upgrader(
-
-                  // onIgnore: () {
-                  //   return false;
-                  // },
-                  // onLater: () {
-                  //   return false;
-                  // },
-                  ),
+              upgrader: Upgrader(),
               child: Column(
                 children: [
                   Expanded(
-                      child: Container(
-                    color: AppColors.metalWhite,
-                    child: Stack(
-                      children: [bottomNavPages[currentIndex]],
+                    child: Container(
+                      color: AppColors.metalWhite,
+                      child: Stack(
+                        children: [bottomNavPages[currentIndex]],
+                      ),
                     ),
-                  )),
+                  ),
                 ],
               ),
             ),

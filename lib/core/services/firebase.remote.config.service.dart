@@ -12,6 +12,7 @@ class FirebaseRemoteConfigService {
       _instance ??= FirebaseRemoteConfigService._(); // NEW
 
   final FirebaseRemoteConfig _remoteConfig;
+  FirebaseRemoteConfig get remoteConfig => _remoteConfig; // Public getter
 
   String getString(String key) => _remoteConfig.getString(key); // NEW
   bool getBool(String key) => _remoteConfig.getBool(key); // NEW

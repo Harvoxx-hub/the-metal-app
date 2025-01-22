@@ -1,22 +1,14 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-
 import 'package:gap/gap.dart';
-
 import 'package:metal/base/page/base_page_state.dart';
-
 import 'package:metal/core/utils/web_utils.dart';
-
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
-
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button_divider.dart';
-
 import 'package:metal/widgets/text_views.dart';
-
 import 'onboarding_screen.dart';
 
 class OnboardingPageView extends StatefulWidget {
@@ -63,6 +55,12 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
     });
   }
 
+  final List<String> onboardTitles = [
+    "Metal Blind Connect",
+    "Metal Blind Connect",
+    "Every Match is a Mystery"
+  ];
+
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -73,8 +71,24 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
         padding: const EdgeInsets.only(left: 15.0, right: 15),
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Gap(30),
+              Row(
+                children: [
+                  Image.asset(
+                    Assets.images.logo.path,
+                    height: 19,
+                    width: 21,
+                  ),
+                  const Gap(10),
+                  TextView(
+                    text: onboardTitles[currentPage],
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ],
+              ),
               SizedBox(
                 height: 500,
                 child: PageView(
@@ -83,7 +97,6 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                     setState(() {
                       currentPage = value;
                     });
-                    print(currentPage);
                   },
                   children: [
                     OnboardingWidget(
@@ -114,7 +127,7 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                   buildDot(currentPage == 2),
                 ],
               ),
-              const Gap(38),
+              const Gap(20),
               BaseButton(
                 buttonText: 'Sign up with your email',
                 onPressed: () {
@@ -126,24 +139,6 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
               ),
               const Gap(20),
               const ButtonDivider(),
-              // const Gap(20),
-              // Row(
-              //   crossAxisAlignment: CrossAxisAlignment.center,
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     Image.asset(
-              //       Assets.images.google.path,
-              //       width: 39.w,
-              //       height: 39 ,
-              //     ),
-              //     const Gap(10),
-              //     Image.asset(
-              //       Assets.images.apple.path,
-              //       width: 39.w,
-              //       height: 39 ,
-              //     ),
-              //   ],
-              // ),
               const Gap(20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -216,14 +211,14 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
     );
   }
 
-  Widget buildDot(bool index) {
+  Widget buildDot(bool isActive) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 2.0),
       height: 6.0,
       width: 6.0,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: index ? AppColors.metalBlack : Colors.grey,
+        color: isActive ? AppColors.metalBlack : Colors.grey,
       ),
     );
   }

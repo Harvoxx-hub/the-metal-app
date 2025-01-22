@@ -21,53 +21,53 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   Widget build(BuildContext context) {
     final notificationData = ref.watch(notificationProvider);
     return BaseScreen(
-        appBarState: AppBarState.BackWithHeader,
-        Header: "Notifications",
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              height: 53,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment(0.00, -1.00),
-                    end: Alignment(0, 1),
-                    colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(35),
-                    bottomRight: Radius.circular(35),
-                  )),
-            ),
-            notificationData.isLoading
-                ? const Center(child: const CupertinoActivityIndicator())
-                : notificationData.isError
-                    ? ErrorState(
-                        retry: () {
-                          ref
-                              .read(notificationProvider.notifier)
-                              .getNotification();
-                        },
-                        text: notificationData.errorMessage,
-                      )
-                    : notificationData.data?.isEmpty ?? true
-                        ? const EmptyState(
-                            text: "You have no notifications yet")
-                        : Expanded(
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: notificationData.data?.length ?? 0,
-                              itemBuilder: (BuildContext context, int index) {
-                                final notification =
-                                    notificationData.data![index];
-                                return MeltNotificationItem(
-                                  notificationModel: notification,
-                                );
-                              },
-                            ),
-                          )
-          ],
-        ));
+      appBarState: AppBarState.BackWithHeader,
+      Header: "Notifications",
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            height: 53,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment(0.00, -1.00),
+                  end: Alignment(0, 1),
+                  colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
+                ),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(35),
+                  bottomRight: Radius.circular(35),
+                )),
+          ),
+          notificationData.isLoading
+              ? const Center(child: CupertinoActivityIndicator())
+              : notificationData.isError
+                  ? ErrorState(
+                      retry: () {
+                        ref
+                            .read(notificationProvider.notifier)
+                            .getNotification();
+                      },
+                      text: notificationData.errorMessage,
+                    )
+                  : notificationData.data?.isEmpty ?? true
+                      ? const EmptyState(text: "You have no notifications yet")
+                      : Expanded(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: notificationData.data?.length ?? 0,
+                            itemBuilder: (BuildContext context, int index) {
+                              final notification =
+                                  notificationData.data![index];
+                              return MeltNotificationItem(
+                                notificationModel: notification,
+                              );
+                            },
+                          ),
+                        ),
+        ],
+      ),
+    );
   }
 }

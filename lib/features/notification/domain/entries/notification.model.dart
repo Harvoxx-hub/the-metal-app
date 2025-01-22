@@ -4,12 +4,17 @@ class NotificationModel {
   final List<String> recipientIds; // List of recipient IDs
   final String title; // Notification title
   final String subTitle; // Notification subtitle
+  final String thoughtId; // Notification subtitle
   final NotificationType type; // Enum for notification type
-  final Map<String, dynamic> data; // Additional data (e.g., connectionId, status)
-  final NotificationAndroidNotification androidNotification; // Android-specific notification
-  final NotificationIosNotification iosNotification; // iOS-specific notification
+  final Map<String, dynamic>
+      data; // Additional data (e.g., connectionId, status)
+  final NotificationAndroidNotification
+      androidNotification; // Android-specific notification
+  final NotificationIosNotification
+      iosNotification; // iOS-specific notification
   final DateTime timestamp; // When the notification was sent
   final String id; // Unique ID
+  final bool isFromMeltedMetal; // Whether the thought is from a melted metal
 
   NotificationModel({
     required this.recipientIds,
@@ -21,6 +26,8 @@ class NotificationModel {
     required this.iosNotification,
     required this.timestamp,
     required this.id,
+    required this.thoughtId,
+    required this.isFromMeltedMetal, // Initialize this field
   });
 
   // Convert a NotificationModel instance to a JSON map
@@ -35,6 +42,8 @@ class NotificationModel {
       'iosNotification': iosNotification.toJson(),
       'timestamp': timestamp.toIso8601String(),
       'id': id,
+      'isFromMeltedMetal': isFromMeltedMetal, // Serialize this field
+      'thoughtId': thoughtId, // Serialize this field
     };
   }
 
@@ -47,10 +56,14 @@ class NotificationModel {
       type: NotificationType.values
           .firstWhere((e) => e.toString().split('.').last == json['type']),
       data: Map<String, dynamic>.from(json['data']),
-      androidNotification: NotificationAndroidNotification.fromJson(json['androidNotification']),
-      iosNotification: NotificationIosNotification.fromJson(json['iosNotification']),
+      androidNotification:
+          NotificationAndroidNotification.fromJson(json['androidNotification']),
+      iosNotification:
+          NotificationIosNotification.fromJson(json['iosNotification']),
       timestamp: DateTime.parse(json['timestamp']),
       id: json['id'],
+      thoughtId: json['thoughtId'],
+      isFromMeltedMetal: json['isFromMeltedMetal'], // Parse this field
     );
   }
 }
@@ -61,7 +74,6 @@ enum NotificationType {
   thought_created,
   reaction_added,
   sparks_transaction
-
 }
 
 class NotificationAndroidNotification {

@@ -60,12 +60,16 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     super.initState();
   }
 
+  // final UpdateService _updateService = UpdateService();
+
   @override
   Widget build(BuildContext context) {
+    // _updateService.checkForUpdates();
     return MaterialApp(
       title: 'Metal',
       key: navKey,
       initialRoute: '/',
+      // home: const OnboardingFlowView(),
       onGenerateRoute: AppRoutes.generateRoute,
       debugShowCheckedModeBanner: false,
     );

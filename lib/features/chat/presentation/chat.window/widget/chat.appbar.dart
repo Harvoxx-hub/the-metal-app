@@ -9,13 +9,13 @@ import 'package:metal/core/utils/constant/constants.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
- 
+import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
 import 'package:metal/features/chat/provider/get.last.active.notifier.dart';
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
- 
+
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
@@ -297,7 +297,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   }
 
   Widget unmetalDialog(BuildContext context, int remaining) {
- 
     return Column(
       children: [
         const Gap(38),
@@ -322,7 +321,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
-        if (hasDurationReached(widget.connectionModel.connectedOn, daysRequiredToUnMelt))
+        if (hasDurationReached(
+            widget.connectionModel.connectedOn, daysRequiredToUnMelt))
           BaseButton(
             buttonText: "Un-Melt Request",
             onPressed: () {

@@ -776,6 +776,10 @@ class $AssetsImagesGen {
       const AssetGenImage(
           'assets/images/verification-partpoppercelebrationemoji.png');
 
+  /// File path: assets/images/video-camera.png
+  AssetGenImage get videoCamera =>
+      const AssetGenImage('assets/images/video-camera.png');
+
   /// File path: assets/images/zinc.png
   AssetGenImage get zinc => const AssetGenImage('assets/images/zinc.png');
 
@@ -867,6 +871,7 @@ class $AssetsImagesGen {
         stripe,
         unnamed,
         verificationPartpoppercelebrationemoji,
+        videoCamera,
         zinc
       ];
 }

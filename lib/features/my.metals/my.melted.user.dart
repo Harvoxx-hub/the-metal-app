@@ -128,6 +128,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                             ? "@${myMelt.data!.username} "
                                             : "@${myMelt.data!.fullname} "
                                         : "@${myMelt.data!.username} ",
+                                    fontWeight: FontWeight.bold,
                                   ),
                                   const Gap(5),
                                   TextView(

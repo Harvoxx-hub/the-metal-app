@@ -14,7 +14,6 @@ import 'package:metal/features/chat/presentation/widget/profile.image.dart';
 import 'package:metal/features/chat/provider/get.last.active.notifier.dart';
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
-import 'package:metal/features/chat/provider/unmelt.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';

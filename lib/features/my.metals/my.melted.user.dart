@@ -154,6 +154,8 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                   title: 'Metal Thought'),
                               BaseTabModel(
                                   child: MetalDetailsTab(
+                                    connectedOn: connection!.connectedOn,
+                                    connectionModel: connection.connectionId,
                                     melted: checkMeltState.data ==
                                         MeltRequestState.mutual,
                                     userModel: myMelt.data!,

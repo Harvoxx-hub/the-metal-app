@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/features/dashboard.dart/widget/tutorial_dialog.dart';
+import 'package:metal/features/onboarding/onboarding_flow_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
@@ -49,16 +50,32 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       await showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const CustomDialog(
-            content: TutorialDialog(),
+        builder: (BuildContext dialogContext) {
+          return CustomDialog(
+            content: TutorialDialog(
+              onStartTutorial: () async {
+                Navigator.pop(dialogContext);
+                await Navigator.of(context).push(
+                  PageRouteBuilder(
+                    opaque: false,
+                    pageBuilder: (_, __, ___) => const OnboardingFlowView(),
+                    transitionsBuilder: (_, animation, __, child) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                  ),
+                );
+                await prefs.setBool('hasSeenOnboarding', true);
+                // Now, trigger the next dialogs after onboarding is completed
+                await showAlertDialog(context, userData);
+              },
+            ),
           );
         },
       );
-      await prefs.setBool('hasSeenOnboarding', true);
+    } else {
+      // If onboarding has been seen, directly proceed to the next dialogs
+      await showAlertDialog(context, userData);
     }
-
-    await showAlertDialog(context, userData);
   }
 
   Future<void> showAlertDialog(BuildContext context, UserModel userData) async {

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/features/dashboard.dart/widget/verification.dialog.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/route/routes.dart';
+import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class OnboardingFlowView extends StatefulWidget {
@@ -101,6 +104,9 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
           const Text(
             "Post Your Thoughts Anonymously",
             style: TextStyle(
+              fontSize: 20,
+              fontFamily: 'Merri_weather',
+              fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
             textAlign: TextAlign.center,
@@ -288,7 +294,7 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
           ),
         ),
         Image.asset(
-          Assets.images.onboardThree.path,
+          Assets.images.onboardThursday.path,
         ),
       ],
     );
@@ -338,7 +344,9 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
             textAlign: TextAlign.center,
           ),
         ),
-        const Spacer(),
+        Image.asset(
+          Assets.images.onboardThursday.path,
+        ),
       ],
     );
   }
@@ -362,25 +370,25 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
               ),
             ),
             const Spacer(),
-            Image.asset(
-              Assets.icons.logoText.path,
-            ),
-            const Spacer(),
           ],
         ),
-        const SizedBox(height: 24),
+        Image.asset(
+          Assets.icons.logoText.path,
+        ),
+        const Gap(20),
         const TextView(
           text: "Upgrade To Metal Plus",
           fontSize: 24,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
-        const SizedBox(height: 16),
+        const Gap(10),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Gap(16),
               const TextView(
                 text:
                     "There are exciting features you would \nexperience when you upgrade your \naccount to Metal Plus",
@@ -440,7 +448,7 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.black.withOpacity(0.8),
       body: SafeArea(
         child: Column(
           children: [
@@ -455,7 +463,7 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
                   buildScreen5(),
                   buildMetalScreen(),
                   buildUnmetalScreen(),
-                  buildUnmetalScreen(),
+                  buildAboutScreen(),
                   buildChatScreen(),
                 ],
               ),
@@ -469,9 +477,12 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
                   children: [
                     currentScreen == 8
                         ? GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.pushReplacementNamed(
+                                  context, AppRoutes.dashboardPage);
+                            },
                             child: const Text(
-                              'DonI’M DONE👌',
+                              'I’M DONE👌',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -499,13 +510,25 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
               ),
             ),
             currentScreen == 7
-                ? Image.asset(
-                    Assets.images.bottomSpark.path,
+                ? SizedBox(
+                    width: double.infinity,
+                    child: Expanded(
+                      child: Image.asset(
+                        fit: BoxFit.cover,
+                        Assets.images.bottomSpark.path,
+                      ),
+                    ),
                   )
                 : const SizedBox.shrink(),
             currentScreen == 8
-                ? Image.asset(
-                    Assets.images.bottomChat.path,
+                ? SizedBox(
+                    width: double.infinity,
+                    child: Expanded(
+                      child: Image.asset(
+                        fit: BoxFit.cover,
+                        Assets.images.bottomChat.path,
+                      ),
+                    ),
                   )
                 : const SizedBox.shrink(),
           ],

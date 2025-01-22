@@ -94,6 +94,8 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                       descriptionText:
                           'With our exciting Metal features, get to have meaningful blind conversations and connect your hearts.',
                       imageUrl: image3,
+                      subHeader: "Every Match Is a Mystery",
+                      checkMetal: true,
                     ),
                   ],
                 ),

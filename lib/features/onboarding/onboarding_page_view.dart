@@ -55,12 +55,6 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
     });
   }
 
-  final List<String> onboardTitles = [
-    "Metal Blind Connect",
-    "Metal Blind Connect",
-    "Every Match is a Mystery"
-  ];
-
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -71,24 +65,8 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
         padding: const EdgeInsets.only(left: 15.0, right: 15),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Gap(30),
-              Row(
-                children: [
-                  Image.asset(
-                    Assets.images.logo.path,
-                    height: 19,
-                    width: 21,
-                  ),
-                  const Gap(10),
-                  TextView(
-                    text: onboardTitles[currentPage],
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ],
-              ),
               SizedBox(
                 height: 500,
                 child: PageView(

@@ -14,24 +14,7 @@ class FirebaseErrorHandler {
 
   /// Handles Firebase Authentication errors.
   static String _handleAuthError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'invalid-email':
-        return "The email address is not valid.";
-      case 'user-disabled':
-        return "This user account has been disabled.";
-      case 'user-not-found':
-        return "No user found with this email address.";
-      case 'wrong-password':
-        return "The password is incorrect.";
-      case 'email-already-in-use':
-        return "The email address is already in use by another account.";
-      case 'weak-password':
-        return "The password is too weak.";
-      case 'too-many-requests':
-        return "Too many attempts. Please try again later.";
-      default:
-        return "An authentication error occurred: ${e.message}";
-    }
+    return e.code;
   }
 
   /// Handles general Firebase errors.

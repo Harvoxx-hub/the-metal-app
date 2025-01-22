@@ -63,10 +63,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 AppRoutes.verificationPage,
                 arguments: VerificationSentArgument(
                     type: RouteFrom.AccountSetting,
-                    code: 123456,
                     uuid: current.data?.id ?? "",
-                    phoneNumber: current.data!.phone!,
-                    email: current.data!.phone!),
+                    email: current.data!.email!),
               )
             : Navigator.pushNamed(
                 context,

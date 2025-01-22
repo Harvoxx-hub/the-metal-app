@@ -58,6 +58,10 @@ class $AssetsIconsGen {
   SvgGenImage get calendarBlank =>
       const SvgGenImage('assets/icons/CalendarBlank.svg');
 
+  /// File path: assets/icons/CaretLeft.png
+  AssetGenImage get caretLeft =>
+      const AssetGenImage('assets/icons/CaretLeft.png');
+
   /// File path: assets/icons/NewspaperClipping.svg
   SvgGenImage get newspaperClipping =>
       const SvgGenImage('assets/icons/NewspaperClipping.svg');
@@ -164,6 +168,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/checked.svg
   SvgGenImage get checked => const SvgGenImage('assets/icons/checked.svg');
 
+  /// File path: assets/icons/chevron-circle.png
+  AssetGenImage get chevronCircle =>
+      const AssetGenImage('assets/icons/chevron-circle.png');
+
   /// File path: assets/icons/christianity.svg
   SvgGenImage get christianity =>
       const SvgGenImage('assets/icons/christianity.svg');
@@ -211,6 +219,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/intersect-circle.svg
   SvgGenImage get intersectCircle =>
       const SvgGenImage('assets/icons/intersect-circle.svg');
+
+  /// File path: assets/icons/logo-text.png
+  AssetGenImage get logoText =>
+      const AssetGenImage('assets/icons/logo-text.png');
 
   /// File path: assets/icons/luggage-03.svg
   SvgGenImage get luggage03 => const SvgGenImage('assets/icons/luggage-03.svg');
@@ -362,6 +374,7 @@ class $AssetsIconsGen {
   /// List of all assets
   List<dynamic> get values => [
         calendarBlank,
+        caretLeft,
         newspaperClipping,
         send,
         tickSquare,
@@ -391,6 +404,7 @@ class $AssetsIconsGen {
         chatsWindowactiveVideoRecorder,
         checkVerified,
         checked,
+        chevronCircle,
         christianity,
         currencyDollar,
         delete1,
@@ -405,6 +419,7 @@ class $AssetsIconsGen {
         icon,
         iconlyLightProfile,
         intersectCircle,
+        logoText,
         luggage03,
         markerPin03,
         meltNotification,
@@ -493,6 +508,14 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/bg.2.png
   AssetGenImage get bg2 => const AssetGenImage('assets/images/bg.2.png');
+
+  /// File path: assets/images/bottom-chat.png
+  AssetGenImage get bottomChat =>
+      const AssetGenImage('assets/images/bottom-chat.png');
+
+  /// File path: assets/images/bottom-spark.png
+  AssetGenImage get bottomSpark =>
+      const AssetGenImage('assets/images/bottom-spark.png');
 
   /// File path: assets/images/buy.spark.png
   AssetGenImage get buySpark =>
@@ -693,6 +716,22 @@ class $AssetsImagesGen {
   AssetGenImage get onboard2 =>
       const AssetGenImage('assets/images/onboard-2.png');
 
+  /// File path: assets/images/onboard-one.png
+  AssetGenImage get onboardOne =>
+      const AssetGenImage('assets/images/onboard-one.png');
+
+  /// File path: assets/images/onboard-three.png
+  AssetGenImage get onboardThree =>
+      const AssetGenImage('assets/images/onboard-three.png');
+
+  /// File path: assets/images/onboard-thursday.png
+  AssetGenImage get onboardThursday =>
+      const AssetGenImage('assets/images/onboard-thursday.png');
+
+  /// File path: assets/images/onboard-two.png
+  AssetGenImage get onboardTwo =>
+      const AssetGenImage('assets/images/onboard-two.png');
+
   /// File path: assets/images/partpoppercelebrationemoji.png
   AssetGenImage get partpoppercelebrationemoji =>
       const AssetGenImage('assets/images/partpoppercelebrationemoji.png');
@@ -797,6 +836,8 @@ class $AssetsImagesGen {
         apple,
         bg1,
         bg2,
+        bottomChat,
+        bottomSpark,
         buySpark,
         calcium,
         cardBackground,
@@ -849,6 +890,10 @@ class $AssetsImagesGen {
         notificationProfile,
         onboard1,
         onboard2,
+        onboardOne,
+        onboardThree,
+        onboardThursday,
+        onboardTwo,
         partpoppercelebrationemoji,
         paymentCard,
         potassium,

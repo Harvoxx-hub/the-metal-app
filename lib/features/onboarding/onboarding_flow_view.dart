@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -13,7 +14,7 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
   int currentScreen = 0;
 
   void nextScreen() {
-    if (currentScreen < 6) {
+    if (currentScreen < 8) {
       setState(() {
         currentScreen++;
       });
@@ -21,233 +22,164 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
   }
 
   Widget buildScreen1() {
-    return Column(
-      children: [
-        const SizedBox(height: 80),
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.grey,
-              width: 1,
-              style: BorderStyle.solid,
+    return Center(
+      child: Column(
+        children: [
+          const Gap(80),
+          Image.asset(
+            Assets.images.onboardOne.path,
+          ),
+          const SizedBox(height: 24),
+          const TextView(
+            text: "Explore Thoughts Posted \nAnonymously",
+            fontSize: 20,
+            fontFamily: 'Merri_weather',
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40),
+            child: TextView(
+              text:
+                  "The 'Explore' section highlights \npopular posts, new mentions, or \nrecommended content to keep \neach user engaged with fresh content",
+              fontSize: 16,
+              fontFamily: 'Merri_weather',
+              textAlign: TextAlign.center,
+              color: Colors.white,
             ),
           ),
-          child: const Center(
-            child: Icon(Icons.person_outline, color: Colors.grey),
-          ),
-        ),
-        const SizedBox(height: 24),
-        const TextView(
-          text: "Explore Thoughts Posted Anonymously",
-          fontSize: 20,
-          fontFamily: 'Merri_weather',
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-        const SizedBox(height: 16),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40),
-          child: TextView(
-            text:
-                "The 'Explore' section highlights popular posts, new mentions, or recommended content to keep each user engaged with fresh content",
-            fontSize: 16,
-            fontFamily: 'Merri_weather',
-            textAlign: TextAlign.center,
-            color: Colors.white,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget buildScreen2() {
-    return Column(
-      children: [
-        const SizedBox(height: 80),
-        Stack(
-          children: [
-            Container(
-              width: 70,
-              height: 70,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.pink.withOpacity(0.5),
-                  width: 2,
-                ),
-              ),
+    return Center(
+      child: Column(
+        children: [
+          const SizedBox(height: 80),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Image.asset(
+              Assets.images.onboardTwo.path,
             ),
-            Positioned(
-              right: -5,
-              bottom: -5,
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.pink.withOpacity(0.5),
-                    width: 2,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        const TextView(
-          text: "See Personalized Thoughts",
-          fontSize: 20,
-          fontFamily: 'Merri_weather',
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-        const SizedBox(height: 16),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40),
-          child: TextView(
-            text:
-                "The 'For You' recommends personalized discoveries, connections, conversations, and content tailored to your interests",
-            fontSize: 16,
+          ),
+          const Gap(80),
+          const TextView(
+            text: "See Personalized Thoughts",
+            fontSize: 20,
             fontFamily: 'Merri_weather',
-            textAlign: TextAlign.center,
+            fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40),
+            child: TextView(
+              text:
+                  "The 'For You' section helps you \ndiscover new connections, \nconversations, and content tailored \nto your personality, preferences, \nand past behaviors on the app.",
+              fontSize: 16,
+              fontFamily: 'Merri_weather',
+              textAlign: TextAlign.center,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget buildScreen3() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: double.infinity,
-          margin: const EdgeInsets.symmetric(horizontal: 40),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.withOpacity(0.3)),
-            borderRadius: BorderRadius.circular(12),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 24),
+          const Text(
+            "Post Your Thoughts Anonymously",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    "Post Your Thoughts",
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                height: 1,
-                color: Colors.grey.withOpacity(0.3),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40),
-          child: TextView(
+          const TextView(
             text:
-                "A simple and intuitive posting tool that allows you to share your thoughts anonymously",
+                "A simple and intuitive posting tool \nthat allows you to share your \nthoughts, feelings, or introduce \nyourself to the community.",
             fontSize: 16,
             fontFamily: 'Merri_weather',
             textAlign: TextAlign.center,
             color: Colors.white,
           ),
-        ),
-      ],
+          const Gap(80),
+          Image.asset(
+            Assets.images.onboardThree.path,
+          ),
+        ],
+      ),
     );
   }
 
   Widget buildScreen4() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.pink),
-          ),
-          child: const Icon(
-            Icons.favorite,
-            color: Colors.pink,
-            size: 40,
-          ),
-        ),
-        const SizedBox(height: 24),
-        const TextView(
-          text: "Tap to Like & React",
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-        const SizedBox(height: 16),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40),
-          child: TextView(
-            text:
-                "Show appreciation by liking or reacting to another's thoughts",
-            fontSize: 16,
-            fontFamily: 'Merri_weather',
-            textAlign: TextAlign.center,
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const TextView(
+            text: "Tap to Like & React",
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40),
+            child: TextView(
+              text:
+                  "Show appreciation by liking or \nreacting to each other’s thoughts.",
+              fontSize: 16,
+              fontFamily: 'Merri_weather',
+              textAlign: TextAlign.center,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Image.asset(
+            Assets.images.onboardThursday.path,
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
     );
   }
 
   Widget buildScreen5() {
-    return const Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "🫠",
-          style: TextStyle(fontSize: 48),
-        ),
-        SizedBox(height: 24),
-        TextView(
-          text: "It's a melt",
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-        SizedBox(height: 16),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40),
-          child: TextView(
-            text:
-                "Join us on this mind-boggling view through another eye's melt with them",
-            fontSize: 16,
-            fontFamily: 'Merri_weather',
-            textAlign: TextAlign.center,
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextView(
+            text: "It’s a melt🎉",
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
-        ),
-      ],
+          SizedBox(height: 16),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40),
+            child: TextView(
+              text:
+                  "Click on the metal icon to \nview a metal profile and \nmelt with them",
+              fontSize: 16,
+              fontFamily: 'Merri_weather',
+              textAlign: TextAlign.center,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -259,48 +191,25 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {},
-                color: Colors.grey,
-              ),
-              const Expanded(
-                child: TextView(
-                  text: "Unmetal",
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Image.asset(
+                    Assets.icons.caretLeft.path,
+                  ),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 40),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.grey),
-              ),
-              child: const Icon(Icons.remove_red_eye, color: Colors.grey),
-            ),
-            const SizedBox(width: 20),
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.grey),
-              ),
-              child: const Icon(Icons.favorite, color: Colors.grey),
-            ),
-          ],
+        const Spacer(),
+        Image.asset(
+          Assets.images.onboard1.path,
         ),
-        const SizedBox(height: 24),
+        const Gap(20),
         const TextView(
           text: "Unmetal",
           fontSize: 24,
@@ -312,11 +221,124 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
           padding: EdgeInsets.symmetric(horizontal: 40),
           child: TextView(
             text:
-                "After 15 days and 10 sessions of having conversations, you can unveil the surprise to see the face behind the metal.\n\nOur goal is to build real connections.\nWhen eyes are closed, the hearts talk.\nMetal → Hidden faces → Real hearts",
+                "After 15 days and 10 sessions of having conversations, you can unravel the surprise to see the face behind the metal. Our goal is to build real connections. When eyes are closed, the hearts talk.Metal = Hiden faces + Real hearts",
             height: 1.5,
             color: Colors.white,
+            textAlign: TextAlign.center,
           ),
         ),
+        const Spacer(),
+      ],
+    );
+  }
+
+  Widget buildChatScreen() {
+    return Column(
+      children: [
+        const SizedBox(height: 40),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Image.asset(
+                    Assets.icons.caretLeft.path,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Spacer(),
+        Image.asset(
+          Assets.images.chatCircle.path,
+        ),
+        const Gap(20),
+        const TextView(
+          text: "About Chats!",
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+        const SizedBox(height: 16),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 40),
+          child: TextView(
+            text:
+                "Send and receive messages to build \nreal connections with each other for \nthe next 15days without sending \nyour pictures.",
+            height: 1.5,
+            color: Colors.white,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        const SizedBox(height: 16),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 40),
+          child: TextView(
+            text:
+                "Play games to deepen conversations \nand sparks to ignite connections",
+            height: 1.5,
+            color: Colors.white,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Image.asset(
+          Assets.images.onboardThree.path,
+        ),
+      ],
+    );
+  }
+
+  Widget buildAboutScreen() {
+    return Column(
+      children: [
+        const SizedBox(height: 40),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Image.asset(
+                    Assets.icons.caretLeft.path,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Spacer(),
+        Image.asset(
+          Assets.images.onboard2.path,
+        ),
+        const Gap(20),
+        const TextView(
+          text: "About Sparks!",
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+        const SizedBox(height: 16),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 40),
+          child: TextView(
+            text:
+                "Our point payment in-app system. \n1 Dollar = 10 Sparks. You can refer \nfriends and earn more sparks. You \ncan also send and buy Sparks",
+            height: 1.5,
+            color: Colors.white,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        const Spacer(),
       ],
     );
   }
@@ -328,18 +350,22 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Image.asset(
+                  Assets.icons.caretLeft.path,
+                ),
+              ),
+            ),
+            const Spacer(),
             Image.asset(
-              Assets.gifs.logo.path,
-              width: 40,
-              height: 40,
+              Assets.icons.logoText.path,
             ),
-            const SizedBox(width: 8),
-            const TextView(
-              text: "Metal",
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+            const Spacer(),
           ],
         ),
         const SizedBox(height: 24),
@@ -357,7 +383,7 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
             children: [
               const TextView(
                 text:
-                    "There are exciting features you would experience when you upgrade your account to Metal Plus",
+                    "There are exciting features you would \nexperience when you upgrade your \naccount to Metal Plus",
                 textAlign: TextAlign.start,
                 color: Colors.white,
                 height: 1.5,
@@ -429,6 +455,8 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
                   buildScreen5(),
                   buildMetalScreen(),
                   buildUnmetalScreen(),
+                  buildUnmetalScreen(),
+                  buildChatScreen(),
                 ],
               ),
             ),
@@ -436,29 +464,50 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
               padding: const EdgeInsets.all(20),
               child: SizedBox(
                 width: double.infinity,
-                child: GestureDetector(
-                  onTap: nextScreen,
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'NEXT',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(
-                        Icons.chevron_right,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    currentScreen == 8
+                        ? GestureDetector(
+                            onTap: () {},
+                            child: const Text(
+                              'DonI’M DONE👌',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        : GestureDetector(
+                            onTap: nextScreen,
+                            child: const Text(
+                              'NEXT',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                    const SizedBox(width: 8),
+                    Image.asset(
+                      Assets.icons.chevronCircle.path,
+                    ),
+                  ],
                 ),
               ),
             ),
+            currentScreen == 7
+                ? Image.asset(
+                    Assets.images.bottomSpark.path,
+                  )
+                : const SizedBox.shrink(),
+            currentScreen == 8
+                ? Image.asset(
+                    Assets.images.bottomChat.path,
+                  )
+                : const SizedBox.shrink(),
           ],
         ),
       ),

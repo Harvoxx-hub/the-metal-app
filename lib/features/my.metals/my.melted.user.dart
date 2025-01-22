@@ -137,6 +137,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                             ? "Anonymous User"
                                             : "${myMelt.data!.address?.state}, ${myMelt.data!.address?.country}"
                                         : "No Address Found",
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ],
                               ),

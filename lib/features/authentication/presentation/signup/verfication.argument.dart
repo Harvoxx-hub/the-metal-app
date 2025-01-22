@@ -2,11 +2,11 @@ import 'package:metal/features/authentication/presentation/signup/verfication.pa
 
 class VerificationSentArgument {
   VerificationSentArgument(
-      {required this.type, this.code, this.uuid, this.phoneNumber, this.email});
+      {required this.type, this.code, this.uuid,  this.email});
 
   final RouteFrom type;
   final int? code;
-  final String? phoneNumber;
+ 
   final String? email;
   final String? uuid;
 }

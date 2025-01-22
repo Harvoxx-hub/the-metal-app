@@ -107,7 +107,7 @@ class chatListItem extends ConsumerWidget {
           "", // Handle cases where all user IDs match the current user
     );
     final getUser = ref.watch(getUserProvider(metalId));
-
+ 
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, AppRoutes.chatWindowsPage,

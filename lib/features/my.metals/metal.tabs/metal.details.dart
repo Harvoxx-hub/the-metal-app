@@ -25,18 +25,26 @@ class MetalDetailsTab extends ConsumerStatefulWidget {
     super.key,
     required this.melted,
     required this.userModel,
-    // required this.connectionModel,
+    required this.connectionModel,
+    required this.connectedOn,
   });
   final UserModel userModel;
   final bool melted;
-  // final ConnectionModel connectionModel;
+  final String connectionModel;
+  final String connectedOn;
   @override
   ConsumerState<MetalDetailsTab> createState() => _MetalDetailsTabState();
 }
 
 class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
-  int dayRemaining = 5;
-  //daysRemaining(widget.connectionModel.connectedOn, 5);
+  late int dayRemaining;
+
+  @override
+  void initState() {
+    super.initState();
+    dayRemaining = daysRemaining(widget.connectedOn, 5);
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -85,7 +93,7 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
                     const Gap(20),
                     EditField(
                       text:
-                          "De-melt ${widget.userModel.username}  from your metal list",
+                          "Un-melt ${widget.userModel.username}  from your metal list",
                       floatingLabel: "Un-metals",
                       suffixIcon: SvgPicture.asset(
                         Assets.icons.meltedMetalsTrash01.path,
@@ -145,7 +153,7 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
         const Gap(15),
         TextView(
           text:
-              "To Unmetal, we require a minimum of $daysRequiredToUnMelt days and 10 sessions of conversations between you and @",
+              "To Unmetal, we require a minimum of $daysRequiredToUnMelt days and 10 sessions of conversations between you and @${widget.userModel.username}",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
@@ -158,22 +166,22 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
-        // if (hasDurationReached(widget.connectionModel.connectedOn, 15))
-        BaseButton(
-          buttonText: "Un-Melt Request",
-          onPressed: () {
-            sendUnmelt();
-            Navigator.pop(context);
-          },
-        )
-        // else
-        //   BaseButton(
-        //     buttonText: "Return to chat",
-        //     onPressed: () {
-        //       Navigator.pop(context);
-        //     },
-        //   ),
-        // const Gap(23),
+        if (hasDurationReached(widget.connectedOn, 15))
+          BaseButton(
+            buttonText: "Un-Melt Request",
+            onPressed: () {
+              sendUnmelt();
+              Navigator.pop(context);
+            },
+          )
+        else
+          BaseButton(
+            buttonText: "Return to chat",
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        const Gap(23),
       ],
     );
   }
@@ -187,9 +195,9 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
       message: "Un-melt Request",
     );
 
-    // ref
-    //     .read(sendMessageProvider.notifier)
-    //     .sendMessage(message, widget.connectionModel.connectionId);
+    ref
+        .read(sendMessageProvider.notifier)
+        .sendMessage(message, widget.connectionModel);
   }
 
   Widget _blockDialog(BuildContext context, UserModel data, WidgetRef ref) {

@@ -7,10 +7,10 @@
 // ignore_for_file: type=lint
 // ignore_for_file: directives_ordering,unnecessary_import,implicit_dynamic_list_literal,deprecated_member_use
 
-import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:vector_graphics/vector_graphics.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/flutter_svg.dart' as _svg;
+import 'package:vector_graphics/vector_graphics.dart' as _vg;
 
 class $AssetsEnvGen {
   const $AssetsEnvGen();
@@ -58,6 +58,10 @@ class $AssetsIconsGen {
   SvgGenImage get calendarBlank =>
       const SvgGenImage('assets/icons/CalendarBlank.svg');
 
+  /// File path: assets/icons/CaretLeft.png
+  AssetGenImage get caretLeft =>
+      const AssetGenImage('assets/icons/CaretLeft.png');
+
   /// File path: assets/icons/NewspaperClipping.svg
   SvgGenImage get newspaperClipping =>
       const SvgGenImage('assets/icons/NewspaperClipping.svg');
@@ -74,6 +78,9 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/User.3.svg
   SvgGenImage get user3 => const SvgGenImage('assets/icons/User.3.svg');
+
+  /// File path: assets/icons/User.svg
+  SvgGenImage get user => const SvgGenImage('assets/icons/User.svg');
 
   /// File path: assets/icons/VideoCamera.svg
   SvgGenImage get videoCamera =>
@@ -161,6 +168,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/checked.svg
   SvgGenImage get checked => const SvgGenImage('assets/icons/checked.svg');
 
+  /// File path: assets/icons/chevron-circle.png
+  AssetGenImage get chevronCircle =>
+      const AssetGenImage('assets/icons/chevron-circle.png');
+
   /// File path: assets/icons/christianity.svg
   SvgGenImage get christianity =>
       const SvgGenImage('assets/icons/christianity.svg');
@@ -208,6 +219,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/intersect-circle.svg
   SvgGenImage get intersectCircle =>
       const SvgGenImage('assets/icons/intersect-circle.svg');
+
+  /// File path: assets/icons/logo-text.png
+  AssetGenImage get logoText =>
+      const AssetGenImage('assets/icons/logo-text.png');
 
   /// File path: assets/icons/luggage-03.svg
   SvgGenImage get luggage03 => const SvgGenImage('assets/icons/luggage-03.svg');
@@ -334,9 +349,6 @@ class $AssetsIconsGen {
   AssetGenImage get unchecked =>
       const AssetGenImage('assets/icons/unchecked.png');
 
-  /// File path: assets/icons/user.svg
-  SvgGenImage get user => const SvgGenImage('assets/icons/user.svg');
-
   /// File path: assets/icons/verification.call.svg
   SvgGenImage get verificationCall =>
       const SvgGenImage('assets/icons/verification.call.svg');
@@ -362,11 +374,13 @@ class $AssetsIconsGen {
   /// List of all assets
   List<dynamic> get values => [
         calendarBlank,
+        caretLeft,
         newspaperClipping,
         send,
         tickSquare,
         user2,
         user3,
+        user,
         videoCamera,
         ageRange,
         alertTriangle,
@@ -390,6 +404,7 @@ class $AssetsIconsGen {
         chatsWindowactiveVideoRecorder,
         checkVerified,
         checked,
+        chevronCircle,
         christianity,
         currencyDollar,
         delete1,
@@ -404,6 +419,7 @@ class $AssetsIconsGen {
         icon,
         iconlyLightProfile,
         intersectCircle,
+        logoText,
         luggage03,
         markerPin03,
         meltNotification,
@@ -438,7 +454,6 @@ class $AssetsIconsGen {
         srMenuVerticalLite,
         star05,
         unchecked,
-        user,
         verificationCall,
         verificationText,
         videoSquare,
@@ -494,6 +509,14 @@ class $AssetsImagesGen {
   /// File path: assets/images/bg.2.png
   AssetGenImage get bg2 => const AssetGenImage('assets/images/bg.2.png');
 
+  /// File path: assets/images/bottom-chat.png
+  AssetGenImage get bottomChat =>
+      const AssetGenImage('assets/images/bottom-chat.png');
+
+  /// File path: assets/images/bottom-spark.png
+  AssetGenImage get bottomSpark =>
+      const AssetGenImage('assets/images/bottom-spark.png');
+
   /// File path: assets/images/buy.spark.png
   AssetGenImage get buySpark =>
       const AssetGenImage('assets/images/buy.spark.png');
@@ -508,6 +531,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/chat-astonished-face-emoji-1.png
   AssetGenImage get chatAstonishedFaceEmoji1 =>
       const AssetGenImage('assets/images/chat-astonished-face-emoji-1.png');
+
+  /// File path: assets/images/chat-circle.png
+  AssetGenImage get chatCircle =>
+      const AssetGenImage('assets/images/chat-circle.png');
 
   /// File path: assets/images/chat-emoji-woman-raising-hand-1.png
   AssetGenImage get chatEmojiWomanRaisingHand1 =>
@@ -681,6 +708,30 @@ class $AssetsImagesGen {
   AssetGenImage get notificationProfile =>
       const AssetGenImage('assets/images/notification.profile.png');
 
+  /// File path: assets/images/onboard-1.png
+  AssetGenImage get onboard1 =>
+      const AssetGenImage('assets/images/onboard-1.png');
+
+  /// File path: assets/images/onboard-2.png
+  AssetGenImage get onboard2 =>
+      const AssetGenImage('assets/images/onboard-2.png');
+
+  /// File path: assets/images/onboard-one.png
+  AssetGenImage get onboardOne =>
+      const AssetGenImage('assets/images/onboard-one.png');
+
+  /// File path: assets/images/onboard-three.png
+  AssetGenImage get onboardThree =>
+      const AssetGenImage('assets/images/onboard-three.png');
+
+  /// File path: assets/images/onboard-thursday.png
+  AssetGenImage get onboardThursday =>
+      const AssetGenImage('assets/images/onboard-thursday.png');
+
+  /// File path: assets/images/onboard-two.png
+  AssetGenImage get onboardTwo =>
+      const AssetGenImage('assets/images/onboard-two.png');
+
   /// File path: assets/images/partpoppercelebrationemoji.png
   AssetGenImage get partpoppercelebrationemoji =>
       const AssetGenImage('assets/images/partpoppercelebrationemoji.png');
@@ -764,6 +815,10 @@ class $AssetsImagesGen {
       const AssetGenImage(
           'assets/images/verification-partpoppercelebrationemoji.png');
 
+  /// File path: assets/images/video-camera.png
+  AssetGenImage get videoCamera =>
+      const AssetGenImage('assets/images/video-camera.png');
+
   /// File path: assets/images/zinc.png
   AssetGenImage get zinc => const AssetGenImage('assets/images/zinc.png');
 
@@ -781,10 +836,13 @@ class $AssetsImagesGen {
         apple,
         bg1,
         bg2,
+        bottomChat,
+        bottomSpark,
         buySpark,
         calcium,
         cardBackground,
         chatAstonishedFaceEmoji1,
+        chatCircle,
         chatEmojiWomanRaisingHand1,
         chatFrame3049,
         chatPersonSayingMoreEmoji1,
@@ -830,6 +888,12 @@ class $AssetsImagesGen {
         navBarProfile,
         notification,
         notificationProfile,
+        onboard1,
+        onboard2,
+        onboardOne,
+        onboardThree,
+        onboardThursday,
+        onboardTwo,
         partpoppercelebrationemoji,
         paymentCard,
         potassium,
@@ -852,6 +916,7 @@ class $AssetsImagesGen {
         stripe,
         unnamed,
         verificationPartpoppercelebrationemoji,
+        videoCamera,
         zinc
       ];
 }
@@ -910,7 +975,7 @@ class AssetGenImage {
     ImageRepeat repeat = ImageRepeat.noRepeat,
     Rect? centerSlice,
     bool matchTextDirection = false,
-    bool gaplessPlayback = false,
+    bool gaplessPlayback = true,
     bool isAntiAlias = false,
     String? package,
     FilterQuality filterQuality = FilterQuality.low,
@@ -979,7 +1044,7 @@ class SvgGenImage {
   final Set<String> flavors;
   final bool _isVecFormat;
 
-  SvgPicture svg({
+  _svg.SvgPicture svg({
     Key? key,
     bool matchTextDirection = false,
     AssetBundle? bundle,
@@ -992,29 +1057,29 @@ class SvgGenImage {
     WidgetBuilder? placeholderBuilder,
     String? semanticsLabel,
     bool excludeFromSemantics = false,
-    SvgTheme? theme,
+    _svg.SvgTheme? theme,
     ColorFilter? colorFilter,
     Clip clipBehavior = Clip.hardEdge,
     @deprecated Color? color,
     @deprecated BlendMode colorBlendMode = BlendMode.srcIn,
     @deprecated bool cacheColorFilter = false,
   }) {
-    final BytesLoader loader;
+    final _svg.BytesLoader loader;
     if (_isVecFormat) {
-      loader = AssetBytesLoader(
+      loader = _vg.AssetBytesLoader(
         _assetName,
         assetBundle: bundle,
         packageName: package,
       );
     } else {
-      loader = SvgAssetLoader(
+      loader = _svg.SvgAssetLoader(
         _assetName,
         assetBundle: bundle,
         packageName: package,
         theme: theme,
       );
     }
-    return SvgPicture(
+    return _svg.SvgPicture(
       loader,
       key: key,
       matchTextDirection: matchTextDirection,

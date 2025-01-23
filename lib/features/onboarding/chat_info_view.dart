@@ -4,7 +4,10 @@ import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 import 'package:metal/features/authentication/provider/login.notifier.dart';
+import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
+import 'package:metal/widgets/text_views.dart';
 
 class ChatInfoView extends ConsumerWidget {
   const ChatInfoView({super.key});
@@ -56,31 +59,27 @@ class ChatInfoView extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.chat_bubble_outline,
-                    color: Colors.white,
-                    size: 48,
+                  Image.asset(
+                    Assets.images.chatCircle.path,
                   ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'About Chats!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  const Gap(24),
+                  const TextView(
+                    text: 'About Chats!',
+                    color: AppColors.metalWhite,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 16),
+                  const Gap(16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Text(
-                      'Send and receive messages to build real connections with each other for the next 15 days without sending your pictures.\n\nPlay games to deepen conversations and sparks to ignite connections',
+                    child: TextView(
+                      text:
+                          'Send and receive messages to build real connections with each other for the next 15 days without sending your pictures.\n\nPlay games to deepen conversations and sparks to ignite connections',
+                      color: AppColors.metalWhite.withOpacity(0.8),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 16,
-                        height: 1.5,
-                      ),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      height: 1.5,
                     ),
                   ),
                 ],
@@ -117,12 +116,10 @@ class ChatInfoView extends ConsumerWidget {
                     },
                     child: const Row(
                       children: [
-                        Text(
-                          "I'M DONE",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        TextView(
+                          text: "I'M DONE",
+                          color: AppColors.metalWhite,
+                          fontWeight: FontWeight.bold,
                         ),
                         Gap(4),
                         Icon(Icons.waving_hand, color: Colors.amber),

@@ -138,8 +138,6 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const MetalPlusView());
       case sparkInfoSwitchView:
         return MaterialPageRoute(builder: (_) => const SparksInfoSwitchView());
-      case onboardingTutorialView:
-        return MaterialPageRoute(builder: (_) => const OnboardingFlowView());
       case login:
         return MaterialPageRoute(builder: (_) => const LoginPage());
       case forgetPassword:

@@ -4,11 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:metal/firebase_options.dart';
 
- 
 class FirebaseServiceDb {
   FirebaseServiceDb._privateConstructor();
 
-  static final FirebaseServiceDb instance = FirebaseServiceDb._privateConstructor();
+  static final FirebaseServiceDb instance =
+      FirebaseServiceDb._privateConstructor();
 
   Future<void> initialize() async {
     await Firebase.initializeApp(
@@ -35,7 +35,6 @@ class FirebaseServiceDb {
       if (documentId != null) {
         await collectionRef.doc(documentId).set(data);
       } else {
-     
         await collectionRef.add(data);
       }
     } catch (e) {
@@ -49,7 +48,8 @@ class FirebaseServiceDb {
     required String documentId,
   }) async {
     try {
-      final docSnapshot = await firestore.collection(collectionPath).doc(documentId).get();
+      final docSnapshot =
+          await firestore.collection(collectionPath).doc(documentId).get();
       if (docSnapshot.exists) {
         return docSnapshot.data();
       }
@@ -118,49 +118,53 @@ class FirebaseServiceDb {
   }
 
   /// Perform a query with filtering and dynamic query builder
-Future<List<Map<String, dynamic>>> queryBuilderCollection({
-  required String collectionPath,
-  required Query Function(Query) queryBuilder, // The queryBuilder function
-}) async {
-  try {
-    // Create the base query object
-    Query query = firestore.collection(collectionPath);
-    
-    // Apply the queryBuilder function to modify the query
-    query = queryBuilder(query);
+  Future<List<Map<String, dynamic>>> queryBuilderCollection({
+    required String collectionPath,
+    required Query Function(Query) queryBuilder, // The queryBuilder function
+  }) async {
+    try {
+      // Create the base query object
+      Query query = firestore.collection(collectionPath);
 
-    // Execute the query and get the snapshot
-    final querySnapshot = await query.get();
+      // Apply the queryBuilder function to modify the query
+      query = queryBuilder(query);
 
-    // Convert the query snapshot into a list of maps
-    return querySnapshot.docs.map((doc) {
-      return {"id": doc.id, ...doc.data() as Map<String, dynamic>}; // Ensure doc.data() is properly casted
-    }).toList();
-  } catch (e) {
-    throw Exception("Failed to query collection: ${e.toString()}");
+      // Execute the query and get the snapshot
+      final querySnapshot = await query.get();
+
+      // Convert the query snapshot into a list of maps
+      return querySnapshot.docs.map((doc) {
+        return {
+          "id": doc.id,
+          ...doc.data() as Map<String, dynamic>
+        }; // Ensure doc.data() is properly casted
+      }).toList();
+    } catch (e) {
+      throw Exception("Failed to query collection: ${e.toString()}");
+    }
   }
-}
 
-Stream<List<Map<String, dynamic>>> queryBuilderCollectionStream({
-  required String collectionPath,
-  required Query<Map<String, dynamic>> Function(
-          Query<Map<String, dynamic>> query)
-      queryBuilder,
-}) {
-  final query = FirebaseFirestore.instance.collection(collectionPath);
-  final modifiedQuery = queryBuilder(query);
-  return modifiedQuery.snapshots().map((snapshot) {
-    return snapshot.docs.map((doc) => doc.data()).toList();
-  });
-}
-
-
+  Stream<List<Map<String, dynamic>>> queryBuilderCollectionStream({
+    required String collectionPath,
+    required Query<Map<String, dynamic>> Function(
+            Query<Map<String, dynamic>> query)
+        queryBuilder,
+  }) {
+    final query = FirebaseFirestore.instance.collection(collectionPath);
+    final modifiedQuery = queryBuilder(query);
+    return modifiedQuery.snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    });
+  }
 
   /// Listen for real-time updates in a collection
   Stream<List<Map<String, dynamic>>> listenToCollection({
     required String collectionPath,
   }) {
-    return firestore.collection(collectionPath).snapshots().map((querySnapshot) {
+    return firestore
+        .collection(collectionPath)
+        .snapshots()
+        .map((querySnapshot) {
       return querySnapshot.docs.map((doc) {
         return {"id": doc.id, ...doc.data()};
       }).toList();
@@ -179,5 +183,21 @@ Stream<List<Map<String, dynamic>>> queryBuilderCollectionStream({
         .map((docSnapshot) {
       return docSnapshot.exists ? docSnapshot.data() : null;
     });
+  }
+
+  /// Edit a thought
+  Future<void> editThought({
+    required String thoughtId,
+    required String collectionPath,
+    required Map<String, dynamic> updatedData,
+  }) async {
+    try {
+      await firestore
+          .collection(collectionPath)
+          .doc(thoughtId)
+          .update(updatedData);
+    } catch (e) {
+      throw Exception("Failed to edit thought: ${e.toString()}");
+    }
   }
 }

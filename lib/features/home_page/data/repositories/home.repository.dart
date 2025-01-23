@@ -531,6 +531,28 @@ class HomeRepository implements IHomeRepository {
       rethrow;
     }
   }
+
+// New method to edit a thought
+  Future<Responses> editThought(
+      String thoughtId, Map<String, dynamic> updatedData) async {
+    try {
+      await _firebaseService.editThought(
+        collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
+        thoughtId: thoughtId,
+        updatedData: updatedData,
+      );
+
+      return Responses(
+        success: true,
+        message: "Thought updated successfully.",
+      );
+    } catch (e) {
+      return Responses(
+        success: false,
+        message: "Failed to update thought: ${e.toString()}",
+      );
+    }
+  }
 }
 
 final homeRepositoryProvider = Provider((ref) {

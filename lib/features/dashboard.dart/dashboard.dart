@@ -76,6 +76,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       // If onboarding has been seen, directly proceed to the next dialogs
       await showAlertDialog(context, userData);
     }
+ 
+    await showAlertDialog(context, userData);
+ 
   }
 
   Future<void> showAlertDialog(BuildContext context, UserModel userData) async {

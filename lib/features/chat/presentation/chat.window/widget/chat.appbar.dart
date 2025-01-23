@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
+import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/constant/constants.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
@@ -14,6 +15,7 @@ import 'package:metal/features/chat/presentation/widget/profile.image.dart';
 import 'package:metal/features/chat/provider/get.last.active.notifier.dart';
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
+
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
@@ -56,8 +58,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   Widget build(BuildContext context) {
     // final time = ref.watch(lastActiveProvider).data;
     int dayRemaining = daysRemaining(widget.connectionModel.connectedOn, 5);
-    final messages =
-        ref.watch(getMessageList(widget.connectionModel.connectionId));
+    // final messages =
+    //     ref.watch(getMessageList(widget.connectionModel.connectionId));
     // final connection = ref
     //     .watch(getMeltUserProvider.notifier)
     //     .getMeltUserById(ref.watch(authProvider).data!.id!);
@@ -295,7 +297,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   }
 
   Widget unmetalDialog(BuildContext context, int remaining) {
-    final int daysRequiredToUnMelt = ref.watch(numberDaysProvider);
     return Column(
       children: [
         const Gap(38),
@@ -320,7 +321,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
-        if (hasDurationReached(widget.connectionModel.connectedOn, 15))
+        if (hasDurationReached(
+            widget.connectionModel.connectedOn, daysRequiredToUnMelt))
           BaseButton(
             buttonText: "Un-Melt Request",
             onPressed: () {

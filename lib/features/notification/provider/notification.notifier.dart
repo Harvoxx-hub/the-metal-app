@@ -21,7 +21,11 @@ class NotificationNotifier extends StateNotifier<GetNotification> {
       final response = await repo.getNotification();
       final List<NotificationModel> notification = [];
       response.data.forEach((element) {
-        notification.add(NotificationModel.fromJson(element));
+        final notificationModel = NotificationModel.fromJson(element);
+        // Check if the notification is for un-melted thoughts
+        if (notificationModel.recipientIds.isNotEmpty) {
+          notification.add(notificationModel);
+        }
       });
       state = GetNotification.success(notification);
     } catch (e, s) {

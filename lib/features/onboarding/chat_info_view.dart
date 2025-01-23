@@ -24,7 +24,7 @@ class ChatInfoView extends ConsumerWidget {
                     type: RouteFrom.AccountSetting,
                     code: 123456,
                     uuid: current.data?.id ?? "",
-                    phoneNumber: current.data!.phone!,
+                    
                     email: current.data!.phone!),
               )
             : Navigator.pushNamed(
@@ -104,7 +104,7 @@ class ChatInfoView extends ConsumerWidget {
                                     type: RouteFrom.AccountSetting,
                                     code: 123456,
                                     uuid: current.data?.id ?? "",
-                                    phoneNumber: current.data!.phone!,
+                              
                                     email: current.data!.phone!),
                               )
                             : Navigator.pushNamed(

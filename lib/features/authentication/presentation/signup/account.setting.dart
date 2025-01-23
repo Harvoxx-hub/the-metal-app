@@ -51,7 +51,7 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
               type: RouteFrom.AccountSetting,
               code: 123456,
               uuid: current.data?.id?? "",
-              phoneNumber: _phoneController.text,
+              
               email: _emailController.text),
         );
       }

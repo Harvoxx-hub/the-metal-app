@@ -52,3 +52,6 @@ class FirebaseRemoteConfigService {
 
 final metalPropertiesJson = MetalHelper.parseJson(FirebaseRemoteConfigService()
     .getString(FirebaseRemoteConfigKeys.metalProperties));
+
+final daysRequiredToUnMelt = FirebaseRemoteConfigService()
+    .getInt(FirebaseRemoteConfigKeys.daysRequiredToUnMelt);

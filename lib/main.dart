@@ -70,7 +70,6 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       title: 'Metal',
       key: navKey,
       initialRoute: '/',
-      // home: const OnboardingFlowView(),
       onGenerateRoute: AppRoutes.generateRoute,
       debugShowCheckedModeBanner: false,
     );

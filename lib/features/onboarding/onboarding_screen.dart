@@ -47,6 +47,14 @@ class _OnboardingWidgetState extends State<OnboardingWidget> {
           fontFamily: 'Merri_weather',
           fontWeight: FontWeight.normal,
         ),
+        const Gap(20),
+        if (widget.checkMetal)
+          TextView(
+            text: widget.subHeader.toString(),
+            fontSize: 16,
+            fontFamily: 'Merri_weather',
+            fontWeight: FontWeight.w600,
+          ),
       ],
     );
   }

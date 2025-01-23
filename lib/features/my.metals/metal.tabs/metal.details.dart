@@ -3,7 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart';
+import 'package:metal/features/chat/domain/entries/message.model.dart';
+import 'package:metal/features/chat/provider/send.message.notifier.dart';
+import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
@@ -15,15 +21,22 @@ import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class MetalDetailsTab extends ConsumerStatefulWidget {
-  const MetalDetailsTab(
-      {super.key, required this.melted, required this.userModel});
+  const MetalDetailsTab({
+    super.key,
+    required this.melted,
+    required this.userModel,
+    // required this.connectionModel,
+  });
   final UserModel userModel;
   final bool melted;
+  // final ConnectionModel connectionModel;
   @override
   ConsumerState<MetalDetailsTab> createState() => _MetalDetailsTabState();
 }
 
 class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
+  int dayRemaining = 5;
+  //daysRemaining(widget.connectionModel.connectedOn, 5);
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -69,6 +82,27 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
                         );
                       },
                     ),
+                    const Gap(20),
+                    EditField(
+                      text:
+                          "De-melt ${widget.userModel.username}  from your metal list",
+                      floatingLabel: "Un-metals",
+                      suffixIcon: SvgPicture.asset(
+                        Assets.icons.meltedMetalsTrash01.path,
+                        height: 21,
+                        width: 21,
+                      ),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CustomDialog(
+                              content: unmetalDialog(context, dayRemaining),
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ],
                 ),
               const Gap(20),
@@ -96,6 +130,66 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
         ),
       ),
     );
+  }
+
+  Widget unmetalDialog(BuildContext context, int remaining) {
+    final int daysRequiredToUnMelt = ref.watch(numberDaysProvider);
+    return Column(
+      children: [
+        const Gap(38),
+        const TextView(
+          text: "Want to Unmetal?",
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+        const Gap(15),
+        TextView(
+          text:
+              "To Unmetal, we require a minimum of $daysRequiredToUnMelt days and 10 sessions of conversations between you and @",
+          fontSize: 16,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.w400,
+        ),
+        const Gap(15),
+        TextView(
+          text: "You have had * $remaining days* and *3 interactions*",
+          fontSize: 16,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.w400,
+        ),
+        const Gap(38),
+        // if (hasDurationReached(widget.connectionModel.connectedOn, 15))
+        BaseButton(
+          buttonText: "Un-Melt Request",
+          onPressed: () {
+            sendUnmelt();
+            Navigator.pop(context);
+          },
+        )
+        // else
+        //   BaseButton(
+        //     buttonText: "Return to chat",
+        //     onPressed: () {
+        //       Navigator.pop(context);
+        //     },
+        //   ),
+        // const Gap(23),
+      ],
+    );
+  }
+
+  void sendUnmelt() {
+    final message = MessageModel(
+      senderId: ref.watch(authProvider).data!.id!,
+      type: MessageType.un_melt,
+      timestamp: DateTime.now().toIso8601String(),
+      isRead: false,
+      message: "Un-melt Request",
+    );
+
+    // ref
+    //     .read(sendMessageProvider.notifier)
+    //     .sendMessage(message, widget.connectionModel.connectionId);
   }
 
   Widget _blockDialog(BuildContext context, UserModel data, WidgetRef ref) {

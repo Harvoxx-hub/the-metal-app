@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:gap/gap.dart';
 
 import '../../widgets/text_views.dart';
@@ -8,12 +7,16 @@ class OnboardingWidget extends StatefulWidget {
   final String imageUrl;
   final String headerText;
   final String descriptionText;
+  final bool checkMetal;
+  final String? subHeader;
 
   const OnboardingWidget({
     super.key,
     required this.imageUrl,
     required this.headerText,
     required this.descriptionText,
+    this.checkMetal = false,
+    this.subHeader,
   });
 
   @override

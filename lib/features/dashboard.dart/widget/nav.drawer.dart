@@ -22,8 +22,7 @@ class NavDrawer extends ConsumerWidget {
 
     final metal = metalProperties!.metals!.firstWhere(
       (element) => element.id == authState!.metal,
-      orElse: () =>
-          metalProperties.metals![0], // Fallback in case no match is found
+      orElse: () => metalProperties.metals![0],
     );
     return Drawer(
       child: ListView(
@@ -158,6 +157,30 @@ class NavDrawer extends ConsumerWidget {
               Navigator.pushNamed(
                 context,
                 AppRoutes.referEarn,
+              )
+            },
+          ),
+          const Gap(20),
+          ListTile(
+            leading: Container(
+              height: 46,
+              width: 46,
+              decoration: ShapeDecoration(
+                color: AppColors.metalPinkColour.withOpacity(0.06),
+                shape: const OvalBorder(),
+              ),
+              child: Center(
+                  child: SvgPicture.asset(
+                Assets.icons.videoCamera.path,
+                height: 24,
+                width: 24,
+              )),
+            ),
+            title: const TextView(text: "Watch tutorial"),
+            onTap: () => {
+              Navigator.pushNamed(
+                context,
+                AppRoutes.onboardingTutorialView,
               )
             },
           ),

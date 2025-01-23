@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/widgets/text_views.dart';
 
 class MetalPlusView extends StatelessWidget {
   const MetalPlusView({super.key});
@@ -29,13 +31,11 @@ class MetalPlusView extends StatelessWidget {
                         height: 40,
                       ),
                       const Gap(10),
-                      const Text(
-                        'Metal',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      const TextView(
+                        text: 'Metal',
+                        color: AppColors.metalWhite,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
                       Container(
                         margin: const EdgeInsets.only(left: 4),
@@ -65,30 +65,25 @@ class MetalPlusView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Upgrade To Metal Plus',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      const TextView(
+                        text: 'Upgrade To Metal Plus',
+                        color: AppColors.metalWhite,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
                       const Gap(12),
-                      Text(
-                        'There are exciting features you would experience when you upgrade your account to Metal Plus.',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 16,
-                        ),
+                      TextView(
+                        text:
+                            'There are exciting features you would experience when you upgrade your account to Metal Plus.',
+                        color: AppColors.metalWhite.withOpacity(0.8),
+                        fontSize: 16,
                       ),
                       const Gap(24),
-                      const Text(
-                        'With Metal Plus, you can:',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      const TextView(
+                        text: 'With Metal Plus, you can:',
+                        color: AppColors.metalWhite,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
                       ),
                       const Gap(16),
                       _buildFeaturesList(),
@@ -108,12 +103,10 @@ class MetalPlusView extends StatelessWidget {
                     },
                     child: const Row(
                       children: [
-                        Text(
-                          'NEXT',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        TextView(
+                          text: 'NEXT',
+                          color: AppColors.metalWhite,
+                          fontWeight: FontWeight.bold,
                         ),
                         Gap(4),
                         Icon(Icons.arrow_forward, color: Colors.white),
@@ -154,14 +147,15 @@ class MetalPlusView extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '• ',
-                      style: TextStyle(color: Colors.white.withOpacity(0.8)),
+                    TextView(
+                      text: '•',
+                      color: AppColors.metalWhite.withOpacity(0.8),
                     ),
                     Expanded(
                       child: Text(
                         feature,
-                        style: TextStyle(color: Colors.white.withOpacity(0.8)),
+                        style: TextStyle(
+                            color: AppColors.metalWhite.withOpacity(0.8)),
                       ),
                     ),
                   ],

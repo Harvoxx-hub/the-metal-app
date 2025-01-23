@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class TutorialDialog extends StatelessWidget {
-  const TutorialDialog({super.key});
+  final VoidCallback onStartTutorial;
+  const TutorialDialog({super.key, required this.onStartTutorial});
 
   @override
   Widget build(BuildContext context) {
@@ -29,26 +29,7 @@ class TutorialDialog extends StatelessWidget {
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
-        BaseButton(
-            buttonText: "Start Tutorial",
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.onboardingTutorialView,
-              );
-              // Navigator.push(
-              //   context,
-              //   PageRouteBuilder(
-              //     opaque: false,
-              //     pageBuilder: (BuildContext context, _, __) =>
-              //         const OnboardingFlowView(),
-              //     transitionsBuilder:
-              //         (context, animation, secondaryAnimation, child) {
-              //       return FadeTransition(opacity: animation, child: child);
-              //     },
-              //   ),
-              // );
-            }),
+        BaseButton(buttonText: "Start Tutorial", onPressed: onStartTutorial),
         const Gap(23),
         TextView(
           text: "Skip for Now",

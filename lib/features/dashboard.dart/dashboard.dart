@@ -3,7 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+ 
+import 'package:metal/features/dashboard.dart/widget/tutorial_dialog.dart';
+import 'package:metal/features/onboarding/onboarding_flow_view.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
@@ -48,34 +52,95 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     super.initState();
   }
 
-  Future<void> showAlertDialog(context, UserModel userData) async {
-    // await showDialog(
-    //   context: context,
-    //   builder: (BuildContext context) {
-    //     return const CustomDialog(
-    //       content: TutoralDialog(),
-    //     );
-    //   },
-    // );
-    !(userData.completedProfile ?? false)
-        ? showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return const CustomDialog(
-                content: ComplecteProfileDialog(),
-              );
-            },
-          )
-        : !(userData.isVerified ?? false)
-            ? showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return const CustomDialog(
-                    content: VerificationDialog(),
-                  );
-                },
-              )
-            : {};
+  Future<void> _checkOnboarding(
+      BuildContext context, UserModel userData) async {
+    final prefs = await SharedPreferences.getInstance();
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final String currentVersion = packageInfo.version;
+
+    final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+
+    if (!hasSeenOnboarding) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext dialogContext) {
+          return CustomDialog(
+            content: TutorialDialog(
+              onStartTutorial: () async {
+                Navigator.pop(dialogContext);
+                await Navigator.of(context).push(
+                  PageRouteBuilder(
+                    opaque: false,
+                    pageBuilder: (_, __, ___) => const OnboardingFlowView(),
+                    transitionsBuilder: (_, animation, __, child) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                  ),
+                );
+                await prefs.setBool('hasSeenOnboarding', true);
+                // Now, trigger the next dialogs after onboarding is completed
+                await showAlertDialog(context, userData);
+              },
+            ),
+          );
+        },
+      );
+    }else
+    if (_isUpdateAvailable(currentVersion, latestVersion)) {
+        await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const CustomDialog(
+            content: NewUpdateDialog(),
+          );
+        },
+      );
+    } else {
+      // If onboarding has been seen, directly proceed to the next dialogs
+      await showAlertDialog(context, userData);
+    }
+
+    await showAlertDialog(context, userData);
+  }
+
+  bool _isUpdateAvailable(String currentVersion, String latestVersion) {
+    final List<String> currentParts = currentVersion.split('.');
+    final List<String> latestParts = latestVersion.split('.');
+
+    for (int i = 0; i < latestParts.length; i++) {
+      final int currentPart = int.parse(currentParts[i]);
+      final int latestPart = int.parse(latestParts[i]);
+
+      if (latestPart > currentPart) {
+        return true;
+      } else if (latestPart < currentPart) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  Future<void> showAlertDialog(BuildContext context, UserModel userData) async {
+    if (!(userData.completedProfile ?? false)) {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const CustomDialog(
+            content: ComplecteProfileDialog(),
+          );
+        },
+      );
+    } else if (!(userData.isVerified ?? false)) {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const CustomDialog(
+            content: VerificationDialog(),
+          );
+        },
+      );
+    }
   }
 
   @override

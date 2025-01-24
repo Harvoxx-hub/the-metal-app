@@ -32,10 +32,11 @@ Future<void> _setConfigSettings() async => _remoteConfig.setConfigSettings(
   );
 
   Future<void> _setDefaults() async => _remoteConfig.setDefaults(
-    const {
-      FirebaseRemoteConfigKeys.metalProperties: '',
-    },
-  );
+        const {
+          FirebaseRemoteConfigKeys.metalProperties: '',
+          FirebaseRemoteConfigKeys.daysRequiredToUnMelt: 0,
+        },
+      );
 
   Future<void> fetchAndActivate() async {
     bool updated = await _remoteConfig.fetchAndActivate();
@@ -51,4 +52,6 @@ Future<void> _setConfigSettings() async => _remoteConfig.setConfigSettings(
 final metalPropertiesJson = 
  MetalHelper.parseJson(FirebaseRemoteConfigService()
     .getString(FirebaseRemoteConfigKeys.metalProperties));
- 
+
+final daysRequiredToUnMelt = FirebaseRemoteConfigService()
+    .getInt(FirebaseRemoteConfigKeys.daysRequiredToUnMelt);

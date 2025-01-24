@@ -36,6 +36,7 @@ class FirebaseRemoteConfigService {
         const {
           FirebaseRemoteConfigKeys.metalProperties: '',
           FirebaseRemoteConfigKeys.daysRequiredToUnMelt: 0,
+          FirebaseRemoteConfigKeys.latest_version: "",
         },
       );
 
@@ -55,3 +56,6 @@ final metalPropertiesJson = MetalHelper.parseJson(FirebaseRemoteConfigService()
 
 final daysRequiredToUnMelt = FirebaseRemoteConfigService()
     .getInt(FirebaseRemoteConfigKeys.daysRequiredToUnMelt);
+
+final latestVersion = FirebaseRemoteConfigService()
+    .getString(FirebaseRemoteConfigKeys.latest_version);

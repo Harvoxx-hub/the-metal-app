@@ -1,15 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-<<<<<<< HEAD
- 
+import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/features/dashboard.dart/widget/new_update_dialog.dart';
+
 import 'package:metal/features/dashboard.dart/widget/tutorial_dialog.dart';
 import 'package:metal/features/onboarding/onboarding_flow_view.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-=======
-import 'package:metal/features/dashboard.dart/widget/tutorial_dialog.dart';
-import 'package:metal/features/onboarding/onboarding_flow_view.dart';
->>>>>>> dev
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
@@ -51,12 +48,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Future<void> _checkOnboarding(
       BuildContext context, UserModel userData) async {
     final prefs = await SharedPreferences.getInstance();
-<<<<<<< HEAD
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final String currentVersion = packageInfo.version;
 
-=======
->>>>>>> dev
     final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
 
     if (!hasSeenOnboarding) {
@@ -85,10 +79,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           );
         },
       );
-<<<<<<< HEAD
-    }else
-    if (_isUpdateAvailable(currentVersion, latestVersion)) {
-        await showDialog(
+    } else if (_isUpdateAvailable(currentVersion, latestVersion)) {
+      await showDialog(
         context: context,
         builder: (BuildContext context) {
           return const CustomDialog(
@@ -96,13 +88,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           );
         },
       );
-=======
->>>>>>> dev
     } else {
       // If onboarding has been seen, directly proceed to the next dialogs
       await showAlertDialog(context, userData);
     }
-<<<<<<< HEAD
 
     await showAlertDialog(context, userData);
   }
@@ -122,11 +111,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       }
     }
     return false;
-=======
- 
-    await showAlertDialog(context, userData);
- 
->>>>>>> dev
   }
 
   Future<void> showAlertDialog(BuildContext context, UserModel userData) async {

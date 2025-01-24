@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/sparks_page/provider/get.spark.notifier.dart';
 
 import 'package:metal/features/sparks_page/screens/widget/spark.header.card.dart';
 import 'package:metal/features/sparks_page/screens/widget/spark.history.item.dart';
-import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 
@@ -37,7 +35,6 @@ class SparksPage extends ConsumerWidget {
                       bottomRight: Radius.circular(35),
                     )),
               ),
-
               // This container is for the background image decoration
               Container()
             ],
@@ -95,7 +92,7 @@ class SparksPage extends ConsumerWidget {
                                 text: sparks.errorMessage,
                               )
                             : sparks.data?.isEmpty ?? true
-                                ? EmptyState(
+                                ? const EmptyState(
                                     text: "You have no transaction history yet",
                                   )
                                 : Column(

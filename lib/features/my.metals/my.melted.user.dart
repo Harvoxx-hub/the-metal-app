@@ -1,35 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-
 import 'package:gap/gap.dart';
-
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/core/utils/constant/enums.dart';
-
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
 import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
-
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
-
 import 'package:metal/features/my.metals/metal.tabs/metal.details.dart';
-
 import 'package:metal/features/profile/presentation/tab.screen/thought.tab.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 import 'package:metal/gen/assets.gen.dart';
-
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
-
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
 import 'package:metal/widgets/button/plain.button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
-
 import 'package:metal/widgets/tab/base.tab.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -43,9 +36,14 @@ class MyMeltedUser extends ConsumerStatefulWidget {
 }
 
 class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
+  UserModel? userData;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      userData = ref.watch(authProvider).data;
+    });
   }
 
   @override
@@ -130,6 +128,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                             ? "@${myMelt.data!.username} "
                                             : "@${myMelt.data!.fullname} "
                                         : "@${myMelt.data!.username} ",
+                                    fontWeight: FontWeight.bold,
                                   ),
                                   const Gap(5),
                                   TextView(
@@ -138,6 +137,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                             ? "Anonymous User"
                                             : "${myMelt.data!.address?.state}, ${myMelt.data!.address?.country}"
                                         : "No Address Found",
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ],
                               ),
@@ -154,6 +154,8 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                   title: 'Metal Thought'),
                               BaseTabModel(
                                   child: MetalDetailsTab(
+                                    connectedOn: connection!.connectedOn,
+                                    connectionModel: connection.connectionId,
                                     melted: checkMeltState.data ==
                                         MeltRequestState.mutual,
                                     userModel: myMelt.data!,
@@ -242,7 +244,16 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
       return BaseButton(
         loading: meltState.isLoading,
         onPressed: () {
-          if (connectionInt <= 10) {
+          if (userData != null && !(userData!.completedProfile ?? false)) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return const CustomDialog(
+                  content: ComplecteProfileDialog(),
+                );
+              },
+            );
+          } else if (connectionInt <= 10) {
             ref.read(meltUserProvider.notifier).meltUser(widget.metalId);
           } else {
             showDialog(

@@ -4,7 +4,6 @@ import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
-import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 
 class ReactThoughtNotifier extends StateNotifier<ReactThoughtState> {
   ReactThoughtNotifier(

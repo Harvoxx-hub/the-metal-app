@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
@@ -23,8 +22,7 @@ class NavDrawer extends ConsumerWidget {
 
     final metal = metalProperties!.metals!.firstWhere(
       (element) => element.id == authState!.metal,
-      orElse: () =>
-          metalProperties.metals![0], // Fallback in case no match is found
+      orElse: () => metalProperties.metals![0],
     );
     return Drawer(
       child: ListView(
@@ -163,6 +161,30 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(20),
+          ListTile(
+            leading: Container(
+              height: 46,
+              width: 46,
+              decoration: ShapeDecoration(
+                color: AppColors.metalPinkColour.withOpacity(0.06),
+                shape: const OvalBorder(),
+              ),
+              child: Center(
+                  child: SvgPicture.asset(
+                Assets.icons.videoCamera.path,
+                height: 24,
+                width: 24,
+              )),
+            ),
+            title: const TextView(text: "Watch tutorial"),
+            onTap: () => {
+              Navigator.pushNamed(
+                context,
+                AppRoutes.onboardingTutorialView,
+              )
+            },
+          ),
+          const Gap(20),
           !(authState.isVerified ?? false)
               ? Column(
                   children: [
@@ -265,13 +287,13 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(40),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const Expanded(
+                Expanded(
                   child: TextView(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
@@ -280,7 +302,7 @@ class NavDrawer extends ConsumerWidget {
                           "...when our eyes are closed, our hearts talk and create real, lasting communications."),
                 ),
                 Gap(19),
-                const TextView(
+                TextView(
                   text: "V 1.10",
                   fontSize: 12,
                   fontWeight: FontWeight.w500,

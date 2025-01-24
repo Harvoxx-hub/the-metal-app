@@ -4,10 +4,13 @@ class NotificationModel {
   final List<String> recipientIds; // List of recipient IDs
   final String title; // Notification title
   final String subTitle; // Notification subtitle
+
   final NotificationType type; // Enum for notification type
-  final Map<String, dynamic> data; // Additional data (e.g., connectionId, status)
-  final NotificationAndroidNotification androidNotification; // Android-specific notification
-  final NotificationIosNotification iosNotification; // iOS-specific notification
+  var data; // Additional data (e.g., connectionId, status)
+  final NotificationAndroidNotification
+      androidNotification; // Android-specific notification
+  final NotificationIosNotification
+      iosNotification; // iOS-specific notification
   final DateTime timestamp; // When the notification was sent
   final String id; // Unique ID
 
@@ -46,9 +49,11 @@ class NotificationModel {
       subTitle: json['subTitle'],
       type: NotificationType.values
           .firstWhere((e) => e.toString().split('.').last == json['type']),
-      data: Map<String, dynamic>.from(json['data']),
-      androidNotification: NotificationAndroidNotification.fromJson(json['androidNotification']),
-      iosNotification: NotificationIosNotification.fromJson(json['iosNotification']),
+      data: json['data'],
+      androidNotification:
+          NotificationAndroidNotification.fromJson(json['androidNotification']),
+      iosNotification:
+          NotificationIosNotification.fromJson(json['iosNotification']),
       timestamp: DateTime.parse(json['timestamp']),
       id: json['id'],
     );
@@ -61,7 +66,6 @@ enum NotificationType {
   thought_created,
   reaction_added,
   sparks_transaction
-
 }
 
 class NotificationAndroidNotification {

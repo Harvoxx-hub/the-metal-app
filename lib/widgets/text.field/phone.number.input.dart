@@ -65,7 +65,7 @@ class PhoneInput extends StatelessWidget {
           controller: phoneController,
           flagsButtonPadding: const EdgeInsets.all(10),
           onChanged: onPhoneNumberChanged != null
-              ? (phone) => onPhoneNumberChanged!(phone.completeNumber ?? '')
+              ? (phone) => onPhoneNumberChanged!(phone.completeNumber)
               : null,
           onSubmitted: onPhoneNumberChanged != null
               ? (phone) => onPhoneNumberChanged!(phone)

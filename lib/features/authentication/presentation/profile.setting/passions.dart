@@ -31,7 +31,11 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('Build was called...');
     final metalProps = ref.watch(metalPropertiesProvider);
+    debugPrint('metalProps.isLoading: ${metalProps.isLoading}');
+    debugPrint('metalProps.data: ${metalProps.data}');
+
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -55,10 +59,8 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
                         child: GridView.builder(
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount:
-                                2, // You can adjust the number of columns here
+                            crossAxisCount: 2,
                             crossAxisSpacing: 10.0,
-
                             mainAxisSpacing: 10.0,
                             childAspectRatio: 16 / 6,
                           ),
@@ -66,6 +68,7 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
                           itemBuilder: (BuildContext context, int index) {
                             final model =
                                 metalProps.data?.passions?[index] ?? Passion();
+                            debugPrint("fetching user model: ${model.title}");
                             return PassionsCard(
                               model: model,
                               onTap: () => updateMetal(model.title!),

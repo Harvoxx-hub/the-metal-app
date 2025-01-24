@@ -15,7 +15,7 @@ class PostCardShimmer extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(10.0),
-            boxShadow: [
+            boxShadow: const [
               const BoxShadow(
                 color: Colors.black12,
                 blurRadius: 10.0,

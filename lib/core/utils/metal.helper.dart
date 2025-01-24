@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
-import 'package:metal/features/notification/domain/entries/notification.model.dart';
 
 class MetalHelper {
   static Map<String, dynamic>? parseJson(String jsonString) {
@@ -33,5 +33,13 @@ class MetalHelper {
     return thoughts;
   }
 
- 
+ static String getOtherUserId(List<String> userIds) {
+    final myUserId = FirebaseServiceDb.instance.userId;
+    if (userIds.length != 2) {
+      throw ArgumentError("The list must contain exactly two user IDs.");
+    }
+
+    // Use the condition to pick the other ID directly
+    return userIds[0] == myUserId ? userIds[1] : userIds[0];
+  }
 }

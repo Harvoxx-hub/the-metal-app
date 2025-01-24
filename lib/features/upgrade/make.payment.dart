@@ -110,7 +110,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
               title: 'Auto Renewal',
               initialValue: false,
               onChanged: (bool value) {
-                print('Value changed to $value');
+                debugPrint('Value changed to $value');
               },
             ),
             const Gap(20),
@@ -118,7 +118,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
               title: "Securely save card details",
               initialValue: false,
               onChanged: (bool value) {
-                print('Value changed to $value');
+                debugPrint('Value changed to $value');
               },
             ),
             const Gap(20),

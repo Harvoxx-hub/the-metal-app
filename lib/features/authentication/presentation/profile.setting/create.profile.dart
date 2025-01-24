@@ -176,7 +176,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
         _dobController.text = formatDateDDMMYY(date.toString());
       },
       buttonSingleColor: AppColors.metalBlack,
-      pickerTitle: TextView(text: "Please Select your Date Of Birth"),
+      pickerTitle: const TextView(text: "Please Select your Date Of Birth"),
     ).show(context);
   }
 

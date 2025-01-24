@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/core/services/firebase.service.db.dart';
+
 import 'package:metal/core/utils/date.formart.dart';
+import 'package:metal/core/utils/metal.helper.dart';
 import 'package:metal/features/notification/base.item.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -16,10 +17,8 @@ class MeltNotificationItem extends BaseNotificationItem {
 
   @override
   Widget build(BuildContext context) {
-    final userId = FirebaseServiceDb.instance.userId;
-
     return GestureDetector(
-      onTap: () => _handleNotificationTap(context, userId!),
+      onTap: () => _handleNotificationTap(context),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
@@ -70,19 +69,25 @@ class MeltNotificationItem extends BaseNotificationItem {
     );
   }
 
-  void _handleNotificationTap(BuildContext context, String userId) {
+  void _handleNotificationTap(BuildContext context) {
     switch (notificationModel.type) {
       case NotificationType.new_connection:
-        _navigateTo(context, AppRoutes.meltMetal, userId);
+        final metalId =
+            MetalHelper.getOtherUserId(notificationModel.recipientIds);
+        _navigateTo(context, AppRoutes.meltMetal, metalId);
         break;
       case NotificationType.new_message:
-        _navigateTo(context, AppRoutes.chatWindowsPage, userId);
+        final metalId =
+            MetalHelper.getOtherUserId(notificationModel.recipientIds);
+        _navigateTo(context, AppRoutes.chatWindowsPage, metalId);
         break;
       case NotificationType.reaction_added:
         // Handle reaction notification
         break;
       case NotificationType.thought_created:
         // Handle thought creation notification
+        // _navigateTo(
+        //     context, AppRoutes.postThought, notificationModel.data["id"]);
         break;
       default:
         // Handle other notification types
@@ -93,7 +98,8 @@ class MeltNotificationItem extends BaseNotificationItem {
   void _navigateTo(BuildContext context, String route, String userId) {
     final metalId = notificationModel.recipientIds.firstWhere(
       (user) => user != userId,
-      orElse: () => "", // Handle cases where all user IDs match the current user
+      orElse: () =>
+          "", // Handle cases where all user IDs match the current user
     );
 
     Navigator.pushNamed(context, route, arguments: metalId);
@@ -115,7 +121,7 @@ class MeltNotificationItem extends BaseNotificationItem {
       case NotificationType.thought_created:
         iconPath = Assets.images.activeMessage.path;
         break;
-       case NotificationType.sparks_transaction:
+      case NotificationType.sparks_transaction:
         iconPath = Assets.images.sparkNotification.path;
         break;
       default:

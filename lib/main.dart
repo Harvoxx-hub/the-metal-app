@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
-import 'package:metal/core/services/update_service.dart';
+
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/route/routes.dart';
@@ -61,11 +61,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     super.initState();
   }
 
-  final UpdateService _updateService = UpdateService();
-
   @override
   Widget build(BuildContext context) {
-    _updateService.checkForUpdates();
     return MaterialApp(
       title: 'Metal',
       key: navKey,

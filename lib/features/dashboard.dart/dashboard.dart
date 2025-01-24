@@ -1,8 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/features/dashboard.dart/widget/new_update_dialog.dart';
+
 import 'package:metal/features/dashboard.dart/widget/tutorial_dialog.dart';
 import 'package:metal/features/onboarding/onboarding_flow_view.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
@@ -44,6 +48,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Future<void> _checkOnboarding(
       BuildContext context, UserModel userData) async {
     final prefs = await SharedPreferences.getInstance();
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final String currentVersion = packageInfo.version;
+
     final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
 
     if (!hasSeenOnboarding) {
@@ -72,13 +79,38 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           );
         },
       );
+    } else if (_isUpdateAvailable(currentVersion, latestVersion)) {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const CustomDialog(
+            content: NewUpdateDialog(),
+          );
+        },
+      );
     } else {
       // If onboarding has been seen, directly proceed to the next dialogs
       await showAlertDialog(context, userData);
     }
- 
+
     await showAlertDialog(context, userData);
- 
+  }
+
+  bool _isUpdateAvailable(String currentVersion, String latestVersion) {
+    final List<String> currentParts = currentVersion.split('.');
+    final List<String> latestParts = latestVersion.split('.');
+
+    for (int i = 0; i < latestParts.length; i++) {
+      final int currentPart = int.parse(currentParts[i]);
+      final int latestPart = int.parse(latestParts[i]);
+
+      if (latestPart > currentPart) {
+        return true;
+      } else if (latestPart < currentPart) {
+        return false;
+      }
+    }
+    return false;
   }
 
   Future<void> showAlertDialog(BuildContext context, UserModel userData) async {

@@ -2,8 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/features/dashboard.dart/widget/tutorial_dialog.dart';
-import 'package:metal/features/onboarding/onboarding_flow_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+// Import necessary internal packages
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
@@ -11,8 +12,8 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
-import 'package:metal/features/dashboard.dart/widget/verification.dialog.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+import 'package:metal/features/onboarding/onboarding_flow_view.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/profile/presentation/profile.page.dart';
 import 'package:metal/features/sparks_page/screens/sparks_page.dart';
@@ -20,6 +21,7 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:upgrader/upgrader.dart';
+
 import '../home_page/home_page.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
@@ -37,12 +39,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final userdata = ref.watch(authProvider).data;
-      await _checkOnboarding(context, userdata!);
+      await _checkOnboardingAndUserStatus(userdata!);
     });
   }
 
-  Future<void> _checkOnboarding(
-      BuildContext context, UserModel userData) async {
+  Future<void> _checkOnboardingAndUserStatus(UserModel userData) async {
     final prefs = await SharedPreferences.getInstance();
     final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
 
@@ -65,23 +66,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ),
                 );
                 await prefs.setBool('hasSeenOnboarding', true);
-                // Now, trigger the next dialogs after onboarding is completed
-                await showAlertDialog(context, userData);
+                await _checkUserStatus(userData);
               },
             ),
           );
         },
       );
     } else {
-      // If onboarding has been seen, directly proceed to the next dialogs
-      await showAlertDialog(context, userData);
+      await _checkUserStatus(userData);
     }
- 
-    await showAlertDialog(context, userData);
- 
   }
 
-  Future<void> showAlertDialog(BuildContext context, UserModel userData) async {
+  Future<void> _checkUserStatus(UserModel userData) async {
     if (!(userData.completedProfile ?? false)) {
       await showDialog(
         context: context,
@@ -92,14 +88,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         },
       );
     } else if (!(userData.isVerified ?? false)) {
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return const CustomDialog(
-            content: VerificationDialog(),
-          );
-        },
-      );
+      // await showDialog(
+      //   context: context,
+      //   builder: (BuildContext context) {
+      //     return const CustomDialog(
+      //       content: VerificationDialog(),
+      //     );
+      //   },
+      // );
     }
   }
 

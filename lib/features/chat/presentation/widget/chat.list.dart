@@ -107,7 +107,7 @@ class chatListItem extends ConsumerWidget {
           "", // Handle cases where all user IDs match the current user
     );
     final getUser = ref.watch(getUserProvider(metalId));
- 
+
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
@@ -121,7 +121,7 @@ class chatListItem extends ConsumerWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                 ProfilePhoto(
+                  ProfilePhoto(
                       meltId: getUser.data!.metal!,
                       imgUrl: conversationsModel.isAnonymous
                           ? null

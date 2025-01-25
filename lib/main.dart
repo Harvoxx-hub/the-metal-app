@@ -7,6 +7,8 @@ import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 /// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
@@ -16,6 +18,18 @@ NavigatorState? get nav => navKey.currentState;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final navigatorKey = GlobalKey<NavigatorState>();
+  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
+
+  // Initialize Firebase
+  await Firebase.initializeApp();
+
+  // Initialize ZegoUIKit with signaling plugin and system calling UI
+  await ZegoUIKit().initLog();
+  ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
+    [ZegoUIKitSignalingPlugin()],
+  );
 
   await initializeFirebase();
   initializeAuthManager();

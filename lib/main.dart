@@ -7,29 +7,34 @@ import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 /// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
 
 /// Convenience getter for accessing the current [NavigatorState]
-NavigatorState? get nav => navKey.currentState;
+//NavigatorState? get nav => navKey.currentState;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await initializeFirebase();
   initializeAuthManager();
+  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navKey);
 
-  runApp(
-    const ProviderScope(
-      child: MyApp(),
-    ),
-  );
-  // final userId = FirebaseAuth.instance.currentUser?.uid;
+  // call the useSystemCallingUI
+  ZegoUIKit().initLog().then((value) {
+    ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
+      [ZegoUIKitSignalingPlugin()],
+    );
 
-  // if (userId != null) {
-  //   WidgetsBinding.instance.addObserver(AppLifecycleHandler(userId));
-  // }
+    runApp(
+      const ProviderScope(
+        child: MyApp(),
+      ),
+    );
+  });
 }
 
 /// Initializes Firebase and sets analytics
@@ -64,8 +69,18 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navKey,
       title: 'Metal',
-      key: navKey,
+      builder: (context, child) {
+        return Stack(
+          children: [
+            child!,
+            ZegoUIKitPrebuiltCallMiniOverlayPage(
+              contextQuery: () => navKey.currentState!.context,
+            ),
+          ],
+        );
+      },
       initialRoute: '/',
       onGenerateRoute: AppRoutes.generateRoute,
       debugShowCheckedModeBanner: false,

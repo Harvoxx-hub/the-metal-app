@@ -10,7 +10,7 @@ import 'package:metal/features/my.metals/melt.metal.dart';
 import 'package:metal/features/onboarding/metal_plus_view.dart';
 
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
-import 'package:metal/features/onboarding/onboarding_flow_view.dart';
+import 'package:metal/features/onboarding/tutorial_pages/tutorial_screen.dart';
 import 'package:metal/features/onboarding/sparks_info_switch_view.dart';
 import 'package:metal/features/onboarding/unmetal_view.dart';
 import 'package:metal/features/settings/presentation/delete.screen.dart';

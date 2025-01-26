@@ -2,13 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
- 
+
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:metal/features/chat/provider/audio.manger.notifier.dart';
 import 'package:path_provider/path_provider.dart';
 
-class WaveBubble extends StatefulWidget {
+class WaveBubble extends ConsumerStatefulWidget {
   final bool isSender;
   final String? path; // Path can be a local file path or a URL
   final double? width;
@@ -21,12 +23,13 @@ class WaveBubble extends StatefulWidget {
   });
 
   @override
-  State<WaveBubble> createState() => _WaveBubbleState();
+  ConsumerState<WaveBubble> createState() => _WaveBubbleState();
 }
 
-class _WaveBubbleState extends State<WaveBubble> {
+class _WaveBubbleState extends ConsumerState<WaveBubble> {
   late PlayerController controller;
   late StreamSubscription<PlayerState> playerStateSubscription;
+  Map<String, PlayerController> playerControllers = {};
   String? localPath;
 
   String audioDuration = '';
@@ -57,12 +60,6 @@ class _WaveBubbleState extends State<WaveBubble> {
     return uri != null &&
         uri.hasScheme &&
         (uri.scheme == 'http' || uri.scheme == 'https');
-  }
-
-  Future<String> _getCacheFilePath(String url) async {
-    final cacheDir = await getApplicationDocumentsDirectory();
-    final fileName = base64UrlEncode(utf8.encode(url)); // Create unique name
-    return '${cacheDir.path}/$fileName.m4a';
   }
 
   Future<void> _downloadFile(String url) async {
@@ -120,6 +117,7 @@ class _WaveBubbleState extends State<WaveBubble> {
       path: localPath!,
       shouldExtractWaveform: true,
     );
+    ref.read(playerManagerProvider).preparePlayer(localPath!);
 
     // Extract waveform data and get audio duration
     final durationInMs = await controller.getDuration();
@@ -144,6 +142,18 @@ class _WaveBubbleState extends State<WaveBubble> {
 
   @override
   Widget build(BuildContext context) {
+    final playerManager = ref.watch(playerManagerProvider);
+    ref.listen(playerManagerProvider, (prev, current) {
+      debugPrint('Login state changed: $current');
+      if (playerManager.currentPath == localPath) {
+        controller.playerState.isPlaying
+            ? controller.pausePlayer()
+            : controller.startPlayer();
+      } else {
+        controller.pausePlayer();
+      }
+    });
+
     return localPath != null || isDownloading
         ? Container(
             padding: EdgeInsets.only(
@@ -166,11 +176,7 @@ class _WaveBubbleState extends State<WaveBubble> {
               children: [
                 IconButton(
                   onPressed: () async {
-                    controller.playerState.isPlaying
-                        ? await controller.pausePlayer()
-                        : await controller.startPlayer();
-
-                    controller.setFinishMode(finishMode: FinishMode.loop);
+                    ref.read(playerManagerProvider).togglePlayPause(localPath!);
                   },
                   icon: Icon(
                     controller.playerState.isPlaying

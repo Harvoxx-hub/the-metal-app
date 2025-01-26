@@ -69,7 +69,6 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
         child: Column(
           children: [
             const Gap(10),
-            Assets.images.emptyChat.image(height: 121),
             const Gap(20),
             const TextView(
               text: "You have no messages yet",
@@ -107,7 +106,7 @@ class chatListItem extends ConsumerWidget {
           "", // Handle cases where all user IDs match the current user
     );
     final getUser = ref.watch(getUserProvider(metalId));
- 
+
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
@@ -121,7 +120,7 @@ class chatListItem extends ConsumerWidget {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                 ProfilePhoto(
+                  ProfilePhoto(
                       meltId: getUser.data!.metal!,
                       imgUrl: conversationsModel.isAnonymous
                           ? null

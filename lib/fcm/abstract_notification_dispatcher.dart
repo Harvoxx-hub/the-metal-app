@@ -13,26 +13,26 @@ abstract class AbstractNotificationDispatcher {
     bool removeUntil = false,
   });
 
-  Future? openPage(
-    String routeName, {
-    Object? argument,
-    bool removeUntil = false,
-    RoutePredicate? removeUntilPredicate,
-  }) {
-    if (removeUntil) {
-      if (removeUntilPredicate != null) {
-        return nav?.pushNamedAndRemoveUntil(
-          routeName,
-          removeUntilPredicate,
-          arguments: argument,
-        );
-      }
+  // Future? openPage(
+  //   String routeName, {
+  //   Object? argument,
+  //   bool removeUntil = false,
+  //   RoutePredicate? removeUntilPredicate,
+  // }) {
+  //   if (removeUntil) {
+  //     if (removeUntilPredicate != null) {
+  //       return nav?.pushNamedAndRemoveUntil(
+  //         routeName,
+  //         removeUntilPredicate,
+  //         arguments: argument,
+  //       );
+  //     }
 
-      return nav?.pushNamed(routeName, arguments: argument);
-    } else {
-      return nav?.pushNamed(routeName, arguments: argument);
-    }
-  }
+  //     return nav?.pushNamed(routeName, arguments: argument);
+  //   } else {
+  //     return nav?.pushNamed(routeName, arguments: argument);
+  //   }
+  // }
 }
 
 class PushDispatcher {

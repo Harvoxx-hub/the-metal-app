@@ -13,7 +13,7 @@ import 'package:metal/features/authentication/provider/metal.properties.notifier
 import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
-import 'package:metal/features/onboarding/onboarding_flow_view.dart';
+import 'package:metal/features/onboarding/tutorial_pages/tutorial_screen.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/profile/presentation/profile.page.dart';
 import 'package:metal/features/sparks_page/screens/sparks_page.dart';
@@ -110,6 +110,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final user = ref.watch(authProvider);
     ref.watch(getMeltUserProvider);
     ref.watch(metalPropertiesProvider);
+    ref.read(authProvider.notifier).initZIMKIt();
 
     return BaseScreen(
       appBarState: AppBarState.Dashboard,

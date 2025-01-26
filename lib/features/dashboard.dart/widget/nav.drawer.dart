@@ -185,7 +185,7 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(20),
-          !(authState.isVerified ?? false)
+          (false)
               ? Column(
                   children: [
                     ListTile(

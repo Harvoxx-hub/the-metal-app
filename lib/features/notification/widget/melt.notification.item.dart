@@ -77,8 +77,7 @@ class MeltNotificationItem extends BaseNotificationItem {
         _navigateTo(context, AppRoutes.meltMetal, metalId);
         break;
       case NotificationType.new_message:
-        final metalId =
-            MetalHelper.getOtherUserId(notificationModel.recipientIds);
+        final metalId = notificationModel.data["senderId"];
         _navigateTo(context, AppRoutes.chatWindowsPage, metalId);
         break;
       case NotificationType.reaction_added:

@@ -6,8 +6,8 @@ import 'package:metal/features/authentication/data/repositories/authetication.re
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/main.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+// import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 // import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 // import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
@@ -61,15 +61,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> initZIMKIt() async {
          
-    if (state.data != null) {
-      ZegoUIKitPrebuiltCallInvitationService().init(
-        appID: appIDKey,
-        appSign: appSignKey,
-        userID: state.data! .id!,
-        userName: state.data! .username!,
-        plugins: [ZegoUIKitSignalingPlugin()],
-      );
-    }
+    // if (state.data != null) {
+    //   ZegoUIKitPrebuiltCallInvitationService().init(
+    //     appID: appIDKey,
+    //     appSign: appSignKey,
+    //     userID: state.data! .id!,
+    //     userName: state.data! .username!,
+    //     plugins: [ZegoUIKitSignalingPlugin()],
+    //   );
+    // }
   }
 }
 

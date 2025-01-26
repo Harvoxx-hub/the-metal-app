@@ -26,7 +26,7 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+//import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class ChatWindowsAppBar extends ConsumerStatefulWidget {
   const ChatWindowsAppBar({
@@ -367,40 +367,40 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
 
   // Handle video call initialization
   void makeVideoCall(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => ZegoSendCallInvitationButton(
-                isVideoCall: true,
-                //You need to use the resourceID that you created in the subsequent steps.
-                //Please continue reading this document.
-                resourceID: "metal_call",
-                invitees: [
-                  ZegoUIKitUser(
-                    id: widget.meltUserModel.id!,
-                    name: widget.meltUserModel.username!,
-                  ),
-                ],
-              )),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //       builder: (context) => ZegoSendCallInvitationButton(
+    //             isVideoCall: true,
+    //             //You need to use the resourceID that you created in the subsequent steps.
+    //             //Please continue reading this document.
+    //             resourceID: "metal_call",
+    //             invitees: [
+    //               ZegoUIKitUser(
+    //                 id: widget.meltUserModel.id!,
+    //                 name: widget.meltUserModel.username!,
+    //               ),
+    //             ],
+    //           )),
+    // );
   }
 
   // Handle voice call initialization
   void makeVoiceCall(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => ZegoSendCallInvitationButton(
-                isVideoCall: false,
-                resourceID: "metal_call",
-                invitees: [
-                  ZegoUIKitUser(
-                    id: widget.meltUserModel.id!,
-                    name: widget.meltUserModel.username!,
-                  ),
-                ],
-              )),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //       builder: (context) => ZegoSendCallInvitationButton(
+    //             isVideoCall: false,
+    //             resourceID: "metal_call",
+    //             invitees: [
+    //               ZegoUIKitUser(
+    //                 id: widget.meltUserModel.id!,
+    //                 name: widget.meltUserModel.username!,
+    //               ),
+    //             ],
+    //           )),
+    // );
   }
 
   void sendUnmelt() {

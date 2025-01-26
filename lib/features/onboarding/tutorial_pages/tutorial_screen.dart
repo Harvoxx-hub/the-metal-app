@@ -436,30 +436,42 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
                             Navigator.pushReplacementNamed(
                                 context, AppRoutes.dashboardPage);
                           },
-                          child: const Text(
-                            'I’M DONE👌',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                          child: Row(
+                            children: [
+                              const Text(
+                                'I’M DONE👌',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Image.asset(
+                                Assets.icons.chevronCircle.path,
+                              ),
+                            ],
                           ),
                         )
                       : GestureDetector(
                           onTap: nextScreen,
-                          child: const Text(
-                            'NEXT',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                          child: Row(
+                            children: [
+                              const Text(
+                                'NEXT',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Image.asset(
+                                Assets.icons.chevronCircle.path,
+                              ),
+                            ],
                           ),
                         ),
-                  const SizedBox(width: 8),
-                  Image.asset(
-                    Assets.icons.chevronCircle.path,
-                  ),
                 ],
               ),
             ),
@@ -476,21 +488,17 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
           currentScreen == 8
               ? SizedBox(
                   width: double.infinity,
-                  child: Expanded(
-                    child: Image.asset(
-                      fit: BoxFit.cover,
-                      Assets.images.chatBottomSheet.path,
-                    ),
+                  child: Image.asset(
+                    fit: BoxFit.cover,
+                    Assets.images.chatBottomSheet.path,
                   ),
                 )
               : currentScreen == 9
                   ? SizedBox(
                       width: double.infinity,
-                      child: Expanded(
-                        child: Image.asset(
-                          fit: BoxFit.cover,
-                          Assets.images.nonBottomSheet.path,
-                        ),
+                      child: Image.asset(
+                        fit: BoxFit.cover,
+                        Assets.images.nonBottomSheet.path,
                       ),
                     )
                   : const SizedBox.shrink(),

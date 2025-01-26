@@ -30,17 +30,17 @@ class ForgetPasswordPage extends ConsumerWidget {
     final forgetData = ref.watch(forgetPasswordProvider);
 
     ref.listen<ForgetPasswordStates>(forgetPasswordProvider, (prev, current) {
-      if (current.isSuccess) {
-        Navigator.pushReplacementNamed(
-          context,
-          AppRoutes.verificationPage,
-          arguments: VerificationSentArgument(
-              type: RouteFrom.ForgetPassword,
-              code: current.data!['OTP'],
-              uuid: current.data!['id'],
-              email: _emailController.text),
-        );
-      }
+      // if (current.isSuccess) {
+      //   Navigator.pushReplacementNamed(
+      //     context,
+      //     AppRoutes.verificationPage,
+      //     arguments: VerificationSentArgument(
+      //         type: RouteFrom.ForgetPassword,
+      //         code: current.data!['OTP'],
+      //         uuid: current.data!['id'],
+      //         email: _emailController.text),
+      //   );
+      //  }
     });
     return BaseScreen(
       authFlow: true,
@@ -85,6 +85,7 @@ class ForgetPasswordPage extends ConsumerWidget {
                     loading: forgetData.isLoading,
                     buttonText: 'Send Instructions',
                     onPressed: () {
+                      FocusScope.of(context).unfocus();
                       ref
                           .read(forgetPasswordProvider.notifier)
                           .forgetPassword(email: _emailController.text);

@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/features/dashboard.dart/widget/new_update_dialog.dart';
 import 'package:metal/features/dashboard.dart/widget/tutorial_dialog.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Import necessary internal packages
@@ -46,7 +49,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Future<void> _checkOnboardingAndUserStatus(UserModel userData) async {
     final prefs = await SharedPreferences.getInstance();
     final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
-
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final String currentVersion = packageInfo.version;
     if (!hasSeenOnboarding) {
       await showDialog(
         context: context,
@@ -72,9 +76,35 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           );
         },
       );
+    } else if (_isUpdateAvailable(currentVersion, latestVersion)) {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const CustomDialog(
+            content: NewUpdateDialog(),
+          );
+        },
+      );
     } else {
       await _checkUserStatus(userData);
     }
+  }
+
+  bool _isUpdateAvailable(String currentVersion, String latestVersion) {
+    final List<String> currentParts = currentVersion.split('.');
+    final List<String> latestParts = latestVersion.split('.');
+
+    for (int i = 0; i < latestParts.length; i++) {
+      final int currentPart = int.parse(currentParts[i]);
+      final int latestPart = int.parse(latestParts[i]);
+
+      if (latestPart > currentPart) {
+        return true;
+      } else if (latestPart < currentPart) {
+        return false;
+      }
+    }
+    return false;
   }
 
   Future<void> _checkUserStatus(UserModel userData) async {

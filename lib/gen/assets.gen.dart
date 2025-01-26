@@ -7,10 +7,10 @@
 // ignore_for_file: type=lint
 // ignore_for_file: directives_ordering,unnecessary_import,implicit_dynamic_list_literal,deprecated_member_use
 
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_svg/flutter_svg.dart' as _svg;
-import 'package:vector_graphics/vector_graphics.dart' as _vg;
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:vector_graphics/vector_graphics.dart';
 
 class $AssetsEnvGen {
   const $AssetsEnvGen();
@@ -61,6 +61,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/CaretLeft.png
   AssetGenImage get caretLeft =>
       const AssetGenImage('assets/icons/CaretLeft.png');
+
+  /// File path: assets/icons/Handshake.svg
+  SvgGenImage get handshake => const SvgGenImage('assets/icons/Handshake.svg');
 
   /// File path: assets/icons/NewspaperClipping.svg
   SvgGenImage get newspaperClipping =>
@@ -375,6 +378,7 @@ class $AssetsIconsGen {
   List<dynamic> get values => [
         calendarBlank,
         caretLeft,
+        handshake,
         newspaperClipping,
         send,
         tickSquare,
@@ -560,6 +564,10 @@ class $AssetsImagesGen {
   AssetGenImage get chatVideoGameEmoji1 =>
       const AssetGenImage('assets/images/chat-video-game-emoji-1.png');
 
+  /// File path: assets/images/chat_bottom_sheet.png
+  AssetGenImage get chatBottomSheet =>
+      const AssetGenImage('assets/images/chat_bottom_sheet.png');
+
   /// File path: assets/images/chats-photo.png
   AssetGenImage get chatsPhoto =>
       const AssetGenImage('assets/images/chats-photo.png');
@@ -593,6 +601,10 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/google.png
   AssetGenImage get google => const AssetGenImage('assets/images/google.png');
+
+  /// File path: assets/images/guideline.png
+  AssetGenImage get guideline =>
+      const AssetGenImage('assets/images/guideline.png');
 
   /// File path: assets/images/hamburger-heart-locks.png
   AssetGenImage get hamburgerHeartLocks =>
@@ -636,6 +648,10 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/iron.png
   AssetGenImage get iron => const AssetGenImage('assets/images/iron.png');
+
+  /// File path: assets/images/its_is_melt.png
+  AssetGenImage get itsIsMelt =>
+      const AssetGenImage('assets/images/its_is_melt.png');
 
   /// File path: assets/images/lead.png
   AssetGenImage get lead => const AssetGenImage('assets/images/lead.png');
@@ -699,6 +715,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/nav-bar.profile.png
   AssetGenImage get navBarProfile =>
       const AssetGenImage('assets/images/nav-bar.profile.png');
+
+  /// File path: assets/images/non_bottom_sheet.png
+  AssetGenImage get nonBottomSheet =>
+      const AssetGenImage('assets/images/non_bottom_sheet.png');
 
   /// File path: assets/images/notification.png
   AssetGenImage get notification =>
@@ -800,12 +820,20 @@ class $AssetsImagesGen {
   AssetGenImage get sparkNotification =>
       const AssetGenImage('assets/images/spark.notification.png');
 
+  /// File path: assets/images/sparks_bottom_sheet.png
+  AssetGenImage get sparksBottomSheet =>
+      const AssetGenImage('assets/images/sparks_bottom_sheet.png');
+
   /// File path: assets/images/square.logo.png
   AssetGenImage get squareLogo =>
       const AssetGenImage('assets/images/square.logo.png');
 
   /// File path: assets/images/stripe.png
   AssetGenImage get stripe => const AssetGenImage('assets/images/stripe.png');
+
+  /// File path: assets/images/unmelt_icon.png
+  AssetGenImage get unmeltIcon =>
+      const AssetGenImage('assets/images/unmelt_icon.png');
 
   /// File path: assets/images/unnamed.png
   AssetGenImage get unnamed => const AssetGenImage('assets/images/unnamed.png');
@@ -849,6 +877,7 @@ class $AssetsImagesGen {
         chatSmilingFaceEmoji1,
         chatStarStruckExcitedHappyEmoji1,
         chatVideoGameEmoji1,
+        chatBottomSheet,
         chatsPhoto,
         checkVerified,
         chooseMetal,
@@ -858,6 +887,7 @@ class $AssetsImagesGen {
         flame,
         gameFrame,
         google,
+        guideline,
         hamburgerHeartLocks,
         handshake,
         heartLocks1,
@@ -869,6 +899,7 @@ class $AssetsImagesGen {
         inactiveStar,
         inactiveUser,
         iron,
+        itsIsMelt,
         lead,
         letsHearFromYouGroup,
         likeClick,
@@ -886,6 +917,7 @@ class $AssetsImagesGen {
         meltProfile,
         meltSpark,
         navBarProfile,
+        nonBottomSheet,
         notification,
         notificationProfile,
         onboard1,
@@ -912,8 +944,10 @@ class $AssetsImagesGen {
         sendSpark,
         silver,
         sparkNotification,
+        sparksBottomSheet,
         squareLogo,
         stripe,
+        unmeltIcon,
         unnamed,
         verificationPartpoppercelebrationemoji,
         videoCamera,
@@ -975,7 +1009,7 @@ class AssetGenImage {
     ImageRepeat repeat = ImageRepeat.noRepeat,
     Rect? centerSlice,
     bool matchTextDirection = false,
-    bool gaplessPlayback = true,
+    bool gaplessPlayback = false,
     bool isAntiAlias = false,
     String? package,
     FilterQuality filterQuality = FilterQuality.low,
@@ -1044,7 +1078,7 @@ class SvgGenImage {
   final Set<String> flavors;
   final bool _isVecFormat;
 
-  _svg.SvgPicture svg({
+  SvgPicture svg({
     Key? key,
     bool matchTextDirection = false,
     AssetBundle? bundle,
@@ -1057,29 +1091,29 @@ class SvgGenImage {
     WidgetBuilder? placeholderBuilder,
     String? semanticsLabel,
     bool excludeFromSemantics = false,
-    _svg.SvgTheme? theme,
+    SvgTheme? theme,
     ColorFilter? colorFilter,
     Clip clipBehavior = Clip.hardEdge,
     @deprecated Color? color,
     @deprecated BlendMode colorBlendMode = BlendMode.srcIn,
     @deprecated bool cacheColorFilter = false,
   }) {
-    final _svg.BytesLoader loader;
+    final BytesLoader loader;
     if (_isVecFormat) {
-      loader = _vg.AssetBytesLoader(
+      loader = AssetBytesLoader(
         _assetName,
         assetBundle: bundle,
         packageName: package,
       );
     } else {
-      loader = _svg.SvgAssetLoader(
+      loader = SvgAssetLoader(
         _assetName,
         assetBundle: bundle,
         packageName: package,
         theme: theme,
       );
     }
-    return _svg.SvgPicture(
+    return SvgPicture(
       loader,
       key: key,
       matchTextDirection: matchTextDirection,

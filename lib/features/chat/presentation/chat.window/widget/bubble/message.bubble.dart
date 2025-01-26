@@ -102,7 +102,7 @@ class MessageBubble extends ConsumerWidget {
           isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
         WaveBubble(
-          path: message.content,
+          path: message.content ?? "",
           isSender: isSender,
         ),
         TextView(

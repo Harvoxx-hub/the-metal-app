@@ -101,8 +101,8 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
                         ),
                       ),
                       WaveBubble(
-                        width: MediaQuery.of(context).size.width / 1.5,
-                        path: path,
+                       
+                        path: path?? "",
                         isSender: true,
                       ),
                       GestureDetector(

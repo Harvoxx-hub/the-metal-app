@@ -29,7 +29,14 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
             users.add(ConnectionModel.fromJson(user));
           }
 
-          // Set the state to success and pass the list of users
+          // Sort the users by lastUpdatedAt in descending order
+          users.sort((a, b) {
+            final aUpdatedAt = DateTime.parse(a.lastUpdatedAt!);
+            final bUpdatedAt = DateTime.parse(b.lastUpdatedAt!);
+            return bUpdatedAt.compareTo(aUpdatedAt); // Descending order
+          });
+
+          // Set the state to success and pass the sorted list of users
           state = GetMeltUsersState.success(users);
         } else {
           // In case of an error, set the state to error with the error message and stack trace

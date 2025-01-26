@@ -3,6 +3,7 @@ import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class MetalPropertiesNotifier extends StateNotifier<MetalPropertiesState> {
   MetalPropertiesNotifier(
@@ -12,6 +13,8 @@ class MetalPropertiesNotifier extends StateNotifier<MetalPropertiesState> {
     getMetalProperties();
   }
   final Ref ref;
+
+  String currentVersion = "";
 
   // get metal properties
   void getMetalProperties() async {
@@ -27,6 +30,8 @@ class MetalPropertiesNotifier extends StateNotifier<MetalPropertiesState> {
         metals.add(Metal.fromJson(element));
       });
       metalPropertires.metals = metals;
+      final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      currentVersion = packageInfo.version+"+"+packageInfo.buildNumber;
 
       state = MetalPropertiesState.success(metalPropertires);
     } catch (e, s) {

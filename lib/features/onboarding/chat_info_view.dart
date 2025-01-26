@@ -27,7 +27,6 @@ class ChatInfoView extends ConsumerWidget {
                     type: RouteFrom.AccountSetting,
                     code: 123456,
                     uuid: current.data?.id ?? "",
-                    
                     email: current.data!.phone!),
               )
             : Navigator.pushNamed(
@@ -92,27 +91,29 @@ class ChatInfoView extends ConsumerWidget {
                 children: [
                   TextButton(
                     onPressed: () {
-                      final current = ref.read(loginProvider);
-                      if (current.isSuccess) {
-                        debugPrint('Login success. Proceeding to next page.');
-                        !(current.data!.emailVerified ?? false)
-                            ? Navigator.pushReplacementNamed(
-                                context,
-                                AppRoutes.verificationPage,
-                                arguments: VerificationSentArgument(
-                                    type: RouteFrom.AccountSetting,
-                                    code: 123456,
-                                    uuid: current.data?.id ?? "",
-                              
-                                    email: current.data!.phone!),
-                              )
-                            : Navigator.pushNamed(
-                                context,
-                                current.data?.profileUpdated ?? false
-                                    ? AppRoutes.dashboardPage
-                                    : AppRoutes.welcomePage,
-                              );
-                      }
+                      // final current = ref.read(loginProvider);
+                      // if (current.isSuccess) {
+                      //   debugPrint('Login success. Proceeding to next page.');
+                      //   !(current.data!.emailVerified ?? false)
+                      //       ? Navigator.pushReplacementNamed(
+                      //           context,
+                      //           AppRoutes.verificationPage,
+                      //           arguments: VerificationSentArgument(
+                      //               type: RouteFrom.AccountSetting,
+                      //               code: 123456,
+                      //               uuid: current.data?.id ?? "",
+
+                      //               email: current.data!.phone!),
+                      //         )
+                      //       : Navigator.pushNamed(
+                      //           context,
+                      //           current.data?.profileUpdated ?? false
+                      //               ? AppRoutes.dashboardPage
+                      //               : AppRoutes.welcomePage,
+                      //         );
+                      // }
+                      Navigator.pushReplacementNamed(
+                          context, AppRoutes.dashboardPage);
                     },
                     child: const Row(
                       children: [

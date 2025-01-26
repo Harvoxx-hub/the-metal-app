@@ -11,6 +11,7 @@ import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class NavDrawer extends ConsumerWidget {
   const NavDrawer({super.key});
@@ -19,7 +20,7 @@ class NavDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider).data;
     final metalProperties = ref.watch(metalPropertiesProvider).data;
-
+   
     final metal = metalProperties!.metals!.firstWhere(
       (element) => element.id == authState!.metal,
       orElse: () => metalProperties.metals![0],
@@ -185,7 +186,7 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(20),
-          !(authState.isVerified ?? false)
+          (false)
               ? Column(
                   children: [
                     ListTile(
@@ -287,7 +288,7 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(40),
-          const Padding(
+            Padding(
             padding: EdgeInsets.all(8.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -303,7 +304,7 @@ class NavDrawer extends ConsumerWidget {
                 ),
                 Gap(19),
                 TextView(
-                  text: "V 1.10",
+                  text: ref.read(metalPropertiesProvider.notifier).currentVersion,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),

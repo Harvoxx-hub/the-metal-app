@@ -40,14 +40,14 @@ String ActiveTime({String? isoDateString, DateTime? datetime}) {
 }
 
 int daysRemaining(String isoDateString, int durationInDays) {
+  // Get the current date in local time
+  DateTime now = DateTime.now();
   // Parse the ISO 8601 date string and convert it to local time
-  DateTime date = DateTime.parse(isoDateString).toLocal();
+  DateTime date =
+      isoDateString == "" ? now : DateTime.parse(isoDateString).toLocal();
 
   // Calculate the target date by adding the duration to the parsed date
   DateTime targetDate = date.add(Duration(days: durationInDays));
-
-  // Get the current date in local time
-  DateTime now = DateTime.now();
 
   // Calculate the difference in days
   int remainingDays = targetDate.difference(now).inDays;

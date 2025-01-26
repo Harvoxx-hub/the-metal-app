@@ -32,6 +32,8 @@ class LoginNotifier extends StateNotifier<LoginStates> {
         ref
             .read(authProvider.notifier)
             .updateUserData(UserModel.fromJson(data));
+        
+           
         state = LoginStates.success(UserModel.fromJson(data));
         debugPrint("LOGIN RESPONSE SUCCESS:${response.success}");
       } else {

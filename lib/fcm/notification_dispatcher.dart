@@ -41,14 +41,14 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
 
     switch (model.action) {
       case PushType.message:
-        await openPage(
-          AppRoutes.chatWindowsPage,
-          removeUntil: true,
-          argument: model.id,
-          removeUntilPredicate: ModalRoute.withName(
-            AppRoutes.chatWindowsPage,
-          ),
-        );
+        // await openPage(
+        //   AppRoutes.chatWindowsPage,
+        //   removeUntil: true,
+        //   argument: model.id,
+        //   removeUntilPredicate: ModalRoute.withName(
+        //     AppRoutes.chatWindowsPage,
+        //   ),
+        // );
         break;
 
       // case PushType.follow:
@@ -97,13 +97,13 @@ class NotificationDispatcher extends AbstractNotificationDispatcher {
   Future<void> handleNavigation(NotificationPayloadModel? model) async {
     if (await _isUserAuthorized()) {
       if (model!.action != null) {
-        return openPage(
-          AppRoutes.dashboardPage,
-          removeUntil: true,
-          removeUntilPredicate: ModalRoute.withName(
-            AppRoutes.dashboardPage,
-          ),
-        );
+        // return openPage(
+        //   AppRoutes.dashboardPage,
+        //   removeUntil: true,
+        //   removeUntilPredicate: ModalRoute.withName(
+        //     AppRoutes.dashboardPage,
+        //   ),
+        // );
       } else {
         print('model.action == null');
       }

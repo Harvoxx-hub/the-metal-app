@@ -5,11 +5,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
-import 'package:metal/core/utils/constant/constants.dart';
+
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart';
+
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
 import 'package:metal/features/chat/provider/get.last.active.notifier.dart';
@@ -56,13 +56,9 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    // final time = ref.watch(lastActiveProvider).data;
-    int dayRemaining = daysRemaining(widget.connectionModel.connectedOn, 5);
-    // final messages =
-    //     ref.watch(getMessageList(widget.connectionModel.connectionId));
-    // final connection = ref
-    //     .watch(getMeltUserProvider.notifier)
-    //     .getMeltUserById(ref.watch(authProvider).data!.id!);
+    int dayRemaining =
+        daysRemaining(widget.connectionModel.connectedOn, daysRequiredToUnMelt);
+
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),
       child: Row(
@@ -96,9 +92,11 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               TextView(
                 text: widget.meltUserModel.isOnline
                     ? "active"
-                    : ActiveTime(
-                        isoDateString: widget.meltUserModel.lastActive ??
-                            DateTime.now().toIso8601String()),
+                    : widget.meltUserModel.lastActive == null
+                        ? "Offline"
+                        : ActiveTime(
+                            isoDateString: widget.meltUserModel.lastActive ??
+                                DateTime.now().toIso8601String()),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: AppColors.metalBlack50,
@@ -204,10 +202,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                   },
                 );
               } else if (value == "rejected") {
-                // ref.read(unMeltProvider.notifier).updateMessage(
-                //     widget.connectionModel.connectionId,
-                //     messages,
-                //     {"message": "rejected"});
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -308,14 +302,14 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         const Gap(15),
         TextView(
           text:
-              "To Unmetal, we require a minimum of $daysRequiredToUnMelt days and 10 sessions of conversations between you and @${widget.meltUserModel.username}",
+              "To Unmetal, we require a minimum of $daysRequiredToUnMelt days of Melt conversations between you and @${widget.meltUserModel.username}",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(15),
         TextView(
-          text: "You have had * $remaining days* and *3 interactions*",
+          text: "You have had * $remaining days* remaining",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
@@ -376,15 +370,18 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ZegoUIKitPrebuiltCall(
-          appID: appIDKey,
-          appSign: appSignKey,
-          userID: ref.watch(authProvider).data!.id!,
-          userName: ref.watch(authProvider).data!.username!,
-          callID: widget.connectionModel.connectionId,
-          config: ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall(),
-        ),
-      ),
+          builder: (context) => ZegoSendCallInvitationButton(
+                isVideoCall: true,
+                //You need to use the resourceID that you created in the subsequent steps.
+                //Please continue reading this document.
+                resourceID: "metal_call",
+                invitees: [
+                  ZegoUIKitUser(
+                    id: widget.meltUserModel.id!,
+                    name: widget.meltUserModel.username!,
+                  ),
+                ],
+              )),
     );
   }
 
@@ -393,15 +390,16 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ZegoUIKitPrebuiltCall(
-          appID: appIDKey,
-          appSign: appSignKey,
-          userID: ref.watch(authProvider).data!.id!,
-          userName: ref.watch(authProvider).data!.username!,
-          callID: widget.connectionModel.connectionId,
-          config: ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall(),
-        ),
-      ),
+          builder: (context) => ZegoSendCallInvitationButton(
+                isVideoCall: false,
+                resourceID: "metal_call",
+                invitees: [
+                  ZegoUIKitUser(
+                    id: widget.meltUserModel.id!,
+                    name: widget.meltUserModel.username!,
+                  ),
+                ],
+              )),
     );
   }
 

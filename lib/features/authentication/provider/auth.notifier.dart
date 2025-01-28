@@ -5,11 +5,9 @@ import 'package:metal/core/utils/constant/constants.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/main.dart';
-// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-// import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
-// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-// import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+import 'package:metal/gen/assets.gen.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier(
@@ -40,7 +38,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-   
   Future getUpdatedUser() async {
     try {
       final authenticationRepository =
@@ -59,8 +56,50 @@ class AuthNotifier extends StateNotifier<AuthState> {
     //  initZIMKIt();
   }
 
+  Future initializeZegoUiKit() async {
+    final user = ref.watch(authProvider).data;
+
+    if (user != null) {
+      ZegoUIKitPrebuiltCallInvitationService().init(
+        appID: appIDKey,
+        appSign: appSignKey,
+        userID: user.id!,
+        userName: user.username!,
+        plugins: [ZegoUIKitSignalingPlugin()],
+        notificationConfig: ZegoCallInvitationNotificationConfig(
+          androidNotificationConfig: ZegoCallAndroidNotificationConfig(
+            showFullScreen: true,
+            fullScreenBackgroundAssetURL:
+                Assets.icons.chatsWindowactiveFill.path,
+            channelID: 'ZegoUIKit',
+            channelName: 'Call Notifications',
+            sound: 'call',
+            icon: 'call',
+          ),
+          iOSNotificationConfig: ZegoCallIOSNotificationConfig(
+            systemCallingIconName: 'CallKitIcon',
+          ),
+        ),
+        requireConfig: (ZegoCallInvitationData data) {
+          final config = (data.invitees.length > 1)
+              ? ZegoCallInvitationType.videoCall == data.type
+                  ? ZegoUIKitPrebuiltCallConfig.groupVideoCall()
+                  : ZegoUIKitPrebuiltCallConfig.groupVoiceCall()
+              : ZegoCallInvitationType.videoCall == data.type
+                  ? ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall()
+                  : ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall();
+
+          config.topMenuBar.isVisible = true;
+          config.topMenuBar.buttons
+              .insert(0, ZegoCallMenuBarButtonName.minimizingButton);
+
+          return config;
+        },
+      );
+    }
+  }
+
   Future<void> initZIMKIt() async {
-         
     // if (state.data != null) {
     //   ZegoUIKitPrebuiltCallInvitationService().init(
     //     appID: appIDKey,

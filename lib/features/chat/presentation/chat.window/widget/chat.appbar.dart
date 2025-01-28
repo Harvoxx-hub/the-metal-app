@@ -26,7 +26,7 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
-//import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class ChatWindowsAppBar extends ConsumerStatefulWidget {
   const ChatWindowsAppBar({
@@ -56,6 +56,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
 
   @override
   Widget build(BuildContext context) {
+    final bool is15DaysReached = hasDurationReached(
+        widget.connectionModel.connectedOn, daysRequiredToUnMelt);
     int dayRemaining =
         daysRemaining(widget.connectionModel.connectedOn, daysRequiredToUnMelt);
 
@@ -111,35 +113,43 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               child: Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                  'Video call features are enabled after un-melting.',
+                  'Video call is enabled after 15 days of connection.',
                 ),
               ),
             ),
             child: Material(
-              color: Colors.white,
+              color: Colors.transparent,
               shape: const CircleBorder(),
-              child: GestureDetector(
-                onTap: () {
-                  if (hasDurationReached(
-                      widget.connectionModel.connectedOn, 15)) {
-                    if (widget.connectionModel.isAnonymous) {
-                      tooltipController.showTooltip();
-                    } else {
-                      makeVideoCall(context);
-                    }
-                  } else {
-                    tooltipController.showTooltip();
-                  }
-                },
-                child: SvgPicture.asset(
-                  Assets.icons.chatsWindowactiveVideoRecorder.path,
-                  height: 30,
-                  width: 30,
-                  color:
-                      hasDurationReached(widget.connectionModel.connectedOn, 15)
-                          ? Colors.black
-                          : Colors.grey,
+              child: ZegoSendCallInvitationButton(
+                isVideoCall: true,
+                invitees: [
+                  ZegoUIKitUser(
+                    id: widget.meltUserModel.id!,
+                    name: widget.meltUserModel.username!,
+                  ),
+                ],
+                resourceID: 'zego_call', // Configured in ZegoCloud
+                iconSize: const Size(30, 30),
+                buttonSize: const Size(40, 40),
+                icon: ButtonIcon(
+                  icon: SvgPicture.asset(
+                    Assets.icons.chatsWindowactiveVideoRecorder.path,
+                    height: 30,
+                    width: 30,
+                    color: is15DaysReached ? Colors.black : Colors.grey,
+                  ),
                 ),
+                onWillPressed: () {
+                  if (!is15DaysReached) {
+                    tooltipController.showTooltip();
+                    return Future.value(false);
+                  }
+                  if (widget.connectionModel.isAnonymous) {
+                    tooltipController.showTooltip();
+                    return Future.value(false);
+                  }
+                  return Future.value(true);
+                },
               ),
             ),
           ),
@@ -151,35 +161,43 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               child: Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
-                  'Voice call features are enabled after un-melting.',
+                  'Voice call is available after un-melting.',
                 ),
               ),
             ),
             child: Material(
-              color: Colors.white,
+              color: Colors.transparent,
               shape: const CircleBorder(),
-              child: GestureDetector(
-                onTap: () {
-                  if (hasDurationReached(
-                      widget.connectionModel.connectedOn, 15)) {
-                    if (widget.connectionModel.isAnonymous) {
-                      tooltipController2.showTooltip();
-                    } else {
-                      makeVoiceCall(context);
-                    }
-                  } else {
-                    tooltipController2.showTooltip();
-                  }
-                },
-                child: SvgPicture.asset(
-                  Assets.icons.chatsWindowactiveFill.path,
-                  height: 24,
-                  width: 24,
-                  color:
-                      hasDurationReached(widget.connectionModel.connectedOn, 15)
-                          ? Colors.black
-                          : Colors.grey,
+              child: ZegoSendCallInvitationButton(
+                isVideoCall: false,
+                invitees: [
+                  ZegoUIKitUser(
+                    id: widget.meltUserModel.id!,
+                    name: widget.meltUserModel.username!,
+                  ),
+                ],
+                resourceID: 'zego_call',
+                iconSize: const Size(30, 30),
+                buttonSize: const Size(40, 40),
+                icon: ButtonIcon(
+                  icon: SvgPicture.asset(
+                    Assets.icons.chatsWindowactiveFill.path,
+                    height: 30,
+                    width: 30,
+                    color: is15DaysReached ? Colors.black : Colors.grey,
+                  ),
                 ),
+                onWillPressed: () {
+                  if (!is15DaysReached) {
+                    tooltipController2.showTooltip();
+                    return Future.value(false);
+                  }
+                  if (widget.connectionModel.isAnonymous) {
+                    tooltipController2.showTooltip();
+                    return Future.value(false);
+                  }
+                  return Future.value(true);
+                },
               ),
             ),
           ),
@@ -366,42 +384,42 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   }
 
   // Handle video call initialization
-  void makeVideoCall(BuildContext context) {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //       builder: (context) => ZegoSendCallInvitationButton(
-    //             isVideoCall: true,
-    //             //You need to use the resourceID that you created in the subsequent steps.
-    //             //Please continue reading this document.
-    //             resourceID: "metal_call",
-    //             invitees: [
-    //               ZegoUIKitUser(
-    //                 id: widget.meltUserModel.id!,
-    //                 name: widget.meltUserModel.username!,
-    //               ),
-    //             ],
-    //           )),
-    // );
-  }
+  // void makeVideoCall(BuildContext context) {
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //       builder: (context) => ZegoSendCallInvitationButton(
+  //             isVideoCall: true,
+  //             //You need to use the resourceID that you created in the subsequent steps.
+  //             //Please continue reading this document.
+  //             resourceID: "metal_call",
+  //             invitees: [
+  //               ZegoUIKitUser(
+  //                 id: widget.meltUserModel.id!,
+  //                 name: widget.meltUserModel.username!,
+  //               ),
+  //             ],
+  //           )),
+  // );
+  // }
 
   // Handle voice call initialization
-  void makeVoiceCall(BuildContext context) {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //       builder: (context) => ZegoSendCallInvitationButton(
-    //             isVideoCall: false,
-    //             resourceID: "metal_call",
-    //             invitees: [
-    //               ZegoUIKitUser(
-    //                 id: widget.meltUserModel.id!,
-    //                 name: widget.meltUserModel.username!,
-    //               ),
-    //             ],
-    //           )),
-    // );
-  }
+  // void makeVoiceCall(BuildContext context) {
+  // Navigator.push(
+  //   context,
+  //   MaterialPageRoute(
+  //       builder: (context) => ZegoSendCallInvitationButton(
+  //             isVideoCall: false,
+  //             resourceID: "metal_call",
+  //             invitees: [
+  //               ZegoUIKitUser(
+  //                 id: widget.meltUserModel.id!,
+  //                 name: widget.meltUserModel.username!,
+  //               ),
+  //             ],
+  //           )),
+  // );
+  // }
 
   void sendUnmelt() {
     final message = MessageModel(

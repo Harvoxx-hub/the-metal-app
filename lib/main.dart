@@ -7,8 +7,8 @@ import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-// import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 /// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
@@ -21,20 +21,20 @@ void main() async {
 
   await initializeFirebase();
   initializeAuthManager();
- // ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navKey);
+  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navKey);
 
   // call the useSystemCallingUI
-  // ZegoUIKit().initLog().then((value) {
-  //   ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
-  //     [ZegoUIKitSignalingPlugin()],
-  //   );
+  ZegoUIKit().initLog().then((value) {
+    ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
+      [ZegoUIKitSignalingPlugin()],
+    );
 
     runApp(
       const ProviderScope(
         child: MyApp(),
       ),
     );
- // });
+  });
 }
 
 /// Initializes Firebase and sets analytics
@@ -75,9 +75,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         return Stack(
           children: [
             child!,
-            // ZegoUIKitPrebuiltCallMiniOverlayPage(
-            //   contextQuery: () => navKey.currentState!.context,
-            // ),
+            ZegoUIKitPrebuiltCallMiniOverlayPage(
+              contextQuery: () => navKey.currentState!.context,
+            ),
           ],
         );
       },

@@ -1,5 +1,6 @@
 # Keep all Zego-related classes
 -keep class **.zego.** { *; }
+-keep class **.**.zego_zpns.** { *; }
 
 # Stripe Push Provisioning rules
 -dontwarn com.stripe.android.pushProvisioning.PushProvisioningActivity$g
@@ -40,6 +41,23 @@
 -keep class com.huawei.hms.** { *; }
 -keep class com.vivo.push.** { *; }
 -keep class com.xiaomi.mipush.sdk.** { *; }
+
+# Oppo Push
+-keep class com.heytap.msp.push.** { *; }
+
+# Huawei Push
+-keep class com.huawei.hms.** { *; }
+
+# Vivo Push
+-keep class com.vivo.push.** { *; }
+
+# Xiaomi Push
+-keep class com.xiaomi.mipush.sdk.** { *; }
+
+# General Java Libraries
+-keep class java.beans.** { *; }
+-keep class org.w3c.dom.bootstrap.DOMImplementationRegistry { *; }
+
 
 # Additional configurations (if required by your app or third-party libraries)
 -keepattributes Signature

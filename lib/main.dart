@@ -13,7 +13,7 @@ import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 /// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
 
-/// Convenience getter for accessing the current [NavigatorState]
+// Convenience getter for accessing the current [NavigatorState]
 //NavigatorState? get nav => navKey.currentState;
 
 void main() async {

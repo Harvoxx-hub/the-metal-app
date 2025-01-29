@@ -27,6 +27,7 @@ import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 class ChatWindowsAppBar extends ConsumerStatefulWidget {
   const ChatWindowsAppBar({
@@ -108,12 +109,12 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           const Spacer(),
           JustTheTooltip(
             controller: tooltipController,
-            content: const SizedBox(
+            content: SizedBox(
               width: 180,
               child: Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Video call is enabled after 15 days of connection.',
+                  'Video call is enabled after $daysRequiredToUnMelt days of connection.',
                 ),
               ),
             ),
@@ -128,7 +129,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                     name: widget.meltUserModel.username!,
                   ),
                 ],
-                resourceID: 'zego_call', // Configured in ZegoCloud
+                resourceID: 'metal_call',
                 iconSize: const Size(30, 30),
                 buttonSize: const Size(40, 40),
                 icon: ButtonIcon(
@@ -139,17 +140,64 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                     color: is15DaysReached ? Colors.black : Colors.grey,
                   ),
                 ),
-                onWillPressed: () {
+                onWillPressed: () async {
+                  //THIS LOGIC CHECK FOR ANONYMOUS AND MELTED DAYS
+                  debugPrint("onWillPressed triggered");
+
                   if (!is15DaysReached) {
+                    debugPrint("15-day restriction active, showing tooltip.");
                     tooltipController.showTooltip();
-                    return Future.value(false);
+                    return false;
                   }
                   if (widget.connectionModel.isAnonymous) {
+                    debugPrint("Anonymous user restriction, showing tooltip.");
                     tooltipController.showTooltip();
-                    return Future.value(false);
+                    return false;
                   }
-                  return Future.value(true);
+                  try {
+                    final connectionState =
+                        ZegoUIKitSignalingPlugin().getConnectionState();
+                    debugPrint("ZegoCloud connection state: $connectionState");
+
+                    if (connectionState !=
+                        ZegoSignalingPluginConnectionState.connected) {
+                      debugPrint("ZegoCloud service not connected.");
+                      return false;
+                    }
+                  } catch (e) {
+                    debugPrint("Error checking ZegoCloud connection state: $e");
+                    return false;
+                  }
+                  debugPrint("Call can proceed");
+                  return true;
                 },
+
+                //THIS BUTTON WORKED WITHOUT BEING CHECK FOR THE NUMBER OF DAYS FOR USER
+                // onWillPressed: () async {
+                //   if (!is15DaysReached) {
+                //     tooltipController.showTooltip();
+                //     return false;
+                //   }
+                //   if (widget.connectionModel.isAnonymous) {
+                //     tooltipController.showTooltip();
+                //     return true;
+                //   }
+                //   try {
+                //     final connectionState =
+                //         ZegoUIKitSignalingPlugin().getConnectionState();
+                //     if (connectionState !=
+                //         ZegoSignalingPluginConnectionState.connected) {
+                //       debugPrint(
+                //           'ZegoCloud service not connected. State: $connectionState');
+
+                //       return false;
+                //     }
+                //   } catch (e) {
+                //     debugPrint('Error checking ZegoCloud connection state: $e');
+                //     return false;
+                //   }
+                //   return true;
+                // },
               ),
             ),
           ),
@@ -176,7 +224,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                     name: widget.meltUserModel.username!,
                   ),
                 ],
-                resourceID: 'zego_call',
+                resourceID: 'metal_call',
                 iconSize: const Size(30, 30),
                 buttonSize: const Size(40, 40),
                 icon: ButtonIcon(
@@ -187,16 +235,37 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                     color: is15DaysReached ? Colors.black : Colors.grey,
                   ),
                 ),
-                onWillPressed: () {
+                onWillPressed: () async {
+                  print("onWillPressed triggered");
                   if (!is15DaysReached) {
+                    print("15-day restriction active, showing tooltip.");
                     tooltipController2.showTooltip();
-                    return Future.value(false);
+                    return false;
                   }
+
                   if (widget.connectionModel.isAnonymous) {
+                    print("Anonymous user restriction, showing tooltip.");
                     tooltipController2.showTooltip();
-                    return Future.value(false);
+                    return false;
                   }
-                  return Future.value(true);
+
+                  try {
+                    final connectionState =
+                        ZegoUIKitSignalingPlugin().getConnectionState();
+                    print("ZegoCloud connection state: $connectionState");
+
+                    if (connectionState !=
+                        ZegoSignalingPluginConnectionState.connected) {
+                      print("ZegoCloud service not connected.");
+                      return false;
+                    }
+                  } catch (e) {
+                    print("Error checking ZegoCloud connection state: $e");
+                    return false;
+                  }
+
+                  print("Call can proceed");
+                  return true;
                 },
               ),
             ),
@@ -219,7 +288,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                     );
                   },
                 );
-              } else if (value == "rejected") {
+              } else if (value == "Rejected") {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {

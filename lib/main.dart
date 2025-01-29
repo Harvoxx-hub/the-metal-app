@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -21,20 +22,21 @@ void main() async {
 
   await initializeFirebase();
   initializeAuthManager();
+
+  // Set navigator key
   ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navKey);
 
-  // call the useSystemCallingUI
-  ZegoUIKit().initLog().then((value) {
+  await ZegoUIKit().initLog().then((value) {
     ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
       [ZegoUIKitSignalingPlugin()],
     );
-
-    runApp(
-      const ProviderScope(
-        child: MyApp(),
-      ),
-    );
   });
+
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 /// Initializes Firebase and sets analytics
@@ -64,6 +66,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    ref.read(authProvider.notifier).initZIMKIt();
   }
 
   @override

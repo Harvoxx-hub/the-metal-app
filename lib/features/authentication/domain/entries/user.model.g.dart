@@ -58,7 +58,7 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       activateVideoCall: json['activateVideoCall'] as bool? ?? true,
       profilePhoto: json['profilePhoto'] as String?,
       fcmToken: json['fcmToken'] as String?,
-      isOnline: json['isOnline'] as bool? ?? false,
+      isOnline: json['isOnline'] as bool? ?? true,
       lastActive: json['lastActive'] as String?,
       blockedUsers: (json['blockedUsers'] as List<dynamic>?)
           ?.map((e) => e as String)

@@ -121,7 +121,7 @@ class chatListItem extends ConsumerWidget {
               child: Row(
                 children: [
                   ProfilePhoto(
-                      meltId: getUser.data!.metal!,
+                      meltId: getUser.data?.metal ?? "",
                       imgUrl: conversationsModel.isAnonymous
                           ? null
                           : getUser.data!.profilePhoto ?? null),
@@ -131,7 +131,7 @@ class chatListItem extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextView(
-                          text: getUser.data!.username ?? "Unknown",
+                          text: getUser.data?.username ?? "Unknown",
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),

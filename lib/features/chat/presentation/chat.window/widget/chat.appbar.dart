@@ -58,6 +58,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   Widget build(BuildContext context) {
     int dayRemaining =
         daysRemaining(widget.connectionModel.connectedOn, daysRequiredToUnMelt);
+    print("CHECK FOR ACTIVE USER:${widget.meltUserModel.isOnline}");
 
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),

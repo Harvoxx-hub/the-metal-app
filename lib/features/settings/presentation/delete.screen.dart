@@ -196,10 +196,11 @@ class DeleteScreen extends ConsumerWidget {
         ),
         const Gap(38),
         BaseButton(
-            buttonText: "Yes, Delete my account",
-            onPressed: () {
-              ref.read(deleteUserProvider.notifier).DeleteUser();
-            }),
+          buttonText: "Yes, Delete my account",
+          onPressed: () {
+            ref.read(deleteUserProvider.notifier).deleteUser(context);
+          },
+        ),
         const Gap(23),
         TextView(
           text: "Not now",

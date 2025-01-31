@@ -40,18 +40,54 @@ class AuthenticationRepository implements IAuthenticationRepository {
   Future<Responses> logIn(
       {required String email, required String password}) async {
     try {
-      await _firebaseService.auth.signInWithEmailAndPassword(
+      final userCredential =
+          await _firebaseService.auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      final userId = userCredential.user?.uid;
+      if (userId == null) {
+        return Responses(
+          success: false,
+          message: "Failed to retrieve user ID.",
+        );
+      }
+
+      final userDoc = await _firebaseService.firestore
+          .collection(FirebaseFirestoreCollectionKeys.users)
+          .doc(userId)
+          .get();
+
+      if (!userDoc.exists) {
+        return Responses(
+          success: false,
+          message: "User not found in database. Please sign up again.",
+        );
+      }
+
       String? token = await FCMClient.instance.init();
 
+      if (token == null) {
+        return Responses(
+          success: false,
+          message: "Failed to retrieve FCM token.",
+        );
+      }
+
       Responses response = await updateUser({"fcmToken": token});
+      if (response.data == null) {
+        return Responses(
+          success: false,
+          message: "Failed to retrieve user data after login.",
+        );
+      }
 
       return Responses(
-          success: true,
-          data: response.data,
-          message: "Login successful, user data retrieved.");
+        success: true,
+        data: response.data,
+        message: "Login successful, user data retrieved.",
+      );
     } catch (e) {
       String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
       return Responses(
@@ -258,17 +294,30 @@ class AuthenticationRepository implements IAuthenticationRepository {
   Future<Responses> deleteUser() async {
     try {
       User? user = _firebaseService.auth.currentUser;
+
       if (user == null) {
         return Responses(success: false, message: "No user logged in.");
       }
 
       // Delete user data from Firestore
       await _firebaseService.deleteDocument(
-          collectionPath: FirebaseFirestoreCollectionKeys.feedback,
-          documentId: user.uid);
+        collectionPath: FirebaseFirestoreCollectionKeys.users,
+        documentId: user.uid,
+      );
 
-      // Delete user from Firebase Auth
-      await user.delete();
+      // Try to delete the user from Firebase Auth
+      try {
+        await user.delete();
+      } catch (e) {
+        if (e is FirebaseAuthException && e.code == 'requires-recent-login') {
+          return Responses(
+            success: false,
+            message: "You need to re-login before deleting your account.",
+          );
+        } else {
+          rethrow; // If it's another error, throw it again
+        }
+      }
 
       return Responses(success: true, message: "User deleted successfully.");
     } catch (e) {

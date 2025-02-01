@@ -18,6 +18,9 @@ class DeleteUsersNotifier extends StateNotifier<DeleteUsersState> {
       if (mounted) {
         state = DeleteUsersState.success(response.message!);
 
+ 
+        // Navigate after deletion is successful
+
         Navigator.pushReplacementNamed(context, AppRoutes.splash);
       }
     } catch (e, s) {

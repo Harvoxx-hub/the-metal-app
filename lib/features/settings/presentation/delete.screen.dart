@@ -15,7 +15,7 @@ import 'package:metal/widgets/button/plain.button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
-// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class DeleteScreen extends ConsumerWidget {
   DeleteScreen({super.key});
@@ -28,7 +28,7 @@ class DeleteScreen extends ConsumerWidget {
         AuthManager.deleteLoginState();
         AuthManager.deleteRefreshToken();
 
-        // ZegoUIKitPrebuiltCallInvitationService().uninit();
+        ZegoUIKitPrebuiltCallInvitationService().uninit();
         Navigator.pushNamedAndRemoveUntil(
             context, AppRoutes.onboarding, (route) => false);
         showDialog(
@@ -113,7 +113,7 @@ class DeleteScreen extends ConsumerWidget {
                         AuthManager.deleteLoginState();
                         AuthManager.deleteRefreshToken();
 
-                        //     ZegoUIKitPrebuiltCallInvitationService().uninit();
+                        ZegoUIKitPrebuiltCallInvitationService().uninit();
                         Navigator.pushNamedAndRemoveUntil(
                             context, AppRoutes.onboarding, (route) => false);
                       },
@@ -196,10 +196,11 @@ class DeleteScreen extends ConsumerWidget {
         ),
         const Gap(38),
         BaseButton(
-            buttonText: "Yes, Delete my account",
-            onPressed: () {
-              ref.read(deleteUserProvider.notifier).DeleteUser();
-            }),
+          buttonText: "Yes, Delete my account",
+          onPressed: () {
+            ref.read(deleteUserProvider.notifier).deleteUser(context);
+          },
+        ),
         const Gap(23),
         TextView(
           text: "Not now",

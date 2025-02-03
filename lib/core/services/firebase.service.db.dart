@@ -185,7 +185,7 @@ class FirebaseServiceDb {
     });
   }
 
-  /// Edit a thought
+  ///Todo
   Future<void> editThought({
     required String thoughtId,
     required String collectionPath,

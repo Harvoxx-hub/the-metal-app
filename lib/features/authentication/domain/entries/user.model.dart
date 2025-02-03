@@ -45,7 +45,7 @@ class UserModel with _$UserModel {
     @Default(true) bool activateVideoCall,
     String? profilePhoto,
     String? fcmToken,
-    @Default(false) bool isOnline,
+    @Default(true) bool isOnline,
     String? lastActive,
     @JsonKey(name: 'blockedUsers') List<String>? blockedUsers,
   }) = _UserModel;

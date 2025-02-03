@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/core/utils/handler/app.lifeycle.handler.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/firebase_options.dart';
@@ -37,6 +39,11 @@ void main() async {
       child: MyApp(),
     ),
   );
+  final userId = FirebaseAuth.instance.currentUser?.uid;
+
+  if (userId != null) {
+    WidgetsBinding.instance.addObserver(AppLifecycleHandler(userId));
+  }
 }
 
 /// Initializes Firebase and sets analytics

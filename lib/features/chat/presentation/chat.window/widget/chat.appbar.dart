@@ -49,18 +49,12 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(lastActiveProvider.notifier)
-          .GetLastActiveTime(widget.meltUserModel.id!);
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isDaysReached = hasDurationReached(
-        widget.connectionModel.connectedOn, daysRequiredToUnMelt);
     int dayRemaining =
         daysRemaining(widget.connectionModel.connectedOn, daysRequiredToUnMelt);
     print("CHECK FOR ACTIVE USER:${widget.meltUserModel.isOnline}");
@@ -169,13 +163,16 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               ),
               const Gap(3),
               TextView(
-                text: widget.meltUserModel.isOnline
-                    ? "active"
-                    : widget.meltUserModel.lastActive == null
-                        ? "Offline"
-                        : ActiveTime(
-                            isoDateString: widget.meltUserModel.lastActive ??
-                                DateTime.now().toIso8601String()),
+                text: !widget.meltUserModel.showOnline
+                    ? "Offline"
+                    : widget.meltUserModel.isOnline
+                        ? "active"
+                        : widget.meltUserModel.lastActive == null
+                            ? "Offline"
+                            : ActiveTime(
+                                isoDateString:
+                                    widget.meltUserModel.lastActive ??
+                                        DateTime.now().toIso8601String()),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: AppColors.metalBlack50,

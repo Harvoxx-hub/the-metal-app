@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/core/utils/constant/enums.dart';
 
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
@@ -17,6 +18,7 @@ import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
 
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -57,10 +59,83 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    final bool is15DaysReached = hasDurationReached(
+    final bool isDaysReached = hasDurationReached(
         widget.connectionModel.connectedOn, daysRequiredToUnMelt);
     int dayRemaining =
         daysRemaining(widget.connectionModel.connectedOn, daysRequiredToUnMelt);
+
+    final checkMeltState =
+        ref.watch(checkMeltProvider(widget.meltUserModel.id!));
+
+    /// Determines if the user is allowed to call
+    bool isCallAllowed = checkMeltState.data == MeltRequestState.mutual;
+
+    /// Function to check call eligibility
+    Future<bool> handleCallPress(
+        JustTheController tooltip, String callType) async {
+      if (!isCallAllowed) {
+        tooltip.showTooltip();
+        return false;
+      }
+      try {
+        final connectionState = ZegoUIKitSignalingPlugin().getConnectionState();
+        if (connectionState != ZegoSignalingPluginConnectionState.connected) {
+          debugPrint(
+              'ZegoCloud service not connected. State: $connectionState');
+          return false;
+        }
+        sendCall(callType);
+      } catch (e) {
+        debugPrint('Error checking ZegoCloud connection state: $e');
+        return false;
+      }
+      return true;
+    }
+
+    /// Function to create call button with tooltip
+    Widget buildCallButton({
+      required bool isVideoCall,
+      required JustTheController tooltip,
+      required String tooltipText,
+      required String iconPath,
+    }) {
+      return JustTheTooltip(
+        controller: tooltip,
+        content: SizedBox(
+          width: 180,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(tooltipText),
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          child: ZegoSendCallInvitationButton(
+            isVideoCall: isVideoCall,
+            invitees: [
+              ZegoUIKitUser(
+                id: widget.meltUserModel.id!,
+                name: widget.meltUserModel.username!,
+              ),
+            ],
+            resourceID: 'metal_call',
+            iconSize: const Size(30, 30),
+            buttonSize: const Size(40, 40),
+            icon: ButtonIcon(
+              icon: SvgPicture.asset(
+                iconPath,
+                height: 30,
+                width: 30,
+                color: isCallAllowed ? Colors.black : Colors.grey,
+              ),
+            ),
+            onWillPressed: () => handleCallPress(
+                tooltip, isVideoCall ? "Video call" : "Voice call"),
+          ),
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),
@@ -107,168 +182,20 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             ],
           ),
           const Spacer(),
-          JustTheTooltip(
-            controller: tooltipController,
-            content: SizedBox(
-              width: 180,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Video call is enabled after $daysRequiredToUnMelt days of connection.',
-                ),
-              ),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              shape: const CircleBorder(),
-              child: ZegoSendCallInvitationButton(
-                isVideoCall: true,
-                invitees: [
-                  ZegoUIKitUser(
-                    id: widget.meltUserModel.id!,
-                    name: widget.meltUserModel.username!,
-                  ),
-                ],
-                resourceID: 'metal_call',
-                iconSize: const Size(30, 30),
-                buttonSize: const Size(40, 40),
-                icon: ButtonIcon(
-                  icon: SvgPicture.asset(
-                    Assets.icons.chatsWindowactiveVideoRecorder.path,
-                    height: 30,
-                    width: 30,
-                    color: is15DaysReached ? Colors.black : Colors.grey,
-                  ),
-                ),
-                onWillPressed: () async {
-                  //THIS LOGIC CHECK FOR ANONYMOUS AND MELTED DAYS
-                  debugPrint("onWillPressed triggered");
-
-                  if (!is15DaysReached) {
-                    debugPrint("15-day restriction active, showing tooltip.");
-                    tooltipController.showTooltip();
-                    return false;
-                  }
-                  if (widget.connectionModel.isAnonymous) {
-                    debugPrint("Anonymous user restriction, showing tooltip.");
-                    tooltipController.showTooltip();
-                    return false;
-                  }
-                  try {
-                    final connectionState =
-                        ZegoUIKitSignalingPlugin().getConnectionState();
-                    debugPrint("ZegoCloud connection state: $connectionState");
-
-                    if (connectionState !=
-                        ZegoSignalingPluginConnectionState.connected) {
-                      debugPrint("ZegoCloud service not connected.");
-                      return false;
-                    }
-                  } catch (e) {
-                    debugPrint("Error checking ZegoCloud connection state: $e");
-                    return false;
-                  }
-                  debugPrint("Call can proceed");
-                  return true;
-                },
-
-                //THIS BUTTON WORKED WITHOUT BEING CHECK FOR THE NUMBER OF DAYS FOR USER
-                // onWillPressed: () async {
-                //   if (!is15DaysReached) {
-                //     tooltipController.showTooltip();
-                //     return false;
-                //   }
-                //   if (widget.connectionModel.isAnonymous) {
-                //     tooltipController.showTooltip();
-                //     return true;
-                //   }
-                //   try {
-                //     final connectionState =
-                //         ZegoUIKitSignalingPlugin().getConnectionState();
-                //     if (connectionState !=
-                //         ZegoSignalingPluginConnectionState.connected) {
-                //       debugPrint(
-                //           'ZegoCloud service not connected. State: $connectionState');
-
-                //       return false;
-                //     }
-                //   } catch (e) {
-                //     debugPrint('Error checking ZegoCloud connection state: $e');
-                //     return false;
-                //   }
-                //   return true;
-                // },
-              ),
-            ),
+          buildCallButton(
+            isVideoCall: true,
+            tooltip: tooltipController,
+            tooltipText: 'Video call is available after mutual melting.',
+            iconPath: Assets.icons.chatsWindowactiveVideoRecorder.path,
           ),
           const Gap(15),
-          JustTheTooltip(
-            controller: tooltipController2,
-            content: const SizedBox(
-              width: 180,
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Voice call is available after un-melting.',
-                ),
-              ),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              shape: const CircleBorder(),
-              child: ZegoSendCallInvitationButton(
-                isVideoCall: false,
-                invitees: [
-                  ZegoUIKitUser(
-                    id: widget.meltUserModel.id!,
-                    name: widget.meltUserModel.username!,
-                  ),
-                ],
-                resourceID: 'metal_call',
-                iconSize: const Size(30, 30),
-                buttonSize: const Size(40, 40),
-                icon: ButtonIcon(
-                  icon: SvgPicture.asset(
-                    Assets.icons.chatsWindowactiveFill.path,
-                    height: 30,
-                    width: 30,
-                    color: is15DaysReached ? Colors.black : Colors.grey,
-                  ),
-                ),
-                onWillPressed: () async {
-                  print("onWillPressed triggered");
-                  if (!is15DaysReached) {
-                    print("15-day restriction active, showing tooltip.");
-                    tooltipController2.showTooltip();
-                    return false;
-                  }
 
-                  if (widget.connectionModel.isAnonymous) {
-                    print("Anonymous user restriction, showing tooltip.");
-                    tooltipController2.showTooltip();
-                    return false;
-                  }
-
-                  try {
-                    final connectionState =
-                        ZegoUIKitSignalingPlugin().getConnectionState();
-                    print("ZegoCloud connection state: $connectionState");
-
-                    if (connectionState !=
-                        ZegoSignalingPluginConnectionState.connected) {
-                      print("ZegoCloud service not connected.");
-                      return false;
-                    }
-                  } catch (e) {
-                    print("Error checking ZegoCloud connection state: $e");
-                    return false;
-                  }
-
-                  print("Call can proceed");
-                  return true;
-                },
-              ),
-            ),
+          /// Audio Call Button
+          buildCallButton(
+            isVideoCall: false,
+            tooltip: tooltipController2,
+            tooltipText: 'Voice call is available after mutual melting.',
+            iconPath: Assets.icons.chatsWindowactiveFill.path,
           ),
           const Gap(15),
           PopupMenuButton(
@@ -497,6 +424,21 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
       timestamp: DateTime.now().toIso8601String(),
       isRead: false,
       message: "Un-melt Request",
+    );
+
+    ref
+        .read(sendMessageProvider.notifier)
+        .sendMessage(message, widget.connectionModel.connectionId);
+  }
+
+  void sendCall(String callType) {
+    final message = MessageModel(
+      content: callType,
+      senderId: ref.watch(authProvider).data!.id!,
+      type: MessageType.calls,
+      timestamp: DateTime.now().toIso8601String(),
+      isRead: false,
+      message: "Call Request",
     );
 
     ref

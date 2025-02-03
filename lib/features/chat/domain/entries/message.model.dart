@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:metal/core/utils/timestamp_converter.dart';
 
 part 'message.model.g.dart';
 
-enum MessageType { text, audio, un_melt }
+enum MessageType { text, audio, un_melt, calls }
 
 enum MessageState { sending, sent, read, error }
 
@@ -15,7 +14,7 @@ class MessageModel {
 
   final MessageType type;
   String? content;
-   String? id;
+  String? id;
 
   final String timestamp;
   final bool isRead;
@@ -25,7 +24,7 @@ class MessageModel {
     required this.senderId,
     required this.type,
     this.content,
-     this.id,
+    this.id,
     required this.timestamp,
     required this.isRead,
   });
@@ -36,14 +35,13 @@ class MessageModel {
   factory MessageModel.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     return MessageModel(
-      message: data['message'] ?? '',
-      senderId: data['senderId'] ?? '',
-      type: _convertStringToMessageType(data['type'] ?? ''),
-      content: data['content'],
-      timestamp: data['timestamp'],
-      isRead: data['isRead'],
-      id: snapshot.id
-    );
+        message: data['message'] ?? '',
+        senderId: data['senderId'] ?? '',
+        type: _convertStringToMessageType(data['type'] ?? ''),
+        content: data['content'],
+        timestamp: data['timestamp'],
+        isRead: data['isRead'],
+        id: snapshot.id);
   }
 
   static MessageType _convertStringToMessageType(String type) {
@@ -52,6 +50,8 @@ class MessageModel {
         return MessageType.text;
       case 'audio':
         return MessageType.audio;
+      case 'calls':
+        return MessageType.calls;
       case 'un_melt':
         return MessageType.un_melt;
       default:

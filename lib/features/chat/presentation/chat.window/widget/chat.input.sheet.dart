@@ -101,8 +101,7 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
                         ),
                       ),
                       WaveBubble(
-                       
-                        path: path?? "",
+                        path: path ?? "",
                         isSender: true,
                       ),
                       GestureDetector(

@@ -63,7 +63,7 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
   }
 
   Widget _buildEmptyChatMessage() {
-    return Padding(
+    return const Padding(
       padding: const EdgeInsets.all(16.0),
       child: Center(
         child: Column(

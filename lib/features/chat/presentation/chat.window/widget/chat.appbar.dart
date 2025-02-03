@@ -59,8 +59,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDaysReached = hasDurationReached(
-        widget.connectionModel.connectedOn, daysRequiredToUnMelt);
     int dayRemaining =
         daysRemaining(widget.connectionModel.connectedOn, daysRequiredToUnMelt);
 
@@ -73,22 +71,26 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     /// Function to check call eligibility
     Future<bool> handleCallPress(
         JustTheController tooltip, String callType) async {
-      if (!isCallAllowed) {
+      if (widget.connectionModel.isAnonymous) {
         tooltip.showTooltip();
         return false;
       }
+
       try {
         final connectionState = ZegoUIKitSignalingPlugin().getConnectionState();
+
         if (connectionState != ZegoSignalingPluginConnectionState.connected) {
           debugPrint(
               'ZegoCloud service not connected. State: $connectionState');
           return false;
         }
+
         sendCall(callType);
       } catch (e) {
         debugPrint('Error checking ZegoCloud connection state: $e');
         return false;
       }
+
       return true;
     }
 
@@ -316,7 +318,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         const Gap(15),
         TextView(
           text:
-              "To Unmetal, we require a minimum of $daysRequiredToUnMelt days of Melt conversations between you and @${widget.meltUserModel.username}",
+              "To Unmetal, we require a minimum of $daysRequiredToUnMelt days of Melt between you and @${widget.meltUserModel.username}",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
@@ -332,7 +334,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         if (hasDurationReached(
             widget.connectionModel.connectedOn, daysRequiredToUnMelt))
           BaseButton(
-            buttonText: "Un-Melt Request",
+            buttonText: "Un-Metal Request",
             onPressed: () {
               sendUnmelt();
               Navigator.pop(context);
@@ -378,44 +380,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
       ],
     );
   }
-
-  // Handle video call initialization
-  // void makeVideoCall(BuildContext context) {
-  // Navigator.push(
-  //   context,
-  //   MaterialPageRoute(
-  //       builder: (context) => ZegoSendCallInvitationButton(
-  //             isVideoCall: true,
-  //             //You need to use the resourceID that you created in the subsequent steps.
-  //             //Please continue reading this document.
-  //             resourceID: "metal_call",
-  //             invitees: [
-  //               ZegoUIKitUser(
-  //                 id: widget.meltUserModel.id!,
-  //                 name: widget.meltUserModel.username!,
-  //               ),
-  //             ],
-  //           )),
-  // );
-  // }
-
-  // Handle voice call initialization
-  // void makeVoiceCall(BuildContext context) {
-  // Navigator.push(
-  //   context,
-  //   MaterialPageRoute(
-  //       builder: (context) => ZegoSendCallInvitationButton(
-  //             isVideoCall: false,
-  //             resourceID: "metal_call",
-  //             invitees: [
-  //               ZegoUIKitUser(
-  //                 id: widget.meltUserModel.id!,
-  //                 name: widget.meltUserModel.username!,
-  //               ),
-  //             ],
-  //           )),
-  // );
-  // }
 
   void sendUnmelt() {
     final message = MessageModel(

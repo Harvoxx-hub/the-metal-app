@@ -104,8 +104,9 @@ class ReferRepository implements IReferRepository {
         );
       } else {
         return Responses(
-          success: false,
+          success: true,
           message: "No users found with the provided referral code.",
+             data: [],
         );
       }
     } catch (e) {

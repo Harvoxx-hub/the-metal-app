@@ -30,6 +30,8 @@ class FirebaseErrorHandler {
         return "The requested resource was not found.";
       case 'deadline-exceeded':
         return "The operation took too long to complete. Please try again.";
+      case 'user-not-found':
+        return "No user found with this email. Please sign up first.";
       case 'already-exists':
         return "The resource you're trying to create already exists.";
       default:

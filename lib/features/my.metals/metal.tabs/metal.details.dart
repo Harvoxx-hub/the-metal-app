@@ -272,7 +272,9 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
         BaseButton(
             buttonText: "De-melt  ${data.username}",
             onPressed: () {
-              ref.read(demeltUserProvider.notifier).deMeltUser(data.id!);
+              ref
+                  .read(demeltUserProvider.notifier)
+                  .deMeltUser(widget.connectionModel);
               Navigator.pop(context);
               Navigator.pop(context);
             }),

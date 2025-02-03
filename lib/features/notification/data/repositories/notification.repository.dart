@@ -26,9 +26,15 @@ class NotificationRepository implements INotificationRepository {
       String userId = user.uid;
 
       // Fetch notifications from the subcollection `notifications` under the user's document
-      final notifications = await _firebaseService.readCollection(
+      final notifications = await _firebaseService.queryBuilderCollection(
         collectionPath:
             '${FirebaseFirestoreCollectionKeys.users}/$userId/${FirebaseFirestoreCollectionKeys.notification}',
+        queryBuilder: (query) {
+          return query.orderBy(
+            'timestamp',
+            descending: true,
+          );
+        },
       );
 
       if (notifications.isNotEmpty) {

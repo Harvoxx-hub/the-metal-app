@@ -1,15 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/core/utils/constant/common.dart';
 import 'package:metal/core/utils/constant/constants.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/main.dart';
-// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-// import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
-// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-// import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier(
@@ -40,7 +38,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-   
   Future getUpdatedUser() async {
     try {
       final authenticationRepository =
@@ -60,16 +57,33 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> initZIMKIt() async {
-         
-    // if (state.data != null) {
-    //   ZegoUIKitPrebuiltCallInvitationService().init(
-    //     appID: appIDKey,
-    //     appSign: appSignKey,
-    //     userID: state.data! .id!,
-    //     userName: state.data! .username!,
-    //     plugins: [ZegoUIKitSignalingPlugin()],
-    //   );
-    // }
+    if (state.data != null) {
+      ZegoUIKitPrebuiltCallInvitationService().init(
+        appID: appIDKey,
+        appSign: appSignKey,
+        userID: state.data!.id!,
+        userName: state.data!.username!,
+        plugins: [ZegoUIKitSignalingPlugin()],
+        requireConfig: (ZegoCallInvitationData data) {
+          final config = (data.invitees.length > 1)
+              ? ZegoCallInvitationType.videoCall == data.type
+                  ? ZegoUIKitPrebuiltCallConfig.groupVideoCall()
+                  : ZegoUIKitPrebuiltCallConfig.groupVoiceCall()
+              : ZegoCallInvitationType.videoCall == data.type
+                  ? ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall()
+                  : ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall();
+
+          config.topMenuBar.isVisible = true;
+          config.avatarBuilder = customAvatarBuilder;
+          config.topMenuBar.buttons
+              .insert(0, ZegoCallMenuBarButtonName.minimizingButton);
+          config.topMenuBar.buttons
+              .insert(1, ZegoCallMenuBarButtonName.soundEffectButton);
+
+          return config;
+        },
+      );
+    }
   }
 }
 

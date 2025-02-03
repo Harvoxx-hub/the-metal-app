@@ -63,6 +63,8 @@ class MessageBubble extends ConsumerWidget {
         return _buildTextMessage(isSender, isAdmin);
       case MessageType.audio:
         return _buildAudioMessage(isSender);
+      case MessageType.calls:
+        return _buildCallMessage(isSender);
       default:
         return _buildUnsupportedMessage(isSender, isAdmin, ref);
     }
@@ -91,6 +93,58 @@ class MessageBubble extends ConsumerWidget {
             fontSize: 10,
             color: AppColors.metalBlack50,
           ),
+        _buildReadReceipt(isSender),
+      ],
+    );
+  }
+
+  Widget _buildCallMessage(bool isSender) {
+    final bool isVideoCall = message.content == "Video call";
+    final String callTypeText = isVideoCall ? "Video Call" : "Voice Call";
+    final IconData callIcon = isVideoCall ? Icons.videocam : Icons.call;
+
+    return Column(
+      crossAxisAlignment:
+          isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        Container(
+          constraints: const BoxConstraints(minWidth: 100, maxWidth: 220),
+          decoration: BoxDecoration(
+            color: isSender ? Colors.green.shade700 : Colors.green.shade800,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(callIcon, size: 22, color: Colors.white70),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextView(
+                    text: callTypeText,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                  const TextView(
+                    text: "Call initiated",
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white70,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 5),
+        TextView(
+          text: formatTime(isoDateString: message.timestamp),
+          fontSize: 10,
+          color: AppColors.metalBlack50,
+        ),
         _buildReadReceipt(isSender),
       ],
     );

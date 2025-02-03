@@ -63,7 +63,7 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
   }
 
   Widget _buildEmptyChatMessage() {
-    return Padding(
+    return const Padding(
       padding: const EdgeInsets.all(16.0),
       child: Center(
         child: Column(
@@ -110,7 +110,7 @@ class chatListItem extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
-            arguments: getUser.data!.id);
+            arguments: getUser.data?.id);
       },
       child: getUser.isLoading
           ? const Center(
@@ -121,10 +121,11 @@ class chatListItem extends ConsumerWidget {
               child: Row(
                 children: [
                   ProfilePhoto(
-                      meltId: getUser.data?.metal ?? "",
-                      imgUrl: conversationsModel.isAnonymous
-                          ? null
-                          : getUser.data!.profilePhoto ?? null),
+                    meltId: getUser.data?.metal ?? '',
+                    imgUrl: conversationsModel.isAnonymous
+                        ? null
+                        : getUser.data?.profilePhoto ?? '',
+                  ),
                   const Gap(16),
                   Expanded(
                     child: Column(

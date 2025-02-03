@@ -194,17 +194,18 @@ class MessageBubble extends ConsumerWidget {
 
   Widget _buildUnmeltContent(bool isSender, WidgetRef ref) {
     return message.message == "cancel"
-        ? const TextView(text: "Un-melt Request Cancelled")
+        ? const TextView(text: "Un-metal Request Cancelled")
         : message.message == "approved"
-            ? const TextView(text: "Un-melt Request Approved")
+            ? const TextView(text: "Un-metal Request Approved")
             : message.message == "rejected"
-                ? const TextView(text: "Un-melt Request Rejected")
+                ? const TextView(text: "Un-metal Request Rejected")
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TextView(
-                        text:
-                            isSender ? 'Un-Melt Requested' : 'Un-Melt Request',
+                        text: isSender
+                            ? 'Un-Metal Requested'
+                            : 'Un-Metal Request',
                       ),
                       const Gap(10),
                       isSender

@@ -16,7 +16,7 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
   int currentScreen = 0;
 
   void nextScreen() {
-    if (currentScreen < 8) {
+    if (currentScreen < 9) {
       pageViewController.nextPage(
           duration: Duration(milliseconds: 3), curve: Curves.ease);
     }

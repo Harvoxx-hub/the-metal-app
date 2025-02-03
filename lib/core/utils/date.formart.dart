@@ -66,7 +66,7 @@ bool hasDurationReached(String isoDateString, int durationInDays) {
   // Get the current date in local time
   DateTime now = DateTime.now();
 
-  return now.difference(date).inDays > durationInDays;
+  return now.difference(date).inDays >= durationInDays;
 
   // Check if the current date has reached or surpassed the target date
   // return now.isAfter(targetDate) || now.isAtSameMomentAs(targetDate);

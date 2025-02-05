@@ -1,7 +1,5 @@
 import 'dart:io';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
@@ -11,19 +9,20 @@ class ProfileImageNotifier extends StateNotifier<ProfileImageState> {
     super.state,
     this.ref,
   );
+
   final Ref ref;
 
-  // melt user
+  // Upload user profile image
   void UploadProfileImage(File image) async {
     try {
       state = ProfileImageState.loading();
-      final repo = ref.watch(authenticationRepositoryProvider);
+      final repo = ref.read(authenticationRepositoryProvider);
       final response = await repo.uploadProfileImage(image);
 
       if (response.success == false) {
         state = ProfileImageState.error(response.message!);
       } else {
-        ref.watch(authProvider.notifier).getUpdatedUser();
+        ref.read(authProvider.notifier).getUpdatedUser();
         state = ProfileImageState.success("");
       }
     } catch (e, s) {
@@ -36,6 +35,6 @@ class ProfileImageNotifier extends StateNotifier<ProfileImageState> {
 typedef ProfileImageState = BaseState<String>;
 
 final profileImageProvider =
-    StateNotifierProvider.autoDispose<ProfileImageNotifier, ProfileImageState>(
+    StateNotifierProvider<ProfileImageNotifier, ProfileImageState>(
   (ref) => ProfileImageNotifier(ProfileImageState.initial(), ref),
 );

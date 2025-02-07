@@ -31,7 +31,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return;
       }
 
+      print("USER RESPONSE: ${response.data}");
+
       final userData = UserModel.fromJson(response.data);
+      print("USER DATA: ${userData.id}");
       state = AuthState.success(userData);
     } catch (e, s) {
       state = AuthState.error(e.toString(), stackTrace: s);

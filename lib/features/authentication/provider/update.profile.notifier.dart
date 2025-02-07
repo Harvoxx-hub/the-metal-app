@@ -15,10 +15,13 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
 
   /// Initializes the user profile from the auth provider
   Future<void> _initializeProfile() async {
-    final user = ref.watch(authProvider).data;
+    final user = ref.read(authProvider).data;
     if (user != null) {
       model = user;
       state = UpdateProfileState.success(user);
+      print("SOON USER UPDATE: ${user.toJson()}");
+    } else {
+      print("SOON USER UPDATE: No user data available");
     }
   }
 

@@ -10,6 +10,7 @@ import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
 
 import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
@@ -21,7 +22,8 @@ import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class MetalDetailsTab extends ConsumerStatefulWidget {
-  const MetalDetailsTab({
+  const MetalDetailsTab(
+  {
     super.key,
     required this.melted,
     required this.userModel,
@@ -32,6 +34,7 @@ class MetalDetailsTab extends ConsumerStatefulWidget {
   final bool melted;
   final String connectionModel;
   final String connectedOn;
+ 
   @override
   ConsumerState<MetalDetailsTab> createState() => _MetalDetailsTabState();
 }
@@ -274,9 +277,14 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
             onPressed: () {
               ref
                   .read(demeltUserProvider.notifier)
-                  .deMeltUser(widget.connectionModel);
+                  .deMeltUser(widget.connectionModel, widget.userModel);
               Navigator.pop(context);
-              Navigator.pop(context);
+              // widget.checkMelt;
+              Future.delayed(Duration(seconds: 1), () {
+                ref
+                    .read(checkMeltProvider(widget.userModel.id!).notifier)
+                    .checkStatus();
+              });
             }),
         const Gap(23),
         TextView(

@@ -299,11 +299,11 @@ class AuthenticationRepository implements IAuthenticationRepository {
         return Responses(success: false, message: "No user logged in.");
       }
 
-      // Delete user data from Firestore
-      await _firebaseService.deleteDocument(
-        collectionPath: FirebaseFirestoreCollectionKeys.users,
-        documentId: user.uid,
-      );
+      // // Delete user data from Firestore
+      // await _firebaseService.deleteDocument(
+      //   collectionPath: FirebaseFirestoreCollectionKeys.users,
+      //   documentId: user.uid,
+      // );
 
       // Try to delete the user from Firebase Auth
       try {

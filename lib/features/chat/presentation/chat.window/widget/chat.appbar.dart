@@ -13,7 +13,7 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
-import 'package:metal/features/chat/provider/get.last.active.notifier.dart';
+
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
 
@@ -119,8 +119,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               ),
             ],
             resourceID: 'metal_call',
-            iconSize: const Size(30, 30),
-            buttonSize: const Size(40, 40),
+            iconSize: const Size(60, 30),
+            buttonSize: const Size(40, 30),
             icon: ButtonIcon(
               icon: SvgPicture.asset(
                 iconPath,

@@ -93,7 +93,7 @@ PODS:
   - firebase_core (3.9.0):
     - Firebase/CoreOnly (= 11.4.0)
     - Flutter
-  - firebase_messaging (15.0.3):
+  - firebase_messaging (15.1.6):
     - Firebase/Messaging (= 11.4.0)
     - firebase_core
     - Flutter
@@ -556,7 +556,7 @@ SPEC CHECKSUMS:
   firebase_analytics: e07a0ec33c87483218a148b1a7ba85ad83201db7
   firebase_auth: 42718683069d35d73af7a986b55b194589039e5e
   firebase_core: b62a5080210edad3f2934314a8b2c6f5124e8e10
-  firebase_messaging: cb11af1156650b4121547f96dcc97ccb2b5423cc
+  firebase_messaging: 98619a0572d82cfb3668e78859ba9f1110e268c9
   firebase_remote_config: 96a9b7e79624c5d9d16befdef60791966bb83919
   firebase_storage: 4942e88349ee5dd6258701244a5fd875a2e0fc77
   FirebaseABTesting: aef1719704fade00b200827e7973f352efc4caee
@@ -628,6 +628,6 @@ SPEC CHECKSUMS:
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
   ZPNs: 73bad0046a74e37315201053f9a0e7ac625d9436
 
-PODFILE CHECKSUM: 9d17fcc2c84bf57a7c5f72af3858f6fd85f93414
+PODFILE CHECKSUM: 091b7b62ec4f65e4f69861313616f18cef4051f2
 
 COCOAPODS: 1.16.2

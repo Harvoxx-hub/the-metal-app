@@ -49,7 +49,7 @@ class _MeltMetalState extends ConsumerState<MeltMetal> {
     return BaseScreen(
       subAppBar: true,
       isLoading: meltUserData == null,
-      appBarState: AppBarState.HambugerWithHeader,
+      appBarState: AppBarState.BackWithHeader,
       Header: "My melted metals",
       body: meltUserData == null
           ? const Center(

@@ -5,6 +5,7 @@ import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/handler/app.lifeycle.handler.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -74,6 +75,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     ref.read(authProvider.notifier).initZIMKIt();
+    ref.read(updateProfileProvider.notifier);
   }
 
   @override

@@ -72,9 +72,8 @@ class _WaveBubbleState extends ConsumerState<WaveBubble> {
     try {
       // Generate a unique filename for the URL using its hash
       final tempDir = await getTemporaryDirectory();
-      final fileName = md5
-          .convert(utf8.encode(url))
-          .toString(); // Use MD5 hash for unique file name
+      final fileName = DateTime.timestamp()
+          .microsecondsSinceEpoch; // Use MD5 hash for unique file name
       final filePath = '${tempDir.path}/$fileName.m4a';
       final file = File(filePath);
 
@@ -117,7 +116,7 @@ class _WaveBubbleState extends ConsumerState<WaveBubble> {
       path: localPath!,
       shouldExtractWaveform: true,
     );
-    ref.read(playerManagerProvider).preparePlayer(localPath!);
+    //   ref.read(playerManagerProvider).preparePlayer(localPath!);
 
     // Extract waveform data and get audio duration
     final durationInMs = await controller.getDuration();
@@ -144,11 +143,14 @@ class _WaveBubbleState extends ConsumerState<WaveBubble> {
   Widget build(BuildContext context) {
     final playerManager = ref.watch(playerManagerProvider);
     ref.listen(playerManagerProvider, (prev, current) {
-      debugPrint('Login state changed: $current');
+      //    debugPrint('Login state changed: ${current.currentPath}');
       if (playerManager.currentPath == localPath) {
         controller.playerState.isPlaying
             ? controller.pausePlayer()
-            : controller.startPlayer();
+            : {
+                controller.startPlayer(),
+                controller.setFinishMode(finishMode: FinishMode.pause)
+              };
       } else {
         controller.pausePlayer();
       }

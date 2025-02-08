@@ -151,11 +151,10 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             updateUser(userState.copyWith(address: p0 as Address));
           },
         ),
-
         const Gap(20),
         EditField(
           text: userState.extraData?.profession ?? "Proffession",
-          floatingLabel: "Proffession",
+          floatingLabel: "Profession",
           subLabel: "Edit",
           dropDownItems: metalProperties.profession,
           editType: EditType.dropdown,
@@ -164,7 +163,6 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                 extraData: userState.extraData!.copyWith(profession: p0)));
           },
         ),
-
         // Gap(20 ),
         // EditFormField(
         //   floatingLabel: 'Interested in',

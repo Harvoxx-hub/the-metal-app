@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart'
 ///
 /// Example:
 /// ```dart
-/// import 'firebase_options.dart';
+/// import 'firebase_options_dev.dart';
 /// // ...
 /// await Firebase.initializeApp(
 ///   options: DefaultFirebaseOptions.currentPlatform,
@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyD-ky8QWCmHTDRa-gboNjwqIAvEiorvW7E',
-    appId: '1:266202752447:android:de77fa6581ebba47c16d0a',
+    appId: '1:266202752447:android:f96395c610d3dbf5c16d0a',
     messagingSenderId: '266202752447',
     projectId: 'metal-ad87d',
     storageBucket: 'metal-ad87d.firebasestorage.app',
@@ -65,5 +65,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'metal-ad87d.firebasestorage.app',
     iosBundleId: 'com.bwh.metal',
   );
-
 }

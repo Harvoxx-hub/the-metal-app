@@ -104,6 +104,21 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    flavorDimensions "app"
+    productFlavors {
+        prod {
+            dimension "app"
+            applicationIdSuffix ".app"
+            resValue "string", "app_name", "metal"
+        }
+        dev {
+            dimension "app"
+            applicationIdSuffix ".dev"
+            resValue "string", "app_name", "metal-dev"
+            versionNameSuffix "-dev"
+        }
+    }
 }
 
 flutter {

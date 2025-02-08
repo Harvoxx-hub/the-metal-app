@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
 
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/chat/presentation/widget/chat.shimmer.widget.dart';
 
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
@@ -12,6 +13,7 @@ import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
+import 'package:metal/widgets/shimmer/custom_shimmer_loader.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class ChatListWidget extends ConsumerStatefulWidget {
@@ -42,7 +44,9 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
             fontWeight: FontWeight.w600,
           ),
           const Gap(10),
-          _buildChatListContent(myMelt),
+          myMelt!.isEmpty
+              ? _buildEmptyChatMessage()
+              : _buildChatListContent(myMelt),
         ],
       ),
     );
@@ -107,52 +111,54 @@ class chatListItem extends ConsumerWidget {
     );
     final getUser = ref.watch(getUserProvider(metalId));
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
-            arguments: getUser.data?.id);
-      },
-      child: getUser.isLoading
-          ? const Center(
-              child: CircularProgressIndicator.adaptive(),
-            )
-          : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  ProfilePhoto(
-                    meltId: getUser.data?.metal ?? '',
-                    imgUrl: conversationsModel.isAnonymous
-                        ? null
-                        : getUser.data?.profilePhoto ?? '',
-                  ),
-                  const Gap(16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+    return !getUser.isLoading
+        ? GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
+                  arguments: getUser.data?.id);
+            },
+            child: getUser.isLoading
+                ? const Center(
+                    child: CircularProgressIndicator.adaptive(),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
                       children: [
-                        TextView(
-                          text: getUser.data?.username ?? "Unknown",
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                        ProfilePhoto(
+                          meltId: getUser.data?.metal ?? '',
+                          imgUrl: conversationsModel.isAnonymous
+                              ? null
+                              : getUser.data?.profilePhoto ?? '',
+                        ),
+                        const Gap(16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextView(
+                                text: getUser.data?.username ?? "Unknown",
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              TextView(
+                                text: conversationsModel.lastMessage ?? "",
+                                fontWeight: FontWeight.w300,
+                                fontSize: 13,
+                              ),
+                            ],
+                          ),
                         ),
                         TextView(
-                          text: conversationsModel.lastMessage ?? "",
+                          text: formatTime(
+                              isoDateString: conversationsModel.lastUpdatedAt),
                           fontWeight: FontWeight.w300,
                           fontSize: 13,
                         ),
                       ],
                     ),
                   ),
-                  TextView(
-                    text: formatTime(
-                        isoDateString: conversationsModel.lastUpdatedAt),
-                    fontWeight: FontWeight.w300,
-                    fontSize: 13,
-                  ),
-                ],
-              ),
-            ),
-    );
+          )
+        : ChatListShimmer();
   }
 }

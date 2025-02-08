@@ -105,7 +105,8 @@ class AuthenticationRepository implements IAuthenticationRepository {
     String? referal,
   }) async {
     try {
-      String? token = await FCMClient.instance.init();
+      final fcmClient = FCMClient.instance;
+      final token = await fcmClient.init();
       var rng = new Random();
       var code = rng.nextInt(900000) + 100000;
       UserCredential userCredential =
@@ -299,11 +300,11 @@ class AuthenticationRepository implements IAuthenticationRepository {
         return Responses(success: false, message: "No user logged in.");
       }
 
-      // Delete user data from Firestore
-      await _firebaseService.deleteDocument(
-        collectionPath: FirebaseFirestoreCollectionKeys.users,
-        documentId: user.uid,
-      );
+      // // Delete user data from Firestore
+      // await _firebaseService.deleteDocument(
+      //   collectionPath: FirebaseFirestoreCollectionKeys.users,
+      //   documentId: user.uid,
+      // );
 
       // Try to delete the user from Firebase Auth
       try {

@@ -55,24 +55,30 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
                         padding: const EdgeInsets.only(bottom: 60.0),
                         child: SizedBox(
                           height: getDeviceHeight(context) * 0.59,
-                          child: GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount:
-                                  2, // You can adjust the number of columns here
-                              crossAxisSpacing: 10.0,
-
-                              mainAxisSpacing: 10.0,
-                              childAspectRatio: 16 / 14,
-                            ),
-                            itemCount: metalProps.data?.metals!.length ?? 0,
-                            itemBuilder: (BuildContext context, int index) {
-                              final Metal model =
-                                  metalProps.data!.metals![index];
-                              return ChooseMetalCard(
-                                model: model,
-                                onTap: () => updateMetal(model),
-                                selected: model == _selectedMetal,
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final crossAxisCount =
+                                  constraints.maxWidth < 600 ? 2 : 3;
+                              return GridView.builder(
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: crossAxisCount,
+                                  crossAxisSpacing: 10.0,
+                                  mainAxisSpacing: 10.0,
+                                  childAspectRatio: constraints.maxWidth < 600
+                                      ? 16 / 14
+                                      : 16 / 20,
+                                ),
+                                itemCount: metalProps.data?.metals!.length ?? 0,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final Metal model =
+                                      metalProps.data!.metals![index];
+                                  return ChooseMetalCard(
+                                    model: model,
+                                    onTap: () => updateMetal(model),
+                                    selected: model == _selectedMetal,
+                                  );
+                                },
                               );
                             },
                           ),

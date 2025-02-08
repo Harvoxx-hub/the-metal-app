@@ -3,6 +3,7 @@ import 'package:metal/core/services/firebase.service.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/chat/data/repositories/message.repository.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
+import 'package:metal/features/chat/provider/get.message.notifier.dart';
 
 class SendMessageNotifier extends StateNotifier<SendMessageState> {
   SendMessageNotifier(this.ref) : super(SendMessageState.initial());
@@ -14,6 +15,9 @@ class SendMessageNotifier extends StateNotifier<SendMessageState> {
     try {
       state = SendMessageState.loading();
 
+      ref
+          .read(getMessageList(conversationsId!).notifier)
+          .addLocalMessage(message);
       // If it's an audio message, upload the audio file to Firestore
       if (message.type == MessageType.audio) {
         message = await _uploadAudioMessage(message);

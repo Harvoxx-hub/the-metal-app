@@ -118,8 +118,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               ),
             ],
             resourceID: 'metal_call',
-            iconSize: const Size(30, 30),
-            buttonSize: const Size(40, 40),
+            iconSize: const Size(60, 30),
+            buttonSize: const Size(40, 30),
             icon: ButtonIcon(
               icon: SvgPicture.asset(
                 iconPath,

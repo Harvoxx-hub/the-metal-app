@@ -13,12 +13,12 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
-
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
 
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
+import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -57,7 +57,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   Widget build(BuildContext context) {
     int dayRemaining =
         daysRemaining(widget.connectionModel.connectedOn, daysRequiredToUnMelt);
-    print("CHECK FOR ACTIVE USER:${widget.meltUserModel.isOnline}");
 
     final checkMeltState =
         ref.watch(checkMeltProvider(widget.meltUserModel.id!));
@@ -381,7 +380,62 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     );
   }
 
-  void sendUnmelt() {
+  Widget unmetalUploadPhotoDialog(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        const Gap(38),
+        const TextView(
+          text: "Want to Unmetal?",
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+        const Gap(15),
+        const TextView(
+          text:
+              "Wait a minute, we are missing your \nphoto!. To unmetal means that the two \nprofiles can view each others photos",
+          fontSize: 16,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.w400,
+        ),
+        const Gap(25),
+        const TextView(
+          text: "To continue",
+          fontSize: 16,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.w400,
+          fontStyle: FontStyle.italic,
+        ),
+        const Gap(15),
+        BaseButton(
+          buttonText: "Upload your photo",
+          onPressed: () async {
+            Navigator.pop(context);
+            await ProfileHeader.pickImage(context, ref);
+          },
+        ),
+        const Gap(23),
+      ],
+    );
+  }
+
+  void sendUnmelt() async {
+    if (widget.meltUserModel.profilePhoto == null ||
+        widget.meltUserModel.profilePhoto!.trim().isEmpty) {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CustomDialog(
+            content: unmetalUploadPhotoDialog(context, ref),
+          );
+        },
+      );
+
+      if (widget.meltUserModel.profilePhoto == null ||
+          widget.meltUserModel.profilePhoto!.trim().isEmpty) {
+        return;
+      }
+    }
+
     final message = MessageModel(
       senderId: ref.watch(authProvider).data!.id!,
       type: MessageType.un_melt,

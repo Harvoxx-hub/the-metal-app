@@ -151,6 +151,7 @@ class MessageBubble extends ConsumerWidget {
   }
 
   Widget _buildAudioMessage(bool isSender) {
+    print(message.content);
     return Column(
       crossAxisAlignment:
           isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,

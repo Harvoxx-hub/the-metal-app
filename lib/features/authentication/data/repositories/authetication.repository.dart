@@ -105,7 +105,8 @@ class AuthenticationRepository implements IAuthenticationRepository {
     String? referal,
   }) async {
     try {
-      String? token = await FCMClient.instance.init();
+      final fcmClient = FCMClient.instance;
+      final token = await fcmClient.init();
       var rng = new Random();
       var code = rng.nextInt(900000) + 100000;
       UserCredential userCredential =

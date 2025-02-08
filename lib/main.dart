@@ -34,6 +34,7 @@ void main() async {
     );
   });
 
+
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -53,6 +54,7 @@ Future<void> initializeFirebase() async {
         options: DefaultFirebaseOptions.currentPlatform);
     FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
     await FirebaseRemoteConfigService().initialize();
+    
   } catch (e) {
     debugPrint('Error initializing Firebase: $e');
   }

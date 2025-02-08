@@ -240,6 +240,7 @@ class HomeRepository implements IHomeRepository {
           documentId: userId,
           data: {
             'isOnline': true,
+            'lastActive': DateTime.now().toIso8601String(),
           });
     } catch (e) {
       rethrow;

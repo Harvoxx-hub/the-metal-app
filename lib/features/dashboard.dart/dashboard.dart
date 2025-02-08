@@ -76,6 +76,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           );
         },
       );
+      
     } else if (_isUpdateAvailable(currentVersion, latestVersion)) {
       await showDialog(
         context: context,

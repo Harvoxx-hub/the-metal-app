@@ -31,4 +31,5 @@ const _$MessageTypeEnumMap = {
   MessageType.text: 'text',
   MessageType.audio: 'audio',
   MessageType.un_melt: 'un_melt',
+  MessageType.calls: 'calls',
 };

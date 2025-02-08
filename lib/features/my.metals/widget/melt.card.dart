@@ -34,7 +34,7 @@ class MeltCard extends ConsumerWidget {
         },
         height: 105,
         child: getUser.isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator.adaptive(),
               )
             : Row(

@@ -696,7 +696,7 @@ class _$UserModelImpl implements _UserModel {
       this.activateVideoCall = true,
       this.profilePhoto,
       this.fcmToken,
-      this.isOnline = false,
+      this.isOnline = true,
       this.lastActive,
       @JsonKey(name: 'blockedUsers') final List<String>? blockedUsers})
       : _connectionOption = connectionOption,

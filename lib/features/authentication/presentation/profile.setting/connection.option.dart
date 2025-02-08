@@ -36,56 +36,40 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
       appBarEnabled: false,
       Header: 'Connection option',
       authFlow: true,
-      body: SingleChildScrollView(
-          child: Column(
+      body: Column(
         children: [
           CreateProfileHeader2(
               path: Assets.images.heartLocks1.path,
               title: "What are you looking for in a person?",
               subtitle:
                   "**Please select up to two. You can always change your selection in settings"),
-          Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 60.0),
-                child: SizedBox(
-                  height: getDeviceHeight(context) * 0.59,
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount:
-                          2, // You can adjust the number of columns here
-                      crossAxisSpacing: 10.0,
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // You can adjust the number of columns here
+                crossAxisSpacing: 10.0,
 
-                      mainAxisSpacing: 10.0,
-                      childAspectRatio: 12 / 10,
-                    ),
-                    itemCount: metalProps.data!.lookingFor!.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final model = metalProps.data!.lookingFor![index];
-                      return ConnectionOptionsCard(
-                        model: model,
-                        onTap: () => updateMetal(model.title!),
-                        selected: _seletedOption.contains(model.title),
-                      );
-                    },
-                  ),
-                ),
+                mainAxisSpacing: 10.0,
+                childAspectRatio: 12 / 10,
               ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                left: 0,
-                child: BaseButton(
-                  enabled: _seletedOption.isNotEmpty,
-                  buttonText: "Next ",
-                  onPressed: _onNextPressed,
-                ),
-              )
-            ],
+              itemCount: metalProps.data!.lookingFor!.length,
+              itemBuilder: (BuildContext context, int index) {
+                final model = metalProps.data!.lookingFor![index];
+                return ConnectionOptionsCard(
+                  model: model,
+                  onTap: () => updateMetal(model.title!),
+                  selected: _seletedOption.contains(model.title),
+                );
+              },
+            ),
+          ),
+          BaseButton(
+            enabled: _seletedOption.isNotEmpty,
+            buttonText: "Next ",
+            onPressed: _onNextPressed,
           )
         ],
-      )),
+      ),
     );
   }
 

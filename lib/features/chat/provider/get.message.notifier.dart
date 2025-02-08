@@ -40,6 +40,17 @@ class MessageListNotifier extends StateNotifier<MessageListState> {
     ref.watch(messageRepositoryProvider).clearChat(id);
   }
 
+  // Add a method to add a message locally
+  void addLocalMessage(MessageModel message) {
+    if (!state.isSuccess) return;
+
+    final currentMessages = state.data;
+    final updatedMessages = List<MessageModel>.from(currentMessages!)
+      ..add(message);
+
+    state = MessageListState.success(updatedMessages);
+  }
+
   @override
   void dispose() {
     _messageSubscription?.cancel();

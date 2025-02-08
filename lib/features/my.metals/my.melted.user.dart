@@ -14,6 +14,7 @@ import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
 import 'package:metal/features/my.metals/metal.tabs/metal.details.dart';
+import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
 import 'package:metal/features/profile/presentation/tab.screen/thought.tab.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -133,9 +134,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                   const Gap(5),
                                   TextView(
                                     text: myMelt.data?.address != null
-                                        ? connection?.isAnonymous == true
-                                            ? "Anonymous User"
-                                            : "${myMelt.data!.address?.state}, ${myMelt.data!.address?.country}"
+                                        ? "${myMelt.data!.address?.state ?? ""}, ${myMelt.data!.address?.country ?? ""}"
                                         : "No Address Found",
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -144,8 +143,12 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                             ),
                           ),
                           const Gap(20),
-                          _buildMeltActionSection(checkMeltState, meltState,
-                              context, connectionList?.length ?? 0),
+                          _buildMeltActionSection(
+                            checkMeltState,
+                            meltState,
+                            context,
+                            connectionList?.length ?? 0,
+                          ),
                           const Gap(10),
                           BaseTab(
                             tabs: [

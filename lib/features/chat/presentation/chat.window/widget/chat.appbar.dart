@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/core/utils/constant/enums.dart';
 
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
@@ -12,11 +13,12 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
-import 'package:metal/features/chat/provider/get.last.active.notifier.dart';
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
 
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
+import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -26,7 +28,8 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
-//import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 class ChatWindowsAppBar extends ConsumerStatefulWidget {
   const ChatWindowsAppBar({
@@ -46,11 +49,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(lastActiveProvider.notifier)
-          .GetLastActiveTime(widget.meltUserModel.id!);
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
     super.initState();
   }
 
@@ -58,6 +57,83 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   Widget build(BuildContext context) {
     int dayRemaining =
         daysRemaining(widget.connectionModel.connectedOn, daysRequiredToUnMelt);
+
+    final checkMeltState =
+        ref.watch(checkMeltProvider(widget.meltUserModel.id!));
+
+    /// Determines if the user is allowed to call
+    bool isCallAllowed = checkMeltState.data == MeltRequestState.mutual;
+
+    /// Function to check call eligibility
+    Future<bool> handleCallPress(
+        JustTheController tooltip, String callType) async {
+      if (widget.connectionModel.isAnonymous) {
+        tooltip.showTooltip();
+        return false;
+      }
+
+      try {
+        final connectionState = ZegoUIKitSignalingPlugin().getConnectionState();
+
+        if (connectionState != ZegoSignalingPluginConnectionState.connected) {
+          debugPrint(
+              'ZegoCloud service not connected. State: $connectionState');
+          return false;
+        }
+
+        sendCall(callType);
+      } catch (e) {
+        debugPrint('Error checking ZegoCloud connection state: $e');
+        return false;
+      }
+
+      return true;
+    }
+
+    /// Function to create call button with tooltip
+    Widget buildCallButton({
+      required bool isVideoCall,
+      required JustTheController tooltip,
+      required String tooltipText,
+      required String iconPath,
+    }) {
+      return JustTheTooltip(
+        controller: tooltip,
+        content: SizedBox(
+          width: 180,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(tooltipText),
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          child: ZegoSendCallInvitationButton(
+            isVideoCall: isVideoCall,
+            invitees: [
+              ZegoUIKitUser(
+                id: widget.meltUserModel.id!,
+                name: widget.meltUserModel.username!,
+              ),
+            ],
+            resourceID: 'metal_call',
+            iconSize: const Size(60, 30),
+            buttonSize: const Size(40, 30),
+            icon: ButtonIcon(
+              icon: SvgPicture.asset(
+                iconPath,
+                height: 30,
+                width: 30,
+                color: isCallAllowed ? Colors.black : Colors.grey,
+              ),
+            ),
+            onWillPressed: () => handleCallPress(
+                tooltip, isVideoCall ? "Video call" : "Voice call"),
+          ),
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),
@@ -90,13 +166,16 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               ),
               const Gap(3),
               TextView(
-                text: widget.meltUserModel.isOnline
-                    ? "active"
-                    : widget.meltUserModel.lastActive == null
-                        ? "Offline"
-                        : ActiveTime(
-                            isoDateString: widget.meltUserModel.lastActive ??
-                                DateTime.now().toIso8601String()),
+                text: !widget.meltUserModel.showOnline
+                    ? "Offline"
+                    : widget.meltUserModel.isOnline
+                        ? "active"
+                        : widget.meltUserModel.lastActive == null
+                            ? "Offline"
+                            : ActiveTime(
+                                isoDateString:
+                                    widget.meltUserModel.lastActive ??
+                                        DateTime.now().toIso8601String()),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: AppColors.metalBlack50,
@@ -104,84 +183,20 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             ],
           ),
           const Spacer(),
-          JustTheTooltip(
-            controller: tooltipController,
-            content: const SizedBox(
-              width: 180,
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Video call features are enabled after un-melting.',
-                ),
-              ),
-            ),
-            child: Material(
-              color: Colors.white,
-              shape: const CircleBorder(),
-              child: GestureDetector(
-                onTap: () {
-                  if (hasDurationReached(
-                      widget.connectionModel.connectedOn, 15)) {
-                    if (widget.connectionModel.isAnonymous) {
-                      tooltipController.showTooltip();
-                    } else {
-                      makeVideoCall(context);
-                    }
-                  } else {
-                    tooltipController.showTooltip();
-                  }
-                },
-                child: SvgPicture.asset(
-                  Assets.icons.chatsWindowactiveVideoRecorder.path,
-                  height: 30,
-                  width: 30,
-                  color:
-                      hasDurationReached(widget.connectionModel.connectedOn, 15)
-                          ? Colors.black
-                          : Colors.grey,
-                ),
-              ),
-            ),
+          buildCallButton(
+            isVideoCall: true,
+            tooltip: tooltipController,
+            tooltipText: 'Video call is available after mutual melting.',
+            iconPath: Assets.icons.chatsWindowactiveVideoRecorder.path,
           ),
           const Gap(15),
-          JustTheTooltip(
-            controller: tooltipController2,
-            content: const SizedBox(
-              width: 180,
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Voice call features are enabled after un-melting.',
-                ),
-              ),
-            ),
-            child: Material(
-              color: Colors.white,
-              shape: const CircleBorder(),
-              child: GestureDetector(
-                onTap: () {
-                  if (hasDurationReached(
-                      widget.connectionModel.connectedOn, 15)) {
-                    if (widget.connectionModel.isAnonymous) {
-                      tooltipController2.showTooltip();
-                    } else {
-                      makeVoiceCall(context);
-                    }
-                  } else {
-                    tooltipController2.showTooltip();
-                  }
-                },
-                child: SvgPicture.asset(
-                  Assets.icons.chatsWindowactiveFill.path,
-                  height: 24,
-                  width: 24,
-                  color:
-                      hasDurationReached(widget.connectionModel.connectedOn, 15)
-                          ? Colors.black
-                          : Colors.grey,
-                ),
-              ),
-            ),
+
+          /// Audio Call Button
+          buildCallButton(
+            isVideoCall: false,
+            tooltip: tooltipController2,
+            tooltipText: 'Voice call is available after mutual melting.',
+            iconPath: Assets.icons.chatsWindowactiveFill.path,
           ),
           const Gap(15),
           PopupMenuButton(
@@ -201,7 +216,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                     );
                   },
                 );
-              } else if (value == "rejected") {
+              } else if (value == "Rejected") {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -302,7 +317,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         const Gap(15),
         TextView(
           text:
-              "To Unmetal, we require a minimum of $daysRequiredToUnMelt days of Melt conversations between you and @${widget.meltUserModel.username}",
+              "To Unmetal, we require a minimum of $daysRequiredToUnMelt days of Melt between you and @${widget.meltUserModel.username}",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
@@ -318,7 +333,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         if (hasDurationReached(
             widget.connectionModel.connectedOn, daysRequiredToUnMelt))
           BaseButton(
-            buttonText: "Un-Melt Request",
+            buttonText: "Un-Metal Request",
             onPressed: () {
               sendUnmelt();
               Navigator.pop(context);
@@ -365,51 +380,83 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     );
   }
 
-  // Handle video call initialization
-  void makeVideoCall(BuildContext context) {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //       builder: (context) => ZegoSendCallInvitationButton(
-    //             isVideoCall: true,
-    //             //You need to use the resourceID that you created in the subsequent steps.
-    //             //Please continue reading this document.
-    //             resourceID: "metal_call",
-    //             invitees: [
-    //               ZegoUIKitUser(
-    //                 id: widget.meltUserModel.id!,
-    //                 name: widget.meltUserModel.username!,
-    //               ),
-    //             ],
-    //           )),
-    // );
+  Widget unmetalUploadPhotoDialog(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        const Gap(38),
+        const TextView(
+          text: "Want to Unmetal?",
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+        const Gap(15),
+        const TextView(
+          text:
+              "Wait a minute, we are missing your \nphoto!. To unmetal means that the two \nprofiles can view each others photos",
+          fontSize: 16,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.w400,
+        ),
+        const Gap(25),
+        const TextView(
+          text: "To continue",
+          fontSize: 16,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.w400,
+          fontStyle: FontStyle.italic,
+        ),
+        const Gap(15),
+        BaseButton(
+          buttonText: "Upload your photo",
+          onPressed: () async {
+            Navigator.pop(context);
+            await ProfileHeader.pickImage(context, ref);
+          },
+        ),
+        const Gap(23),
+      ],
+    );
   }
 
-  // Handle voice call initialization
-  void makeVoiceCall(BuildContext context) {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //       builder: (context) => ZegoSendCallInvitationButton(
-    //             isVideoCall: false,
-    //             resourceID: "metal_call",
-    //             invitees: [
-    //               ZegoUIKitUser(
-    //                 id: widget.meltUserModel.id!,
-    //                 name: widget.meltUserModel.username!,
-    //               ),
-    //             ],
-    //           )),
-    // );
-  }
+  void sendUnmelt() async {
+    if (widget.meltUserModel.profilePhoto == null ||
+        widget.meltUserModel.profilePhoto!.trim().isEmpty) {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CustomDialog(
+            content: unmetalUploadPhotoDialog(context, ref),
+          );
+        },
+      );
 
-  void sendUnmelt() {
+      if (widget.meltUserModel.profilePhoto == null ||
+          widget.meltUserModel.profilePhoto!.trim().isEmpty) {
+        return;
+      }
+    }
+
     final message = MessageModel(
       senderId: ref.watch(authProvider).data!.id!,
       type: MessageType.un_melt,
       timestamp: DateTime.now().toIso8601String(),
       isRead: false,
       message: "Un-melt Request",
+    );
+
+    ref
+        .read(sendMessageProvider.notifier)
+        .sendMessage(message, widget.connectionModel.connectionId);
+  }
+
+  void sendCall(String callType) {
+    final message = MessageModel(
+      content: callType,
+      senderId: ref.watch(authProvider).data!.id!,
+      type: MessageType.calls,
+      timestamp: DateTime.now().toIso8601String(),
+      isRead: false,
+      message: "Call Request",
     );
 
     ref

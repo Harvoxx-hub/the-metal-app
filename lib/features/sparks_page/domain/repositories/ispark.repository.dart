@@ -5,5 +5,5 @@ abstract class ISparkRepository {
   Future<Responses> buySpark(
       {required double numberOfSpark, required double amount});
   Future<Responses> shareSpark(
-      {required double numberOfSparks, required String receiverID});
+      {required double numberOfSparks, required String receiverID, required String senderName, required String receiverName});
 }

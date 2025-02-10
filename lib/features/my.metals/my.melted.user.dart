@@ -209,12 +209,10 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
   Widget _buildMeltActionSection(BaseState<MeltRequestState> checkMeltState,
       MeltUsersState meltState, BuildContext context, int connectionInt) {
     if (checkMeltState.data == MeltRequestState.pending) {
-      return PlainButton(
+      return BaseButton(
         loading: meltState.isLoading,
-        onPressed: () =>
-            ref.read(meltUserProvider.notifier).unMeltUser(widget.metalId),
+        onPressed: () {},
         fontSize: 15,
-        textColor: Colors.grey,
         buttonText: "Melt Requested",
       );
     } else if (checkMeltState.data == MeltRequestState.mutual) {

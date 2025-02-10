@@ -22,6 +22,7 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
       } else {
         final userData = UserModel.fromJson(response.data);
 
+        
         state = GetUserState.success(userData);
       }
     } catch (e, s) {

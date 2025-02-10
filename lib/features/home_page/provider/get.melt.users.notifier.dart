@@ -1,9 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:metal/core/state/base.state.dart';
-
+import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 
 class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
   GetMeltUsersNotifier(
@@ -20,37 +23,60 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
       state = GetMeltUsersState.loading();
 
       final homeRepository = ref.watch(homeRepositoryProvider);
+      final authState = ref.watch(authProvider).data;
+      if (authState == null) {
+        state = GetMeltUsersState.error("User not authenticated");
+        return;
+      }
+
       final response = await homeRepository.fetchConnections();
 
-      response.listen((response) {
+      response.listen((response) async {
         if (response.success ?? false) {
           final List<ConnectionModel> users = [];
+
           for (var user in response.data) {
-            users.add(ConnectionModel.fromJson(user));
+            var connection = ConnectionModel.fromJson(user);
+
+            // Identify the other user ID
+            String? otherUserId = connection.users
+                .firstWhere((id) => id != authState.id, orElse: () => '');
+
+            if (otherUserId.isNotEmpty) {
+              // Fetch the other user's details
+              final response = await ref
+                  .watch(authenticationRepositoryProvider)
+                  .getUserByID(id: otherUserId);
+              connection = connection.copyWith(
+                  otherUser: UserModel.fromJson(response.data));
+            }
+
+            users.add(connection);
           }
 
           // Sort the users by lastUpdatedAt in descending order
           users.sort((a, b) {
-            final aUpdatedAt = DateTime.parse(a.lastUpdatedAt!);
-            final bUpdatedAt = DateTime.parse(b.lastUpdatedAt!);
-            return bUpdatedAt.compareTo(aUpdatedAt); // Descending order
+            final aUpdatedAt = a.lastUpdatedAt != null
+                ? DateTime.parse(a.lastUpdatedAt!)
+                : DateTime(0);
+            final bUpdatedAt = b.lastUpdatedAt != null
+                ? DateTime.parse(b.lastUpdatedAt!)
+                : DateTime(0);
+            return bUpdatedAt.compareTo(aUpdatedAt);
           });
 
-          // Set the state to success and pass the sorted list of users
+          // Set the state to success with the sorted list
           state = GetMeltUsersState.success(users);
         } else {
-          // In case of an error, set the state to error with the error message and stack trace
           state = GetMeltUsersState.error(response.message ?? "");
         }
       });
     } catch (e, s) {
-      // In case of an error, set the state to error with the error message and stack trace
       state = GetMeltUsersState.error(e.toString(), stackTrace: s);
     }
   }
 
-  // Update the list of Melt users manually
-
+  // Get a specific connection by user ID
   ConnectionModel? getMeltUserById(String id) {
     try {
       if (state.data != null) {
@@ -60,11 +86,25 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
           }
         }
       }
-
       return null;
     } catch (e, s) {
       return null;
     }
+  }
+
+  List<ConnectionModel> filterUsers(String query) {
+    if (query.isEmpty) {
+      return state.data ?? [];
+    }
+
+    final filteredUsers = state.data!.where((user) {
+      return user.otherUser?.username!
+              .toLowerCase()
+              .contains(query.toLowerCase()) ??
+          false;
+    }).toList();
+
+    return filteredUsers;
   }
 }
 

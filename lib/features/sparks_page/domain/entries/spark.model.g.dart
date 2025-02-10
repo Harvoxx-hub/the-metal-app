@@ -13,7 +13,9 @@ SparkModel _$SparkModelFromJson(Map<String, dynamic> json) => SparkModel(
       receiverId: json['receiverId'] as String?,
       userId: json['userId'] as String?,
       timestamp: json['timestamp'] as String?,
-    );
+    )
+      ..receiverName = json['receiverName'] as String?
+      ..senderName = json['senderName'] as String?;
 
 Map<String, dynamic> _$SparkModelToJson(SparkModel instance) =>
     <String, dynamic>{
@@ -21,6 +23,8 @@ Map<String, dynamic> _$SparkModelToJson(SparkModel instance) =>
       'amount': instance.amount,
       'sparks': instance.sparks,
       'receiverId': instance.receiverId,
+      'receiverName': instance.receiverName,
+      'senderName': instance.senderName,
       'userId': instance.userId,
       'timestamp': instance.timestamp,
     };

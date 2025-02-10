@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/sparks_page/provider/get.spark.notifier.dart';
 
 import 'package:metal/features/sparks_page/screens/widget/spark.header.card.dart';
@@ -20,6 +21,7 @@ class SparksPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sparks = ref.watch(getSparkProvider);
+    final userData = ref.watch(authProvider).data;
     return SingleChildScrollView(
       child: Stack(
         children: [
@@ -100,6 +102,7 @@ class SparksPage extends ConsumerWidget {
                                       for (var item in sparks.data!)
                                         SparkHistoryItem(
                                           sparkModel: item,
+                                          userID: userData!.id!,
                                         ),
                                     ],
                                   ),

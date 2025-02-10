@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-
 import 'package:metal/features/chat/presentation/widget/chat.list.dart';
-
+ 
 import 'package:metal/gen/assets.gen.dart';
-
 import 'package:metal/widgets/text.field/edit.from.field.dart';
+
+// State provider for search query
+final searchQueryProvider = StateProvider<String>((ref) => "");
 
 class ChatPage extends ConsumerStatefulWidget {
   const ChatPage({super.key});
@@ -18,12 +18,24 @@ class ChatPage extends ConsumerStatefulWidget {
 }
 
 class _ChatPageState extends ConsumerState<ChatPage> {
-  ScrollController scrollController = ScrollController();
+  final TextEditingController searchController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-  }
+@override
+void initState() {
+  super.initState();
+  searchController.addListener(_onSearchChanged);
+}
+
+@override
+void dispose() {
+  searchController.removeListener(_onSearchChanged);
+  searchController.dispose();
+  super.dispose();
+}
+
+void _onSearchChanged() {
+  ref.read(searchQueryProvider.notifier).state = searchController.text;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -34,23 +46,25 @@ class _ChatPageState extends ConsumerState<ChatPage> {
           height: 140,
           width: double.infinity,
           decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment(0.00, -1.00),
-                end: Alignment(0, 1),
-                colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
-              ),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(35),
-                bottomRight: Radius.circular(35),
-              )),
+            gradient: LinearGradient(
+              begin: Alignment(0.00, -1.00),
+              end: Alignment(0, 1),
+              colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(35),
+              bottomRight: Radius.circular(35),
+            ),
+          ),
           child: Padding(
             padding: const EdgeInsets.only(left: 24.0, right: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 EditFormField(
+                  controller: searchController,
                   label: 'Search',
-                  keyboardType: TextInputType.emailAddress,
+                  keyboardType: TextInputType.text,
                   autoValidate: false,
                   prefixWidget: SvgPicture.asset(
                     Assets.icons.chatsSearch.path,
@@ -58,9 +72,9 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                     width: 24,
                   ),
                   radius: 34,
+                  
                 ),
                 const Gap(10),
-           
               ],
             ),
           ),

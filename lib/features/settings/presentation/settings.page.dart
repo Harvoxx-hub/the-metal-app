@@ -173,9 +173,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                               onTap: () {
-                                if ((blocked?.length ?? 0) >= 1)
-                                  Navigator.pushNamed(
-                                      context, AppRoutes.blockedUser);
+                                // if ((blocked?.length ?? 0) >= 1)
+                                Navigator.pushNamed(
+                                    context, AppRoutes.blockedContactsPage);
                               }),
                         ),
                         const Gap(20),

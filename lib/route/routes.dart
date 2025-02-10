@@ -13,6 +13,7 @@ import 'package:metal/features/onboarding/onboarding_page_view.dart';
 import 'package:metal/features/onboarding/tutorial_pages/tutorial_screen.dart';
 import 'package:metal/features/onboarding/sparks_info_switch_view.dart';
 import 'package:metal/features/onboarding/unmetal_view.dart';
+import 'package:metal/features/settings/presentation/blocked_contacts_page.dart';
 import 'package:metal/features/settings/presentation/delete.screen.dart';
 import 'package:metal/features/settings/presentation/edit.page.dart';
 import 'package:metal/features/splash/splash.screen.dart';
@@ -126,6 +127,7 @@ class AppRoutes {
   static const String editPage = '/editPage';
   static const String delete = '/deletePage';
   static const String postThought = '/postThought';
+  static const String blockedContactsPage = '/blockedContactsPage';
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
@@ -190,6 +192,8 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const EyesIntro());
       case eyeSelectMedia:
         return MaterialPageRoute(builder: (_) => const EyeSelectMedia());
+      case blockedContactsPage:
+        return MaterialPageRoute(builder: (_) => const BlockedContactsPage());
       case editPage:
         return MaterialPageRoute(builder: (_) => const EditPage());
       case eyePreviewMedia:

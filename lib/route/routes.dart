@@ -192,8 +192,13 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const EyesIntro());
       case eyeSelectMedia:
         return MaterialPageRoute(builder: (_) => const EyeSelectMedia());
+
       case blockedContactsPage:
-        return MaterialPageRoute(builder: (_) => const BlockedContactsPage());
+        return MaterialPageRoute(
+            builder: (_) => BlockedContactsPage(
+                  id: settings.arguments as String,
+                ));
+
       case editPage:
         return MaterialPageRoute(builder: (_) => const EditPage());
       case eyePreviewMedia:

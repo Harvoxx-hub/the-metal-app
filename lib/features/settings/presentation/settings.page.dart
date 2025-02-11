@@ -7,6 +7,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -29,6 +30,7 @@ class SettingPage extends ConsumerStatefulWidget {
 class _SettingPageState extends ConsumerState<SettingPage> {
   @override
   Widget build(BuildContext context) {
+    final myMelt = ref.watch(getMeltUserProvider);
     final user = ref.watch(authProvider).data;
     final blocked = ref.watch(getBlockUserProvider).data;
     return BaseScreen(
@@ -175,7 +177,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               onTap: () {
                                 // if ((blocked?.length ?? 0) >= 1)
                                 Navigator.pushNamed(
-                                    context, AppRoutes.blockedContactsPage);
+                                  context,
+                                  AppRoutes.blockedContactsPage,
+                                  arguments: myMelt.data!,
+                                );
                               }),
                         ),
                         const Gap(20),

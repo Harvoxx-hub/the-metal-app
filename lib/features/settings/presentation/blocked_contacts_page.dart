@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/home_page/provider/get.user.notifier.dart';
+import 'package:metal/features/settings/presentation/widget/blocked_user_action.dart';
+import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/widgets/card.with.shadow.dart';
 import 'package:metal/widgets/profile.photo.dart';
+import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class BlockedContactsPage extends ConsumerStatefulWidget {
-  const BlockedContactsPage({super.key});
+  final String? id;
+  const BlockedContactsPage({
+    super.key,
+    this.id = "unknow",
+  });
   static const name = 'BlockedContactsPage';
   static const route = name;
 
@@ -22,7 +32,11 @@ class BlockedContactsPage extends ConsumerStatefulWidget {
 class _BlockedContactsPageState extends ConsumerState<BlockedContactsPage> {
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider).data;
+    final user = ref.watch(authProvider).data;
+    final blockedUserList = ref.watch(getBlockUserProvider).data ?? [];
+
+    final creatorUserdata = ref.watch(getUserProvider(user!.id!));
+
     return BaseScreen(
       Header: "Blocked contacts",
       appBarState: AppBarState.HambugerWithHeader,
@@ -58,45 +72,44 @@ class _BlockedContactsPageState extends ConsumerState<BlockedContactsPage> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 20),
-                      child: Image.asset(
-                        Assets.images.chatSmilingFaceEmoji1.path,
+                      child: SvgPicture.asset(
+                        Assets.icons.meltedMetalsSmileyXEyes.path,
                       ),
                     ),
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.only(top: 20),
-                        itemCount: 20,
-                        itemBuilder: (context, index) => Container(
-                          color: AppColors.metalWhite,
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.grey.shade100),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                ProfilePhoto(
-                                  verfly: false,
-                                  size: 51,
-                                  meltId: authState!.metal!,
-                                  imgUrl: authState.profilePhoto,
-                                ),
-                                const Gap(10),
-                                TextView(
-                                  text: authState.fullname!,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: AppColors.metalBrownColourForText,
-                                  textAlign: TextAlign.left,
-                                ),
-                              ],
+                    blockedUserList.isEmpty
+                        ? const Center(
+                            child:
+                                EmptyState(text: "No Metal Has been Blocked"))
+                        : Expanded(
+                            child: ListView.builder(
+                              padding: const EdgeInsets.only(top: 20),
+                              itemCount: blockedUserList.length,
+                              itemBuilder: (context, index) => CardWithShadow(
+                                  onTap: () {
+                                    showBlockedUserActions(
+                                      context,
+                                      creatorUserdata.data!.username!,
+                                      user.id!,
+                                    );
+                                  },
+                                  height: 105,
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      ProfilePhoto(
+                                        meltId: creatorUserdata.data!.metal!,
+                                      ),
+                                      const Gap(23),
+                                      TextView(
+                                        text: creatorUserdata.data!.username!,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ],
+                                  )),
                             ),
                           ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

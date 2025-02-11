@@ -20,8 +20,7 @@ class MeltCard extends ConsumerWidget {
     final currentUser = ref.watch(authProvider).data;
     final metalId = user.users.firstWhere(
       (user) => user != currentUser!.id,
-      orElse: () =>
-          "", // Handle cases where all user IDs match the current user
+      orElse: () => "",
     );
     final getUser = ref.watch(getUserProvider(metalId));
     return CardWithShadow(

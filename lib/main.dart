@@ -6,6 +6,8 @@ import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/handler/app.lifeycle.handler.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/home_page/home_page.dart';
+import 'package:metal/features/settings/presentation/blocked_contacts_page.dart';
 
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -35,7 +37,6 @@ void main() async {
     );
   });
 
-
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -55,7 +56,6 @@ Future<void> initializeFirebase() async {
         options: DefaultFirebaseOptions.currentPlatform);
     FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
     await FirebaseRemoteConfigService().initialize();
-    
   } catch (e) {
     debugPrint('Error initializing Firebase: $e');
   }
@@ -95,8 +95,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           ],
         );
       },
-      initialRoute: '/',
-      onGenerateRoute: AppRoutes.generateRoute,
+      home: BlockedContactsPage(),
+      // initialRoute: '/',
+      // onGenerateRoute: AppRoutes.generateRoute,
       debugShowCheckedModeBanner: false,
     );
   }

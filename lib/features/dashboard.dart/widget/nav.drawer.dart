@@ -20,7 +20,7 @@ class NavDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider).data;
     final metalProperties = ref.watch(metalPropertiesProvider).data;
-   
+
     final metal = metalProperties!.metals!.firstWhere(
       (element) => element.id == authState!.metal,
       orElse: () => metalProperties.metals![0],
@@ -288,7 +288,7 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(40),
-            Padding(
+          Padding(
             padding: EdgeInsets.all(8.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -304,7 +304,8 @@ class NavDrawer extends ConsumerWidget {
                 ),
                 Gap(19),
                 TextView(
-                  text: ref.read(metalPropertiesProvider.notifier).currentVersion,
+                  text:
+                      ref.read(metalPropertiesProvider.notifier).currentVersion,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),

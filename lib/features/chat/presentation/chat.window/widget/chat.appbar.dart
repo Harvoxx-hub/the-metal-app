@@ -227,7 +227,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                 );
               } else if (value == "View contact") {
                 Navigator.pushNamed(context, AppRoutes.myMeltedUser,
-                    arguments: widget.meltUserModel.id!);
+                    arguments: {"metalId": widget.meltUserModel.id!});
               } else if (value == "Clear chat") {
                 ref
                     .read(getMessageList(widget.connectionModel.connectionId)
@@ -494,7 +494,11 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               ref
                   .read(blockUserProvider.notifier)
                   .BlockUser(data.username!, data.id!);
-              Navigator.pop(context);
+               Navigator.pushNamedAndRemoveUntil(
+                context,
+                AppRoutes.dashboardPage,
+                (route) => false, // Removes all previous routes from the stack
+              );
             }),
         const Gap(23),
         TextView(

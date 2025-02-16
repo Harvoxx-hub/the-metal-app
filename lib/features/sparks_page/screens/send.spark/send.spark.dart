@@ -297,7 +297,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
         BaseButton(
             buttonText: "Go back to dashboard",
             onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.dashboardPage);
+              Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
             })
       ],
     );

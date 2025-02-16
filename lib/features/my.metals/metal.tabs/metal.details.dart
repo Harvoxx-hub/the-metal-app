@@ -22,8 +22,7 @@ import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class MetalDetailsTab extends ConsumerStatefulWidget {
-  const MetalDetailsTab(
-  {
+  const MetalDetailsTab({
     super.key,
     required this.melted,
     required this.userModel,
@@ -34,7 +33,7 @@ class MetalDetailsTab extends ConsumerStatefulWidget {
   final bool melted;
   final String connectionModel;
   final String connectedOn;
- 
+
   @override
   ConsumerState<MetalDetailsTab> createState() => _MetalDetailsTabState();
 }
@@ -94,26 +93,26 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
                       },
                     ),
                     const Gap(20),
-                    EditField(
-                      text:
-                          "Un-melt ${widget.userModel.username}  from your metal list",
-                      floatingLabel: "Un-metals",
-                      suffixIcon: SvgPicture.asset(
-                        Assets.icons.meltedMetalsTrash01.path,
-                        height: 21,
-                        width: 21,
-                      ),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return CustomDialog(
-                              content: unmetalDialog(context, dayRemaining),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                    // EditField(
+                    //   text:
+                    //       "Un-melt ${widget.userModel.username}  from your metal list",
+                    //   floatingLabel: "Un-metals",
+                    //   suffixIcon: SvgPicture.asset(
+                    //     Assets.icons.meltedMetalsTrash01.path,
+                    //     height: 21,
+                    //     width: 21,
+                    //   ),
+                    //   onTap: () {
+                    //     showDialog(
+                    //       context: context,
+                    //       builder: (BuildContext context) {
+                    //         return CustomDialog(
+                    //           content: unmetalDialog(context, dayRemaining),
+                    //         );
+                    //       },
+                    //     );
+                    //   },
+                    // ),
                   ],
                 ),
               const Gap(20),
@@ -233,8 +232,11 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
               ref
                   .read(blockUserProvider.notifier)
                   .BlockUser(data.username!, data.id!);
-              Navigator.pop(context);
-              Navigator.pop(context);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                AppRoutes.dashboardPage,
+                (route) => false, // Removes all previous routes from the stack
+              );
             }),
         const Gap(23),
         TextView(
@@ -278,13 +280,14 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
               ref
                   .read(demeltUserProvider.notifier)
                   .deMeltUser(widget.connectionModel, widget.userModel);
-              Navigator.pop(context);
+
               // widget.checkMelt;
-              Future.delayed(Duration(seconds: 1), () {
+              Future.delayed(Duration(seconds: 3), () {
                 ref
                     .read(checkMeltProvider(widget.userModel.id!).notifier)
                     .checkStatus();
               });
+              Navigator.pop(context);
             }),
         const Gap(23),
         TextView(

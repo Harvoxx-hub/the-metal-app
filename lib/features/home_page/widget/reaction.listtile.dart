@@ -24,7 +24,7 @@ class ReactionListTile extends ConsumerWidget {
                 Navigator.pushNamed(
                   context,
                   AppRoutes.myMeltedUser,
-                  arguments: reactionModel.userId,
+                  arguments: {"metalId" : reactionModel.userId}  ,
                 );
               }
             },

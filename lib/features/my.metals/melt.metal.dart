@@ -39,10 +39,14 @@ class _MeltMetalState extends ConsumerState<MeltMetal> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
+   
 
     ref.listen<GetMeltUsersState>(getMeltUserProvider, (prev, current) {
       if (current.isSuccess) {
-        meltUserData = ref.watch(getUserProvider(widget.id)).data;
+        meltUserData = ref
+            .watch(getMeltUserProvider.notifier)
+            .getMeltUserById(widget.id)!
+            .otherUser;
         setState(() {});
       }
     });

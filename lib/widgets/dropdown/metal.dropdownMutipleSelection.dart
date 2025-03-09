@@ -90,29 +90,51 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
               border: Border.all(color: AppColors.metalPinkColour),
             ),
             child: Column(
-              children: widget.items.map((item) {
-                return Padding(
+              children: [
+                Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
                     children: [
-                      TextView(text: item),
+                      TextView(text: "Select All"),
                       const Spacer(),
                       CustomCheckWidget(
-                        initialValue: widget.value == null
-                            ? false
-                            : widget.value!.contains(item),
+                        initialValue: widget.value != null && 
+                            widget.value!.length == widget.items.length,
                         onChanged: (bool value) {
-                          value
-                              ? widget.onChanged([...widget.value ?? [], item])
-                              : widget.onChanged(
-                                  widget.value == null ? [] : widget.value!
-                                    ..remove(item));
+                          if (value) {
+                            widget.onChanged([...widget.items]);
+                          } else {
+                            widget.onChanged([]);
+                          }
                         },
                       ),
                     ],
                   ),
-                );
-              }).toList(),
+                ),
+                ...widget.items.map((item) {
+                  return Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      children: [
+                        TextView(text: item),
+                        const Spacer(),
+                        CustomCheckWidget(
+                          initialValue: widget.value == null
+                              ? false
+                              : widget.value!.contains(item),
+                          onChanged: (bool value) {
+                            value
+                                ? widget.onChanged([...widget.value ?? [], item])
+                                : widget.onChanged(
+                                    widget.value == null ? [] : widget.value!
+                                      ..remove(item));
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ],
             ),
           ),
       ],

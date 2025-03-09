@@ -73,9 +73,14 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
             const Gap(15),
             MentalDropdownMutipleSelection(
               items: const [
-                "18 - 30 years",
-                "30 - 45 years",
-                "45 - 60 years",
+                "18 - 25 years",
+                "25 - 30 years", 
+                "30 - 35 years",
+                "35 - 40 years",
+                "40 - 45 years",
+                "45 - 50 years",
+                "50 - 55 years",
+                "55 - 60 years",
                 "Above 60 years",
               ],
               value: selectedAgeRange,

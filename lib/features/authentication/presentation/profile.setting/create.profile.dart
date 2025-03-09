@@ -57,7 +57,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
               const Gap(45),
               const CreateProfileHeader1(
                 title1: '👋 Hello',
-                title2: 'Let’s set up your profile',
+                title2: 'Lets set up your profile',
                 title3: "It will only take 3 minutes",
               ),
               const Gap(24),
@@ -184,14 +184,27 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
     final userData = ref.watch(updateProfileProvider).data;
 
     if (_formKey.currentState!.validate()) {
-      UserModel userModel = UserModel(
-          username: _userNameController.text,
-          dob: _dobController.text,
-          gender: _gender,
-          connectWith: _whatImLookingFor.join(","),
-          fullname: _nameController.text);
+      final updatedModel = userData?.copyWith(
+        username: _userNameController.text,
+        dob: _dobController.text,
+        gender: _gender,
+        connectWith: _whatImLookingFor.join(","),
+        fullname: _nameController.text,
+        profileUpdated: true,
+        createdAt: DateTime.now().toIso8601String(),
+        updatedAt: DateTime.now().toIso8601String(),
+      ) ?? UserModel(
+        username: _userNameController.text,
+        dob: _dobController.text,
+        gender: _gender,
+        connectWith: _whatImLookingFor.join(","),
+        fullname: _nameController.text,
+        profileUpdated: true,
+        createdAt: DateTime.now().toIso8601String(),
+        updatedAt: DateTime.now().toIso8601String(),
+      );
 
-      ref.read(updateProfileProvider.notifier).updateUserData(userModel);
+      ref.read(updateProfileProvider.notifier).updateUserData(updatedModel);
 
       Navigator.pushNamed(
         context,

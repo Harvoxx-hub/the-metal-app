@@ -12,15 +12,16 @@ class NewUpdateDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      String updateLink;
+    String updateLink;
 
-  if (Platform.isAndroid) {
-    updateLink = 'https://play.google.com/store/apps/details?id=com.bwh.metal_app';
-  } else if (Platform.isIOS) {
-    updateLink = 'https://apps.apple.com/gm/app/the-metal-app/id6499093482';
-  } else {
-    updateLink = 'https://yourappwebsite.com';
-  }
+    if (Platform.isAndroid) {
+      updateLink =
+          'https://play.google.com/store/apps/details?id=com.bwh.metal_app';
+    } else if (Platform.isIOS) {
+      updateLink = 'https://apps.apple.com/gm/app/the-metal-app/id6499093482';
+    } else {
+      updateLink = 'https://yourappwebsite.com';
+    }
     return Column(
       children: [
         const Gap(38),
@@ -34,7 +35,7 @@ class NewUpdateDialog extends StatelessWidget {
         const Gap(15),
         const TextView(
           text:
-              "A new version of Metal Ap is here! We've added exciting new features, improved performance, and fixed some bugs to enhance your experience.",
+              "Experience the latest Metal App update! Discover new features, faster performance, and bug fixes for an even better user experience.",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
@@ -43,13 +44,10 @@ class NewUpdateDialog extends StatelessWidget {
         BaseButton(
             buttonText: "Update Now",
             onPressed: () async {
-                // Launch the appropriate update link
+              // Launch the appropriate update link
               launchUrl(Uri.parse(updateLink));
-            
             }),
         const Gap(23),
-      
-  
       ],
     );
   }

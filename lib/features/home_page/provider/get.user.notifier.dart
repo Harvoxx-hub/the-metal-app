@@ -22,7 +22,22 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
       } else {
         final userData = UserModel.fromJson(response.data);
 
-        state = GetUserState.success(userData);
+        // Check if createdAt or updatedAt is null and update if needed
+        if (userData.createdAt == null || userData.updatedAt == null) {
+          final currentTime = DateTime.now().toIso8601String();
+          final updatedUserData = userData.copyWith(
+            createdAt: userData.createdAt ?? currentTime,
+            updatedAt: userData.updatedAt ?? currentTime,
+          );
+
+          // Update the user document with the timestamps
+          await homeRepository.updateUser(updatedUserData.toJson());
+
+          // Set state with updated data
+          state = GetUserState.success(updatedUserData);
+        } else {
+          state = GetUserState.success(userData);
+        }
       }
     } catch (e, s) {
       state = GetUserState.error(e.toString(), stackTrace: s);

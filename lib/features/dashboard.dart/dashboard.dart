@@ -26,6 +26,7 @@ import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:upgrader/upgrader.dart';
 
 import '../home_page/home_page.dart';
+import 'package:metal/features/dashboard.dart/widget/thought_reminder_dialog.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -49,8 +50,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Future<void> _checkOnboardingAndUserStatus(UserModel userData) async {
     final prefs = await SharedPreferences.getInstance();
     final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+    final hasSeenThoughtReminder =
+        prefs.getBool('hasSeenThoughtReminder') ?? false;
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final String currentVersion = packageInfo.buildNumber;
+
+    // Calculate if user is within 7 days of creation
+    final DateTime creationDate = userData.createdAt != null ? DateTime.parse(userData.createdAt!) : DateTime.now();
+    final bool isWithin7Days =
+        DateTime.now().difference(creationDate).inDays <= 7;
+
     if (!hasSeenOnboarding) {
       await showDialog(
         context: context,
@@ -76,7 +85,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           );
         },
       );
-      
     } else if (_isUpdateAvailable(currentVersion, latestVersion)) {
       await showDialog(
         context: context,
@@ -88,6 +96,19 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       );
     } else {
       await _checkUserStatus(userData);
+
+      // Show thought reminder for new users who haven't seen it
+      if (isWithin7Days && !hasSeenThoughtReminder) {
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const CustomDialog(
+              content: ThoughtReminderDialog(),
+            );
+          },
+        );
+        await prefs.setBool('hasSeenThoughtReminder', true);
+      }
     }
   }
 

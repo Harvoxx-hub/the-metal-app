@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/home_page/provider/get.users.by.query.notifier.dart';
 
@@ -21,9 +22,11 @@ import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class SendSpark extends ConsumerStatefulWidget {
-  const SendSpark({super.key});
+  const SendSpark({super.key, this.recipient});
   static const name = 'sendSpark';
   static const route = name;
+
+  final UserModel? recipient;
 
   @override
   ConsumerState<SendSpark> createState() => _SendSparkState();
@@ -41,10 +44,14 @@ class _SendSparkState extends ConsumerState<SendSpark> {
   @override
   void initState() {
     // TODO: implement initState
+    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _userNameController.addListener(_userNameListener);
+      if (widget.recipient != null) {
+        _userNameController.text = widget.recipient!.username ?? '';
+        selectedUserId = widget.recipient!.id ?? '';
+      }
     });
-    super.initState();
   }
 
   void _userNameListener() {

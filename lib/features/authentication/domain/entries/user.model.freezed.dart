@@ -61,8 +61,10 @@ mixin _$UserModel {
   String? get fcmToken => throw _privateConstructorUsedError;
   bool get isOnline => throw _privateConstructorUsedError;
   String? get lastActive => throw _privateConstructorUsedError;
-  @JsonKey(name: 'blockedUsers')
-  List<String>? get blockedUsers => throw _privateConstructorUsedError;
+  @JsonKey(name: 'createdAt')
+  String? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updatedAt')
+  String? get updatedAt => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -114,7 +116,8 @@ abstract class $UserModelCopyWith<$Res> {
       String? fcmToken,
       bool isOnline,
       String? lastActive,
-      @JsonKey(name: 'blockedUsers') List<String>? blockedUsers});
+      @JsonKey(name: 'createdAt') String? createdAt,
+      @JsonKey(name: 'updatedAt') String? updatedAt});
 
   $AddressCopyWith<$Res>? get address;
   $ExtraDataCopyWith<$Res>? get extraData;
@@ -173,7 +176,8 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? fcmToken = freezed,
     Object? isOnline = null,
     Object? lastActive = freezed,
-    Object? blockedUsers = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_value.copyWith(
       profileUpdated: freezed == profileUpdated
@@ -328,10 +332,14 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.lastActive
           : lastActive // ignore: cast_nullable_to_non_nullable
               as String?,
-      blockedUsers: freezed == blockedUsers
-          ? _value.blockedUsers
-          : blockedUsers // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as String?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 
@@ -431,7 +439,8 @@ abstract class _$$UserModelImplCopyWith<$Res>
       String? fcmToken,
       bool isOnline,
       String? lastActive,
-      @JsonKey(name: 'blockedUsers') List<String>? blockedUsers});
+      @JsonKey(name: 'createdAt') String? createdAt,
+      @JsonKey(name: 'updatedAt') String? updatedAt});
 
   @override
   $AddressCopyWith<$Res>? get address;
@@ -492,7 +501,8 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? fcmToken = freezed,
     Object? isOnline = null,
     Object? lastActive = freezed,
-    Object? blockedUsers = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_$UserModelImpl(
       profileUpdated: freezed == profileUpdated
@@ -647,10 +657,14 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.lastActive
           : lastActive // ignore: cast_nullable_to_non_nullable
               as String?,
-      blockedUsers: freezed == blockedUsers
-          ? _value._blockedUsers
-          : blockedUsers // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as String?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -698,10 +712,10 @@ class _$UserModelImpl implements _UserModel {
       this.fcmToken,
       this.isOnline = true,
       this.lastActive,
-      @JsonKey(name: 'blockedUsers') final List<String>? blockedUsers})
+      @JsonKey(name: 'createdAt') this.createdAt,
+      @JsonKey(name: 'updatedAt') this.updatedAt})
       : _connectionOption = connectionOption,
-        _passion = passion,
-        _blockedUsers = blockedUsers;
+        _passion = passion;
 
   factory _$UserModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserModelImplFromJson(json);
@@ -811,20 +825,16 @@ class _$UserModelImpl implements _UserModel {
   final bool isOnline;
   @override
   final String? lastActive;
-  final List<String>? _blockedUsers;
   @override
-  @JsonKey(name: 'blockedUsers')
-  List<String>? get blockedUsers {
-    final value = _blockedUsers;
-    if (value == null) return null;
-    if (_blockedUsers is EqualUnmodifiableListView) return _blockedUsers;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
+  @JsonKey(name: 'createdAt')
+  final String? createdAt;
+  @override
+  @JsonKey(name: 'updatedAt')
+  final String? updatedAt;
 
   @override
   String toString() {
-    return 'UserModel(profileUpdated: $profileUpdated, completedProfile: $completedProfile, dob: $dob, address: $address, connectWith: $connectWith, connectionOption: $connectionOption, description: $description, extraData: $extraData, fullname: $fullname, gender: $gender, isVerified: $isVerified, isActivated: $isActivated, location: $location, metal: $metal, passion: $passion, phone: $phone, email: $email, emailVerified: $emailVerified, preferences: $preferences, username: $username, refreshToken: $refreshToken, subscription: $subscription, sparkBalance: $sparkBalance, distance: $distance, id: $id, referralCode: $referralCode, referredBy: $referredBy, showOnline: $showOnline, alwaysMetal: $alwaysMetal, receiveNotification: $receiveNotification, showMyProfile: $showMyProfile, activateVoiceNote: $activateVoiceNote, activateVoiceCall: $activateVoiceCall, activateVideoCall: $activateVideoCall, profilePhoto: $profilePhoto, fcmToken: $fcmToken, isOnline: $isOnline, lastActive: $lastActive, blockedUsers: $blockedUsers)';
+    return 'UserModel(profileUpdated: $profileUpdated, completedProfile: $completedProfile, dob: $dob, address: $address, connectWith: $connectWith, connectionOption: $connectionOption, description: $description, extraData: $extraData, fullname: $fullname, gender: $gender, isVerified: $isVerified, isActivated: $isActivated, location: $location, metal: $metal, passion: $passion, phone: $phone, email: $email, emailVerified: $emailVerified, preferences: $preferences, username: $username, refreshToken: $refreshToken, subscription: $subscription, sparkBalance: $sparkBalance, distance: $distance, id: $id, referralCode: $referralCode, referredBy: $referredBy, showOnline: $showOnline, alwaysMetal: $alwaysMetal, receiveNotification: $receiveNotification, showMyProfile: $showMyProfile, activateVoiceNote: $activateVoiceNote, activateVoiceCall: $activateVoiceCall, activateVideoCall: $activateVideoCall, profilePhoto: $profilePhoto, fcmToken: $fcmToken, isOnline: $isOnline, lastActive: $lastActive, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -900,8 +910,10 @@ class _$UserModelImpl implements _UserModel {
                 other.isOnline == isOnline) &&
             (identical(other.lastActive, lastActive) ||
                 other.lastActive == lastActive) &&
-            const DeepCollectionEquality()
-                .equals(other._blockedUsers, _blockedUsers));
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
   }
 
   @JsonKey(ignore: true)
@@ -946,7 +958,8 @@ class _$UserModelImpl implements _UserModel {
         fcmToken,
         isOnline,
         lastActive,
-        const DeepCollectionEquality().hash(_blockedUsers)
+        createdAt,
+        updatedAt
       ]);
 
   @JsonKey(ignore: true)
@@ -1003,8 +1016,8 @@ abstract class _UserModel implements UserModel {
       final String? fcmToken,
       final bool isOnline,
       final String? lastActive,
-      @JsonKey(name: 'blockedUsers')
-      final List<String>? blockedUsers}) = _$UserModelImpl;
+      @JsonKey(name: 'createdAt') final String? createdAt,
+      @JsonKey(name: 'updatedAt') final String? updatedAt}) = _$UserModelImpl;
 
   factory _UserModel.fromJson(Map<String, dynamic> json) =
       _$UserModelImpl.fromJson;
@@ -1089,8 +1102,11 @@ abstract class _UserModel implements UserModel {
   @override
   String? get lastActive;
   @override
-  @JsonKey(name: 'blockedUsers')
-  List<String>? get blockedUsers;
+  @JsonKey(name: 'createdAt')
+  String? get createdAt;
+  @override
+  @JsonKey(name: 'updatedAt')
+  String? get updatedAt;
   @override
   @JsonKey(ignore: true)
   _$$UserModelImplCopyWith<_$UserModelImpl> get copyWith =>

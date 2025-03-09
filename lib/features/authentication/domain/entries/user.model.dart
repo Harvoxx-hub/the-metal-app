@@ -47,7 +47,8 @@ class UserModel with _$UserModel {
     String? fcmToken,
     @Default(true) bool isOnline,
     String? lastActive,
-    @JsonKey(name: 'blockedUsers') List<String>? blockedUsers,
+    @JsonKey(name: 'createdAt') String? createdAt,
+    @JsonKey(name: 'updatedAt') String? updatedAt,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>

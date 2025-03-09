@@ -34,9 +34,9 @@
     <key>NSCameraUsageDescription</key>
     <string>Metal App needs access to your camera to allow users to record videos for their profiles and to send video messages.</string>
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>Metal App needs access to your location in the background to provide location-based matches and notifications.</string>
+    <string>This app needs access to location to get your current city and country.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Metal App needs access to your location while you are using the app to provide location-based matches and enhance your experience.</string>
+    <string>This app needs access to location to get your current city and country.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
     <string>Metal App needs access to your location both in the background and while using the app to provide location-based matches and notifications, and to enhance your experience.</string>
     <key>NSMicrophoneUsageDescription</key>

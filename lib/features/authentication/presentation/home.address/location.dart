@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:geocoding/geocoding.dart' as geo_coding;
 
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
@@ -11,7 +12,7 @@ import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:geolocator/geolocator.dart' as geo;
 
 class LocationEnablePage extends ConsumerStatefulWidget {
   const LocationEnablePage({super.key});
@@ -24,7 +25,7 @@ class LocationEnablePage extends ConsumerStatefulWidget {
 }
 
 class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
-  Position? _currentPosition;
+  geo.Position? _currentPosition;
   @override
   Widget build(BuildContext context) {
     final updateProfile = ref.watch(updateProfileProvider);
@@ -48,7 +49,7 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
             ),
             const Gap(41),
             const TextView(
-              text: "You’ll need to enable location in order to use Metal",
+              text: "You'll need to enable location in order to use Metal",
               fontWeight: FontWeight.w400,
               fontSize: 20,
             ),
@@ -73,26 +74,26 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
 
   Future<bool> _handleLocationPermission() async {
     bool serviceEnabled;
-    LocationPermission permission;
+    geo.LocationPermission permission;
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      await Geolocator.openLocationSettings();
+      await geo.Geolocator.openLocationSettings();
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
               'Location services are disabled. Please enable the services')));
       return false;
     }
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
+    permission = await geo.Geolocator.checkPermission();
+    if (permission == geo.LocationPermission.denied) {
+      permission = await geo.Geolocator.requestPermission();
+      if (permission == geo.LocationPermission.denied) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Location permissions are denied')));
         return false;
       }
     }
-    if (permission == LocationPermission.deniedForever) {
+    if (permission == geo.LocationPermission.deniedForever) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
               'Location permissions are permanently denied, we cannot request permissions.')));
@@ -105,17 +106,33 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
     await _getCurrentPosition();
     if (_currentPosition != null) {
       final userData = ref.watch(updateProfileProvider).data;
-      Location location = Location(
-        lat: _currentPosition!.latitude,
-        lng: _currentPosition!.longitude,
+
+      // Get address from coordinates
+      List<geo_coding.Placemark> placemarks =
+          await geo_coding.placemarkFromCoordinates(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
       );
 
-      final updated =
-          userData?.copyWith(location: location, profileUpdated: true);
+      if (placemarks.isNotEmpty) {
+        geo_coding.Placemark place = placemarks[0];
+        String address =
+            "${place.locality}, ${place.country}"; // e.g. "Lagos, Nigeria"
 
-      ref.read(updateProfileProvider.notifier).updateUserData(updated!);
+        Location location = Location(
+          lat: _currentPosition!.latitude,
+          lng: _currentPosition!.longitude,
+          address: address,
+        );
 
-      updateProfile(updated);
+        final updated = userData?.copyWith(
+          location: location,
+          profileUpdated: true,
+        );
+
+        ref.read(updateProfileProvider.notifier).updateUserData(updated!);
+        updateProfile(updated);
+      }
     }
   }
 
@@ -126,8 +143,9 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
   Future<void> _getCurrentPosition() async {
     final hasPermission = await _handleLocationPermission();
     if (!hasPermission) return;
-    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
-        .then((Position position) {
+    await geo.Geolocator.getCurrentPosition(
+            desiredAccuracy: geo.LocationAccuracy.high)
+        .then((geo.Position position) {
       setState(() => _currentPosition = position);
     }).catchError((e) {});
   }

@@ -118,11 +118,40 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       controller: _houseNumberController,
                       keyboardType: TextInputType.number,
                       validator: Validators.validateInt(),
-                      suffixWidget: CustomCheckWidget(
-                        initialValue: false,
-                        onChanged: (bool value) {
-                          print('Value changed to $value');
-                        },
+                      suffixWidget: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.info_outline, size: 20),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text("Information"),
+                                    content: const Text(
+                                      "The address is used to exclude people that live in the same home with you if you click the check boxes.",
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text("OK"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          CustomCheckWidget(
+                            initialValue: false,
+                            onChanged: (bool value) {
+                              print('Value changed to $value');
+                            },
+                          ),
+                        ],
                       ),
                       radius: 10,
                     ),

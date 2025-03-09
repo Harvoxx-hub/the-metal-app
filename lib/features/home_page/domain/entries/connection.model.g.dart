@@ -16,6 +16,11 @@ ConnectionModel _$ConnectionModelFromJson(Map<String, dynamic> json) =>
       lastUpdatedAt: json['lastUpdatedAt'] as String?,
       game: json['game'] as String?,
       isAnonymous: json['isAnonymous'] as bool? ?? false,
+      dailyConversations: (json['dailyConversations'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      lastConversationDate: json['lastConversationDate'] as String?,
     );
 
 Map<String, dynamic> _$ConnectionModelToJson(ConnectionModel instance) =>
@@ -28,4 +33,6 @@ Map<String, dynamic> _$ConnectionModelToJson(ConnectionModel instance) =>
       'connectedOn': instance.connectedOn,
       'status': instance.status,
       'isAnonymous': instance.isAnonymous,
+      'dailyConversations': instance.dailyConversations,
+      'lastConversationDate': instance.lastConversationDate,
     };

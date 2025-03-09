@@ -310,12 +310,54 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   }
 
   Widget unmetalDialog(BuildContext context, int remaining) {
-    final daysRequiredToUnMelt = ref.watch(numberDaysProvider);
     final connectionModel =
         ref.watch(getConnectionProvider(widget.connectionModel.connectionId));
+    final currentUser = ref.watch(authProvider).data;
+    final daysRequired = ref.watch(numberDaysProvider);
     final uniqueDailyConversations =
         connectionModel.data?.uniqueDailyConversationsCount ?? 0;
-    final canUnmelt = connectionModel.data?.canUnmelt() ?? false;
+    final hasProfilePhoto = currentUser?.profilePhoto != null &&
+        currentUser!.profilePhoto!.isNotEmpty;
+    final otherUserHasPhoto = widget.meltUserModel.profilePhoto != null &&
+        widget.meltUserModel.profilePhoto!.isNotEmpty;
+
+    // Check if both users have profile photos
+    if (!hasProfilePhoto || !otherUserHasPhoto) {
+      return Column(
+        children: [
+          const Gap(38),
+          const TextView(
+            text: "Want to Unmetal?",
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+          const Gap(15),
+          TextView(
+            text:
+                "Wait a minute, we are missing your photo! To unmetal means that the two profiles can view each others photos",
+            fontSize: 16,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.w400,
+          ),
+          const Gap(15),
+          TextView(
+            text: "To continue",
+            fontSize: 16,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.w400,
+          ),
+          const Gap(38),
+          BaseButton(
+            buttonText: "Upload your photo",
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, AppRoutes.createProfilePage);
+            },
+          ),
+          const Gap(23),
+        ],
+      );
+    }
 
     return Column(
       children: [
@@ -328,7 +370,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         const Gap(15),
         TextView(
           text:
-              "To Unmetal, we require:\n1. Minimum of $daysRequiredToUnMelt days of being melted\n2. At least 10 days of daily conversations with @${widget.meltUserModel.username}",
+              "To Unmetal, we require a minimum of $daysRequired days and 10 sessions of conversations between you and @${widget.meltUserModel.username}",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
@@ -336,27 +378,18 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         const Gap(15),
         TextView(
           text:
-              "Current Progress:\n* $remaining days melted\n* $uniqueDailyConversations days of conversations",
+              "You have had $remaining days and $uniqueDailyConversations interactions",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
-        if (canUnmelt)
-          BaseButton(
-            buttonText: "Un-Metal Request",
-            onPressed: () {
-              sendUnmelt();
-              Navigator.pop(context);
-            },
-          )
-        else
-          BaseButton(
-            buttonText: "Return to chat",
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+        BaseButton(
+          buttonText: "Return to chat",
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         const Gap(23),
       ],
     );
@@ -374,7 +407,36 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         const Gap(15),
         TextView(
           text:
-              "@${widget.meltUserModel.username} has opted to always be a metal.\nThis request cannot be sent.",
+              "@${widget.meltUserModel.username} has opted to always be a Metal.\nThis request cannot be sent.",
+          fontSize: 16,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.w400,
+        ),
+        const Gap(38),
+        BaseButton(
+          buttonText: "Return to chat",
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        const Gap(23),
+      ],
+    );
+  }
+
+  Widget unmetalRequestSentDialog(BuildContext context) {
+    return Column(
+      children: [
+        const Gap(38),
+        const TextView(
+          text: "Unmetal request",
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+        const Gap(15),
+        TextView(
+          text:
+              "We have sent your request to @${widget.meltUserModel.username}. We will notify you when we get a response",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
@@ -403,6 +465,16 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     ref
         .read(sendMessageProvider.notifier)
         .sendMessage(message, widget.connectionModel.connectionId);
+
+    // Show the sent confirmation dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomDialog(
+          content: unmetalRequestSentDialog(context),
+        );
+      },
+    );
   }
 
   void sendCall(String callType) {

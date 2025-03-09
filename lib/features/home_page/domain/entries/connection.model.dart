@@ -15,6 +15,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/constant/firebase.remote.config.key.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
 part 'connection.model.g.dart';
 
@@ -55,7 +56,7 @@ class ConnectionModel {
   int get uniqueDailyConversationsCount => dailyConversations.toSet().length;
 
   /// Check if the connection meets unmelt requirements
-  bool canUnmelt() {
+  bool canUnmelt(String? userProfilePhoto) {
     // Get required days from remote config
     final daysRequiredToUnMelt = FirebaseRemoteConfigService()
         .getInt(FirebaseRemoteConfigKeys.daysRequiredToUnMelt);
@@ -64,8 +65,10 @@ class ConnectionModel {
     final connectedDate = DateTime.parse(connectedOn);
     final daysSinceConnection = DateTime.now().difference(connectedDate).inDays;
 
-    // Must have required days since connection and 10 unique days of conversation
+    // Must have required days since connection, 10 unique days of conversation, and a profile photo
     return daysSinceConnection >= daysRequiredToUnMelt &&
-        uniqueDailyConversationsCount >= 10;
+        uniqueDailyConversationsCount >= 10 &&
+        userProfilePhoto != null &&
+        userProfilePhoto.isNotEmpty;
   }
 }

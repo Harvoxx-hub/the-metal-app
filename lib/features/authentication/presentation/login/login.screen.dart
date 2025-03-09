@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 import 'package:metal/features/authentication/provider/login.notifier.dart';
@@ -95,13 +96,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
             const Gap(22),
             const TextView(
-              text: "👋 Welcome Back",
+              text: AppStrings.welcomeBack,
               fontSize: 22,
               fontWeight: FontWeight.w500,
             ),
             const Gap(8),
             const TextView(
-              text: "Let’s log you in, you’ve been missed!",
+              text: AppStrings.loginDesc,
               fontSize: 16,
               fontWeight: FontWeight.w400,
             ),
@@ -112,8 +113,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   EditFormField(
-                    floatingLabel: 'Email address',
-                    label: 'Enter your email address',
+                    floatingLabel: AppStrings.emailAddress,
+                    label: AppStrings.enterEmailAddress,
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     prefixWidget: Assets.icons.sms.svg(height: 24),
@@ -121,8 +122,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                   const Gap(16),
                   EditFormField(
-                    floatingLabel: 'Password',
-                    label: '*************',
+                    floatingLabel: AppStrings.password,
+                    label: AppStrings.passwordPlaceholder,
                     obscureText: true,
                     controller: _passwordController,
                     keyboardType: TextInputType.visiblePassword,
@@ -131,7 +132,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                   const Gap(16),
                   CustomCheckWidget(
-                    title: 'Keep me logged in',
+                    title: AppStrings.keepLoggedIn,
                     initialValue: false,
                     onChanged: (bool value) {
                       print('Value changed to $value');
@@ -142,7 +143,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ),
             BaseButton(
-              buttonText: "Login",
+              buttonText: AppStrings.login,
               loading: loginState.isLoading,
               onPressed: _validateAndSubmit,
             ),
@@ -151,7 +152,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               onTap: () {
                 Navigator.pushNamed(context, AppRoutes.forgetPassword);
               },
-              text: "Forgot Password?",
+              text: AppStrings.forgotPassword,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -160,7 +161,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const TextView(
-                  text: "Not a User?",
+                  text: AppStrings.notAUser,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                   color: AppColors.metaltext,
@@ -169,7 +170,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   onTap: () {
                     Navigator.pushNamed(context, AppRoutes.accountSetting);
                   },
-                  text: "  Create account",
+                  text: "  ${AppStrings.createAccount}",
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                 ),

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/features/dashboard.dart/widget/new_update_dialog.dart';
 import 'package:metal/features/dashboard.dart/widget/tutorial_dialog.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -232,19 +233,19 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           BottomNavigationBarItem(
               icon: Image.asset(Assets.images.inactiveHome.path),
               activeIcon: Image.asset(Assets.images.activeHome.path),
-              label: 'Home'),
+              label: AppStrings.home),
           BottomNavigationBarItem(
               icon: Image.asset(Assets.images.inactiveSpark.path),
               activeIcon: Image.asset(Assets.images.activeSpark.path),
-              label: 'Sparks'),
+              label: AppStrings.sparks),
           BottomNavigationBarItem(
               icon: Image.asset(Assets.images.inactiveMessage.path),
               activeIcon: Image.asset(Assets.images.activeMessage.path),
-              label: 'Chat'),
+              label: AppStrings.chat),
           BottomNavigationBarItem(
               icon: Image.asset(Assets.images.inactiveUser.path),
               activeIcon: Image.asset(Assets.images.activeUser.path),
-              label: 'Profile'),
+              label: AppStrings.profile),
         ],
       ),
     );

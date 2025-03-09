@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
@@ -16,21 +17,20 @@ class ThoughtReminderDialog extends StatelessWidget {
         Assets.images.meltProfile.image(),
         const Gap(15),
         const TextView(
-          text: "Share Your First Thought!",
+          text: AppStrings.shareFirstThought,
           fontSize: 20,
           fontWeight: FontWeight.w500,
         ),
         const Gap(15),
         const TextView(
-          text:
-              "Start your journey by sharing a thought - it's the best way to connect with other metals and find your perfect match!",
+          text: AppStrings.thoughtReminderDesc,
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
         BaseButton(
-            buttonText: "Post a Thought",
+            buttonText: AppStrings.postThought,
             onPressed: () async {
               Navigator.pop(context);
               await Navigator.pushNamed(
@@ -40,7 +40,7 @@ class ThoughtReminderDialog extends StatelessWidget {
             }),
         const Gap(23),
         TextView(
-          text: "Maybe Later",
+          text: AppStrings.maybeLater,
           fontSize: 16,
           fontWeight: FontWeight.w500,
           onTap: () => Navigator.pop(context),

@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/services/countries.service.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 
@@ -83,24 +84,23 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
-        Header: 'House Address',
+        Header: AppStrings.houseAddressTitle,
         authFlow: true,
         body: SingleChildScrollView(
             child: Column(
           children: [
             CreateProfileHeader2(
                 path: Assets.images.homeAddress.path,
-                title: "Let us know your home address",
-                subtitle:
-                    "Choose the data you wish to omit from your feed. The metals containing the highlighted details will be removed from your feed. This filtered information is intended solely for the purpose of Matching."),
+                title: AppStrings.homeAddressDesc,
+                subtitle: AppStrings.homeAddressSubtitle),
             const Gap(26),
             Form(
                 key: _form,
                 child: Column(
                   children: [
                     EditFormField(
-                      floatingLabel: 'Apartment number',
-                      label: 'Enter number.',
+                      floatingLabel: AppStrings.apartmentNumber,
+                      label: AppStrings.enterNumber,
                       controller: _apartmentNoController,
                       keyboardType: TextInputType.number,
                       suffixWidget: CustomCheckWidget(
@@ -113,8 +113,8 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                     ),
                     const Gap(16),
                     EditFormField(
-                      floatingLabel: 'House number',
-                      label: 'Enter number.',
+                      floatingLabel: AppStrings.houseNumber,
+                      label: AppStrings.enterNumber,
                       controller: _houseNumberController,
                       keyboardType: TextInputType.number,
                       validator: Validators.validateInt(),
@@ -128,8 +128,8 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                     ),
                     const Gap(16),
                     EditFormField(
-                      floatingLabel: 'Street name',
-                      label: 'Enter street name.',
+                      floatingLabel: AppStrings.streetName,
+                      label: AppStrings.enterStreetName,
                       controller: _streetNameController,
                       validator: Validators.validateString(),
                       keyboardType: TextInputType.streetAddress,
@@ -151,8 +151,8 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                         });
                       },
                       value: _selectedCountries,
-                      hint: "Please Select",
-                      floatingLabel: "Country",
+                      hint: AppStrings.pleaseSelect,
+                      floatingLabel: AppStrings.country,
                     ),
                     const Gap(16),
                     MentalDropdown(
@@ -163,13 +163,13 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                         });
                       },
                       value: _selectedState,
-                      hint: "Please Select",
-                      floatingLabel: "State",
+                      hint: AppStrings.pleaseSelect,
+                      floatingLabel: AppStrings.state,
                     ),
                     const Gap(16),
                     EditFormField(
-                      floatingLabel: 'Postal Code',
-                      label: 'Enter Postal Code',
+                      floatingLabel: AppStrings.postalCode,
+                      label: AppStrings.enterPostalCode,
                       controller: _postalCodeController,
                       keyboardType: TextInputType.text,
                       validator: Validators.validateString(),
@@ -183,7 +183,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                     const Gap(16),
                     BaseButton(
                       loading: updateProfile.isLoading,
-                      buttonText: "Next",
+                      buttonText: AppStrings.next,
                       onPressed: () {
                         if (_form.currentState!.validate()) {
                           _onNextPressed();

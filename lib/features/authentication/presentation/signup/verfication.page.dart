@@ -8,6 +8,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/screen.size.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/provider/verfication.notifier.dart';
@@ -19,6 +20,9 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+
+import 'package:metal/widgets/button/base_button.dart';
+import 'package:metal/widgets/dialog/custom.dialog.dart';
 
 enum RouteFrom {
   AccountSetting,
@@ -95,7 +99,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
     return BaseScreen(
       bgImage: Assets.images.bg2.path,
       appBarEnabled: false,
-      Header: 'Verification',
+      Header: AppStrings.verificationTitle,
       authFlow: true,
       body: SingleChildScrollView(
         child: Column(
@@ -107,18 +111,18 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const TextView(
-                  text: '👀',
+                  text: AppStrings.verificationEmoji,
                   fontSize: 30,
                   fontWeight: FontWeight.w400,
                 ),
                 const TextView(
-                  text: 'We just want to verify it is you',
+                  text: AppStrings.verificationDesc,
                   fontSize: 20,
                   fontWeight: FontWeight.w400,
                 ),
                 TextView(
-                  text:
-                      'Please input the OTP code sent to \n*${widget.argument.email}*',
+                  text: AppStrings.otpInstructions
+                      .replaceAll('{email}', widget.argument.email ?? ''),
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.w300,
@@ -160,7 +164,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                 ? Column(
                     children: [
                       const TextView(
-                        text: "Didn’t receive the code? ",
+                        text: AppStrings.didNotReceiveCode,
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
                         textAlign: TextAlign.center,
@@ -168,7 +172,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                         color: AppColors.metalBrownColourForText,
                       ),
                       const TextView(
-                        text: " Tap to resend the OTP",
+                        text: AppStrings.tapToResendOTP,
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
                         textAlign: TextAlign.center,
@@ -206,8 +210,8 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                     ],
                   )
                 : TextView(
-                    text:
-                        "${formatDuration(Duration(seconds: _secondsRemaining))} Remaining",
+                    text: AppStrings.remainingTime.replaceAll('{time}',
+                        formatDuration(Duration(seconds: _secondsRemaining))),
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     textAlign: TextAlign.center,
@@ -215,7 +219,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                   ),
             const Gap(27),
             BaseButton(
-              buttonText: "Verify Code",
+              buttonText: AppStrings.verifyCode,
               loading: ref.watch(verficationProvider).isLoading,
               onPressed: () {
                 checkCode(_otpController.text, context);

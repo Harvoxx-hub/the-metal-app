@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
@@ -7,7 +8,7 @@ import 'package:metal/widgets/text_views.dart';
 
 class ComplecteProfileDialog extends StatelessWidget {
   final VoidCallback? onProfileComplete;
-  
+
   const ComplecteProfileDialog({
     super.key,
     this.onProfileComplete,
@@ -21,21 +22,20 @@ class ComplecteProfileDialog extends StatelessWidget {
         Assets.images.meltProfile.image(),
         const Gap(15),
         const TextView(
-          text: "Complete Profile Setup",
+          text: AppStrings.completeProfileSetup,
           fontSize: 20,
           fontWeight: FontWeight.w500,
         ),
         const Gap(15),
         const TextView(
-          text:
-              "Complete your profile so your thoughts can be displayed on feed",
+          text: AppStrings.completeProfileDesc,
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
         BaseButton(
-            buttonText: "Complete your profile",
+            buttonText: AppStrings.completeYourProfile,
             onPressed: () async {
               await Navigator.pushNamed(
                 context,
@@ -45,7 +45,7 @@ class ComplecteProfileDialog extends StatelessWidget {
             }),
         const Gap(23),
         TextView(
-          text: "Skip for Now",
+          text: AppStrings.skipForNow,
           fontSize: 16,
           fontWeight: FontWeight.w500,
           onTap: () => Navigator.pop(context),

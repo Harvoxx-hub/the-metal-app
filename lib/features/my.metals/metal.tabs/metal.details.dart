@@ -10,7 +10,7 @@ import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
-
+import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
 import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
@@ -141,7 +141,13 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
   }
 
   Widget unmetalDialog(BuildContext context, int remaining) {
-    final int daysRequiredToUnMelt = ref.watch(numberDaysProvider);
+    final daysRequiredToUnMelt = ref.watch(numberDaysProvider);
+    final connectionModel =
+        ref.watch(getConnectionProvider(widget.connectionModel));
+    final uniqueDailyConversations =
+        connectionModel.data?.uniqueDailyConversationsCount ?? 0;
+    final canUnmelt = connectionModel.data?.canUnmelt() ?? false;
+
     return Column(
       children: [
         const Gap(38),
@@ -153,20 +159,21 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
         const Gap(15),
         TextView(
           text:
-              "To Unmetal, we require a minimum of $daysRequiredToUnMelt days and 10 sessions of conversations between you and @${widget.userModel.username}",
+              "To Unmetal, we require:\n1. Minimum of $daysRequiredToUnMelt days of being melted\n2. At least 10 days of daily conversations with @${widget.userModel.username}",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(15),
         TextView(
-          text: "You have had * $remaining days* and *3 interactions*",
+          text:
+              "Current Progress:\n* $remaining days melted\n* $uniqueDailyConversations days of conversations",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
-        if (hasDurationReached(widget.connectedOn, 15))
+        if (canUnmelt)
           BaseButton(
             buttonText: "Un-Melt Request",
             onPressed: () {

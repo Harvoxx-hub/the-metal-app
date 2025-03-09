@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/model/responces.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/core/utils/constant/enums.dart';
 import 'package:metal/core/utils/constant/firebase.firestore.collection.key.dart';
+import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 import 'package:metal/features/home_page/domain/entries/melt.request.model.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 
@@ -551,6 +553,34 @@ class HomeRepository implements IHomeRepository {
       return Responses(
         success: false,
         message: "Failed to update thought: ${e.toString()}",
+      );
+    }
+  }
+
+  Future<Responses> getConnection(String connectionId) async {
+    try {
+      final doc = await _firebaseService.firestore
+          .collection(FirebaseFirestoreCollectionKeys.connections)
+          .doc(connectionId)
+          .get();
+
+      if (!doc.exists) {
+        throw Exception('Connection not found');
+      }
+
+      final data = doc.data() as Map<String, dynamic>;
+      data['connectionId'] = doc.id; // Add the document ID to the data
+      
+      final connection = ConnectionModel.fromJson(data);
+      return Responses(
+        success: true,
+        message: "Connection retrieved successfully",
+        data: connection,
+      );
+    } catch (e) {
+      return Responses(
+        success: false,
+        message: "Failed to get connection: $e",
       );
     }
   }

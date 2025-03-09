@@ -38,10 +38,42 @@ class MessageRepository implements IMessageRepository {
     required String conversationsId,
   }) async {
     try {
-      updateConversation(conversationsId, message.message, message.timestamp);
-      createMessage(conversationsId, message);
+      // Get today's date in YYYY-MM-DD format for tracking daily conversations
+      final today = DateTime.now().toIso8601String().split('T')[0];
 
-      // Return a successful response with the new conversation ID
+      // Get the conversation document
+      final conversationDoc = await _firestore
+          .collection(FirebaseFirestoreCollectionKeys.connections)
+          .doc(conversationsId)
+          .get();
+
+      if (conversationDoc.exists) {
+        final data = conversationDoc.data() as Map<String, dynamic>;
+        final List<String> dailyConversations =
+            List<String>.from(data['dailyConversations'] ?? []);
+        final String? lastConversationDate = data['lastConversationDate'];
+
+        // Only add today's date if it's different from the last conversation date
+        if (lastConversationDate != today) {
+          dailyConversations.add(today);
+        }
+
+        // Update conversation with new message and daily conversation tracking
+        await _firestore
+            .collection(FirebaseFirestoreCollectionKeys.connections)
+            .doc(conversationsId)
+            .update({
+          'lastMessage': message.message,
+          'lastUpdatedAt': message.timestamp,
+          'dailyConversations': dailyConversations,
+          'lastConversationDate': today,
+        });
+      }
+
+      // Create the message
+      await createMessage(conversationsId, message);
+
+      // Return a successful response with the conversation ID
       return Responses(success: true, data: conversationsId);
     } catch (e) {
       // Handle any errors and rethrow them

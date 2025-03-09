@@ -6,7 +6,12 @@ import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class ComplecteProfileDialog extends StatelessWidget {
-  const ComplecteProfileDialog({super.key});
+  final VoidCallback? onProfileComplete;
+  
+  const ComplecteProfileDialog({
+    super.key,
+    this.onProfileComplete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +41,7 @@ class ComplecteProfileDialog extends StatelessWidget {
                 context,
                 AppRoutes.passionsPage,
               );
-              Navigator.pop(context);
+              onProfileComplete?.call();
             }),
         const Gap(23),
         TextView(

@@ -13,6 +13,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
@@ -56,7 +57,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final String currentVersion = packageInfo.buildNumber;
 
     // Calculate if user is within 7 days of creation
-    final DateTime creationDate = userData.createdAt != null ? DateTime.parse(userData.createdAt!) : DateTime.now();
+    final DateTime creationDate = userData.createdAt != null
+        ? DateTime.parse(userData.createdAt!)
+        : DateTime.now();
     final bool isWithin7Days =
         DateTime.now().difference(creationDate).inDays <= 7;
 
@@ -126,12 +129,29 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   Future<void> _checkUserStatus(UserModel userData) async {
-    if (!(userData.completedProfile ?? false)) {
+    final prefs = await SharedPreferences.getInstance();
+    final hasCompletedProfile = prefs.getBool('hasCompletedProfile') ?? false;
+
+    if (!(userData.completedProfile ?? false) && !hasCompletedProfile) {
       await showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
-          return const CustomDialog(
-            content: ComplecteProfileDialog(),
+          return CustomDialog(
+            content: ComplecteProfileDialog(
+              onProfileComplete: () async {
+                // Store that profile has been completed
+                await prefs.setBool('hasCompletedProfile', true);
+                // Update the user data to reflect completion
+                final updatedUser = userData.copyWith(completedProfile: true);
+                await ref
+                    .read(authenticationRepositoryProvider)
+                    .updateUser(updatedUser.toJson());
+                if (mounted) {
+                  Navigator.pop(context);
+                }
+              },
+            ),
           );
         },
       );

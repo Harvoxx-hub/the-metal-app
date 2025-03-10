@@ -11,6 +11,7 @@ import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
@@ -22,6 +23,9 @@ final navKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+// Initialize Shorebird
+  final shorebirdCodePush = ShorebirdCodePush();
+  await shorebirdCodePush.downloadUpdateIfAvailable();
 
   await initializeFirebase();
   initializeAuthManager();

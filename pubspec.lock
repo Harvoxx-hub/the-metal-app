@@ -782,6 +782,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
+  flutter_face_api:
+    dependency: "direct main"
+    description:
+      name: flutter_face_api
+      sha256: "9e2739efa07385edd6dacaeab7050074874f4f2b7e2cd752fb427d12eb9dfd80"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.4.875"
+  flutter_face_core_basic:
+    dependency: "direct main"
+    description:
+      name: flutter_face_core_basic
+      sha256: ed75e0907b02aa6c062f8f9c798a5e3ed36f4bf78cfbb10e5d03872755ec49f1
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.4.242"
   flutter_gen_core:
     dependency: transitive
     description:
@@ -1720,6 +1736,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  shorebird_code_push:
+    dependency: "direct main"
+    description:
+      name: shorebird_code_push
+      sha256: "77511427c51906dd39d3bb1e6b0a8c49777975f9b0a5d073e35c9087a8a36bb6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.6"
   sky_engine:
     dependency: transitive
     description: flutter

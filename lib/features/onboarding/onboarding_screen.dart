@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/res/res.dart';
 
 import '../../widgets/text_views.dart';
 
@@ -29,7 +30,14 @@ class _OnboardingWidgetState extends State<OnboardingWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Gap(128),
+        const Gap(108),
+        const TextView(
+          text: "Metal Blind Connect",
+          color: AppColors.metalPinkColour,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+        const Gap(20),
         Image.asset(
           widget.imageUrl,
           width: 172,

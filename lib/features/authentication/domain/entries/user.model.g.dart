@@ -35,6 +35,8 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       phone: json['phone'] as String?,
       email: json['email'] as String?,
       emailVerified: json['emailVerified'] as bool?,
+      workEmail: json['workEmail'] as String?,
+      workEmailVerified: json['workEmailVerified'] as bool?,
       preferences: json['preferences'] == null
           ? null
           : Preferences.fromJson(json['preferences'] as Map<String, dynamic>),
@@ -84,6 +86,8 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'phone': instance.phone,
       'email': instance.email,
       'emailVerified': instance.emailVerified,
+      'workEmail': instance.workEmail,
+      'workEmailVerified': instance.workEmailVerified,
       'preferences': instance.preferences?.toJson(),
       'username': instance.username,
       'refreshToken': instance.refreshToken,

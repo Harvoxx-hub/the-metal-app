@@ -119,6 +119,14 @@ android {
             versionNameSuffix "-dev"
         }
     }
+    namespace 'io.flutter.plugins.regula.faceapi.flutter_face_api_example'
+    lint {
+        disable 'InvalidPackage'
+    }
+    androidResources {
+        noCompress += 'Regula/faceSdkResource.dat'
+    }
+    
 }
 
 flutter {

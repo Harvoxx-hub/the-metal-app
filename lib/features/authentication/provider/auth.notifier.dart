@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
@@ -6,6 +8,7 @@ import 'package:metal/core/utils/constant/constants.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
@@ -61,6 +64,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> initZIMKIt() async {
     if (state.data != null) {
+      if (Platform.isAndroid) {
+        final status = await Permission.systemAlertWindow.status;
+        if (status.isDenied) {
+          await Permission.systemAlertWindow.request();
+        }
+      } else if (Platform.isIOS) {
+        // Request iOS permissions
+        await [
+          Permission.camera,
+          Permission.microphone,
+          Permission.notification,
+        ].request();
+      }
       ZegoUIKitPrebuiltCallInvitationService().init(
         appID: appIDKey,
         appSign: appSignKey,

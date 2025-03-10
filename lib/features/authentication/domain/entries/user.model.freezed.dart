@@ -41,6 +41,8 @@ mixin _$UserModel {
   String? get phone => throw _privateConstructorUsedError;
   String? get email => throw _privateConstructorUsedError;
   bool? get emailVerified => throw _privateConstructorUsedError;
+  String? get workEmail => throw _privateConstructorUsedError;
+  bool? get workEmailVerified => throw _privateConstructorUsedError;
   Preferences? get preferences => throw _privateConstructorUsedError;
   String? get username => throw _privateConstructorUsedError;
   String? get refreshToken => throw _privateConstructorUsedError;
@@ -96,6 +98,8 @@ abstract class $UserModelCopyWith<$Res> {
       String? phone,
       String? email,
       bool? emailVerified,
+      String? workEmail,
+      bool? workEmailVerified,
       Preferences? preferences,
       String? username,
       String? refreshToken,
@@ -156,6 +160,8 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? phone = freezed,
     Object? email = freezed,
     Object? emailVerified = freezed,
+    Object? workEmail = freezed,
+    Object? workEmailVerified = freezed,
     Object? preferences = freezed,
     Object? username = freezed,
     Object? refreshToken = freezed,
@@ -251,6 +257,14 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
       emailVerified: freezed == emailVerified
           ? _value.emailVerified
           : emailVerified // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      workEmail: freezed == workEmail
+          ? _value.workEmail
+          : workEmail // ignore: cast_nullable_to_non_nullable
+              as String?,
+      workEmailVerified: freezed == workEmailVerified
+          ? _value.workEmailVerified
+          : workEmailVerified // ignore: cast_nullable_to_non_nullable
               as bool?,
       preferences: freezed == preferences
           ? _value.preferences
@@ -419,6 +433,8 @@ abstract class _$$UserModelImplCopyWith<$Res>
       String? phone,
       String? email,
       bool? emailVerified,
+      String? workEmail,
+      bool? workEmailVerified,
       Preferences? preferences,
       String? username,
       String? refreshToken,
@@ -481,6 +497,8 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? phone = freezed,
     Object? email = freezed,
     Object? emailVerified = freezed,
+    Object? workEmail = freezed,
+    Object? workEmailVerified = freezed,
     Object? preferences = freezed,
     Object? username = freezed,
     Object? refreshToken = freezed,
@@ -576,6 +594,14 @@ class __$$UserModelImplCopyWithImpl<$Res>
       emailVerified: freezed == emailVerified
           ? _value.emailVerified
           : emailVerified // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      workEmail: freezed == workEmail
+          ? _value.workEmail
+          : workEmail // ignore: cast_nullable_to_non_nullable
+              as String?,
+      workEmailVerified: freezed == workEmailVerified
+          ? _value.workEmailVerified
+          : workEmailVerified // ignore: cast_nullable_to_non_nullable
               as bool?,
       preferences: freezed == preferences
           ? _value.preferences
@@ -692,6 +718,8 @@ class _$UserModelImpl implements _UserModel {
       this.phone,
       this.email,
       this.emailVerified,
+      this.workEmail,
+      this.workEmailVerified,
       this.preferences,
       this.username,
       this.refreshToken,
@@ -777,6 +805,10 @@ class _$UserModelImpl implements _UserModel {
   @override
   final bool? emailVerified;
   @override
+  final String? workEmail;
+  @override
+  final bool? workEmailVerified;
+  @override
   final Preferences? preferences;
   @override
   final String? username;
@@ -834,7 +866,7 @@ class _$UserModelImpl implements _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(profileUpdated: $profileUpdated, completedProfile: $completedProfile, dob: $dob, address: $address, connectWith: $connectWith, connectionOption: $connectionOption, description: $description, extraData: $extraData, fullname: $fullname, gender: $gender, isVerified: $isVerified, isActivated: $isActivated, location: $location, metal: $metal, passion: $passion, phone: $phone, email: $email, emailVerified: $emailVerified, preferences: $preferences, username: $username, refreshToken: $refreshToken, subscription: $subscription, sparkBalance: $sparkBalance, distance: $distance, id: $id, referralCode: $referralCode, referredBy: $referredBy, showOnline: $showOnline, alwaysMetal: $alwaysMetal, receiveNotification: $receiveNotification, showMyProfile: $showMyProfile, activateVoiceNote: $activateVoiceNote, activateVoiceCall: $activateVoiceCall, activateVideoCall: $activateVideoCall, profilePhoto: $profilePhoto, fcmToken: $fcmToken, isOnline: $isOnline, lastActive: $lastActive, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'UserModel(profileUpdated: $profileUpdated, completedProfile: $completedProfile, dob: $dob, address: $address, connectWith: $connectWith, connectionOption: $connectionOption, description: $description, extraData: $extraData, fullname: $fullname, gender: $gender, isVerified: $isVerified, isActivated: $isActivated, location: $location, metal: $metal, passion: $passion, phone: $phone, email: $email, emailVerified: $emailVerified, workEmail: $workEmail, workEmailVerified: $workEmailVerified, preferences: $preferences, username: $username, refreshToken: $refreshToken, subscription: $subscription, sparkBalance: $sparkBalance, distance: $distance, id: $id, referralCode: $referralCode, referredBy: $referredBy, showOnline: $showOnline, alwaysMetal: $alwaysMetal, receiveNotification: $receiveNotification, showMyProfile: $showMyProfile, activateVoiceNote: $activateVoiceNote, activateVoiceCall: $activateVoiceCall, activateVideoCall: $activateVideoCall, profilePhoto: $profilePhoto, fcmToken: $fcmToken, isOnline: $isOnline, lastActive: $lastActive, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -871,6 +903,10 @@ class _$UserModelImpl implements _UserModel {
             (identical(other.email, email) || other.email == email) &&
             (identical(other.emailVerified, emailVerified) ||
                 other.emailVerified == emailVerified) &&
+            (identical(other.workEmail, workEmail) ||
+                other.workEmail == workEmail) &&
+            (identical(other.workEmailVerified, workEmailVerified) ||
+                other.workEmailVerified == workEmailVerified) &&
             (identical(other.preferences, preferences) ||
                 other.preferences == preferences) &&
             (identical(other.username, username) ||
@@ -938,6 +974,8 @@ class _$UserModelImpl implements _UserModel {
         phone,
         email,
         emailVerified,
+        workEmail,
+        workEmailVerified,
         preferences,
         username,
         refreshToken,
@@ -996,6 +1034,8 @@ abstract class _UserModel implements UserModel {
       final String? phone,
       final String? email,
       final bool? emailVerified,
+      final String? workEmail,
+      final bool? workEmailVerified,
       final Preferences? preferences,
       final String? username,
       final String? refreshToken,
@@ -1061,6 +1101,10 @@ abstract class _UserModel implements UserModel {
   String? get email;
   @override
   bool? get emailVerified;
+  @override
+  String? get workEmail;
+  @override
+  bool? get workEmailVerified;
   @override
   Preferences? get preferences;
   @override

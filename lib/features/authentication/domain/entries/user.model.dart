@@ -27,6 +27,8 @@ class UserModel with _$UserModel {
     String? phone,
     String? email,
     bool? emailVerified,
+    String? workEmail,
+    bool? workEmailVerified,
     Preferences? preferences,
     String? username,
     String? refreshToken,

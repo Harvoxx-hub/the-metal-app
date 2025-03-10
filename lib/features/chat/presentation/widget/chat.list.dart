@@ -150,6 +150,25 @@ class chatListItem extends ConsumerWidget {
                     fontWeight: FontWeight.w300,
                     fontSize: 13,
                   ),
+                  //add a badge if the message is unread
+                  if (conversationsModel.unreadCount > 0)
+                    Container(
+                      margin: const EdgeInsets.only(left: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        conversationsModel.unreadCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

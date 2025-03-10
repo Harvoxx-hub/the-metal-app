@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/fcm/local_notifications.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:synchronized/synchronized.dart';
 
 import 'abstract_notification_dispatcher.dart';
@@ -26,9 +28,6 @@ class FCMClient {
 
   /// Stream of messages when app is in background and opened from notification.
   late StreamSubscription _onMessageOpenedAppSub;
-
-  // todo: after fcm init on splash check this message is not null and do navigation if needed.
-  RemoteMessage? initialMessage;
 
   /// Stream for detecting FCM token refresh
   Stream<String> get tokenRefreshStream => _firebaseMessaging.onTokenRefresh;
@@ -52,10 +51,7 @@ class FCMClient {
       if (Platform.isAndroid) {
         await FirebaseMessaging.instance.setAutoInitEnabled(true);
       }
-      _firebaseMessaging.onTokenRefresh.listen((token) {
-        print('fcm token refreshed: $token');
-      });
-      FirebaseMessaging.instance.getToken();
+
       // Set the foreground notification presentation options
       FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
         alert: true,
@@ -63,45 +59,52 @@ class FCMClient {
         sound: true,
       );
 
-      initialMessage = await _firebaseMessaging.getInitialMessage();
-      _log(initialMessage, name: 'initialMessage');
-
+      // Handle initial message
+      final initialMessage = await _firebaseMessaging.getInitialMessage();
       if (initialMessage != null) {
         final payload =
-            NotificationPayloadModel.fromRemoteMessage(initialMessage!);
+            NotificationPayloadModel.fromRemoteMessage(initialMessage);
         Future.delayed(
-            const Duration(seconds: 2), () => _onTapNotification(payload));
+          const Duration(seconds: 2),
+          () => _onTapNotification(payload),
+        );
       }
 
+      // Set up message listeners
       _onMessageSub = FirebaseMessaging.onMessage.listen(_onMessage);
       _onMessageOpenedAppSub =
           FirebaseMessaging.onMessageOpenedApp.listen(_onMessageOpenedApp);
 
+      // Initialize local notifications
       await _localNotifications.init(
         onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
       );
 
+      // Subscribe to dev topic
       await _firebaseMessaging.subscribeToTopic("dev");
 
+      // Get and handle FCM token
       final token = await _firebaseMessaging.getToken();
-      print('fcm token: $token');
-      _isInit = true;
-
       if (token != null) {
-        // container
-        //     .read(authenticationNotifierProvider.notifier)
-        //     .updateToken(token);
-        // _auth.updateToken(token);
+        await _updateFCMToken(token);
 
-        tokenRefreshStream.listen((event) {
-          // container
-          //     .read(authenticationNotifierProvider.notifier)
-          //     .updateToken(event);
-        });
+        // Listen for token refresh
+        tokenRefreshStream.listen(_updateFCMToken);
       }
 
+      _isInit = true;
       return token;
     });
+  }
+
+  Future<void> _updateFCMToken(String token) async {
+    try {
+      // await container
+      //     .read(authenticationNotifierProvider.notifier)
+      //     .updateToken(token);
+    } catch (e) {
+      print('Error updating FCM token: $e');
+    }
   }
 
   void disableMessagesHandle() {
@@ -124,7 +127,7 @@ class FCMClient {
     await _localNotifications.show(
       title: message.notification?.title ?? '',
       body: message.notification?.body ?? '',
-      payload: payload.toJson(),
+      payload: jsonEncode(payload.toJson()),
     );
   }
 
@@ -152,8 +155,10 @@ class FCMClient {
   Future<void> _onDidReceiveNotificationResponse(
     NotificationResponse? notificationResponse,
   ) async {
+    if (notificationResponse?.payload == null) return;
+
     final payloadModel =
-        NotificationPayloadModel.fromJson(notificationResponse?.payload ?? '');
+        NotificationPayloadModel.fromJson(notificationResponse!.payload!);
     await _onTapNotification(payloadModel);
   }
 

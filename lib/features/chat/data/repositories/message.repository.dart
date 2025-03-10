@@ -52,6 +52,7 @@ class MessageRepository implements IMessageRepository {
         final List<String> dailyConversations =
             List<String>.from(data['dailyConversations'] ?? []);
         final String? lastConversationDate = data['lastConversationDate'];
+        final int currentUnreadCount = data['unreadCount'] ?? 0;
 
         // Only add today's date if it's different from the last conversation date
         if (lastConversationDate != today) {
@@ -67,6 +68,7 @@ class MessageRepository implements IMessageRepository {
           'lastUpdatedAt': message.timestamp,
           'dailyConversations': dailyConversations,
           'lastConversationDate': today,
+          'unreadCount': currentUnreadCount + 1, // Increment unread count
         });
       }
 
@@ -215,6 +217,14 @@ class MessageRepository implements IMessageRepository {
         documentId: messageId.toString(),
         data: data,
       );
+
+      // If marking message as read, reset unread count
+      if (data['isRead'] == true) {
+        await _firestore
+            .collection(FirebaseFirestoreCollectionKeys.connections)
+            .doc(id)
+            .update({'unreadCount': 0});
+      }
 
       return Responses(success: true, message: "Message updated successfully");
     } catch (e) {

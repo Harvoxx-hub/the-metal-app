@@ -21,6 +21,7 @@ ConnectionModel _$ConnectionModelFromJson(Map<String, dynamic> json) =>
               .toList() ??
           const [],
       lastConversationDate: json['lastConversationDate'] as String?,
+      unreadCount: json['unreadCount'] as int? ?? 0,
     );
 
 Map<String, dynamic> _$ConnectionModelToJson(ConnectionModel instance) =>
@@ -35,4 +36,5 @@ Map<String, dynamic> _$ConnectionModelToJson(ConnectionModel instance) =>
       'isAnonymous': instance.isAnonymous,
       'dailyConversations': instance.dailyConversations,
       'lastConversationDate': instance.lastConversationDate,
+      'unreadCount': instance.unreadCount,
     };

@@ -26,6 +26,7 @@ class ConnectionModel {
   final String? lastMessage;
   final String? lastUpdatedAt;
   final String? game;
+  final int unreadCount; // Number of unread messages
 
   final String connectedOn; // Timestamp when the connection was created
   final String status; // Status of the connection (e.g., "active", "blocked")
@@ -45,6 +46,7 @@ class ConnectionModel {
     this.isAnonymous = false, // Default to not anonymous
     this.dailyConversations = const [], // Default to empty list
     this.lastConversationDate, // Default to null
+    this.unreadCount = 0, // Default to 0 unread messages
   });
 
   factory ConnectionModel.fromJson(Map<String, dynamic> json) =>

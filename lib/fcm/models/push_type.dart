@@ -2,9 +2,13 @@ import 'package:dartx/dartx.dart';
 
 enum PushType {
   message('message'),
-  pushmelt('pushMelt');
+  new_connection('new_connection'),
+  thought_created('thought_created'),
+  reaction_added('reaction_added'),
+  sparks_transaction('sparks_transaction'),
+  unknown('unknown'),
   // comment('comment'),
-  // follow('follow');
+  follow('follow');
 
   const PushType(this.value);
 

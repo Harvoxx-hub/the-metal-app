@@ -26,6 +26,7 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:upgrader/upgrader.dart';
+import 'package:metal/features/chat/provider/unread.count.notifier.dart';
 
 import '../home_page/home_page.dart';
 import 'package:metal/features/dashboard.dart/widget/thought_reminder_dialog.dart';
@@ -218,7 +219,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               })
           : null,
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
         currentIndex: currentIndex,
         showSelectedLabels: false,
         showUnselectedLabels: false,
@@ -239,8 +239,68 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               activeIcon: Image.asset(Assets.images.activeSpark.path),
               label: AppStrings.sparks),
           BottomNavigationBarItem(
-              icon: Image.asset(Assets.images.inactiveMessage.path),
-              activeIcon: Image.asset(Assets.images.activeMessage.path),
+              icon: Stack(
+                children: [
+                  Image.asset(Assets.images.inactiveMessage.path),
+                  if (ref.watch(unreadCountProvider).data != null &&
+                      ref.watch(unreadCountProvider).data! > 0)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          ref.watch(unreadCountProvider).data!.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              activeIcon: Stack(
+                children: [
+                  Image.asset(Assets.images.activeMessage.path),
+                  if (ref.watch(unreadCountProvider).data != null &&
+                      ref.watch(unreadCountProvider).data! > 0)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          ref.watch(unreadCountProvider).data!.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
               label: AppStrings.chat),
           BottomNavigationBarItem(
               icon: Image.asset(Assets.images.inactiveUser.path),

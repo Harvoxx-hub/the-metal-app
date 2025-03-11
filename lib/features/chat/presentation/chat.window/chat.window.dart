@@ -41,7 +41,7 @@ class ChatWindowsPage extends ConsumerStatefulWidget {
 class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
   GameModel? game;
 
-  UserModel? _meltUserModel;
+ 
   ConnectionModel? _connectionModdel;
   @override
   void initState() {
@@ -52,7 +52,7 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
   getMeltMetal() {
     _connectionModdel =
         ref.read(getMeltUserProvider.notifier).getMeltUserById(widget.metalId)!;
-    _meltUserModel = ref.read(getUserProvider(widget.metalId)).data;
+  
   }
 
   UserModel? currentUserData;
@@ -76,7 +76,7 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
               const Gap(20),
               ChatWindowsAppBar(
                 key: widget.key,
-                meltUserModel: _meltUserModel!,
+                meltUserModel: _connectionModdel!.otherUser!,
                 connectionModel: _connectionModdel!,
               ),
               GameTile(
@@ -84,7 +84,7 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
               ),
               MessageList(_connectionModdel!.connectionId),
               ChatBottomSheet(
-                meltUserModel: _meltUserModel!,
+                meltUserModel: _connectionModdel!.otherUser!,
                 connectionModel: _connectionModdel!,
                 onGameClick: () async {
                   final gameModel = await Navigator.pushNamed(

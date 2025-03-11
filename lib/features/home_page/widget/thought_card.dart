@@ -98,7 +98,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           Navigator.pushNamed(
             context,
             AppRoutes.myMeltedUser,
-            arguments: thoughtModel.userId,
+            arguments: {"metalId" : thoughtModel.userId}  ,
           );
         }
       },

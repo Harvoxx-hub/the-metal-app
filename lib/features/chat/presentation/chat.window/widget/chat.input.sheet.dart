@@ -7,7 +7,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:gap/gap.dart';
 
-import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
@@ -40,8 +39,6 @@ class ChatBottomSheet extends ConsumerStatefulWidget {
 
 class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
   final TextEditingController _chatController = TextEditingController();
-  final tooltipController = JustTheController();
-  final _scrollController = ScrollController();
 
   bool _hasText = true;
   late final RecorderController recorderController;
@@ -76,177 +73,155 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
   var currentUserData;
   @override
   Widget build(BuildContext context) {
-    int dayRemaining = daysRemaining(widget.connectionModel.connectedOn, 0);
     currentUserData = ref.watch(authProvider).data;
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(left: 18, right: 18),
-        child: Column(
-          children: [
-            isRecordingCompleted
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          _refreshWave();
-                          isRecordingCompleted = false;
-                          setState(() {});
-                        },
-                        child: SvgPicture.asset(
-                          Assets.icons.profileTrash.path,
+    return Padding(
+      padding: EdgeInsets.only(left: 18, right: 18, bottom: 18),
+      child: Column(
+        children: [
+          isRecordingCompleted
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        _refreshWave();
+                        isRecordingCompleted = false;
+                        setState(() {});
+                      },
+                      child: SvgPicture.asset(
+                        Assets.icons.profileTrash.path,
+                        color: Color(0xFFD9197B),
+                        height: 30,
+                        width: 30,
+                      ),
+                    ),
+                    WaveBubble(
+                      path: path ?? "",
+                      isSender: true,
+                    ),
+                    GestureDetector(
+                      onTap: sendAudioMessage,
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: const ShapeDecoration(
                           color: Color(0xFFD9197B),
-                          height: 30,
-                          width: 30,
+                          shape: OvalBorder(),
+                        ),
+                        child: Center(
+                          child: SvgPicture.asset(
+                            Assets.icons.chatsWindowactiveSend.path,
+                            height: 24,
+                            width: 24,
+                          ),
                         ),
                       ),
-                      WaveBubble(
-                        path: path ?? "",
-                        isSender: true,
-                      ),
-                      GestureDetector(
-                        onTap: sendAudioMessage,
-                        child: Container(
-                          height: 40,
-                          width: 40,
-                          decoration: const ShapeDecoration(
-                            color: Color(0xFFD9197B),
-                            shape: OvalBorder(),
-                          ),
-                          child: Center(
-                            child: SvgPicture.asset(
-                              Assets.icons.chatsWindowactiveSend.path,
-                              height: 24,
-                              width: 24,
+                    )
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: isRecording
+                          ? AudioWaveforms(
+                              enableGesture: true,
+                              size: Size(
+                                  MediaQuery.of(context).size.width / 1.6, 50),
+                              recorderController: recorderController,
+                              waveStyle: const WaveStyle(
+                                waveColor: AppColors.metalPinkColour,
+                                extendWaveform: true,
+                                showMiddleLine: false,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12.0),
+                                color: AppColors.metalWhite20,
+                              ),
+                              padding: const EdgeInsets.only(left: 18),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                            )
+                          : Row(
+                              children: [
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width / 1.4,
+                                  child: EditFormField(
+                                    onChange: (va) {
+                                      isChatControllerEmpty();
+                                    },
+                                    onTapped: () {},
+                                    label: 'Your Message',
+                                    controller: _chatController,
+                                    keyboardType: TextInputType.text,
+                                    autoValidate: false,
+                                    radius: 34,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ),
-                      )
-                    ],
-                  )
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
-                        child: isRecording
-                            ? AudioWaveforms(
-                                enableGesture: true,
-                                size: Size(
-                                    MediaQuery.of(context).size.width / 1.6,
-                                    50),
-                                recorderController: recorderController,
-                                waveStyle: const WaveStyle(
-                                  waveColor: AppColors.metalPinkColour,
-                                  extendWaveform: true,
-                                  showMiddleLine: false,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  color: AppColors.metalWhite20,
-                                ),
-                                padding: const EdgeInsets.only(left: 18),
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 15),
-                              )
-                            : Row(
+                    ),
+                    const Gap(4),
+                    isRecording
+                        ? IconButton(
+                            onPressed: _startOrStopRecording,
+                            icon: Icon(isRecording ? Icons.stop : Icons.mic),
+                            color: AppColors.metalPinkColour,
+                            iconSize: 28,
+                          )
+                        : _hasText
+                            ? Row(
                                 children: [
-                                  SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width / 1.4,
-                                    child: EditFormField(
-                                      onChange: (va) {
-                                        isChatControllerEmpty();
-                                      },
-                                      onTapped: () {},
-                                      label: 'Your Message',
-                                      controller: _chatController,
-                                      keyboardType: TextInputType.text,
-                                      autoValidate: false,
-                                      radius: 34,
+                                  GestureDetector(
+                                    onTap: widget.onGameClick,
+                                    child: SvgPicture.asset(
+                                      Assets.icons.chatsEmptyStateGamingPad01
+                                          .path,
+                                      height: 30,
+                                      width: 30,
                                     ),
                                   ),
-                                ],
-                              ),
-                      ),
-                      const Gap(4),
-                      isRecording
-                          ? IconButton(
-                              onPressed: _startOrStopRecording,
-                              icon: Icon(isRecording ? Icons.stop : Icons.mic),
-                              color: AppColors.metalPinkColour,
-                              iconSize: 28,
-                            )
-                          : _hasText
-                              ? Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: widget.onGameClick,
+                                  const Gap(17),
+                                  Material(
+                                    color: Colors.white,
+                                    shape: const CircleBorder(),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _startOrStopRecording();
+                                      },
                                       child: SvgPicture.asset(
-                                        Assets.icons.chatsEmptyStateGamingPad01
+                                        Assets.icons.chatsEmptyStateMicrophone
                                             .path,
-                                        height: 30,
-                                        width: 30,
-                                      ),
-                                    ),
-                                    const Gap(17),
-                                    JustTheTooltip(
-                                      controller: tooltipController,
-                                      content: SizedBox(
-                                        width: 180,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'Voice note features are enabled after 5 days. $dayRemaining remaining of chatting with this metal. Please contact them through messages',
-                                          ),
-                                        ),
-                                      ),
-                                      child: Material(
-                                        color: Colors.white,
-                                        shape: const CircleBorder(),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            hasDurationReached(
-                                                    widget.connectionModel
-                                                        .connectedOn,
-                                                    0)
-                                                ? _startOrStopRecording()
-                                                : tooltipController
-                                                    .showTooltip();
-                                          },
-                                          child: SvgPicture.asset(
-                                            Assets.icons
-                                                .chatsEmptyStateMicrophone.path,
-                                            height: 24,
-                                            width: 24,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : GestureDetector(
-                                  onTap: sendTextMessage,
-                                  child: Container(
-                                    height: 40,
-                                    width: 40,
-                                    decoration: const ShapeDecoration(
-                                      color: Color(0xFFD9197B),
-                                      shape: OvalBorder(),
-                                    ),
-                                    child: Center(
-                                      child: SvgPicture.asset(
-                                        Assets.icons.chatsWindowactiveSend.path,
                                         height: 24,
                                         width: 24,
                                       ),
                                     ),
                                   ),
-                                )
-                    ],
-                  ),
-          ],
-        ),
+                                ],
+                              )
+                            : GestureDetector(
+                                onTap: sendTextMessage,
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: const ShapeDecoration(
+                                    color: Color(0xFFD9197B),
+                                    shape: OvalBorder(),
+                                  ),
+                                  child: Center(
+                                    child: SvgPicture.asset(
+                                      Assets.icons.chatsWindowactiveSend.path,
+                                      height: 24,
+                                      width: 24,
+                                    ),
+                                  ),
+                                ),
+                              )
+                  ],
+                ),
+        ],
       ),
     );
   }

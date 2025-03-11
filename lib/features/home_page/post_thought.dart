@@ -78,37 +78,50 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                   if (widget.userModel.isVerified ?? false)
                     Assets.icons.checkVerified.svg(height: 16),
                   const Spacer(),
-                  PlainButton(
-                    buttonText: widget.thoughtModel == null ? "Post" : "Update",
-                    onPressed: () {
-                      FocusScope.of(context).unfocus();
-                      if (!(widget.userModel.completedProfile ?? false)) {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return const CustomDialog(
-                              content: ComplecteProfileDialog(),
-                            );
-                          },
-                        );
-                      } else {
-                        if (widget.thoughtModel == null) {
-                          ref
-                              .read(sendThoughtProvider.notifier)
-                              .sendThought(controller.text.trim());
-                        } else {
-                          ref
-                              .read(editThoughtProvider.notifier)
-                              .editThought(widget.thoughtModel!.id, {
-                            'content': controller.text.trim(),
-                            'updatedAt': DateTime.now().toIso8601String(),
-                          });
-                        }
-                      }
+                  ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: controller,
+                    builder: (context, value, child) {
+                      final isTextNotEmpty = value.text.trim().isNotEmpty;
+                      return PlainButton(
+                        enabled: isTextNotEmpty,
+                        buttonText:
+                            widget.thoughtModel == null ? "Post" : "Update",
+                        onPressed: isTextNotEmpty
+                            ? () {
+                                FocusScope.of(context).unfocus();
+
+                                if (!(widget.userModel.completedProfile ??
+                                    false)) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return const CustomDialog(
+                                        content: ComplecteProfileDialog(),
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  if (widget.thoughtModel == null) {
+                                    ref
+                                        .read(sendThoughtProvider.notifier)
+                                        .sendThought(controller.text.trim());
+                                  } else {
+                                    ref
+                                        .read(editThoughtProvider.notifier)
+                                        .editThought(widget.thoughtModel!.id, {
+                                      'content': controller.text.trim(),
+                                      'updatedAt':
+                                          DateTime.now().toIso8601String(),
+                                    });
+                                  }
+                                }
+                              }
+                            : null, // Disable `onPressed` when the button is disabled
+                        width: 100,
+                        loading: sendThoughtState.isLoading ||
+                            editThoughtState.isLoading,
+                      );
                     },
-                    width: 100,
-                    loading: sendThoughtState.isLoading ||
-                        editThoughtState.isLoading,
                   ),
                 ]),
               ),

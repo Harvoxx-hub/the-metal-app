@@ -229,12 +229,15 @@ class AppRoutes {
       case myMeltedUser:
         return MaterialPageRoute(
             builder: (_) => MyMeltedUser(
-                  metalId: settings.arguments as String,
+                  metalDetials: settings.arguments as Map<String, dynamic>,
                 ));
 
       case meltMetal:
+       
+//"NUFXmf3EzrOAiw7k9PQsVzf7x7B3"
         return MaterialPageRoute(
             builder: (_) => MeltMetal(
+
                   id: settings.arguments as String,
                 ));
       case sendSpark:

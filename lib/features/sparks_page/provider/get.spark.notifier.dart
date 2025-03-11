@@ -13,16 +13,26 @@ class GetSparkNotifier extends StateNotifier<GetsparkState> {
   }
   final Ref ref;
 
-  //get sparks
+  // Get Sparks sorted by timeline (newest to oldest)
   void getSpark() async {
     try {
       state = GetsparkState.loading();
       final sparkRepository = ref.watch(sparkRepositoryProvider);
       final response = await sparkRepository.getSparkHistory();
       final List<SparkModel> spark = [];
-      response.data.forEach((element) {
+
+      // Convert JSON response to SparkModel list
+      for (var element in response.data) {
         spark.add(SparkModel.fromJson(element));
+      }
+
+      // Sort the sparks by timeline in descending order (newest first)
+      spark.sort((a, b) {
+        final DateTime aTime = DateTime.parse(a.timestamp!);
+        final DateTime bTime = DateTime.parse(b.timestamp!);
+        return bTime.compareTo(aTime); // Newest first
       });
+
       state = GetsparkState.success(spark);
     } catch (e, s) {
       state = GetsparkState.error(e.toString(), stackTrace: s);

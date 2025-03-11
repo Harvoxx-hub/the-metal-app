@@ -75,6 +75,7 @@ class MeltNotificationItem extends BaseNotificationItem {
         final metalId =
             MetalHelper.getOtherUserId(notificationModel.recipientIds);
         _navigateTo(context, AppRoutes.meltMetal, metalId);
+
         break;
       case NotificationType.new_message:
         final metalId = notificationModel.data["senderId"];
@@ -84,9 +85,9 @@ class MeltNotificationItem extends BaseNotificationItem {
         // Handle reaction notification
         break;
       case NotificationType.thought_created:
-        // Handle thought creation notification
-        // _navigateTo(
-        //     context, AppRoutes.postThought, notificationModel.data["id"]);
+    
+        _navigateTo(
+            context, AppRoutes.myMeltedUser, {"metalId" : notificationModel.data["userId"], "toughtId": notificationModel.data["thoughtId"]}  );
         break;
       default:
         // Handle other notification types
@@ -94,14 +95,10 @@ class MeltNotificationItem extends BaseNotificationItem {
     }
   }
 
-  void _navigateTo(BuildContext context, String route, String userId) {
-    final metalId = notificationModel.recipientIds.firstWhere(
-      (user) => user != userId,
-      orElse: () =>
-          "", // Handle cases where all user IDs match the current user
-    );
+  void _navigateTo(BuildContext context, String route, var userId) {
+     
 
-    Navigator.pushNamed(context, route, arguments: metalId);
+    Navigator.pushNamed(context, route, arguments: userId);
   }
 
   Widget _buildIcon() {

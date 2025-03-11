@@ -29,7 +29,6 @@ class ProfileHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileImage = ref.watch(profileImageProvider);
-    // final user = ref.watch(authProvider).data;
 
     return SingleChildScrollView(
       child: Stack(
@@ -50,7 +49,7 @@ class ProfileHeader extends ConsumerWidget {
                 : GestureDetector(
                     onTap: () {
                       if (myProfile) {
-                        _pickImage(context, ref);
+                        pickImage(context, ref);
                       }
                     },
                     child: ProfilePhoto(
@@ -67,7 +66,7 @@ class ProfileHeader extends ConsumerWidget {
     );
   }
 
-  Future<void> _pickImage(BuildContext context, WidgetRef ref) async {
+  static Future<void> pickImage(BuildContext context, WidgetRef ref) async {
     final ImagePicker picker = ImagePicker();
 
     final option = await showModalBottomSheet<ImageSource>(

@@ -17,6 +17,8 @@ class SparkModel {
   String? amount;
   int? sparks;
   String? receiverId;
+  String? receiverName;
+  String? senderName;
 
   String? userId;
   String? timestamp;

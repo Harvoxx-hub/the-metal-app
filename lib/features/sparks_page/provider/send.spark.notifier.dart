@@ -12,19 +12,24 @@ class SendSparkNotifier extends StateNotifier<SendsparkState> {
   final Ref ref;
 
   //send spark
-  void sendSpark({
-    required String receiverId,
-    required double numberOfSparks,
-  }) async {
+  void sendSpark(
+      {required String receiverId,
+      required double numberOfSparks,
+      required String receiverName}) async {
     state = SendsparkState.loading();
     try {
       final sparkRepository = ref.watch(sparkRepositoryProvider);
+      final userDetails = ref.watch(authProvider).data;
       final response = await sparkRepository.shareSpark(
-        numberOfSparks: numberOfSparks,
-        receiverID: receiverId,
-      );
+          numberOfSparks: numberOfSparks,
+          receiverID: receiverId,
+          receiverName: receiverName,
+          senderName: userDetails!.username!);
+
       ref.read(authProvider.notifier).getUpdatedUser();
-      state = SendsparkState.success({"data": "data"});
+      response.success == false
+          ? state = SendsparkState.error(response.message!)
+          : state = SendsparkState.success({"data": "data"});
     } catch (e, s) {
       state = SendsparkState.error(e.toString(), stackTrace: s);
     }

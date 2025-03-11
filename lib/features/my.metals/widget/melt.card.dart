@@ -29,7 +29,7 @@ class MeltCard extends ConsumerWidget {
           Navigator.pushNamed(
             context,
             AppRoutes.myMeltedUser,
-            arguments: metalId,
+            arguments: {"metalId" : metalId}  ,
           );
         },
         height: 105,

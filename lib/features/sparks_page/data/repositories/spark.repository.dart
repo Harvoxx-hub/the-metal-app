@@ -1,13 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/model/responces.dart';
- 
+
 import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/core/utils/constant/firebase.firestore.collection.key.dart';
 
 import 'package:metal/features/sparks_page/domain/repositories/ispark.repository.dart';
 
 class SparkRepository implements ISparkRepository {
- 
   final FirebaseServiceDb _firebaseService = FirebaseServiceDb.instance;
 
   @override
@@ -71,40 +70,52 @@ class SparkRepository implements ISparkRepository {
     }
   }
 
-  @override
-  Future<Responses> getSparkHistory() async {
-    try {
-      final userid = _firebaseService.userId;
-      if (userid == null) {
-        return Responses(
-          success: false,
-          message: "No user is currently logged in.",
-        );
-      }
-
-      // Query the Spark history
-      final sparkHistory = await _firebaseService.queryCollection(
-          collectionPath: FirebaseFirestoreCollectionKeys.sparksTransactions,
-          field: "userId",
-          value: userid);
-
-      return Responses(
-        success: true,
-        data: sparkHistory,
-        message: "Spark history retrieved successfully.",
-      );
-    } catch (e) {
+ @override
+Future<Responses> getSparkHistory() async {
+  try {
+    final userid = _firebaseService.userId;
+    if (userid == null) {
       return Responses(
         success: false,
-        message: "Failed to retrieve Spark history: $e",
+        message: "No user is currently logged in.",
       );
     }
+
+    // Query Spark history for both sender and receiver
+    final sparkHistory = await _firebaseService.queryCollection(
+      collectionPath: FirebaseFirestoreCollectionKeys.sparksTransactions,
+      field: "userId",
+      value: userid,
+    );
+    
+    final sparkHistory2 = await _firebaseService.queryCollection(
+      collectionPath: FirebaseFirestoreCollectionKeys.sparksTransactions,
+      field: "receiverId",
+      value: userid,
+    );
+
+    // Combine both lists into one
+    final combinedSparkHistory = [...sparkHistory, ...sparkHistory2];
+
+    return Responses(
+      success: true,
+      data: combinedSparkHistory,
+      message: "Spark history retrieved successfully.",
+    );
+  } catch (e) {
+    return Responses(
+      success: false,
+      message: "Failed to retrieve Spark history: $e",
+    );
   }
+}
 
   @override
   Future<Responses> shareSpark({
     required double numberOfSparks,
     required String receiverID,
+    required String receiverName,
+    required String senderName,
   }) async {
     try {
       final userid = _firebaseService.userId;
@@ -178,6 +189,8 @@ class SparkRepository implements ISparkRepository {
             "type": "Sent",
             "sparks": numberOfSparks,
             "userId": userid,
+            "senderName": senderName,
+            "receiverName": receiverName,
             "receiverId": receiverID,
             "timestamp": DateTime.now().toIso8601String(),
           },

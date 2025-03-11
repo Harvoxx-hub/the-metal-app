@@ -16,6 +16,7 @@ import 'package:metal/features/sparks_page/screens/widget/single.spark.header.ca
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
@@ -171,36 +172,36 @@ class _SendSparkState extends ConsumerState<SendSpark> {
                             validator: Validators.validateAmount(),
                           ),
                           const Gap(15),
-                          EditFormField(
-                            floatingLabel: 'Transfer Fee',
-                            label: '0.00',
-                            controller: _transferFeeController,
-                            keyboardType: TextInputType.number,
-                            prefixWidget: SvgPicture.asset(
-                              Assets.icons.star05.path,
-                              height: 24,
-                              width: 24,
-                            ),
-                            radius: 10,
-                            enabled: false,
-                            // validator: Validators.validateAmount(),
-                          ),
-                          const Gap(15),
-                          EditFormField(
-                            floatingLabel: 'Total Sparks used ',
-                            label: '0.00',
-                            controller: _totalSparkController,
-                            keyboardType: TextInputType.number,
-                            prefixWidget: SvgPicture.asset(
-                              Assets.icons.star05.path,
-                              height: 24,
-                              width: 24,
-                            ),
-                            radius: 10,
-                            enabled: false,
-                            //  validator: Validators.validateAmount(),
-                          ),
-                          const Gap(15),
+                          // EditFormField(
+                          //   floatingLabel: 'Transfer Fee',
+                          //   label: '0.00',
+                          //   controller: _transferFeeController,
+                          //   keyboardType: TextInputType.number,
+                          //   prefixWidget: SvgPicture.asset(
+                          //     Assets.icons.star05.path,
+                          //     height: 24,
+                          //     width: 24,
+                          //   ),
+                          //   radius: 10,
+                          //   enabled: false,
+                          //   // validator: Validators.validateAmount(),
+                          // ),
+                          // const Gap(15),
+                          // EditFormField(
+                          //   floatingLabel: 'Total Sparks used ',
+                          //   label: '0.00',
+                          //   controller: _totalSparkController,
+                          //   keyboardType: TextInputType.number,
+                          //   prefixWidget: SvgPicture.asset(
+                          //     Assets.icons.star05.path,
+                          //     height: 24,
+                          //     width: 24,
+                          //   ),
+                          //   radius: 10,
+                          //   enabled: false,
+                          //   //  validator: Validators.validateAmount(),
+                          // ),
+                          // const Gap(15),
                           BaseButton(
                             buttonText: "Send spark",
                             loading: sendSpark.isLoading,
@@ -265,7 +266,9 @@ class _SendSparkState extends ConsumerState<SendSpark> {
               Navigator.pop(context);
               ref.read(sendSparkProvider.notifier).sendSpark(
                   receiverId: selectedUserId,
-                  numberOfSparks: double.parse(_sparkNumberController.text));
+                  numberOfSparks: double.parse(_sparkNumberController.text),
+                  receiverName: _userNameController.text
+                  );
             }),
         const Gap(23),
         TextView(
@@ -301,7 +304,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
         BaseButton(
             buttonText: "Go back to dashboard",
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
             })
       ],
     );

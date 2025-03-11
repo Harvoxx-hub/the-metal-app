@@ -15,7 +15,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/constant/firebase.remote.config.key.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
 
 part 'connection.model.g.dart';
 
@@ -27,6 +27,7 @@ class ConnectionModel {
   final String? lastUpdatedAt;
   final String? game;
   final int unreadCount; // Number of unread messages
+  final UserModel? otherUser; // The other user in the connection
 
   final String connectedOn; // Timestamp when the connection was created
   final String status; // Status of the connection (e.g., "active", "blocked")
@@ -47,6 +48,7 @@ class ConnectionModel {
     this.dailyConversations = const [], // Default to empty list
     this.lastConversationDate, // Default to null
     this.unreadCount = 0, // Default to 0 unread messages
+    this.otherUser, // The other user in the connection
   });
 
   factory ConnectionModel.fromJson(Map<String, dynamic> json) =>
@@ -72,5 +74,35 @@ class ConnectionModel {
         uniqueDailyConversationsCount >= 10 &&
         userProfilePhoto != null &&
         userProfilePhoto.isNotEmpty;
+  }
+
+  ConnectionModel copyWith({
+    String? connectionId,
+    List<String>? users,
+    String? lastMessage,
+    String? lastUpdatedAt,
+    String? game,
+    int? unreadCount,
+    String? connectedOn,
+    String? status,
+    bool? isAnonymous,
+    List<String>? dailyConversations,
+    String? lastConversationDate,
+    UserModel? otherUser,
+  }) {
+    return ConnectionModel(
+      connectionId: connectionId ?? this.connectionId,
+      users: users ?? this.users,
+      lastMessage: lastMessage ?? this.lastMessage,
+      lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,
+      game: game ?? this.game,
+      unreadCount: unreadCount ?? this.unreadCount,
+      connectedOn: connectedOn ?? this.connectedOn,
+      status: status ?? this.status,
+      isAnonymous: isAnonymous ?? this.isAnonymous,
+      dailyConversations: dailyConversations ?? this.dailyConversations,
+      lastConversationDate: lastConversationDate ?? this.lastConversationDate,
+      otherUser: otherUser ?? this.otherUser,
+    );
   }
 }

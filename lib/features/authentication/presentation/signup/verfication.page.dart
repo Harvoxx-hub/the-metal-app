@@ -44,7 +44,7 @@ class VerificationPage extends ConsumerStatefulWidget {
 class _VerificationPageState extends ConsumerState<VerificationPage> {
   final TextEditingController _otpController = TextEditingController();
 
-  int _secondsRemaining = 60;
+  int _secondsRemaining = 30;
   late Timer _timer;
 
   @override

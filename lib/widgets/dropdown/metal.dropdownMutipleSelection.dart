@@ -27,6 +27,21 @@ class MentalDropdownMutipleSelection extends StatefulWidget {
 
 class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
   bool isDropdownOpen = false;
+  List<String> selectedItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    selectedItems = widget.value ?? [];
+  }
+
+  @override
+  void didUpdateWidget(MentalDropdownMutipleSelection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) {
+      selectedItems = widget.value ?? [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +75,9 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
                   children: <Widget>[
                     Expanded(
                       child: TextView(
-                        text: (widget.value == null || widget.value!.isEmpty)
+                        text: selectedItems.isEmpty
                             ? widget.hint!
-                            : widget.value!.join(','),
+                            : selectedItems.join(','),
                       ),
                     ),
                     GestureDetector(
@@ -98,14 +113,16 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
                       TextView(text: "Select All"),
                       const Spacer(),
                       CustomCheckWidget(
-                        initialValue: widget.value != null && 
-                            widget.value!.length == widget.items.length,
+                        initialValue:
+                            selectedItems.length == widget.items.length,
                         onChanged: (bool value) {
-                          if (value) {
-                            widget.onChanged([...widget.items]);
-                          } else {
-                            widget.onChanged([]);
-                          }
+                          setState(() {
+                            if (value) {
+                              selectedItems = [...widget.items];
+                              isDropdownOpen = !isDropdownOpen;
+                            }
+                            widget.onChanged(selectedItems);
+                          });
                         },
                       ),
                     ],
@@ -119,15 +136,18 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
                         TextView(text: item),
                         const Spacer(),
                         CustomCheckWidget(
-                          initialValue: widget.value == null
-                              ? false
-                              : widget.value!.contains(item),
+                          initialValue: selectedItems.contains(item),
                           onChanged: (bool value) {
-                            value
-                                ? widget.onChanged([...widget.value ?? [], item])
-                                : widget.onChanged(
-                                    widget.value == null ? [] : widget.value!
-                                      ..remove(item));
+                            setState(() {
+                              if (value) {
+                                selectedItems = [...selectedItems, item];
+                              } else {
+                                selectedItems = selectedItems
+                                    .where((i) => i != item)
+                                    .toList();
+                              }
+                              widget.onChanged(selectedItems);
+                            });
                           },
                         ),
                       ],

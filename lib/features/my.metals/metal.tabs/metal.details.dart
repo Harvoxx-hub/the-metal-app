@@ -353,7 +353,7 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
             onPressed: () {
               ref
                   .read(demeltUserProvider.notifier)
-                  .deMeltUser(widget.connectionModel);
+                  .deMeltUser(widget.connectionModel, widget.userModel.id!);
               Navigator.pop(context);
               Navigator.pop(context);
             }),

@@ -32,8 +32,12 @@ mixin _$ThoughtModel {
       throw _privateConstructorUsedError; // Whether the thought is visible only to connections
   List<ReactionModel> get reactions => throw _privateConstructorUsedError;
 
+  /// Serializes this ThoughtModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of ThoughtModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ThoughtModelCopyWith<ThoughtModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -63,6 +67,8 @@ class _$ThoughtModelCopyWithImpl<$Res, $Val extends ThoughtModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of ThoughtModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -127,6 +133,8 @@ class __$$ThoughtModelImplCopyWithImpl<$Res>
       _$ThoughtModelImpl _value, $Res Function(_$ThoughtModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of ThoughtModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -228,12 +236,14 @@ class _$ThoughtModelImpl implements _ThoughtModel {
                 .equals(other._reactions, _reactions));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, userId, content, createdAt,
       connectionOnly, const DeepCollectionEquality().hash(_reactions));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of ThoughtModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ThoughtModelImplCopyWith<_$ThoughtModelImpl> get copyWith =>
@@ -260,19 +270,22 @@ abstract class _ThoughtModel implements ThoughtModel {
       _$ThoughtModelImpl.fromJson;
 
   @override
-  String get id;
-  @override // Unique ID for the thought
-  String get userId;
-  @override // The user who posted the thought
-  String get content;
-  @override // The text content of the thought
-  String get createdAt;
-  @override // Timestamp of when the thought was created
-  bool get connectionOnly;
-  @override // Whether the thought is visible only to connections
-  List<ReactionModel> get reactions;
+  String get id; // Unique ID for the thought
   @override
-  @JsonKey(ignore: true)
+  String get userId; // The user who posted the thought
+  @override
+  String get content; // The text content of the thought
+  @override
+  String get createdAt; // Timestamp of when the thought was created
+  @override
+  bool get connectionOnly; // Whether the thought is visible only to connections
+  @override
+  List<ReactionModel> get reactions;
+
+  /// Create a copy of ThoughtModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ThoughtModelImplCopyWith<_$ThoughtModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -287,8 +300,12 @@ mixin _$ReactionModel {
       throw _privateConstructorUsedError; // ID of the user reacting
   String get emoji => throw _privateConstructorUsedError;
 
+  /// Serializes this ReactionModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of ReactionModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ReactionModelCopyWith<ReactionModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -312,6 +329,8 @@ class _$ReactionModelCopyWithImpl<$Res, $Val extends ReactionModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of ReactionModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -350,6 +369,8 @@ class __$$ReactionModelImplCopyWithImpl<$Res>
       _$ReactionModelImpl _value, $Res Function(_$ReactionModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of ReactionModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -397,11 +418,13 @@ class _$ReactionModelImpl implements _ReactionModel {
             (identical(other.emoji, emoji) || other.emoji == emoji));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, userId, emoji);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of ReactionModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ReactionModelImplCopyWith<_$ReactionModelImpl> get copyWith =>
@@ -424,11 +447,14 @@ abstract class _ReactionModel implements ReactionModel {
       _$ReactionModelImpl.fromJson;
 
   @override
-  String get userId;
-  @override // ID of the user reacting
-  String get emoji;
+  String get userId; // ID of the user reacting
   @override
-  @JsonKey(ignore: true)
+  String get emoji;
+
+  /// Create a copy of ReactionModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ReactionModelImplCopyWith<_$ReactionModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

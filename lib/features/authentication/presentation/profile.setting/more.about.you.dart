@@ -25,8 +25,11 @@ class MoreAboutYouPage extends ConsumerStatefulWidget {
 
 class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
   final TextEditingController _controller = TextEditingController();
+ 
   @override
   Widget build(BuildContext context) {
+    final userData = ref.watch(updateProfileProvider).data;
+    
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -38,7 +41,7 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
               CreateProfileHeader2(
                   path: Assets.images.chooseMetal.path,
                   title:
-                      "Anything more, you would love us to know about being an aluminium?",
+                      "Anything more, you would love us to know about being an ${userData?.metal}?",
                   subtitle: "This will be displayed to your matched metals."),
               const Gap(22),
               EditFormField(

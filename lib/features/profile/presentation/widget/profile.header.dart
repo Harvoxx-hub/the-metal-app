@@ -65,39 +65,39 @@ class ProfileHeader extends ConsumerWidget {
       ),
     );
   }
+}
 
-  static Future<void> pickImage(BuildContext context, WidgetRef ref) async {
-    final ImagePicker picker = ImagePicker();
+Future<void> pickImage(BuildContext context, WidgetRef ref) async {
+  final ImagePicker picker = ImagePicker();
 
-    final option = await showModalBottomSheet<ImageSource>(
-      context: context,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Wrap(
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Camera'),
-                onTap: () => Navigator.pop(context, ImageSource.camera),
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Gallery'),
-                onTap: () => Navigator.pop(context, ImageSource.gallery),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+  final option = await showModalBottomSheet<ImageSource>(
+    context: context,
+    builder: (BuildContext context) {
+      return SafeArea(
+        child: Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Camera'),
+              onTap: () => Navigator.pop(context, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Gallery'),
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 
-    if (option != null) {
-      final pickedFile = await picker.pickImage(source: option);
-      if (pickedFile != null) {
-        ref
-            .read(profileImageProvider.notifier)
-            .UploadProfileImage(File(pickedFile.path));
-      }
+  if (option != null) {
+    final pickedFile = await picker.pickImage(source: option);
+    if (pickedFile != null) {
+      ref
+          .read(profileImageProvider.notifier)
+          .UploadProfileImage(File(pickedFile.path));
     }
   }
 }

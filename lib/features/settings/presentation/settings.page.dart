@@ -5,7 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
+ 
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
@@ -73,7 +73,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           initialValue:
                               user.showOnline, // Set the initial value
                           onChanged: (value) {
-                            updateUser(user.copyWith(showOnline: value));
+                            final updated = {
+                              'showOnline': value,
+                            };
+                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
+                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
                           },
                         ),
                       ),
@@ -83,7 +87,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           initialValue:
                               user.alwaysMetal, // Set the initial value
                           onChanged: (value) {
-                            updateUser(user.copyWith(alwaysMetal: value));
+                            final updated = {
+                              'alwaysMetal': value,
+                            };
+                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
+                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
                           },
                         ),
                       ),
@@ -94,8 +102,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         prefixIcon: CustomToggle(
                           initialValue: user.receiveNotification,
                           onChanged: (value) {
-                            updateUser(
-                                user.copyWith(receiveNotification: value));
+                            final updated = {
+                              'receiveNotification': value,
+                            };
+                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
+                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
                           },
                         ),
                       ),
@@ -106,7 +117,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         prefixIcon: CustomToggle(
                           initialValue: user.showMyProfile,
                           onChanged: (value) {
-                            updateUser(user.copyWith(showMyProfile: value));
+                       final updated = {
+                              'showMyProfile': value,
+                            };
+                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
+                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
                           },
                         ),
                       ),
@@ -133,7 +148,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               user.activateVoiceNote, // Set the initial value
                           onChanged: (value) {
                             // Handle the state change
-                            updateUser(user.copyWith(activateVoiceNote: value));
+                           final updated = {
+                              'activateVoiceNote': value,
+                            };
+                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
+                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
                           },
                         ),
                       ),
@@ -143,8 +162,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           initialValue:
                               user.activateVideoCall, // Set the initial value
                           onChanged: (value) {
-                            // Handle the state change
-                            updateUser(user.copyWith(activateVideoCall: value));
+ final updated = {
+                              'activateVideoCall': value,
+                            };
+                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
+                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
                           },
                         ),
                       ),
@@ -154,7 +176,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           initialValue:
                               user.activateVoiceCall, // Set the initial value
                           onChanged: (value) {
-                            updateUser(user.copyWith(activateVoiceCall: value));
+                            final updated = {
+                              'activateVoiceCall': value,
+                            };
+                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
+                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
                           },
                         ),
                       ),
@@ -196,7 +222,5 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     );
   }
 
-  void updateUser(UserModel user) {
-    ref.watch(updateProfileProvider.notifier).sendUserUpdate(user);
-  }
+  
 }

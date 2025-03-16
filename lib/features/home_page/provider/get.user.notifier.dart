@@ -29,12 +29,12 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
             createdAt: userData.createdAt ?? currentTime,
             updatedAt: userData.updatedAt ?? currentTime,
           );
-
-          // Update the user document with the timestamps
-          await homeRepository.updateUser(updatedUserData.toJson());
+ 
 
           // Set state with updated data
+          if(mounted)
           state = GetUserState.success(updatedUserData);
+
         } else {
           state = GetUserState.success(userData);
         }

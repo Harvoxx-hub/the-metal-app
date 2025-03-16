@@ -35,7 +35,7 @@ class ConnectionModel {
   final List<String>
       dailyConversations; // List of dates when conversations occurred
   final String? lastConversationDate; // Last date when a conversation occurred
-
+  final String? lastSenderId; // Last sender ID
   ConnectionModel({
     required this.connectionId,
     required this.users,
@@ -44,6 +44,7 @@ class ConnectionModel {
     this.lastMessage,
     this.lastUpdatedAt,
     this.game,
+    this.lastSenderId,
     this.isAnonymous = false, // Default to not anonymous
     this.dailyConversations = const [], // Default to empty list
     this.lastConversationDate, // Default to null
@@ -89,6 +90,7 @@ class ConnectionModel {
     List<String>? dailyConversations,
     String? lastConversationDate,
     UserModel? otherUser,
+    String? lastSenderId,
   }) {
     return ConnectionModel(
       connectionId: connectionId ?? this.connectionId,
@@ -99,6 +101,7 @@ class ConnectionModel {
       unreadCount: unreadCount ?? this.unreadCount,
       connectedOn: connectedOn ?? this.connectedOn,
       status: status ?? this.status,
+      lastSenderId: lastSenderId ?? this.lastSenderId,
       isAnonymous: isAnonymous ?? this.isAnonymous,
       dailyConversations: dailyConversations ?? this.dailyConversations,
       lastConversationDate: lastConversationDate ?? this.lastConversationDate,

@@ -17,7 +17,7 @@ class ProfilePhoto extends ConsumerWidget {
 
   const ProfilePhoto(
       {super.key,
-      this.size = 58,
+      this.size = 40,
       this.verfly = false,
       this.imgUrl,
       required this.meltId});
@@ -34,32 +34,34 @@ class ProfilePhoto extends ConsumerWidget {
     return Stack(
       children: [
         Center(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: DottedBorder(
-              borderType: BorderType.Circle,
-              radius: const Radius.circular(12),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(12)),
-                child: Container(
-                    width: size,
-                    height: size,
-                    decoration: const ShapeDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment(-0.40, -0.92),
-                        end: Alignment(0.4, 0.92),
-                        colors: [
-                          Colors.white,
-                          Color(0x359B8787),
-                          Color(0x00755C5C)
-                        ],
-                      ),
-                      shape: OvalBorder(),
-                    ),
+            child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: DottedBorder(
+            borderType: BorderType.Circle,
+            radius: const Radius.circular(12),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
+              child: Container(
+                width: size,
+                height: size,
+                decoration: const ShapeDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment(-0.40, -0.92),
+                    end: Alignment(0.4, 0.92),
+                    colors: [
+                      Colors.white,
+                      Color(0x359B8787),
+                      Color(0x00755C5C)
+                    ],
+                  ),
+                  shape: OvalBorder(),
+                ),
+                child: Padding(
+                    padding: EdgeInsets.all(9),
                     child: CachedNetworkImage(
                         imageUrl: imgUrl ?? metal.img,
                         imageBuilder: (context, imageProvider) => CircleAvatar(
-                              radius: size * 0.7, // Image radius
+                             // Image radius
                               backgroundImage: imageProvider,
                             ),
                         placeholder: (context, url) => const SizedBox(
@@ -73,7 +75,7 @@ class ProfilePhoto extends ConsumerWidget {
               ),
             ),
           ),
-        ),
+        )),
         Positioned(
           bottom: 0,
           right: size >= 57 ? size / 1.3 : 0,

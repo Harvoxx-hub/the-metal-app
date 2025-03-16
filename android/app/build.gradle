@@ -1,3 +1,12 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+    id 'dev.flutter.flutter-gradle-plugin'
+}
+
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -11,15 +20,8 @@ if (flutterRoot == null) {
     throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '1'
+def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
 
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
@@ -27,11 +29,6 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
-apply plugin: 'com.android.application'
-// START: FlutterFire Configuration
-apply plugin: 'com.google.gms.google-services'
-// END: FlutterFire Configuration
-apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
@@ -54,7 +51,7 @@ android {
 
     defaultConfig {
         applicationId "com.bwh.metal_app"
-        minSdkVersion 23 // Adjusted to match compatibility requirements
+        minSdkVersion 23
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -98,7 +95,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
-            
             minifyEnabled false
             shrinkResources false
             signingConfig signingConfigs.release
@@ -120,14 +116,14 @@ android {
             versionNameSuffix "-dev"
         }
     }
-    namespace 'io.flutter.plugins.regula.faceapi.flutter_face_api_example'
+
+    
     lint {
         disable 'InvalidPackage'
     }
     androidResources {
         noCompress += 'Regula/faceSdkResource.dat'
     }
-    
 }
 
 flutter {
@@ -138,7 +134,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'com.google.firebase:firebase-messaging:23.0.0'
     implementation 'androidx.multidex:multidex:2.0.1'
-   // implementation 'com.heytap.msp:push:2.0.6' // Ensure correct version for Heytap
+    // Ensure correct version for Heytap if needed
+    // implementation 'com.heytap.msp:push:2.0.6'
 }
-
-apply plugin: 'com.google.firebase.crashlytics'

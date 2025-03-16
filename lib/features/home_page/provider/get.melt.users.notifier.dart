@@ -20,7 +20,7 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
 
   void getMeltUsers() async {
     try {
-      state = GetMeltUsersState.loading();
+      //  state = GetMeltUsersState.loading();
 
       final homeRepository = ref.watch(homeRepositoryProvider);
       final authState = ref.watch(authProvider).data;
@@ -64,9 +64,10 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
                 : DateTime(0);
             return bUpdatedAt.compareTo(aUpdatedAt);
           });
-
+          if (mounted) {
+            state = GetMeltUsersState.success(users);
+          }
           // Set the state to success with the sorted list
-          state = GetMeltUsersState.success(users);
         } else {
           state = GetMeltUsersState.error(response.message ?? "");
         }

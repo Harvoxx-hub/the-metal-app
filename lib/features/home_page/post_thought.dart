@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
 import 'package:metal/features/home_page/provider/send.thoughts.dart';
 import 'package:metal/features/home_page/provider/edit.thoughts.dart';
@@ -15,11 +16,11 @@ import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 class PostThought extends ConsumerStatefulWidget {
   const PostThought({
     super.key,
-    required this.userModel,
+ 
     this.thoughtModel,
   });
 
-  final UserModel userModel;
+ 
   final ThoughtModel? thoughtModel;
 
   @override
@@ -41,6 +42,7 @@ class _PostThoughtState extends ConsumerState<PostThought> {
   Widget build(BuildContext context) {
     final sendThoughtState = ref.watch(sendThoughtProvider);
     final editThoughtState = ref.watch(editThoughtProvider);
+    final userModel = ref.watch(authProvider).data!;
 
     ref.listen<SendThoughtState>(sendThoughtProvider, (prev, current) {
       if (current.isSuccess) {
@@ -71,11 +73,11 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                   ProfilePhoto(
                     verfly: false,
                     size: 24,
-                    meltId: widget.userModel.metal!,
+                    meltId: userModel!.metal!,
                   ),
-                  TextView(text: widget.userModel.username ?? ''),
+                  TextView(text: userModel.username ?? ''),
                   const Gap(5),
-                  if (widget.userModel.isVerified ?? false)
+                  if (userModel.isVerified ?? false)
                     Assets.icons.checkVerified.svg(height: 16),
                   const Spacer(),
                   ValueListenableBuilder<TextEditingValue>(
@@ -90,7 +92,7 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                             ? () {
                                 FocusScope.of(context).unfocus();
 
-                                if (!(widget.userModel.completedProfile ??
+                                if (!(userModel.completedProfile ??
                                     false)) {
                                   showDialog(
                                     context: context,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
@@ -42,7 +43,7 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
   @override
   void initState() {
     super.initState();
-    dayRemaining = daysRemaining(widget.connectedOn, 5);
+    dayRemaining = daysRemaining(widget.connectedOn, daysRequiredToUnMelt);
   }
 
   @override
@@ -215,12 +216,19 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
-        BaseButton(
-          buttonText: "Return to chat",
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        (remaining <= 0 && uniqueDailyConversations >= 10)
+            ? BaseButton(
+                buttonText: "Return to chat",
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            : BaseButton(
+                buttonText: "Unmetal",
+                onPressed: () {
+                  sendUnmelt();
+                },
+              ),
         const Gap(23),
       ],
     );

@@ -59,6 +59,7 @@ class EditFormField extends StatefulWidget {
       this.prefixWidget,
       this.editButton = false,
       this.onEditTap,
+      this.hintIcon,
       this.labelColor});
 
   final TextCapitalization? textCapitalization;
@@ -119,6 +120,7 @@ class EditFormField extends StatefulWidget {
   bool showMaxLengthCounter;
   final int counterLength;
   double radius;
+  final Widget? hintIcon;
 
   @override
   State<EditFormField> createState() => _EditFormFieldState();
@@ -159,7 +161,9 @@ class _EditFormFieldState extends State<EditFormField> {
                     underline: true,
                     onTap: widget.onEditTap,
                   )
-                : const SizedBox(),
+                : widget.hintIcon != null
+                    ? widget.hintIcon!
+                    : const SizedBox(),
           ],
         ),
         TextFormField(

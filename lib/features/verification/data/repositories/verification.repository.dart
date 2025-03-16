@@ -4,24 +4,30 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/model/responces.dart';
 import 'package:metal/core/services/api.service.dart';
+import 'package:metal/core/services/firebase.service.db.dart';
+import 'package:metal/core/utils/constant/firebase.firestore.collection.key.dart';
 
 import 'package:metal/features/verification/domain/repositories/iverification.repository.dart';
 
 class VerificationRepository implements IVerificationRepository {
-  final ApiService _apiService = ApiService();
+  final FirebaseServiceDb _firebaseService = FirebaseServiceDb.instance;
 
   @override
-  Future<Responses> verification(File file) async {
+  Future<Responses> verification() async {
     try {
-      final response = await _apiService.post(
-        "user/update-profile-photo",
-        formData: FormData.fromMap({
-          "file": await MultipartFile.fromFile(file.path),
-        }),
-      );
-      return response;
+      final userId = _firebaseService.userId;
+      if (userId == null) {
+        return Responses(success: false, message: "User not logged in");
+      }
+
+      await _firebaseService.updateDocument(
+          collectionPath: FirebaseFirestoreCollectionKeys.users,
+          documentId: userId,
+          data: {'isVerified': true});
+
+      return Responses(success: true, message: "Verification successful");
     } catch (e) {
-      rethrow;
+      return Responses(success: false, message: e.toString());
     }
   }
 }

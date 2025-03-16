@@ -14,7 +14,7 @@ import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart
 
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
- 
+
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
 
@@ -22,6 +22,7 @@ import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
 import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
 import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
+import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -231,7 +232,10 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                 );
               } else if (value == "View contact") {
                 Navigator.pushNamed(context, AppRoutes.myMeltedUser,
-                    arguments: widget.meltUserModel.id!);
+                    arguments: {
+                      "metalId": widget.meltUserModel.id!,
+                      "metalName": widget.meltUserModel.username!,
+                    });
               } else if (value == "Clear chat") {
                 ref
                     .read(getMessageList(widget.connectionModel.connectionId)
@@ -351,7 +355,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             buttonText: "Upload your photo",
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, AppRoutes.createProfilePage);
+              pickImage(context, ref);
             },
           ),
           const Gap(23),
@@ -384,12 +388,19 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
-        BaseButton(
-          buttonText: "Return to chat",
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        (remaining <= 0 && uniqueDailyConversations >= 10)
+            ? BaseButton(
+                buttonText: "Return to chat",
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            : BaseButton(
+                buttonText: "Unmetal",
+                onPressed: () {
+                  sendUnmelt();
+                },
+              ),
         const Gap(23),
       ],
     );

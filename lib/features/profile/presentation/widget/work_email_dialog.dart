@@ -55,15 +55,14 @@ class _WorkEmailDialogState extends ConsumerState<WorkEmailDialog> {
     }
 
     // Update the user model with work email
-    final userData = ref.read(authProvider).data;
-    if (userData != null) {
-      final updated = userData.copyWith(
-        workEmail: email,
-        workEmailVerified: false, // Will be set to true after verification
-      );
+   
+      final updated = {
+        'workEmail': email,
+        'workEmailVerified': false, // Will be set to true after verification
+      };
       // TODO: Implement email verification logic here
       ref.read(updateProfileProvider.notifier).updateUserData(updated);
-    }
+    
 
     Navigator.of(context).pop();
   }

@@ -782,22 +782,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.0"
-  flutter_face_api:
-    dependency: "direct main"
-    description:
-      name: flutter_face_api
-      sha256: "9e2739efa07385edd6dacaeab7050074874f4f2b7e2cd752fb427d12eb9dfd80"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.4.875"
-  flutter_face_core_basic:
-    dependency: "direct main"
-    description:
-      name: flutter_face_core_basic
-      sha256: ed75e0907b02aa6c062f8f9c798a5e3ed36f4bf78cfbb10e5d03872755ec49f1
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.4.242"
   flutter_gen_core:
     dependency: transitive
     description:
@@ -1064,6 +1048,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "14.8.1"
+  google_mlkit_commons:
+    dependency: transitive
+    description:
+      name: google_mlkit_commons
+      sha256: "7e9a6d6e66b44aa8cfe944bda9bc3346c52486dd890ca49e5bc98845cda40d7f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.0"
+  google_mlkit_face_detection:
+    dependency: "direct main"
+    description:
+      name: google_mlkit_face_detection
+      sha256: "65988405c884fd84a4ccc8bded7b5e3e4c33362f6f4eaaa94818bdaaba7bab7d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.12.0"
   graphs:
     dependency: transitive
     description:

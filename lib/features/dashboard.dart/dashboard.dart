@@ -5,6 +5,7 @@ import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/features/dashboard.dart/widget/new_update_dialog.dart';
 import 'package:metal/features/dashboard.dart/widget/tutorial_dialog.dart';
+import 'package:metal/features/dashboard.dart/widget/verification.dialog.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,14 +41,29 @@ class DashboardPage extends ConsumerStatefulWidget {
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
   int currentIndex = 0;
+  bool _initialized = false;
+  PackageInfo? _packageInfo;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final userdata = ref.watch(authProvider).data;
-      await _checkOnboardingAndUserStatus(userdata!);
-    });
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    if (_initialized) return;
+    _initialized = true;
+
+    final userdata = ref.read(authProvider).data;
+    if (userdata != null && mounted) {
+      await _checkOnboardingAndUserStatus(userdata);
+    }
+  }
+
+  @override
+  void dispose() {
+    _initialized = false;
+    super.dispose();
   }
 
   Future<void> _checkOnboardingAndUserStatus(UserModel userData) async {
@@ -56,6 +72,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final hasSeenThoughtReminder =
         prefs.getBool('hasSeenThoughtReminder') ?? false;
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
     final String currentVersion = packageInfo.buildNumber;
 
     // Calculate if user is within 7 days of creation
@@ -158,14 +175,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         },
       );
     } else if (!(userData.isVerified ?? false)) {
-      // await showDialog(
-      //   context: context,
-      //   builder: (BuildContext context) {
-      //     return const CustomDialog(
-      //       content: VerificationDialog(),
-      //     );
-      //   },
-      // );
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const CustomDialog(
+            content: VerificationDialog(),
+          );
+        },
+      );
     }
   }
 
@@ -181,6 +198,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     ref.watch(getMeltUserProvider);
     ref.watch(metalPropertiesProvider);
     ref.read(authProvider.notifier).initZIMKIt();
+    
 
     return BaseScreen(
       appBarState: AppBarState.Dashboard,
@@ -274,7 +292,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 children: [
                   Image.asset(Assets.images.activeMessage.path),
                   if (ref.watch(unreadCountProvider).data != null &&
-                      ref.watch(unreadCountProvider).data! > 0)
+                      ref.watch(unreadCountProvider).data! > 0 
+                      
+                      )
                     Positioned(
                       right: 0,
                       top: 0,

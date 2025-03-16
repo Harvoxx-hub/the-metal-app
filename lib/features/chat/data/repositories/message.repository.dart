@@ -68,6 +68,7 @@ class MessageRepository implements IMessageRepository {
           'lastUpdatedAt': message.timestamp,
           'dailyConversations': dailyConversations,
           'lastConversationDate': today,
+          'lastSenderId': message.senderId,
           'unreadCount': currentUnreadCount + 1, // Increment unread count
         });
       }
@@ -86,8 +87,6 @@ class MessageRepository implements IMessageRepository {
 
   Future<void> updateConversation(
     String conversationId,
-    String lastMessage,
-    String lastUpdatedAt,
   ) async {
     try {
       // Get a reference to the conversation document
@@ -97,8 +96,7 @@ class MessageRepository implements IMessageRepository {
 
       // Update the fields in the conversation document
       await conversationDocRef.update({
-        'lastMessage': lastMessage,
-        'lastUpdatedAt': lastUpdatedAt,
+        'unreadCount': 0,
       });
     } catch (e) {
       print('Error updating conversation: $e');
@@ -209,6 +207,12 @@ class MessageRepository implements IMessageRepository {
       // Ensure the collectionPath is valid
       if (collectionPath.contains("//")) {
         throw Exception("Invalid collection path: $collectionPath");
+      }
+      if (data['isRead'] == true) {
+        await _firestore
+            .collection(FirebaseFirestoreCollectionKeys.connections)
+            .doc(id)
+            .update({'unreadCount': 0});
       }
 
       // Update the document in Firestore

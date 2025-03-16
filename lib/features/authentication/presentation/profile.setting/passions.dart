@@ -104,8 +104,11 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
   }
 
   void _onNextPressed() {
-    final userData = ref.watch(authProvider).data;
-    final updated = userData!.copyWith(passion: _seletedPassion);
+  
+    final updated = {
+      'passion': _seletedPassion,
+    };
+    //userData!.copyWith(passion: _seletedPassion);
     ref.read(updateProfileProvider.notifier).updateUserData(updated);
     Navigator.pushNamed(
       context,

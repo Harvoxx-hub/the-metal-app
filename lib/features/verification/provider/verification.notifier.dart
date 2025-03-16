@@ -14,19 +14,13 @@ class VerificationNotifier extends StateNotifier<VerificationState> {
   final Ref ref;
 
   // get metal properties
-  void verificationMe(File file) async {
+  void verificationMe() async {
     state = VerificationState.loading();
     try {
       final verificationRepository = ref.watch(verificationRepositoryProvider);
-
-      final info = await VideoCompress.compressVideo(
-        file.path,
-        quality: VideoQuality.LowQuality,
-        deleteOrigin: false,
-        includeAudio: true,
-      );
-      print(info!.filesize.toString());
-      final response = await verificationRepository.verification(info.file!);
+ 
+ 
+      final response = await verificationRepository.verification();
       await ref.read(authProvider.notifier).getUpdatedUser();
 
       state = VerificationState.success(response.message!);

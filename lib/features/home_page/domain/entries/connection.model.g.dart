@@ -15,6 +15,7 @@ ConnectionModel _$ConnectionModelFromJson(Map<String, dynamic> json) =>
       lastMessage: json['lastMessage'] as String?,
       lastUpdatedAt: json['lastUpdatedAt'] as String?,
       game: json['game'] as String?,
+      lastSenderId: json['lastSenderId'] as String?,
       isAnonymous: json['isAnonymous'] as bool? ?? false,
       dailyConversations: (json['dailyConversations'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -41,4 +42,5 @@ Map<String, dynamic> _$ConnectionModelToJson(ConnectionModel instance) =>
       'isAnonymous': instance.isAnonymous,
       'dailyConversations': instance.dailyConversations,
       'lastConversationDate': instance.lastConversationDate,
+      'lastSenderId': instance.lastSenderId,
     };

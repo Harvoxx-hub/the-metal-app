@@ -161,15 +161,8 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
             ListTile(
               title: const TextView(text: 'Edit Thoughts'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PostThought(
-                      userModel: ref.watch(authProvider).data!,
-                      thoughtModel: widget.thoughtModel,
-                    ),
-                  ),
-                );
+                Navigator.pushNamed(context, AppRoutes.postThought,
+                    arguments: widget.thoughtModel);
               },
             ),
           if (widget.thoughtModel.userId == ref.watch(authProvider).data!.id)

@@ -6,6 +6,7 @@ import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/widget/bubble/wave.bubble.dart';
+import 'package:metal/features/chat/provider/manage.message.notifier.dart';
 import 'package:metal/features/chat/provider/unmelt.notifier.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
@@ -35,7 +36,7 @@ class MessageBubble extends ConsumerWidget {
     // Mark message as read when displayed
     if (!message.isRead && !isSender) {
       ref
-          .read(unMeltProvider.notifier)
+          .read(managerMessageProvider.notifier)
           .markMessageAsRead(connectionId, message.id!);
     }
 
@@ -213,7 +214,7 @@ class MessageBubble extends ConsumerWidget {
                           ? OutilineButton(
                               buttonText: 'Cancel',
                               onPressed: () {
-                                ref.read(unMeltProvider.notifier).updateMessage(
+                                ref.read(managerMessageProvider.notifier).updateMessage(
                                   connectionId,
                                   message.id,
                                   {"message": "cancel"},
@@ -242,7 +243,7 @@ class MessageBubble extends ConsumerWidget {
                                     buttonText: 'Reject',
                                     onPressed: () {
                                       ref
-                                          .read(unMeltProvider.notifier)
+                                          .read(managerMessageProvider.notifier)
                                           .updateMessage(
                                         connectionId,
                                         message.id,
@@ -287,7 +288,7 @@ class MessageBubble extends ConsumerWidget {
             ),
             TextButton(
               onPressed: () {
-                ref.read(unMeltProvider.notifier).deleteMessage(
+                ref.read(managerMessageProvider.notifier).deleteMessage(
                       connectionId,
                       message.id,
                     );

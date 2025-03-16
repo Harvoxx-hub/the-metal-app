@@ -105,8 +105,7 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
   Future<void> _onNextPressed(user) async {
     await _getCurrentPosition();
     if (_currentPosition != null) {
-      final userData = ref.watch(updateProfileProvider).data;
-
+     
       // Get address from coordinates
       List<geo_coding.Placemark> placemarks =
           await geo_coding.placemarkFromCoordinates(
@@ -125,19 +124,22 @@ class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
           address: address,
         );
 
-        final updated = userData?.copyWith(
-          location: location,
-          profileUpdated: true,
-        );
+        final updated = {
+          'location': location.toJson(),
+          'profileUpdated': true,
+        };
 
-        ref.read(updateProfileProvider.notifier).updateUserData(updated!);
-        updateProfile(updated);
+        
+         
+
+        ref.read(updateProfileProvider.notifier).updateUserData(updated);
+    ref.read(updateProfileProvider.notifier).sendUserUpdate();
       }
     }
   }
 
   void updateProfile(UserModel user) {
-    ref.read(updateProfileProvider.notifier).sendUserUpdate(user);
+  
   }
 
   Future<void> _getCurrentPosition() async {

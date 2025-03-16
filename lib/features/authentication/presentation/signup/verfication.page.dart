@@ -189,7 +189,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                                   .read(verficationProvider.notifier)
                                   .sendVerificationCode(widget.argument.email!);
                               setState(() {
-                                _secondsRemaining = 60;
+                                _secondsRemaining = 30;
                                 startTimer();
                               });
                             },

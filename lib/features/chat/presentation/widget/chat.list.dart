@@ -52,10 +52,10 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
     return Expanded(
       flex: 1,
       child: ListView.builder(
-        itemCount: myMelt!.length,
+        itemCount: myMelt?.length ?? 0,
         itemBuilder: (context, index) {
           return chatListItem(
-            conversationsModel: myMelt[index],
+            conversationsModel: myMelt![index],
           );
         },
       ),
@@ -151,7 +151,8 @@ class chatListItem extends ConsumerWidget {
                     fontSize: 13,
                   ),
                   //add a badge if the message is unread
-                  if (conversationsModel.unreadCount > 0)
+                  if (currentUser!.id != conversationsModel.lastSenderId &&
+                      conversationsModel.unreadCount > 0)
                     Container(
                       margin: const EdgeInsets.only(left: 8),
                       padding: const EdgeInsets.symmetric(

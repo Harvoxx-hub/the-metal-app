@@ -18,6 +18,7 @@ class MessageModel {
 
   final String timestamp;
   final bool isRead;
+  
 
   MessageModel({
     required this.message,

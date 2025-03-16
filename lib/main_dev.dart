@@ -74,8 +74,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    ref.read(authProvider.notifier).initZIMKIt();
-    ref.read(updateProfileProvider.notifier);
+    // ref.read(authProvider.notifier).initZIMKIt();
+    // ref.read(updateProfileProvider.notifier);
   }
 
   @override

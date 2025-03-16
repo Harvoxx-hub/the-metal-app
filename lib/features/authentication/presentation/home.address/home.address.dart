@@ -13,6 +13,7 @@ import 'package:metal/features/authentication/presentation/widget/create.profile
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/agree.click.dart';
@@ -118,40 +119,30 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       controller: _houseNumberController,
                       keyboardType: TextInputType.number,
                       validator: Validators.validateInt(),
-                      suffixWidget: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.info_outline, size: 20),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text("Information"),
-                                    content: const Text(
-                                      "The address is used to exclude people that live in the same home with you if you click the check boxes.",
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text("OK"),
-                                      ),
-                                    ],
-                                  );
-                                },
+                      hintIcon: IconButton(
+                        icon: const Icon(Icons.info_outline, size: 20),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Note"),
+                                backgroundColor: AppColors.metalWhite,
+                                content: const Text(
+                                  "Note that the address is to exclude people that live in the same home with you if you click the check boxes",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text("OK"),
+                                  ),
+                                ],
                               );
                             },
-                          ),
-                          CustomCheckWidget(
-                            initialValue: false,
-                            onChanged: (bool value) {
-                              print('Value changed to $value');
-                            },
-                          ),
-                        ],
+                          );
+                        },
                       ),
                       radius: 10,
                     ),
@@ -200,7 +191,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       floatingLabel: AppStrings.postalCode,
                       label: AppStrings.enterPostalCode,
                       controller: _postalCodeController,
-                      keyboardType: TextInputType.text,
+                      keyboardType: TextInputType.number,
                       validator: Validators.validateString(),
                       suffixWidget: CustomCheckWidget(
                         initialValue: false,
@@ -227,7 +218,6 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
   }
 
   void _onNextPressed() {
-    final userData = ref.watch(updateProfileProvider).data;
     Address address = Address(
         country: _selectedCountries,
         streetName: _streetNameController.text,
@@ -235,9 +225,13 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
         state: _selectedState,
         postalCode: _postalCodeController.text,
         houseNumber: _houseNumberController.text);
-    final updated =
-        userData!.copyWith(address: address, completedProfile: true);
+    final updated = {
+      'address': address.toJson(),
+      'completedProfile': true,
+    };
 
-    ref.read(updateProfileProvider.notifier).sendUserUpdate(updated);
+    ref.read(updateProfileProvider.notifier).updateUserData(updated);
+
+    ref.read(updateProfileProvider.notifier).sendUserUpdate();
   }
 }

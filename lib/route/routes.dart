@@ -4,6 +4,7 @@ import 'package:metal/features/authentication/presentation/forget.password/forgo
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
+import 'package:metal/features/verification/face_verification_screen.dart';
 
 import 'package:metal/features/home_page/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
@@ -102,6 +103,7 @@ class AppRoutes {
   static const String settingPage = '/settingPage';
   static const String verificationVideo = '/verificationVideo';
   static const String videoPreview = '/videoPreview';
+  static const String faceVerification = '/faceVerification';
   static const String meltMetal = '/meltMetal';
   static const String pushMetal = '/pushMetal';
   static const String feedBackPage = '/feedBackPage';
@@ -202,7 +204,9 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const VerificationVideo());
       case videoPreview:
         return MaterialPageRoute(builder: (_) => const VideoPreview());
-
+      case faceVerification:
+        return MaterialPageRoute(
+            builder: (_) => const FaceVerificationScreen());
       case feedBackPage:
         return MaterialPageRoute(builder: (_) => FeedBackPage());
       case blockedUser:
@@ -233,15 +237,18 @@ class AppRoutes {
                 ));
 
       case meltMetal:
-       
+
 //"NUFXmf3EzrOAiw7k9PQsVzf7x7B3"
         return MaterialPageRoute(
             builder: (_) => MeltMetal(
-
                   id: settings.arguments as String,
                 ));
       case sendSpark:
-        return MaterialPageRoute(builder: (_) => const SendSpark());
+        return MaterialPageRoute(
+            builder: (_) => SendSpark(
+                recipient: settings.arguments != null
+                    ? (settings.arguments as UserModel)
+                    : null));
       case buySpark:
         return MaterialPageRoute(builder: (_) => BuySpark());
       case referEarnSpark:
@@ -268,10 +275,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => DeleteScreen());
 
       case postThought:
-        return MaterialPageRoute(
-            builder: (_) => PostThought(
-                  userModel: settings.arguments as UserModel,
-                ));
+        return MaterialPageRoute(builder: (_) => PostThought());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

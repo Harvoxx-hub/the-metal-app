@@ -61,7 +61,7 @@ class AppStrings {
   static const String referalCode = "Referal Code (Optional)";
   static const String referalCodePlaceholder = "Referal Code";
   static const String verificationNotice =
-      "A verification code will be sent to this number. Message and data rates may apply.";
+      "A verification code will be sent to this email.";
   static const String continueText = "Continue";
 
   // Verification Strings

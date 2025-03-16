@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 
 class GetUsersNotifier extends StateNotifier<GetUsersState> {
@@ -16,13 +17,16 @@ class GetUsersNotifier extends StateNotifier<GetUsersState> {
       state = GetUsersState.loading();
       final homeRepository = ref.watch(homeRepositoryProvider);
       final response = await homeRepository.getUserByUsername(username: query);
- 
+      final authState = ref.watch(authProvider).data;
+    //i want to make sure the current user is not the one being searched for
+
       if (mounted) {
         if (response.data is List) {
           // Check if every element in the list is a map
           bool isListMap = response.data.every((element) => element is Map);
           if (isListMap) {
-            // Cast response.data to List<Map<dynamic, dynamic>>
+             
+             
             state = GetUsersState.success(
                 response.data.cast<Map<dynamic, dynamic>>());
           } else {

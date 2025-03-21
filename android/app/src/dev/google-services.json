@@ -1,32 +1,13 @@
 {
   "project_info": {
-    "project_number": "266202752447",
-    "project_id": "metal-ad87d",
-    "storage_bucket": "metal-ad87d.firebasestorage.app"
+    "project_number": "325989388499",
+    "project_id": "metal-dev-bd058",
+    "storage_bucket": "metal-dev-bd058.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:266202752447:android:de77fa6581ebba47c16d0a",
-        "android_client_info": {
-          "package_name": "com.bwh.metal_app"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD-ky8QWCmHTDRa-gboNjwqIAvEiorvW7E"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:266202752447:android:f96395c610d3dbf5c16d0a",
+        "mobilesdk_app_id": "1:325989388499:android:f6aacbd84450ee40328426",
         "android_client_info": {
           "package_name": "com.bwh.metal_app.dev"
         }
@@ -34,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD-ky8QWCmHTDRa-gboNjwqIAvEiorvW7E"
+          "current_key": "AIzaSyBR8xMEgauDP0jIoEG-MjLTauD2q5vQCcY"
         }
       ],
       "services": {

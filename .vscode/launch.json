@@ -7,24 +7,7 @@
         
 
         
-        {
-            "name": "metal",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "debug"
-        },
-        {
-            "name": "metal (profile mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "metal (release mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        },
+      
 
         {
             "name": "production",

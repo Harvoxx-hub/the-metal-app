@@ -4,8 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/auth.pref.service.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/handler/app.lifeycle.handler.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -39,7 +37,6 @@ void main() async {
     );
   });
 
-
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -59,7 +56,6 @@ Future<void> initializeFirebase() async {
         options: DefaultFirebaseOptions.currentPlatform);
     FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
     await FirebaseRemoteConfigService().initialize();
-    
   } catch (e) {
     debugPrint('Error initializing Firebase: $e');
   }
@@ -80,8 +76,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-  //  ref.read(authProvider.notifier).initZIMKIt();
-   // ref.read(updateProfileProvider.notifier);
+    //  ref.read(authProvider.notifier).initZIMKIt();
+    // ref.read(updateProfileProvider.notifier);
   }
 
   @override

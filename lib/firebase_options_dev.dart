@@ -14,7 +14,7 @@ import 'package:flutter/foundation.dart'
 ///   options: DefaultFirebaseOptions.currentPlatform,
 /// );
 /// ```
-class DefaultFirebaseOptions {
+class DefaultFirebaseOptionsDev {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       throw UnsupportedError(
@@ -50,19 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD-ky8QWCmHTDRa-gboNjwqIAvEiorvW7E',
-    appId: '1:266202752447:android:f96395c610d3dbf5c16d0a',
-    messagingSenderId: '266202752447',
-    projectId: 'metal-ad87d',
-    storageBucket: 'metal-ad87d.firebasestorage.app',
+    apiKey: "AIzaSyDnqmQYb9ViUIvPNzObLOYTSEUkKmcLeUg",
+    appId: '1:325989388499:android:29cc97107fca4fd7328426',
+    messagingSenderId: '325989388499',
+    projectId: 'metal-dev-bd058',
+    storageBucket: 'metal-dev-bd058.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCFGHwbJkOrpZ7R5bPsYc9T3tvtJn0FMR4',
-    appId: '1:266202752447:ios:22ab4734ad166d45c16d0a',
-    messagingSenderId: '266202752447',
-    projectId: 'metal-ad87d',
-    storageBucket: 'metal-ad87d.firebasestorage.app',
-    iosBundleId: 'com.bwh.metal',
+    apiKey: "AIzaSyDnqmQYb9ViUIvPNzObLOYTSEUkKmcLeUg",
+    appId: '1:325989388499:android:29cc97107fca4fd7328426',
+    messagingSenderId: '325989388499',
+    projectId: 'metal-dev-bd058',
+    storageBucket: 'metal-dev-bd058.firebasestorage.app',
+    iosBundleId: 'com.bwh.metal.dev',
   );
 }

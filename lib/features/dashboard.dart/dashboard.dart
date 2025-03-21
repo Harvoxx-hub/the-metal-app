@@ -26,7 +26,7 @@ import 'package:metal/features/sparks_page/screens/sparks_page.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
-import 'package:upgrader/upgrader.dart';
+
 import 'package:metal/features/chat/provider/unread.count.notifier.dart';
 
 import '../home_page/home_page.dart';
@@ -198,7 +198,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     ref.watch(getMeltUserProvider);
     ref.watch(metalPropertiesProvider);
     ref.read(authProvider.notifier).initZIMKIt();
-    
 
     return BaseScreen(
       appBarState: AppBarState.Dashboard,
@@ -206,23 +205,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : UpgradeAlert(
-              dialogStyle: Platform.isIOS
-                  ? UpgradeDialogStyle.cupertino
-                  : UpgradeDialogStyle.material,
-              upgrader: Upgrader(),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Container(
-                      color: AppColors.metalWhite,
-                      child: Stack(
-                        children: [bottomNavPages[currentIndex]],
-                      ),
+          : Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    color: AppColors.metalWhite,
+                    child: Stack(
+                      children: [bottomNavPages[currentIndex]],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
       floatingActionButton: currentIndex == 0
           ? FloatingActionButton(
@@ -292,9 +285,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 children: [
                   Image.asset(Assets.images.activeMessage.path),
                   if (ref.watch(unreadCountProvider).data != null &&
-                      ref.watch(unreadCountProvider).data! > 0 
-                      
-                      )
+                      ref.watch(unreadCountProvider).data! > 0)
                     Positioned(
                       right: 0,
                       top: 0,

@@ -345,7 +345,7 @@ PODS:
   - SwiftyGif (5.4.5)
   - url_launcher_ios (0.0.1):
     - Flutter
-  - vibration (1.7.5):
+  - vibration (3.0.0):
     - Flutter
   - video_compress (0.3.0):
     - Flutter
@@ -594,7 +594,7 @@ SPEC CHECKSUMS:
   cloud_functions: ca4f38f0c2722036ea361a210035aa262f4ed832
   connectivity_plus: 2a701ffec2c0ae28a48cf7540e279787e77c447d
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90
-  device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
+  device_info_plus: bf2e3232933866d73fe290f2942f2156cdd10342
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
   emoji_picker_flutter: fe2e6151c5b548e975d546e6eeb567daf0962a58
@@ -667,7 +667,7 @@ SPEC CHECKSUMS:
   sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
-  vibration: 7d883d141656a1c1a6d8d238616b2042a51a1241
+  vibration: 3797858f8cbf53d841e189ef8bd533d96e4ca93c
   video_compress: fce97e4fb1dfd88175aa07d2ffc8a2f297f87fbe
   video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
   wakelock_plus: 373cfe59b235a6dd5837d0fb88791d2f13a90d56

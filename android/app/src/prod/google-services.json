@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "266202752447",
+    "project_id": "metal-ad87d",
+    "storage_bucket": "metal-ad87d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:266202752447:android:de77fa6581ebba47c16d0a",
+        "android_client_info": {
+          "package_name": "com.bwh.metal_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-ky8QWCmHTDRa-gboNjwqIAvEiorvW7E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -8,13 +8,13 @@ import 'package:flutter/foundation.dart'
 ///
 /// Example:
 /// ```dart
-/// import 'firebase_options_dev.dart';
+/// import 'firebase_options.dart';
 /// // ...
 /// await Firebase.initializeApp(
 ///   options: DefaultFirebaseOptions.currentPlatform,
 /// );
 /// ```
-class DefaultFirebaseOptionsDev {
+class DefaultFirebaseOptionDev {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       throw UnsupportedError(
@@ -50,16 +50,16 @@ class DefaultFirebaseOptionsDev {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: "AIzaSyDnqmQYb9ViUIvPNzObLOYTSEUkKmcLeUg",
-    appId: '1:325989388499:android:29cc97107fca4fd7328426',
+    apiKey: 'AIzaSyBR8xMEgauDP0jIoEG-MjLTauD2q5vQCcY',
+    appId: '1:325989388499:android:f6aacbd84450ee40328426',
     messagingSenderId: '325989388499',
     projectId: 'metal-dev-bd058',
     storageBucket: 'metal-dev-bd058.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: "AIzaSyDnqmQYb9ViUIvPNzObLOYTSEUkKmcLeUg",
-    appId: '1:325989388499:android:29cc97107fca4fd7328426',
+    apiKey: 'AIzaSyBP7Uw7jxIzZRK02sPAfXpKQpWldI7wJ24',
+    appId: '1:325989388499:ios:7a280070b91c3eb1328426',
     messagingSenderId: '325989388499',
     projectId: 'metal-dev-bd058',
     storageBucket: 'metal-dev-bd058.firebasestorage.app',

@@ -190,6 +190,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
                                   .sendVerificationCode(widget.argument.email!);
                               setState(() {
                                 _secondsRemaining = 30;
+                                _otpController.clear();
                                 startTimer();
                               });
                             },

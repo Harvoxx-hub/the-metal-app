@@ -56,7 +56,7 @@ Future<void> initializeFirebase() async {
     debugPrint('Existing Firebase apps: ${Firebase.apps.map((e) => e.name).toList()}');
     
     if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(options: DefaultFirebaseOptionsDev.currentPlatform);
+      await Firebase.initializeApp(options: DefaultFirebaseOptionDev.currentPlatform);
       FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
       await FirebaseRemoteConfigService().initialize();
     }

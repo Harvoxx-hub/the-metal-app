@@ -7,6 +7,7 @@ import 'package:metal/core/utils/handler/app.lifeycle.handler.dart';
 
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:metal/firebase_options_dev.dart' show DefaultFirebaseOptionDev;
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
@@ -53,7 +54,7 @@ void main() async {
 Future<void> initializeFirebase() async {
   try {
     await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform);
+        options: DefaultFirebaseOptionDev.currentPlatform);
     FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
     await FirebaseRemoteConfigService().initialize();
   } catch (e) {

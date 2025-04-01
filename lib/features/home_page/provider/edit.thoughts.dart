@@ -3,6 +3,7 @@ import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.explore.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.for.you.dart';
+import 'package:metal/features/home_page/provider/get.thought.by.id.dart';
 
 class EditThoughtNotifier extends StateNotifier<EditThoughtState> {
   EditThoughtNotifier(
@@ -17,8 +18,12 @@ class EditThoughtNotifier extends StateNotifier<EditThoughtState> {
       state = EditThoughtState.loading();
       final repo = ref.watch(homeRepositoryProvider);
       final response = await repo.editThought(id, updatedData);
+
+      // Refresh all relevant thought lists
       ref.read(getThoughtForYouProvider.notifier).getThoughtUpdate();
       ref.read(getThoughtExploreProvider.notifier).getThoughtUpdate();
+      ref.read(getThoughtByIdProvider.notifier).getThought(id);
+
       if (mounted) {
         state = EditThoughtState.success(response.message!);
       }

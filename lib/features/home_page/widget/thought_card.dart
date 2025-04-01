@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
-import 'package:metal/features/home_page/post_thought.dart';
+
 import 'package:metal/features/home_page/provider/delete.thoughts.dart';
-import 'package:metal/features/home_page/provider/edit.thoughts.dart';
 
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/home_page/provider/react.thoughts.notifier.dart';
@@ -74,7 +73,20 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
             children: [
               _buildUserInfo(context),
               const Gap(10),
-              TextView(text: thoughtModel.content),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.thoughtDetails,
+                    arguments: thoughtModel.id,
+                  );
+                },
+                child: TextView(
+                  text: thoughtModel.content,
+                  maxLines: 4,
+                  textOverflow: TextOverflow.ellipsis,
+                ),
+              ),
               const Gap(10),
               _buildReactionsRow(),
               IconButton(
@@ -98,7 +110,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           Navigator.pushNamed(
             context,
             AppRoutes.myMeltedUser,
-            arguments: {"metalId" : thoughtModel.userId}  ,
+            arguments: {"metalId": thoughtModel.userId},
           );
         }
       },

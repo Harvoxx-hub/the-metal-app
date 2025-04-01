@@ -140,7 +140,7 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        tutorialText("It’s a melt🎉",
+        tutorialText("How to Melt with another Metal",
             "Click on the metal icon to \nview a metal profile and \nmelt with them"),
         Align(
           child: Image.asset(
@@ -178,8 +178,8 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
           Assets.images.unmeltIcon.path,
         ),
         const Gap(20),
-        tutorialText("Unmetal",
-            "After 15 days and 10 sessions of having conversations, you can unravel the surprise to see the face behind the metal. Our goal is to build real connections. When eyes are closed, the hearts talk.Metal = Hiden faces + Real hearts"),
+        tutorialText("How to Unmetal",
+            "After 15 days and 10 sessions of having conversations, you can unravel the surprise to see the face behind the metal. Our goal is to build real connections. When eyes are closed, the hearts talk.\n *Metal = Hidden faces + Real hearts*"),
         const Spacer(),
       ],
     );
@@ -251,7 +251,8 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
         const Gap(20),
         tutorialText(
             "Welcome to the Metal App",
-            "Don’t post your names, social handles, phone numbers or home address.\n" +
+            "*Post a thought to get started*\n" +
+                "  Don’t post your names, social handles, phone numbers or home address.\n" +
                 "\nThe experiment is to fall in love blindly or connect deeply through your words, passion and values. Can love be truly disguised?\n" +
                 "\nRemember, every match is a mystery. Let your passions lead you\n"),
         const Gap(20),
@@ -287,7 +288,7 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
         ),
         const Gap(20),
         tutorialText("About Sparks!",
-            "Our point payment in-app system. \n1 Dollar = 10 Sparks. You can refer \nfriends and earn more sparks. You \ncan also send and buy Sparks"),
+            "Our point payment in-app system. 1 Dollar = 10 Sparks. You can refer friends and earn more sparks. You can also send and buy Sparks."),
         const Gap(20),
         Transform.rotate(
           angle: -math.pi / -4,
@@ -347,17 +348,15 @@ class _OnboardingScreenState extends State<OnboardingFlowView> {
               color: Colors.white,
             ),
             const SizedBox(height: 12),
-            _buildFeatureItem("Can initiate chat"),
-            _buildFeatureItem("Can left chat"),
+            _buildFeatureItem("Can delete chat"),
+            _buildFeatureItem("Can edit chat"),
+            _buildFeatureItem("Can send direct message"),
             _buildFeatureItem("Can see that a message is read"),
-            _buildFeatureItem("Can make unlimited video calls"),
-            _buildFeatureItem("Can see who pushed on their profile (5 days)"),
-            _buildFeatureItem("Can see a list of profiles liked (5 days)"),
-            _buildFeatureItem("See the profiles you pushed (5 days)"),
-            _buildFeatureItem("Push one profile/day"),
-            _buildFeatureItem(
-                "See previous profiles/feeds (only during a session)"),
-            _buildFeatureItem("Can upload up to three files on eyes"),
+            _buildFeatureItem("Can make video calls"),
+            _buildFeatureItem("Can see who liked your profile"),
+            _buildFeatureItem("Can see a list of profiles you liked"),
+            _buildFeatureItem("Can view metals with double verification"),
+            _buildFeatureItem("Send voice notes"),
             _buildFeatureItem("No ads"),
             _buildFeatureItem("All the above in one inclusive tier"),
           ],

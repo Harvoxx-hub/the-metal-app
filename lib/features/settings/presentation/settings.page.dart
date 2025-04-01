@@ -5,7 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
- 
+
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
@@ -76,8 +76,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             final updated = {
                               'showOnline': value,
                             };
-                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
-                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .updateUserData(updated);
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .sendUserUpdate();
                           },
                         ),
                       ),
@@ -90,8 +94,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             final updated = {
                               'alwaysMetal': value,
                             };
-                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
-                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .updateUserData(updated);
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .sendUserUpdate();
                           },
                         ),
                       ),
@@ -105,8 +113,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             final updated = {
                               'receiveNotification': value,
                             };
-                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
-                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .updateUserData(updated);
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .sendUserUpdate();
                           },
                         ),
                       ),
@@ -117,11 +129,15 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         prefixIcon: CustomToggle(
                           initialValue: user.showMyProfile,
                           onChanged: (value) {
-                       final updated = {
+                            final updated = {
                               'showMyProfile': value,
                             };
-                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
-                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .updateUserData(updated);
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .sendUserUpdate();
                           },
                         ),
                       ),
@@ -148,25 +164,33 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               user.activateVoiceNote, // Set the initial value
                           onChanged: (value) {
                             // Handle the state change
-                           final updated = {
+                            final updated = {
                               'activateVoiceNote': value,
                             };
-                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
-                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .updateUserData(updated);
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .sendUserUpdate();
                           },
                         ),
                       ),
                       EditField(
-                        text: "Active video call",
+                        text: "Activate video call",
                         prefixIcon: CustomToggle(
                           initialValue:
                               user.activateVideoCall, // Set the initial value
                           onChanged: (value) {
- final updated = {
+                            final updated = {
                               'activateVideoCall': value,
                             };
-                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
-                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .updateUserData(updated);
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .sendUserUpdate();
                           },
                         ),
                       ),
@@ -179,8 +203,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             final updated = {
                               'activateVoiceCall': value,
                             };
-                            ref.read(updateProfileProvider.notifier).updateUserData(updated);
-                            ref.read(updateProfileProvider.notifier).sendUserUpdate();
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .updateUserData(updated);
+                            ref
+                                .read(updateProfileProvider.notifier)
+                                .sendUserUpdate();
                           },
                         ),
                       ),
@@ -221,6 +249,4 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       ),
     );
   }
-
-  
 }

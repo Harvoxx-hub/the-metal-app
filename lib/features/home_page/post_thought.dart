@@ -16,11 +16,9 @@ import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 class PostThought extends ConsumerStatefulWidget {
   const PostThought({
     super.key,
- 
     this.thoughtModel,
   });
 
- 
   final ThoughtModel? thoughtModel;
 
   @override
@@ -28,14 +26,19 @@ class PostThought extends ConsumerStatefulWidget {
 }
 
 class _PostThoughtState extends ConsumerState<PostThought> {
-  TextEditingController controller = TextEditingController();
+  late TextEditingController controller;
 
   @override
   void initState() {
     super.initState();
-    if (widget.thoughtModel != null) {
-      controller.text = widget.thoughtModel!.content;
-    }
+    controller =
+        TextEditingController(text: widget.thoughtModel?.content ?? '');
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -73,7 +76,7 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                   ProfilePhoto(
                     verfly: false,
                     size: 24,
-                    meltId: userModel!.metal!,
+                    meltId: userModel.metal!,
                   ),
                   TextView(text: userModel.username ?? ''),
                   const Gap(5),
@@ -92,8 +95,7 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                             ? () {
                                 FocusScope.of(context).unfocus();
 
-                                if (!(userModel.completedProfile ??
-                                    false)) {
+                                if (!(userModel.completedProfile ?? false)) {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -118,7 +120,7 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                                   }
                                 }
                               }
-                            : null, // Disable `onPressed` when the button is disabled
+                            : null,
                         width: 100,
                         loading: sendThoughtState.isLoading ||
                             editThoughtState.isLoading,
@@ -131,16 +133,17 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Express your Thought...',
-                      border: InputBorder.none, // Remove underline border
+                    decoration: InputDecoration(
+                      hintText: widget.thoughtModel == null
+                          ? 'Express your Thought...'
+                          : 'Edit your Thought...',
+                      border: InputBorder.none,
                     ),
                     controller: controller,
-                    style:
-                        const TextStyle(fontSize: 18), // Adjust the text size
-                    autofocus: true, // Automatically focus the text field
+                    style: const TextStyle(fontSize: 18),
+                    autofocus: true,
                     keyboardType: TextInputType.multiline,
-                    maxLines: null, // Makes it multiline
+                    maxLines: null,
                   ),
                 ),
               ),

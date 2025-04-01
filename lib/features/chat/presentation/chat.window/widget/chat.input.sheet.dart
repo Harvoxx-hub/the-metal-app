@@ -293,6 +293,11 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
   }
 
   void sendTextMessage() {
+    // Don't send if the message is empty or only whitespace
+    if (_chatController.text.trim().isEmpty) {
+      return;
+    }
+
     _hasText = true;
     final message = MessageModel(
       senderId: currentUserData!.id!,

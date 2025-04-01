@@ -71,7 +71,7 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
                     Assets.icons.christianity.svg(width: 24, height: 24),
                 value: religion,
                 hint: "Please Select",
-                floatingLabel: "Religon",
+                floatingLabel: "Religion",
               ),
               const Gap(22),
               MentalDropdown(

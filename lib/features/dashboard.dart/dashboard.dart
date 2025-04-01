@@ -33,20 +33,27 @@ import '../home_page/home_page.dart';
 import 'package:metal/features/dashboard.dart/widget/thought_reminder_dialog.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
-  const DashboardPage({super.key});
+  final int? initialPageIndex;
+
+  const DashboardPage({
+    super.key,
+    this.initialPageIndex,
+  });
 
   @override
   ConsumerState<DashboardPage> createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
-  int currentIndex = 0;
+  late int currentIndex;
   bool _initialized = false;
   PackageInfo? _packageInfo;
 
   @override
   void initState() {
     super.initState();
+    // Initialize with the provided index or default to 0
+    currentIndex = widget.initialPageIndex ?? 0;
     _initializeData();
   }
 
@@ -100,6 +107,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     },
                   ),
                 );
+                await prefs.setBool('hasSeenOnboarding', true);
+                await _checkUserStatus(userData);
+              },
+              onSkipTutorial: () async {
+                // Mark that user has seen onboarding when they skip
                 await prefs.setBool('hasSeenOnboarding', true);
                 await _checkUserStatus(userData);
               },

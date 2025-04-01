@@ -13,6 +13,7 @@ class NotificationModel {
       iosNotification; // iOS-specific notification
   final DateTime timestamp; // When the notification was sent
   final String id; // Unique ID
+  final bool isRead; // New field to track read status
 
   NotificationModel({
     required this.recipientIds,
@@ -24,6 +25,7 @@ class NotificationModel {
     required this.iosNotification,
     required this.timestamp,
     required this.id,
+    this.isRead = false, // Default to unread
   });
 
   // Convert a NotificationModel instance to a JSON map
@@ -38,6 +40,7 @@ class NotificationModel {
       'iosNotification': iosNotification.toJson(),
       'timestamp': timestamp.toIso8601String(),
       'id': id,
+      'isRead': isRead,
     };
   }
 
@@ -56,6 +59,23 @@ class NotificationModel {
           NotificationIosNotification.fromJson(json['iosNotification']),
       timestamp: DateTime.parse(json['timestamp']),
       id: json['id'],
+      isRead: json['isRead'] ?? false,
+    );
+  }
+
+  // Add a method to create a read version of this notification
+  NotificationModel markAsRead() {
+    return NotificationModel(
+      recipientIds: recipientIds,
+      title: title,
+      subTitle: subTitle,
+      type: type,
+      data: data,
+      androidNotification: androidNotification,
+      iosNotification: iosNotification,
+      timestamp: timestamp,
+      id: id,
+      isRead: true,
     );
   }
 }

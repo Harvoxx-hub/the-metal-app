@@ -7,9 +7,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/fcm/local_notifications.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/fcm/notification_dispatcher.dart';
 import 'package:synchronized/synchronized.dart';
 
-import 'abstract_notification_dispatcher.dart';
 import 'models/notification_payload_model.dart';
 
 final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -99,9 +99,13 @@ class FCMClient {
 
   Future<void> _updateFCMToken(String token) async {
     try {
+      // Uncomment this to update the FCM token in your backend
       // await container
       //     .read(authenticationNotifierProvider.notifier)
       //     .updateToken(token);
+
+      // TODO: Implement proper token update once you know the correct provider
+      print('FCM token updated: $token');
     } catch (e) {
       print('Error updating FCM token: $e');
     }
@@ -157,8 +161,9 @@ class FCMClient {
   ) async {
     if (notificationResponse?.payload == null) return;
 
-    final payloadModel =
-        NotificationPayloadModel.fromJson(notificationResponse!.payload!);
+    final payloadModel = NotificationPayloadModel.fromJson(
+      jsonDecode(notificationResponse!.payload!),
+    );
     await _onTapNotification(payloadModel);
   }
 
@@ -166,8 +171,9 @@ class FCMClient {
   ///
   /// For handle tap when the app is terminated/killed, use [initialMessage].
   Future<void> _onTapNotification(NotificationPayloadModel payload) async {
-    print('232 this is onTap payload : $payload');
-    await PushDispatcher.dispatchNotification(payload, removeUntil: true);
+    print('Handling notification tap with payload: $payload');
+    await NotificationDispatcher.instance
+        .dispatchNotification(payload, removeUntil: true);
   }
 
   void _log(RemoteMessage? message, {String? name}) {

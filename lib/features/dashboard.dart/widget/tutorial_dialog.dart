@@ -6,7 +6,12 @@ import 'package:metal/widgets/text_views.dart';
 
 class TutorialDialog extends StatelessWidget {
   final VoidCallback onStartTutorial;
-  const TutorialDialog({super.key, required this.onStartTutorial});
+  final VoidCallback onSkipTutorial;
+  const TutorialDialog({
+    super.key,
+    required this.onStartTutorial,
+    required this.onSkipTutorial,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +21,7 @@ class TutorialDialog extends StatelessWidget {
         Assets.images.rocketEmoji1.image(),
         const Gap(15),
         const TextView(
-          text: "Let’s get you ready!",
+          text: "Let's get you ready!",
           fontSize: 20,
           fontWeight: FontWeight.w500,
         ),
@@ -35,7 +40,10 @@ class TutorialDialog extends StatelessWidget {
           text: "Skip for Now",
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          onTap: () => Navigator.pop(context),
+          onTap: () {
+            Navigator.pop(context);
+            onSkipTutorial();
+          },
         ),
         const Gap(21),
       ],

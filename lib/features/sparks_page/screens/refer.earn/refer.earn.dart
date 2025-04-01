@@ -7,6 +7,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/sparks_page/provider/redeem.referral.notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
 
 import 'package:metal/gen/assets.gen.dart';
@@ -16,17 +17,53 @@ import 'package:metal/res/colors/cr_colors.dart';
 
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
+import 'package:metal/widgets/text.field/edit.from.field.dart';
+import 'package:metal/core/utils/validators.dart';
 
-class ReferEarnSpark extends ConsumerWidget {
+class ReferEarnSpark extends ConsumerStatefulWidget {
   const ReferEarnSpark({super.key});
   static const name = 'referEarnSpark';
   static const route = name;
 
-  // final TextEditingController _phoneController = TextEditingController();
+  @override
+  ConsumerState<ReferEarnSpark> createState() => _ReferEarnSparkState();
+}
+
+class _ReferEarnSparkState extends ConsumerState<ReferEarnSpark> {
+  final TextEditingController _referralCodeController = TextEditingController();
+  bool _showRedeemForm = false;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void dispose() {
+    _referralCodeController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final userdata = ref.watch(authProvider).data;
+    final redeemState = ref.watch(redeemReferralProvider);
+
+    // Listen for redemption state changes
+    ref.listen(redeemReferralProvider, (prev, current) {
+      if (current.isSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Referral code redeemed successfully!')),
+        );
+        // Refresh user data to show updated spark balance
+        ref.read(authProvider.notifier).getUpdatedUser();
+        setState(() {
+          _showRedeemForm = false;
+          _referralCodeController.clear();
+        });
+      } else if (current.isError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(current.errorMessage ?? 'Failed to redeem code')),
+        );
+      }
+    });
+
     return BaseScreen(
         appBarState: AppBarState.BackWithHeader,
         Header: "Refer & Earn",
@@ -65,7 +102,68 @@ class ReferEarnSpark extends ConsumerWidget {
                           title: "Refer \n& Earn",
                           path: Assets.images.refer.path,
                         ),
-                        Gap(getDeviceHeight(context) * 0.15),
+                        Gap(getDeviceHeight(context) * 0.05),
+
+                        // Redeem Referral Button
+                        if (!_showRedeemForm)
+                          OutilineButton(
+                            buttonText: "Redeem a Referral Code",
+                            onPressed: () {
+                              setState(() {
+                                _showRedeemForm = true;
+                              });
+                            },
+                          ),
+
+                        // Redeem Form
+                        if (_showRedeemForm) ...[
+                          const TextView(
+                            text: "Enter a referral code to get bonus sparks",
+                            fontSize: 14,
+                          ),
+                          const Gap(10),
+                          EditFormField(
+                            floatingLabel: 'Referral Code',
+                            label: 'Enter code',
+                            controller: _referralCodeController,
+                            keyboardType: TextInputType.text,
+                            radius: 10,
+                            validator: Validators.validateNotEmpty(),
+                          ),
+                          const Gap(10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              OutilineButton(
+                                buttonText: "Cancel",
+                                width: 120,
+                                onPressed: () {
+                                  setState(() {
+                                    _showRedeemForm = false;
+                                    _referralCodeController.clear();
+                                  });
+                                },
+                              ),
+                              BaseButton(
+                                buttonText: "Redeem",
+                                width: 120,
+                                loading: redeemState.isLoading,
+                                onPressed: () {
+                                  if (_referralCodeController.text.isNotEmpty) {
+                                    ref
+                                        .read(redeemReferralProvider.notifier)
+                                        .redeemReferralCode(
+                                          _referralCodeController.text.trim(),
+                                        );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                          const Gap(15),
+                        ],
+
+                        Gap(getDeviceHeight(context) * 0.05),
                         Container(
                           width: 200,
                           padding: const EdgeInsets.all(15),
@@ -88,12 +186,19 @@ class ReferEarnSpark extends ConsumerWidget {
                             ],
                           ),
                         ),
-                        Gap(getDeviceHeight(context) * 0.15),
+                        Gap(getDeviceHeight(context) * 0.05),
+                        const TextView(
+                          text:
+                              "Share your code with friends to earn bonus sparks!",
+                          fontSize: 14,
+                          textAlign: TextAlign.center,
+                        ),
+                        const Gap(15),
                         BaseButton(
                           buttonText: "Invite to Metal",
                           onPressed: () {
                             Share.share(
-                                "Hey there! 👋 I'm using Metal App Plus, if you sign up using my referral code  and download the app from Https://metalapp.com, we both get [mention any benefits or rewards for using the referral code: ${userdata.referralCode}. Give it a try and let's explore Metal App together! 🚀",
+                                "Hey there! 👋 I'm using Metal App Plus, if you sign up using my referral code and download the app from Https://metalapp.com, we both get bonus sparks: ${userdata.referralCode}. Give it a try and let's explore Metal App together! 🚀",
                                 subject: 'Join me at Metal');
                           },
                         ),
@@ -108,7 +213,7 @@ class ReferEarnSpark extends ConsumerWidget {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text(
-                                          'Your have coppied your Referal Code')));
+                                          'Your have copied your Referal Code')));
                             });
                           },
                         ),

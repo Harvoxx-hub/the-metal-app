@@ -37,9 +37,13 @@ class UserProfilePage extends ConsumerWidget {
       Header: "User Profile",
       body: ProfileHeader(
           eye: false,
-          myProfile: true,
+          myProfile: false,
           metalId: user.metal!,
-          profileUrl: user.profilePhoto,
+          profileUrl: connection != null
+              ? connection.isAnonymous
+                  ? null
+                  : user.profilePhoto
+              : null,
           child: Padding(
             padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
             child: Container(

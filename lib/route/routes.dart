@@ -4,6 +4,7 @@ import 'package:metal/features/authentication/presentation/forget.password/forgo
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
+import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/verification/face_verification_screen.dart';
 
 import 'package:metal/features/home_page/post_thought.dart';
@@ -71,6 +72,8 @@ import 'package:metal/features/upgrade/make.payment.dart';
 import 'package:metal/features/verification/verification.video.dart';
 import 'package:metal/features/verification/video.preview.dart';
 
+import 'package:metal/features/home_page/presentation/thought_details.page.dart';
+
 class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
@@ -128,6 +131,51 @@ class AppRoutes {
   static const String editPage = '/editPage';
   static const String delete = '/deletePage';
   static const String postThought = '/postThought';
+  static const String thoughtDetails = '/thoughtDetails';
+
+  // Dashboard tab indices
+  static const int homeTab = 0;
+  static const int sparksTab = 1;
+  static const int messagesTab = 2;
+  static const int profileTab = 3;
+
+  // Helper methods to navigate to specific tabs
+  static void navigateToHome(BuildContext context, {bool replace = false}) {
+    if (replace) {
+      Navigator.pushReplacementNamed(context, dashboardPage,
+          arguments: homeTab);
+    } else {
+      Navigator.pushNamed(context, dashboardPage, arguments: homeTab);
+    }
+  }
+
+  static void navigateToSparks(BuildContext context, {bool replace = false}) {
+    if (replace) {
+      Navigator.pushReplacementNamed(context, dashboardPage,
+          arguments: sparksTab);
+    } else {
+      Navigator.pushNamed(context, dashboardPage, arguments: sparksTab);
+    }
+  }
+
+  static void navigateToMessages(BuildContext context, {bool replace = false}) {
+    if (replace) {
+      Navigator.pushReplacementNamed(context, dashboardPage,
+          arguments: messagesTab);
+    } else {
+      Navigator.pushNamed(context, dashboardPage, arguments: messagesTab);
+    }
+  }
+
+  static void navigateToProfile(BuildContext context, {bool replace = false}) {
+    if (replace) {
+      Navigator.pushReplacementNamed(context, dashboardPage,
+          arguments: profileTab);
+    } else {
+      Navigator.pushNamed(context, dashboardPage, arguments: profileTab);
+    }
+  }
+
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
@@ -183,6 +231,17 @@ class AppRoutes {
       case homeAddressPage:
         return MaterialPageRoute(builder: (_) => const HomeAddressPage());
       case dashboardPage:
+        // Check if arguments contain a tab index
+        final args = settings.arguments;
+        if (args is int) {
+          return MaterialPageRoute(
+              builder: (_) => DashboardPage(initialPageIndex: args));
+        } else if (args is Map<String, dynamic> &&
+            args.containsKey('tabIndex')) {
+          return MaterialPageRoute(
+              builder: (_) =>
+                  DashboardPage(initialPageIndex: args['tabIndex']));
+        }
         return MaterialPageRoute(builder: (_) => const DashboardPage());
       case viewEyes:
         return MaterialPageRoute(
@@ -275,7 +334,15 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => DeleteScreen());
 
       case postThought:
-        return MaterialPageRoute(builder: (_) => PostThought());
+        return MaterialPageRoute(
+            builder: (_) => PostThought(
+                  thoughtModel: settings.arguments as ThoughtModel?,
+                ));
+      case thoughtDetails:
+        return MaterialPageRoute(
+          builder: (_) => ThoughtDetailsPage(),
+          settings: settings,
+        );
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

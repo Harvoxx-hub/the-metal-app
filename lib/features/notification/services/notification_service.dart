@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/core/utils/constant/firebase.firestore.collection.key.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
+import 'package:metal/features/settings/provider/block.user.notifier.dart';
 
 class NotificationService {
   final FirebaseServiceDb _firebaseService = FirebaseServiceDb.instance;
@@ -23,6 +24,21 @@ class NotificationService {
     return notificationsData
         .map((data) => NotificationModel.fromJson(data))
         .toList();
+  }
+
+  // Get blocked users
+  Future<List<Map<String, dynamic>>> getBlockedUsers() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection(
+              '${FirebaseFirestoreCollectionKeys.users}/${_auth.currentUser?.uid}/blocked')
+          .get();
+
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (error) {
+      print('Error fetching blocked users: $error');
+      return [];
+    }
   }
 
   // Get unread notification count

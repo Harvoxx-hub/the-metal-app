@@ -398,7 +398,7 @@ class _ThoughtDetailsPageState extends ConsumerState<ThoughtDetailsPage> {
       ),
       primaryButtonText: "Block",
       onPrimaryButtonPressed: () {
-        ref.read(blockUserProvider.notifier).BlockUser(
+        ref.read(blockUserProvider.notifier).blockUser(
               "User", // We don't have username here, so use a placeholder
               thoughtModel.userId,
             );
@@ -449,7 +449,7 @@ class _ThoughtDetailsPageState extends ConsumerState<ThoughtDetailsPage> {
       onPrimaryButtonPressed: () {
         if (formKey.currentState!.validate()) {
           // First block the user
-          ref.read(blockUserProvider.notifier).BlockUser(
+          ref.read(blockUserProvider.notifier).blockUser(
                 "User", // We don't have username here, so use a placeholder
                 thoughtModel.userId,
               );

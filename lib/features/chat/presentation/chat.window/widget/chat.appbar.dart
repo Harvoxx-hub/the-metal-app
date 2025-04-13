@@ -532,7 +532,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             onPressed: () {
               ref
                   .read(blockUserProvider.notifier)
-                  .BlockUser(data.username!, data.id!);
+                  .blockUser(data.username!, data.id!);
               Navigator.pop(context);
             }),
         const Gap(23),

@@ -11,7 +11,6 @@ import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
- 
 
 class NavDrawer extends ConsumerWidget {
   const NavDrawer({super.key});
@@ -186,7 +185,7 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(20),
-          (authState.isVerified ?? true)
+          (authState.isVerified == false)
               ? Column(
                   children: [
                     ListTile(
@@ -209,7 +208,7 @@ class NavDrawer extends ConsumerWidget {
                       onTap: () => {
                         Navigator.pushNamed(
                           context,
-                          AppRoutes.verificationVideo,
+                          AppRoutes.faceVerification,
                         )
                       },
                     ),

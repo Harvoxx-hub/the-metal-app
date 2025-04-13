@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/sparks_page/domain/entries/spark.model.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
 enum SparkHistoryType { Purchase, Sent, Received, Referred, ReferralBonus }
@@ -103,6 +104,7 @@ class SparkHistoryItem extends StatelessWidget {
         // Show transaction details in a modal
         showModalBottomSheet(
           context: context,
+          backgroundColor: AppColors.metalWhite,
           builder: (context) => _buildTransactionDetails(context),
         );
       },
@@ -190,11 +192,17 @@ class SparkHistoryItem extends StatelessWidget {
             _detailRow("Referral Code", "Used for this transaction"),
           ],
           const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Close"),
+          Center(
+            child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const TextView(
+                text: "Close",
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: AppColors.metalPinkColour,
+              ),
             ),
           ),
         ],

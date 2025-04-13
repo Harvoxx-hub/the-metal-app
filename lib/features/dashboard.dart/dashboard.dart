@@ -237,8 +237,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 color: Colors.white,
               ),
               onPressed: () async {
-                await Navigator.pushNamed(context, AppRoutes.postThought,
-                    arguments: user.data);
+                await Navigator.pushNamed(
+                  context,
+                  AppRoutes.postThought,
+                );
               })
           : null,
       bottomNavigationBar: BottomNavigationBar(

@@ -50,8 +50,10 @@ class NotificationModel {
       recipientIds: List<String>.from(json['recipientIds']),
       title: json['title'],
       subTitle: json['subTitle'],
-      type: NotificationType.values
-          .firstWhere((e) => e.toString().split('.').last == json['type']),
+      type: NotificationType.values.firstWhere(
+        (e) => e.toString().split('.').last == json['type'],
+        orElse: () => NotificationType.new_message, // Default type if not found
+      ),
       data: json['data'],
       androidNotification:
           NotificationAndroidNotification.fromJson(json['androidNotification']),

@@ -20,6 +20,7 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:metal/features/settings/presentation/widget/block_user_helper.dart';
 
 class MetalDetailsTab extends ConsumerStatefulWidget {
   const MetalDetailsTab({
@@ -314,11 +315,15 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
         BaseButton(
             buttonText: "Block  ${data.username}",
             onPressed: () {
-              ref
-                  .read(blockUserProvider.notifier)
-                  .BlockUser(data.username!, data.id!);
+              // Close the current dialog
               Navigator.pop(context);
-              Navigator.pop(context);
+
+              // Show the enhanced block reason dialog
+              showBlockReasonDialog(
+                context,
+                userId: data.id!,
+                username: data.username!,
+              );
             }),
         const Gap(23),
         TextView(

@@ -34,20 +34,54 @@ class NotificationNotifier extends StateNotifier<List<NotificationModel>> {
         .collection(path)
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .listen((snapshot) {
+        .listen((snapshot) async {
       final notifications = snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
         return NotificationModel.fromJson(data);
       }).toList();
-      state = notifications;
+
+      // Filter out notifications from blocked users
+      final blockedUsers = await _notificationService.getBlockedUsers();
+      final filteredNotifications = notifications.where((notification) {
+        // For notifications that have a sender ID in the data
+        if (notification.data != null && notification.data is Map) {
+          final data = notification.data as Map;
+          final senderId = data['senderId'] ?? data['userId'];
+          if (senderId != null) {
+            // Check if the sender is blocked
+            return !blockedUsers
+                .any((blockedUser) => blockedUser['id'] == senderId);
+          }
+        }
+        return true; // Keep notifications without sender IDs
+      }).toList();
+
+      state = filteredNotifications;
     });
   }
 
   // Fetch notifications when needed
   Future<void> fetchNotifications() async {
     final notifications = await _notificationService.getNotifications();
-    state = notifications;
+
+    // Filter out notifications from blocked users
+    final blockedUsers = await _notificationService.getBlockedUsers();
+    final filteredNotifications = notifications.where((notification) {
+      // For notifications that have a sender ID in the data
+      if (notification.data != null && notification.data is Map) {
+        final data = notification.data as Map;
+        final senderId = data['senderId'] ?? data['userId'];
+        if (senderId != null) {
+          // Check if the sender is blocked
+          return !blockedUsers
+              .any((blockedUser) => blockedUser['id'] == senderId);
+        }
+      }
+      return true; // Keep notifications without sender IDs
+    }).toList();
+
+    state = filteredNotifications;
   }
 
   // Get unread notifications

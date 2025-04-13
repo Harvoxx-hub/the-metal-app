@@ -9,6 +9,7 @@ import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
+import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
@@ -99,6 +100,15 @@ class chatListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    //handle blocked user
+    final blockedUsers = ref.watch(getBlockUserProvider).data ?? [];
+    final isBlocked = blockedUsers.any(
+        (blockedUser) => blockedUser['id'] == conversationsModel.otherUser?.id);
+
+    if (isBlocked) {
+      return const SizedBox.shrink();
+    }
+
     final currentUser = ref.watch(authProvider).data;
     final metalId = conversationsModel.users.firstWhere(
       (user) => user != currentUser!.id,

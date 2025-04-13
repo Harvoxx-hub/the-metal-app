@@ -39,7 +39,6 @@ class _MeltMetalState extends ConsumerState<MeltMetal> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
-   
 
     ref.listen<GetMeltUsersState>(getMeltUserProvider, (prev, current) {
       if (current.isSuccess) {
@@ -128,6 +127,7 @@ class _MeltMetalState extends ConsumerState<MeltMetal> {
                     Navigator.pushNamed(
                       context,
                       AppRoutes.sendSpark,
+                      arguments: meltUserData,
                     );
                   }),
                   // meltItem("Profile", Assets.images.meltProfile.path, () {

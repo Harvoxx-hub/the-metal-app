@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
+import 'package:metal/features/settings/presentation/widget/block_user_helper.dart';
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/widgets/card.with.shadow.dart';
 import 'package:metal/widgets/profile.photo.dart';
@@ -16,13 +17,17 @@ class BlockedCard extends ConsumerWidget {
   final String id;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-   final creatorUserdata = ref.watch(getUserProvider(id));
+    final creatorUserdata = ref.watch(getUserProvider(id));
     return Center(
-       child: creatorUserdata.isLoading
+      child: creatorUserdata.isLoading
           ? CircularProgressIndicator.adaptive()
           : CardWithShadow(
               onTap: () {
-                ref.read(blockUserProvider.notifier).unBlockUser(id);
+                showBlockedUserDialog(context,
+                    userName: creatorUserdata.data!.username!,
+                    userId: id, onUnblock: () {
+                  ref.read(blockUserProvider.notifier).unBlockUser(id);
+                });
               },
               height: 105,
               child: Row(

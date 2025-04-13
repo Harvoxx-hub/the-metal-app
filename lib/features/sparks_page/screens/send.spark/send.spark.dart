@@ -267,8 +267,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
               ref.read(sendSparkProvider.notifier).sendSpark(
                   receiverId: selectedUserId,
                   numberOfSparks: double.parse(_sparkNumberController.text),
-                  receiverName: _userNameController.text
-                  );
+                  receiverName: _userNameController.text);
             }),
         const Gap(23),
         TextView(
@@ -304,7 +303,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
         BaseButton(
             buttonText: "Go back to dashboard",
             onPressed: () {
-              Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
+              AppRoutes.navigateToSparks(context);
             })
       ],
     );

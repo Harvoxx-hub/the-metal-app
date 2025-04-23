@@ -43,7 +43,7 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
                 .firstWhere((id) => id != authState.id, orElse: () => '');
 
             if (otherUserId.isNotEmpty) {
-              // Fetch the other user's details
+              ///TODO: handle deleted users from showing in the list
               final response = await ref
                   .watch(authenticationRepositoryProvider)
                   .getUserByID(id: otherUserId);

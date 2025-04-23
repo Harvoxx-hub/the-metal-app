@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/core/services/auth.pref.service.dart';
+ 
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/handler/app.lifeycle.handler.dart';
 
@@ -50,8 +50,7 @@ void main() async {
   final shorebirdCodePush = ShorebirdCodePush();
   await shorebirdCodePush.downloadUpdateIfAvailable();
 
-  await initializeAuthManager();
-
+ 
   // Set navigator key
   ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navKey);
 
@@ -84,10 +83,7 @@ Future<void> initializeFirebase() async {
     debugPrint('Error initializing Firebase: $e');
   }
 }
-
-Future<void> initializeAuthManager() async {
-  await AuthManager.ensureInitialized();
-}
+ 
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});

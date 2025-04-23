@@ -8,6 +8,7 @@ import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/constant/enums.dart';
 
 import 'package:metal/core/utils/date.formart.dart';
+import 'package:metal/core/utils/image_picker_util.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart';
@@ -21,7 +22,7 @@ import 'package:metal/features/chat/provider/send.message.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
 import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
-import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
+ 
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
@@ -67,7 +68,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         ref.watch(checkMeltProvider(widget.meltUserModel.id!));
 
     /// Determines if the user is allowed to call
-    bool isCallAllowed = checkMeltState.data == MeltRequestState.mutual;
+    bool isCallAllowed = 
+        checkMeltState.data == MeltRequestState.connected;
 
     /// Function to check call eligibility
     Future<bool> handleCallPress(
@@ -320,13 +322,23 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     final daysRequired = ref.watch(numberDaysProvider);
     final uniqueDailyConversations =
         connectionModel.data?.uniqueDailyConversationsCount ?? 0;
-    final hasProfilePhoto = currentUser?.profilePhoto != null &&
-        currentUser!.profilePhoto!.isNotEmpty;
-    final otherUserHasPhoto = widget.meltUserModel.profilePhoto != null &&
-        widget.meltUserModel.profilePhoto!.isNotEmpty;
 
-    // Check if both users have profile photos
-    if (!hasProfilePhoto || !otherUserHasPhoto) {
+    // Force refresh user data to get the latest profile photo
+    ref.read(authProvider.notifier).getUpdatedUser();
+
+    // Improved check for profile photo existence
+    final hasProfilePhoto = currentUser?.profilePhoto != null &&
+        currentUser!.profilePhoto!.isNotEmpty &&
+        currentUser.profilePhoto!.trim().isNotEmpty;
+    final otherUserHasPhoto = widget.meltUserModel.profilePhoto != null &&
+        widget.meltUserModel.profilePhoto!.isNotEmpty &&
+        widget.meltUserModel.profilePhoto!.trim().isNotEmpty;
+
+    final missingYourPhoto = !hasProfilePhoto;
+    final missingOtherPhoto = !otherUserHasPhoto;
+
+    // Only block proceeding if the current user is missing a photo
+    if (missingYourPhoto) {
       return Column(
         children: [
           const Gap(38),
@@ -336,7 +348,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             fontWeight: FontWeight.w700,
           ),
           const Gap(15),
-          TextView(
+          const TextView(
             text:
                 "Wait a minute, we are missing your photo! To unmetal means that the two profiles can view each others photos",
             fontSize: 16,
@@ -344,7 +356,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             fontWeight: FontWeight.w400,
           ),
           const Gap(15),
-          TextView(
+          const TextView(
             text: "To continue",
             fontSize: 16,
             textAlign: TextAlign.center,
@@ -355,8 +367,62 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             buttonText: "Upload your photo",
             onPressed: () {
               Navigator.pop(context);
-              pickImage(context, ref);
+              ImagePickerUtil.pickImage(context, ref);
             },
+          ),
+          const Gap(23),
+        ],
+      );
+    }
+
+    // Warn about the other user's missing photo but allow proceeding
+    if (missingOtherPhoto) {
+      return Column(
+        children: [
+          const Gap(38),
+          const TextView(
+            text: "Want to Unmetal?",
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+          const Gap(15),
+          const TextView(
+            text:
+                "The other user doesn't have a profile photo yet. They will be asked to upload one when accepting your request.",
+            fontSize: 16,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.w400,
+          ),
+          const Gap(15),
+          TextView(
+            text:
+                "Do you still want to send an unmetal request to @${widget.meltUserModel.username}?",
+            fontSize: 16,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.w400,
+          ),
+          const Gap(38),
+          Row(
+            children: [
+              Expanded(
+                child: BaseButton(
+                  buttonText: "Cancel",
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              const Gap(10),
+              Expanded(
+                child: BaseButton(
+                  buttonText: "Send Request",
+                  onPressed: () {
+                    Navigator.pop(context);
+                    sendUnmelt();
+                  },
+                ),
+              ),
+            ],
           ),
           const Gap(23),
         ],

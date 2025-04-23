@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
-import 'package:metal/core/services/auth.pref.service.dart';
+import 'package:metal/core/state/base.state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/profile/provider/delete.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -19,28 +19,33 @@ import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class DeleteScreen extends ConsumerWidget {
   DeleteScreen({super.key});
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController _feedbackController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<DeleteUsersState>(deleteUserProvider, (prev, current) {
-      if (current.isSuccess) {
-        AuthManager.deleteAccessToken();
-        AuthManager.deleteLoginState();
-        AuthManager.deleteRefreshToken();
-
-        ZegoUIKitPrebuiltCallInvitationService().uninit();
-        Navigator.pushNamedAndRemoveUntil(
-            context, AppRoutes.onboarding, (route) => false);
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CustomDialog(
-              content: DeleteConfrim(context),
+    ref.listen<BaseState<String>>(deleteUserProvider, (prev, current) {
+      if (current.isError &&
+          current.errorMessage?.contains('re-login') == true) {
+        // Show re-authentication dialog
+        
+      } else if (current.isSuccess) {
+           Navigator.pushNamedAndRemoveUntil(
+              context,
+              AppRoutes.onboarding,
+              (route) => false,
             );
-          },
+      } else if (current.isError) {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(current.errorMessage ?? "An error occurred"),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     });
+
     return BaseScreen(
       appBarState: AppBarState.BackWithHeader,
       Header: "Delete your account",
@@ -109,10 +114,6 @@ class DeleteScreen extends ConsumerWidget {
                     BaseButton(
                       buttonText: 'Create a new Metal account',
                       onPressed: () {
-                        AuthManager.deleteAccessToken();
-                        AuthManager.deleteLoginState();
-                        AuthManager.deleteRefreshToken();
-
                         ZegoUIKitPrebuiltCallInvitationService().uninit();
                         Navigator.pushNamedAndRemoveUntil(
                             context, AppRoutes.onboarding, (route) => false);
@@ -130,8 +131,8 @@ class DeleteScreen extends ConsumerWidget {
                       floatingLabel: '',
                       label:
                           'Please share how you think we can make Metal app more safe and better for you or other users next time',
-                      controller: _controller,
-                      keyboardType: TextInputType.name,
+                      controller: _feedbackController,
+                      keyboardType: TextInputType.multiline,
                       minLines: 5,
                       maxLines: 5,
                       validator: Validators.validateString(),
@@ -140,7 +141,7 @@ class DeleteScreen extends ConsumerWidget {
                     const Gap(10),
                     const Center(
                       child: TextView(
-                        text: "It’s sad to see you go.",
+                        text: "It's sad to see you go.",
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),
@@ -176,7 +177,7 @@ class DeleteScreen extends ConsumerWidget {
     );
   }
 
-  Widget verifyDelete(BuildContext context, ref) {
+  Widget verifyDelete(BuildContext context, WidgetRef ref) {
     return Column(
       children: [
         const Gap(38),
@@ -198,7 +199,10 @@ class DeleteScreen extends ConsumerWidget {
         BaseButton(
           buttonText: "Yes, Delete my account",
           onPressed: () {
-            ref.read(deleteUserProvider.notifier).deleteUser(context);
+            ref.read(deleteUserProvider.notifier).deleteUser(
+                  context,
+                  feedback: _feedbackController.text.trim(),
+                );
           },
         ),
         const Gap(23),
@@ -213,33 +217,5 @@ class DeleteScreen extends ConsumerWidget {
     );
   }
 
-  Widget DeleteConfrim(BuildContext context) {
-    return Column(
-      children: [
-        const Gap(38),
-        Assets.icons.delete2.svg(),
-        const Gap(15),
-        const TextView(
-          text: "Account deleted",
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
-        ),
-        const Gap(15),
-        const TextView(
-          text:
-              "Your account and all associated data have been permanently removed from our system. In the meantime, we appreciate the time you spent with us and value your experience as a user.",
-          fontSize: 16,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
-        ),
-        const Gap(38),
-        BaseButton(
-            buttonText: "Bye!",
-            onPressed: () {
-              Navigator.pop(context);
-            }),
-        const Gap(23),
-      ],
-    );
-  }
-}
+ 
+ }

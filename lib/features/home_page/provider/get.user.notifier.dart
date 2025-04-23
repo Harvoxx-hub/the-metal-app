@@ -21,7 +21,7 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
       if (!mounted) return;
 
       if (response.success == false) {
-        state = GetUserState.error('No user data available');
+       // state = GetUserState.error('No user data available');
       } else {
         final userData = UserModel.fromJson(response.data);
 

@@ -14,6 +14,7 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
         state == AppLifecycleState.detached) {
       repo.markUserOffline(userId);
     } else if (state == AppLifecycleState.resumed) {
+      
       repo.markUserOnline(userId);
     }
   }

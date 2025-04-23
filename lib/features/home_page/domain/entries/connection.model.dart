@@ -36,6 +36,12 @@ class ConnectionModel {
       dailyConversations; // List of dates when conversations occurred
   final String? lastConversationDate; // Last date when a conversation occurred
   final String? lastSenderId; // Last sender ID
+
+  // New fields to store original melt request info
+  final String? initiatorId; // Who sent the original melt request
+  final String? receiverId; // Who received the original melt request
+  final bool wasAnonymous; // Whether the original request was anonymous
+
   ConnectionModel({
     required this.connectionId,
     required this.users,
@@ -50,6 +56,9 @@ class ConnectionModel {
     this.lastConversationDate, // Default to null
     this.unreadCount = 0, // Default to 0 unread messages
     this.otherUser, // The other user in the connection
+    this.initiatorId, // Who initiated the connection (from melt request)
+    this.receiverId, // Who received the connection request
+    this.wasAnonymous = false, // Was the original request anonymous
   });
 
   factory ConnectionModel.fromJson(Map<String, dynamic> json) =>
@@ -77,6 +86,11 @@ class ConnectionModel {
         userProfilePhoto.isNotEmpty;
   }
 
+  /// Check if the current user is the initiator of this connection
+  bool isInitiator(String currentUserId) {
+    return initiatorId == currentUserId;
+  }
+
   ConnectionModel copyWith({
     String? connectionId,
     List<String>? users,
@@ -91,6 +105,9 @@ class ConnectionModel {
     String? lastConversationDate,
     UserModel? otherUser,
     String? lastSenderId,
+    String? initiatorId,
+    String? receiverId,
+    bool? wasAnonymous,
   }) {
     return ConnectionModel(
       connectionId: connectionId ?? this.connectionId,
@@ -106,6 +123,9 @@ class ConnectionModel {
       dailyConversations: dailyConversations ?? this.dailyConversations,
       lastConversationDate: lastConversationDate ?? this.lastConversationDate,
       otherUser: otherUser ?? this.otherUser,
+      initiatorId: initiatorId ?? this.initiatorId,
+      receiverId: receiverId ?? this.receiverId,
+      wasAnonymous: wasAnonymous ?? this.wasAnonymous,
     );
   }
 }

@@ -12,7 +12,34 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'verification_step.dart';
+
+// Helper function to compute rotation based on sensor orientation
+InputImageRotation _computeRotation(CameraDescription cameraDescription) {
+  final sensorOrientation = cameraDescription.sensorOrientation;
+  // Convert the sensor orientation (0, 90, 180, 270) to ML Kit's InputImageRotation
+  switch (sensorOrientation) {
+    case 90:
+      return InputImageRotation.rotation90deg;
+    case 180:
+      return InputImageRotation.rotation180deg;
+    case 270:
+      // Most common for front cameras on Android/iOS
+      return InputImageRotation.rotation270deg;
+    case 0:
+    default:
+      return InputImageRotation.rotation0deg;
+  }
+}
+
+// Enum to represent the status of face positioning
+enum FacePositionStatus {
+  none, // No face detected
+  notCentered, // Face detected but off-center
+  notSized, // Face centered but too close or too far
+  centered // Face centered and correctly sized
+}
 
 class FaceVerificationScreen extends ConsumerStatefulWidget {
   const FaceVerificationScreen({super.key});
@@ -24,230 +51,703 @@ class FaceVerificationScreen extends ConsumerStatefulWidget {
       _FaceVerificationScreenState();
 }
 
-class _FaceVerificationScreenState extends ConsumerState<FaceVerificationScreen>
-    with SingleTickerProviderStateMixin {
+class _FaceVerificationScreenState
+    extends ConsumerState<FaceVerificationScreen> {
   CameraController? _cameraController;
-  bool _isDetecting = false;
+  CameraDescription?
+      _cameraDescription; // Store the selected camera's description
+  bool _isDetecting = false; // Flag to prevent concurrent ML Kit processing
   final FaceDetector _faceDetector = FaceDetector(
     options: FaceDetectorOptions(
-      enableContours: true,
-      enableClassification: true,
-      enableTracking: true,
-      minFaceSize: 0.15,
+      enableContours: true, // Keep enabled if needed for future features
+      enableClassification: true, // Needed for eye open probability
+      enableTracking: true, // Helps maintain face ID across frames
+      minFaceSize:
+          0.20, // Face should occupy at least 20% of the smaller dimension
+      performanceMode: FaceDetectorMode.accurate, // Prioritize accuracy
+      enableLandmarks: true, // Needed for head angle
     ),
   );
 
-  late AnimationController _animationController;
-  late Animation<double> _progressAnimation;
+  // Add FlutterTTS instance
+  final FlutterTts _flutterTts = FlutterTts();
 
+  // State variables for verification flow
   VerificationStep _currentStep = VerificationStep.centerFace;
-  bool _wasEyeOpen = true;
-  int _blinkCount = 0;
-  String _instruction = "Center your face in the frame";
+  FacePositionStatus _facePositionStatus = FacePositionStatus.none;
+  Color _borderColor = Colors.grey[300]!; // Border color reflects status
+  bool _wasEyeOpen = true; // Track previous eye state for blink detection
+  int _blinkCount = 0; // Count blinks
+  String _instruction =
+      "Align your head within the circle. The border will turn green when centered.";
+  Timer? _holdStillTimer; // Timer to delay transition after centering
+  DateTime? _lastBlinkTime; // Track last blink time
+  String _previousInstruction = ""; // Track previous instruction
 
   @override
   void initState() {
     super.initState();
     _initializeCamera();
-    _initializeAnimations();
+    _setupTts(); // Initialize TTS
   }
 
-  void _initializeAnimations() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-    _progressAnimation =
-        Tween<double>(begin: 0, end: 1).animate(_animationController);
+  // Set up text-to-speech settings
+  Future<void> _setupTts() async {
+    // Basic setup
+    await _flutterTts.setLanguage("en-US");
+    await _flutterTts
+        .setSpeechRate(0.48); // Slightly slower for more natural pace
+    await _flutterTts.setVolume(1.0);
+    await _flutterTts
+        .setPitch(0.9); // Slightly lower pitch for more natural sound
+
+    // Set more natural sounding voices if available
+    try {
+      // Get available voices
+      final voices = await _flutterTts.getVoices;
+
+      // Check if voices list is available
+      if (voices != null) {
+        debugPrint("Available TTS voices: ${voices.length}");
+
+        // Try to find premium/enhanced quality voices
+        final enhancedVoices = voices.where((voice) {
+          final voiceMap = voice as Map<String, dynamic>;
+          final voiceName = voiceMap['name'] as String? ?? '';
+          final voiceQuality = voiceMap['quality'] as String? ?? '';
+
+          // Look for voices that might sound more natural (different devices have different naming)
+          return voiceName.toLowerCase().contains('enhanced') ||
+              voiceName.toLowerCase().contains('premium') ||
+              voiceName.toLowerCase().contains('neural') ||
+              voiceQuality.toLowerCase().contains('high') ||
+              voiceName
+                  .toLowerCase()
+                  .contains('samantha') || // One of the better iOS voices
+              voiceName
+                  .toLowerCase()
+                  .contains('wavenet'); // Better Android voices
+        }).toList();
+
+        // If we found enhanced voices, use the first one
+        if (enhancedVoices.isNotEmpty) {
+          final selectedVoice = enhancedVoices.first as Map<String, dynamic>;
+          final voiceName = selectedVoice['name'] as String? ?? '';
+
+          debugPrint("Selected enhanced voice: $voiceName");
+          await _flutterTts.setVoice({"name": voiceName, "locale": "en-US"});
+        }
+        // If no enhanced voices found, try to find a good default voice
+        else {
+          // Look for standard voices that are generally better quality
+          final preferredVoiceNames = [
+            'Karen',
+            'Samantha',
+            'Alex',
+            'Daniel',
+            'Matthew'
+          ];
+
+          for (final name in preferredVoiceNames) {
+            final matchingVoice = voices.where((voice) {
+              final voiceMap = voice as Map<String, dynamic>;
+              final voiceName = voiceMap['name'] as String? ?? '';
+              return voiceName.contains(name);
+            }).toList();
+
+            if (matchingVoice.isNotEmpty) {
+              final selectedVoice = matchingVoice.first as Map<String, dynamic>;
+              final voiceName = selectedVoice['name'] as String? ?? '';
+
+              debugPrint("Selected preferred voice: $voiceName");
+              await _flutterTts
+                  .setVoice({"name": voiceName, "locale": "en-US"});
+              break;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint("Error setting up enhanced TTS voice: $e");
+    }
+
+    // Speak initial instruction after a short delay
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _speakInstruction(_instruction);
+    });
   }
 
+  // Speak the current instruction with more natural phrasing
+  Future<void> _speakInstruction(String instruction) async {
+    if (mounted) {
+      // Stop any ongoing speech before starting a new one
+      await _flutterTts.stop();
+
+      // Add subtle pause markers for more natural speech rhythm
+      // This uses SSML-like syntax that some TTS engines support
+      String enhancedInstruction = instruction;
+
+      // For longer instructions, add commas at logical break points if they don't exist
+      if (instruction.length > 30 && !instruction.contains(',')) {
+        // Replace common phrases with versions that have pauses
+        enhancedInstruction = instruction
+            .replaceAll('Please position', 'Please, position')
+            .replaceAll('Please center', 'Please, center')
+            .replaceAll('Slowly turn', 'Slowly, turn');
+      }
+
+      await _flutterTts.speak(enhancedInstruction);
+    }
+  }
+
+  @override
+  void dispose() {
+    _holdStillTimer?.cancel(); // Cancel timer if active
+
+    // Make sure to stop any ongoing speech immediately
+    _flutterTts.stop();
+
+    // Stop the image stream BEFORE disposing the controller
+    _cameraController?.stopImageStream().catchError((e) {
+      // Log errors during stream stop, but don't prevent disposal
+      debugPrint("Error stopping image stream: $e");
+    }).whenComplete(() {
+      _cameraController?.dispose().then((_) {
+        debugPrint("Camera Controller Disposed");
+      }).catchError((e) {
+        debugPrint("Error disposing camera controller: $e");
+      });
+    });
+    _faceDetector.close(); // Release ML Kit resources
+    super.dispose();
+  }
+
+  // Initialize the front camera
   Future<void> _initializeCamera() async {
-    final cameras = await availableCameras();
-    final frontCamera = cameras.firstWhere(
-      (camera) => camera.lensDirection == CameraLensDirection.front,
-      orElse: () => cameras.first,
-    );
+    try {
+      final cameras = await availableCameras();
+      // Find the front camera
+      _cameraDescription = cameras.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.front,
+        orElse: () => cameras.first, // Fallback to the first camera if no front
+      );
 
-    _cameraController = CameraController(
-      frontCamera,
-      ResolutionPreset.high,
-      enableAudio: false,
-      imageFormatGroup: Platform.isAndroid
-          ? ImageFormatGroup.yuv420
-          : ImageFormatGroup.bgra8888,
-    );
+      _cameraController = CameraController(
+        _cameraDescription!,
+        ResolutionPreset.medium, // Medium resolution for balance
+        enableAudio: false, // Audio not needed
+        imageFormatGroup: Platform.isAndroid // Platform-specific format
+            ? ImageFormatGroup.yuv420 // Preferred on Android
+            : ImageFormatGroup.bgra8888, // Preferred on iOS
+      );
 
-    await _cameraController!.initialize();
-    _startFaceDetection();
-    if (mounted) setState(() {});
+      await _cameraController!.initialize();
+
+      // Check if the widget is still mounted after async initialization
+      if (!mounted) return;
+
+      _startFaceDetection(); // Start processing frames
+      setState(() {}); // Update UI to show preview
+    } catch (e) {
+      debugPrint("Error initializing camera: $e");
+      if (mounted) {
+        setState(() {
+          _instruction = "Error initializing camera. Please check permissions.";
+        });
+      }
+    }
   }
 
+  // Start streaming camera frames for face detection
   void _startFaceDetection() {
-    _cameraController!.startImageStream((CameraImage image) async {
-      if (_isDetecting) return;
-      _isDetecting = true;
+    if (_cameraController == null ||
+        !_cameraController!.value.isInitialized ||
+        _cameraDescription == null) {
+      debugPrint("Camera not ready for face detection stream.");
+      return;
+    }
 
+    _cameraController!.startImageStream((CameraImage image) async {
+      // Only prevent processing if widget is disposed
+      if (!mounted) return;
+
+      // Don't use _isDetecting flag for throttling anymore
       try {
+        // Prepare image bytes for ML Kit
         final WriteBuffer allBytes = WriteBuffer();
         for (var plane in image.planes) {
           allBytes.putUint8List(plane.bytes);
         }
         final bytes = allBytes.done().buffer.asUint8List();
 
-        final deviceOrientation = MediaQuery.of(context).orientation;
-        final rotation = deviceOrientation == Orientation.portrait
-            ? InputImageRotation.rotation270deg
-            : InputImageRotation.rotation180deg;
+        // Determine the correct image rotation for ML Kit
+        final rotation = _computeRotation(_cameraDescription!);
 
+        // Create InputImage for ML Kit
         final inputImage = InputImage.fromBytes(
           bytes: bytes,
           metadata: InputImageMetadata(
             size: Size(image.width.toDouble(), image.height.toDouble()),
             rotation: rotation,
-            format: Platform.isAndroid
-                ? InputImageFormat.yuv420
-                : InputImageFormat.bgra8888,
+            format: InputImageFormatValue.fromRawValue(image.format.raw) ??
+                (Platform.isAndroid
+                    ? InputImageFormat.yuv420
+                    : InputImageFormat.bgra8888),
             bytesPerRow: image.planes[0].bytesPerRow,
           ),
         );
 
-        await _processImage(inputImage);
+        // Process the image without waiting
+        _processImage(inputImage);
       } catch (e) {
-        debugPrint("Error detecting face: $e");
+        debugPrint("Error during image stream processing: $e");
       }
-
-      _isDetecting = false;
     });
   }
 
+  // Process the InputImage using ML Kit Face Detector
   Future<void> _processImage(InputImage inputImage) async {
-    // if (_isDetecting) return;
-    // _isDetecting = true;
+    if (!mounted) return;
 
     try {
       final List<Face> faces = await _faceDetector.processImage(inputImage);
       if (mounted) {
-        _processVerificationStep(faces);
+        // Update UI immediately when faces are detected
+        setState(() {
+          _processVerificationStep(faces);
+        });
       }
     } catch (e) {
-      debugPrint("Error processing image: $e");
-    } finally {
-      _isDetecting = false;
+      debugPrint("Error processing image with ML Kit: $e");
     }
   }
 
+  // Main logic for updating verification steps based on detected faces
   void _processVerificationStep(List<Face> faces) {
+    if (!mounted) return;
+
+    FacePositionStatus currentCalculatedStatus = FacePositionStatus.none;
+    String nextInstruction = _instruction;
+    Color nextBorderColor = _borderColor;
+    VerificationStep nextStep = _currentStep;
+
+    // --- Handle No Face Detected ---
     if (faces.isEmpty) {
-      setState(() {
-        _instruction =
-            "No face detected. Please center your face in the frame.";
-      });
-      return;
+      currentCalculatedStatus = FacePositionStatus.none;
+      nextInstruction =
+          "No face detected. Please position your face in the circle.";
+      nextBorderColor = Colors.red;
+      _holdStillTimer?.cancel();
+
+      // Always reset to centering step when face is lost
+      nextStep = VerificationStep.centerFace;
+      _blinkCount = 0;
+      debugPrint("❌ No face detected - resetting to center step");
+    }
+    // --- Handle Face Detected ---
+    else {
+      final Face face = faces.first;
+      currentCalculatedStatus = _getFacePositionStatus(face);
+      final double? headEulerY = face.headEulerAngleY;
+      final double? leftEyeOpen = face.leftEyeOpenProbability;
+      final double? rightEyeOpen = face.rightEyeOpenProbability;
+
+      // Debug logging
+      debugPrint("👤 Face Detection => Position: $currentCalculatedStatus");
+      debugPrint(
+          "👁 Eye States => Left: ${leftEyeOpen?.toStringAsFixed(2)}, Right: ${rightEyeOpen?.toStringAsFixed(2)}");
+      debugPrint("🔄 Head Angle => ${headEulerY?.toStringAsFixed(2)}°");
+
+      // Update border color based on face position
+      switch (currentCalculatedStatus) {
+        case FacePositionStatus.centered:
+          nextBorderColor = Colors.green;
+          break;
+        case FacePositionStatus.notCentered:
+        case FacePositionStatus.notSized:
+          nextBorderColor = Colors.yellow;
+          break;
+        case FacePositionStatus.none:
+          nextBorderColor = Colors.red;
+          break;
+      }
+
+      // Process verification steps
+      if (currentCalculatedStatus != FacePositionStatus.centered &&
+          _currentStep != VerificationStep.centerFace) {
+        // Return to centering step if face position is lost during any action
+        nextStep = VerificationStep.centerFace;
+        nextInstruction = "Please center your face again";
+        debugPrint("⚠️ Face position lost - returning to center step");
+      } else {
+        // Continue with normal step processing
+        // --- Process Verification Steps ---
+        switch (_currentStep) {
+          case VerificationStep.centerFace:
+            switch (currentCalculatedStatus) {
+              case FacePositionStatus.centered:
+                nextInstruction = "Perfect! Hold still...";
+                if (_holdStillTimer == null || !_holdStillTimer!.isActive) {
+                  _holdStillTimer =
+                      Timer(const Duration(milliseconds: 800), () {
+                    if (mounted &&
+                        _currentStep == VerificationStep.centerFace) {
+                      setState(() {
+                        _currentStep = VerificationStep.blink;
+                        _instruction = "Please blink naturally";
+                        _wasEyeOpen = true;
+                        _blinkCount = 0;
+                        _lastBlinkTime = null;
+                      });
+                    }
+                  });
+                }
+                break;
+              case FacePositionStatus.notSized:
+                nextInstruction = face.boundingBox.width /
+                            _cameraController!.value.previewSize!.width >
+                        0.7
+                    ? "Move your face further away"
+                    : "Move your face closer";
+                _holdStillTimer?.cancel();
+                break;
+              case FacePositionStatus.notCentered:
+                final Rect boundingBox = face.boundingBox;
+                final Size previewSize = _cameraController!.value.previewSize!;
+                final double faceCenterX = boundingBox.center.dx;
+                final double faceCenterY = boundingBox.center.dy;
+                final double imageCenterX = previewSize.width / 2.0;
+                final double imageCenterY = previewSize.height / 2.0;
+
+                String direction = "";
+                if ((faceCenterY - imageCenterY) < -previewSize.height * 0.1) {
+                  direction += "down";
+                } else if ((faceCenterY - imageCenterY) >
+                    previewSize.height * 0.1) {
+                  direction += "up";
+                }
+
+                if ((faceCenterX - imageCenterX) < -previewSize.width * 0.1) {
+                  direction += direction.isEmpty ? "right" : " and right";
+                } else if ((faceCenterX - imageCenterX) >
+                    previewSize.width * 0.1) {
+                  direction += direction.isEmpty ? "left" : " and left";
+                }
+
+                nextInstruction =
+                    "Move your face ${direction.isNotEmpty ? direction : 'to center'}";
+                _holdStillTimer?.cancel();
+                break;
+              case FacePositionStatus.none:
+                nextInstruction = "Position your face in the circle";
+                _holdStillTimer?.cancel();
+                break;
+            }
+            break;
+
+          case VerificationStep.turnLeft:
+            if (currentCalculatedStatus != FacePositionStatus.centered) {
+              nextInstruction = "Please center your face first";
+              nextStep = VerificationStep.centerFace;
+            } else {
+              // More sensitive head turn detection
+              debugPrint(
+                  "🔄 Turn Left Check => Angle: ${headEulerY?.toStringAsFixed(2) ?? 'null'}");
+              if (headEulerY != null) {
+                if (headEulerY < -15) {
+                  // Reduced threshold from -20 to -15
+                  debugPrint("✅ Left Turn Detected!");
+                  Future.delayed(const Duration(milliseconds: 800), () {
+                    if (mounted && _currentStep == VerificationStep.turnLeft) {
+                      setState(() {
+                        _currentStep = VerificationStep.turnRight;
+                        _instruction = _getInstructionForStep(_currentStep);
+                      });
+                    }
+                  });
+                } else {
+                  nextInstruction = "Slowly turn your head to the left";
+                }
+              }
+            }
+            break;
+
+          case VerificationStep.turnRight:
+            if (currentCalculatedStatus != FacePositionStatus.centered) {
+              nextInstruction = "Please center your face first";
+              nextStep = VerificationStep.centerFace;
+            } else {
+              // More sensitive head turn detection
+              debugPrint(
+                  "🔄 Turn Right Check => Angle: ${headEulerY?.toStringAsFixed(2) ?? 'null'}");
+              if (headEulerY != null) {
+                if (headEulerY > 15) {
+                  // Reduced threshold from 20 to 15
+                  debugPrint("✅ Right Turn Detected!");
+                  Future.delayed(const Duration(milliseconds: 800), () {
+                    if (mounted && _currentStep == VerificationStep.turnRight) {
+                      setState(() {
+                        _currentStep = VerificationStep.completed;
+                        _instruction = _getInstructionForStep(_currentStep);
+                        _borderColor = Colors.green;
+                      });
+                    }
+                  });
+                } else {
+                  nextInstruction = "Slowly turn your head to the right";
+                }
+              }
+            }
+            break;
+
+          case VerificationStep.blink:
+            if (currentCalculatedStatus == FacePositionStatus.centered) {
+              // More lenient blink detection with adjusted thresholds
+              bool isLeftEyeClosed = (leftEyeOpen ?? 1.0) < 0.2;
+              bool isRightEyeClosed = (rightEyeOpen ?? 1.0) < 0.2;
+              bool isBlinking = isLeftEyeClosed || isRightEyeClosed;
+
+              // Debug logging for eye states
+              debugPrint(
+                  "👁 Raw Eye Values => Left: ${leftEyeOpen?.toStringAsFixed(3)}, Right: ${rightEyeOpen?.toStringAsFixed(3)}");
+              debugPrint(
+                  "👁 Blink Status => Left Closed: $isLeftEyeClosed, Right Closed: $isRightEyeClosed, Was Open: $_wasEyeOpen");
+
+              // Only proceed with blink detection if eyes were previously open
+              if (_wasEyeOpen && isBlinking) {
+                debugPrint("🎯 Potential Blink Detected!");
+                if (_lastBlinkTime == null ||
+                    DateTime.now().difference(_lastBlinkTime!).inMilliseconds >
+                        1000) {
+                  _blinkCount++;
+                  _lastBlinkTime = DateTime.now();
+                  nextInstruction =
+                      "Blink detected! ${_blinkCount == 1 ? 'Great job!' : 'Please wait...'}";
+                  debugPrint("✅ Valid Blink Registered! Count: $_blinkCount");
+
+                  if (_blinkCount >= 1) {
+                    debugPrint(
+                        "🎉 Blink requirement met, preparing to transition...");
+                    Future.delayed(const Duration(milliseconds: 1500), () {
+                      if (mounted && _currentStep == VerificationStep.blink) {
+                        setState(() {
+                          _currentStep = VerificationStep.turnLeft;
+                          _instruction = _getInstructionForStep(_currentStep);
+                          _blinkCount = 0;
+                        });
+                      }
+                    });
+                  }
+                } else {
+                  debugPrint("⏳ Blink ignored - too soon after previous blink");
+                  nextInstruction =
+                      "Please wait a moment before blinking again...";
+                }
+              } else if (!isBlinking) {
+                nextInstruction =
+                    "Please blink naturally - just close and open your eyes";
+              }
+              _wasEyeOpen = !isBlinking;
+            }
+            break;
+
+          default:
+            break;
+        }
+      }
     }
 
-    final Face face = faces.first;
-    final double? leftEyeOpen = face.leftEyeOpenProbability;
-    final double? rightEyeOpen = face.rightEyeOpenProbability;
-    final double? headEulerY = face.headEulerAngleY;
+    // Always update state to ensure responsive UI
+    setState(() {
+      _facePositionStatus = currentCalculatedStatus;
+      _instruction = nextInstruction;
+      _borderColor = nextBorderColor;
+      _currentStep = nextStep;
 
-    switch (_currentStep) {
+      // Speak the instruction if it changed - immediately speak new instructions
+      if (_previousInstruction != nextInstruction) {
+        _speakInstruction(nextInstruction);
+        _previousInstruction = nextInstruction;
+      }
+    });
+  }
+
+  // Helper function to determine face position status based on ML Kit Face object
+  FacePositionStatus _getFacePositionStatus(Face face) {
+    if (_cameraController == null ||
+        !_cameraController!.value.isInitialized ||
+        _cameraController!.value.previewSize == null ||
+        _cameraDescription == null) {
+      return FacePositionStatus.none; // Not ready
+    }
+
+    final Rect boundingBox = face.boundingBox;
+    final Size previewSize = _cameraController!.value.previewSize!;
+
+    // Determine the logical image size based on sensor orientation relative to preview
+    final bool isRotated = (_cameraDescription!.sensorOrientation == 90 ||
+        _cameraDescription!.sensorOrientation == 270);
+    final Size imageSize = isRotated
+        ? Size(previewSize.height, previewSize.width) // Swapped dimensions
+        : Size(previewSize.width, previewSize.height); // Natural dimensions
+
+    // --- Centering Calculation ---
+    final double faceCenterX = boundingBox.center.dx;
+    final double faceCenterY = boundingBox.center.dy;
+    final double imageCenterX = imageSize.width / 2.0;
+    final double imageCenterY = imageSize.height / 2.0;
+
+    // More lenient tolerance for centering
+    final double toleranceX =
+        imageSize.width * 0.25; // Increased from 0.12 to 0.25
+    final double toleranceY =
+        imageSize.height * 0.25; // Increased from 0.18 to 0.25
+
+    final bool isCentered = (faceCenterX - imageCenterX).abs() <= toleranceX &&
+        (faceCenterY - imageCenterY).abs() <= toleranceY;
+
+    // --- Sizing Calculation ---
+    final double faceWidthRatio = boundingBox.width / imageSize.width;
+    final double faceHeightRatio = boundingBox.height / imageSize.height;
+
+    // More lenient size range
+    const double minSizeRatio = 0.20; // Decreased from 0.30 to 0.20
+    const double maxSizeRatio = 0.80; // Increased from 0.70 to 0.80
+
+    final bool isSizedCorrectly = faceWidthRatio >= minSizeRatio &&
+        faceWidthRatio <= maxSizeRatio &&
+        faceHeightRatio >= minSizeRatio &&
+        faceHeightRatio <= maxSizeRatio;
+
+    // Debug logging for face position
+    debugPrint('📏 Face Position => '
+        'Center Offset: (X: ${(faceCenterX - imageCenterX).abs().toStringAsFixed(1)}, '
+        'Y: ${(faceCenterY - imageCenterY).abs().toStringAsFixed(1)}), '
+        'Size Ratio: (W: ${faceWidthRatio.toStringAsFixed(2)}, H: ${faceHeightRatio.toStringAsFixed(2)})');
+    debugPrint(
+        '✅ Position Check => Centered: $isCentered, Sized: $isSizedCorrectly');
+
+    // Determine final status
+    if (!isCentered) {
+      return FacePositionStatus.notCentered;
+    } else if (!isSizedCorrectly) {
+      return FacePositionStatus.notSized;
+    } else {
+      return FacePositionStatus.centered;
+    }
+  }
+
+  // Helper to get instruction text based on the current step
+  String _getInstructionForStep(VerificationStep step) {
+    String instruction;
+
+    switch (step) {
       case VerificationStep.centerFace:
-        if (_isFaceCentered(face)) {
-          setState(() {
-            _currentStep = VerificationStep.blink;
-            _updateInstruction();
-          });
-        }
+        instruction =
+            "Align your head within the circle. The border will turn green when centered.";
         break;
-
       case VerificationStep.blink:
-        bool isEyeOpen =
-            (leftEyeOpen ?? 1.0) > 0.8 && (rightEyeOpen ?? 1.0) > 0.8;
-        if (_wasEyeOpen && !isEyeOpen) {
-          setState(() {
-            _blinkCount++;
-            _updateInstruction();
-          });
-          if (_blinkCount >= 3) {
-            setState(() {
-              _currentStep = VerificationStep.turnLeft;
-              _updateInstruction();
-            });
-          }
-        }
-        _wasEyeOpen = isEyeOpen;
+        instruction = "Please blink your eyes once";
         break;
-
       case VerificationStep.turnLeft:
-        if (headEulerY != null && headEulerY < -30) {
-          setState(() {
-            _currentStep = VerificationStep.turnRight;
-            _updateInstruction();
-          });
-        }
+        instruction = "Slowly turn head left";
         break;
-
       case VerificationStep.turnRight:
-        if (headEulerY != null && headEulerY > 30) {
-          setState(() {
-            _currentStep = VerificationStep.completed;
-            _updateInstruction();
-          });
-        }
+        instruction = "Slowly turn head right";
         break;
-
       case VerificationStep.completed:
-        // Handle completion
+        instruction = "Verification Complete!";
         break;
     }
-  }
 
- 
-  Future<void> _restartCamera() async {
-    await _cameraController?.dispose();
-    _initializeCamera();
-  }
+    // When step changes, immediately speak the new instruction and cancel any ongoing speech
+    if (_previousInstruction != instruction) {
+      // Use a post-frame callback to ensure UI is updated first
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _speakInstruction(instruction);
+          _previousInstruction = instruction;
+        }
+      });
+    }
 
-  @override
-  void dispose() {
-    _cameraController?.dispose();
-    _faceDetector.close();
-    super.dispose();
+    return instruction;
   }
 
   @override
   Widget build(BuildContext context) {
-    final verificationState = ref.watch(verficationVideoProvider);
-
+    // Listen to the verification provider state for success/error feedback
     ref.listen<VerificationState>(verficationVideoProvider, (prev, current) {
       if (current.isSuccess) {
-         Navigator.pop(context);
-        Navigator.pushNamedAndRemoveUntil(
-            context, AppRoutes.dashboardPage, (route) => true);
+        if (mounted) {
+          // Optional: Show success feedback briefly before navigating
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text("Verification Submitted Successfully!"),
+                duration: Duration(seconds: 2)),
+          );
+          // Navigate to dashboard after successful submission
+          Navigator.pop(context); // Pop current screen
+          Navigator.pushNamedAndRemoveUntil(
+              context, AppRoutes.dashboardPage, (route) => false);
+        }
+      } else if (current.isError) {
+        // Show error message from the provider
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    current.errorMessage ?? 'Verification submission failed')),
+          );
+          // Optionally reset the UI or allow retry
+          // setState(() { _currentStep = VerificationStep.centerFace; ... });
+        }
       }
     });
+    final verificationState = ref.watch(verficationVideoProvider);
 
+    // --- Build UI ---
+
+    // Loading state while camera initializes
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: Colors.white,
         body: Center(
-          child: CircularProgressIndicator.adaptive(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator.adaptive(),
+              const SizedBox(height: 16),
+              Text(_instruction), // Show initial or error instruction
+            ],
+          ),
         ),
       );
     }
 
     final size = MediaQuery.of(context).size;
+    // Make the circle container slightly larger
     final containerSize = size.width * 0.85;
 
+    // Calculate scale for CameraPreview to fill the circle area correctly
+    final cameraPreview = _cameraController!.value.previewSize!;
+    final screenAspectRatio = size.width / size.height;
+    final previewAspectRatio = cameraPreview.height /
+        cameraPreview.width; // Use height/width for portrait camera feed
+    final scale = 1 /
+        (previewAspectRatio *
+            (containerSize / containerSize)); // Scale to fit circle
+
     return BaseScreen(
-      bgImage: Assets.images.bg2.path,
-      appBarEnabled: false,
-      Header: 'Face Verification',
-      authFlow: true,
+      bgImage: Assets.images.bg2.path, // Use your background
+      appBarEnabled: false, // No standard app bar
+      Header:
+          'Face Verification', // Custom header text if BaseScreen supports it
+      authFlow: true, // Assuming BaseScreen uses this
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Camera Preview Container
+          // --- Camera Preview Centered in Circle ---
           Center(
             child: Container(
               width: containerSize,
@@ -255,22 +755,32 @@ class _FaceVerificationScreenState extends ConsumerState<FaceVerificationScreen>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: _currentStep == VerificationStep.completed
-                      ? AppColors.metalPinkColour
-                      : Colors.grey[300]!,
-                  width: 8,
+                  color: _borderColor, // Dynamic border color
+                  width: 6, // Border width
                 ),
+                boxShadow: [
+                  // Subtle shadow for depth
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  )
+                ],
               ),
+              // Clip the preview to the circle
               child: ClipOval(
-                child: Transform.scale(
-                  scale: 2.0,
-                  child: AspectRatio(
-                    aspectRatio: 1.0,
-                    child: Center(
-                      child: AspectRatio(
-                        aspectRatio: 9 / 16,
-                        child: CameraPreview(_cameraController!),
-                      ),
+                child: OverflowBox(
+                  // Allow preview to be larger than the container
+                  alignment: Alignment.center,
+                  child: FittedBox(
+                    // Fit the preview within the OverflowBox
+                    fit:
+                        BoxFit.cover, // Cover ensures filling, might crop edges
+                    child: SizedBox(
+                      width: containerSize, // Match container width
+                      height: containerSize /
+                          previewAspectRatio, // Calculate height based on aspect ratio
+                      child: CameraPreview(_cameraController!),
                     ),
                   ),
                 ),
@@ -278,29 +788,25 @@ class _FaceVerificationScreenState extends ConsumerState<FaceVerificationScreen>
             ),
           ),
 
-          // Bottom Instructions Panel
+          // --- Top Instructions Panel ---
           Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: (_currentStep == VerificationStep.completed)
-                  ? BaseButton(
-                      loading: verificationState.isLoading,
-                      buttonText: "Verification Complete",
-                      onPressed: () {
-                        ref
-                            .read(verficationVideoProvider.notifier)
-                            .verificationMe();
-                      })
-                  : Container()),
-          // Bottom Instructions Panel
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
+            left: 16,
+            right: 16,
+            top: 30, // Positioned from the top
             child: Container(
-              padding: const EdgeInsets.all(24),
-              color: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                color:
+                    Colors.white.withOpacity(0.92), // High opacity background
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  )
+                ],
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -308,124 +814,88 @@ class _FaceVerificationScreenState extends ConsumerState<FaceVerificationScreen>
                   TextView(
                     text: _instruction,
                     textAlign: TextAlign.center,
+                    fontSize: 18, // Increased font size
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                    maxLines: 2, // Allow two lines
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
 
-                  // Step Indicator
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: VerificationStep.values.map((step) {
-                      return Container(
-                        width: 8,
-                        height: 8,
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _currentStep.index >= step.index
-                              ? AppColors.metalPinkColour
-                              : Colors.grey[300],
-                        ),
-                      );
-                    }).toList(),
+                  // Add instruction replay button
+                  IconButton(
+                    icon: Icon(
+                      Icons.volume_up,
+                      color: AppColors.metalPinkColour,
+                      size: 24,
+                    ),
+                    onPressed: () => _speakInstruction(_instruction),
+                    tooltip: 'Repeat instructions',
                   ),
+
+                  // Step Indicator (Dots) - Only shown after centering step
+                  if (_currentStep != VerificationStep.centerFace)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: VerificationStep.values
+                          .where((step) =>
+                              step !=
+                              VerificationStep.centerFace) // Exclude centering
+                          .map((step) {
+                        // Calculate index relative to action steps (blink=0, left=1, right=2)
+                        int actionStepIndex = step.index - 1;
+                        int currentActionStepIndex = _currentStep.index - 1;
+
+                        // Determine dot color based on progress
+                        Color dotColor = Colors.grey[300]!;
+                        if (currentActionStepIndex >= actionStepIndex) {
+                          dotColor = AppColors
+                              .metalPinkColour; // Active/Completed color
+                        }
+
+                        return Container(
+                          width: 10, // Dot size
+                          height: 10,
+                          margin: const EdgeInsets.symmetric(horizontal: 6),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: dotColor,
+                          ),
+                        );
+                      }).toList(),
+                    )
+                  else
+                    // Maintain space even when dots are hidden
+                    const SizedBox(height: 10 + 12), // Height of dot + margin
                 ],
               ),
             ),
+          ),
+
+          // --- Bottom Completion Button ---
+          Positioned(
+            left: 20,
+            right: 20,
+            bottom: 40, // Position from bottom
+            child: (_currentStep == VerificationStep.completed)
+                ? BaseButton(
+                    // Show loading state from provider
+                    loading: verificationState.isLoading,
+                    buttonText: "Complete Verification",
+                    // Disable button while loading
+                    onPressed: verificationState.isLoading
+                        ? null
+                        : () {
+                            ref
+                                .read(verficationVideoProvider.notifier)
+                                .verificationMe();
+                          },
+                  )
+                : Container(), // Empty container when not completed
           ),
         ],
       ),
     );
   }
-
-  double _getCameraPreviewScale() {
-    if (_cameraController == null) return 1.0;
-
-    final size = MediaQuery.of(context).size;
-    final screenAspectRatio = size.width / size.width; // We want a square
-    final cameraAspectRatio = _cameraController!.value.aspectRatio;
-
-    // We want to fill the height of our square container
-    return screenAspectRatio / cameraAspectRatio;
-  }
-
-  double _getProgressValue() {
-    switch (_currentStep) {
-      case VerificationStep.centerFace:
-        return 0.2;
-      case VerificationStep.blink:
-        return 0.4 + (_blinkCount / 3) * 0.2;
-      case VerificationStep.turnLeft:
-        return 0.6;
-      case VerificationStep.turnRight:
-        return 0.8;
-      case VerificationStep.completed:
-        return 1.0;
-    }
-  }
-
-  bool _isFaceCentered(Face face) {
-    if (_cameraController == null ||
-        _cameraController!.value.previewSize == null) {
-      return false;
-    }
-
-    final Rect boundingBox = face.boundingBox;
-    final Size imageSize = Size(_cameraController!.value.previewSize!.height,
-        _cameraController!.value.previewSize!.width);
-
-    // Calculate the center point of the face
-    final double faceCenterX = boundingBox.center.dx;
-    final double faceCenterY = boundingBox.center.dy;
-
-    // Calculate the center point of the image
-    final double imageCenterX = imageSize.width / 2;
-    final double imageCenterY = imageSize.height / 2;
-
-    // Calculate the distance from the face center to image center
-    final double distanceX = (faceCenterX - imageCenterX).abs();
-    final double distanceY = (faceCenterY - imageCenterY).abs();
-
-    // Increase tolerance to 20% of image dimensions for easier centering
-    final double toleranceX = imageSize.width * 0.2;
-    final double toleranceY = imageSize.height * 0.2;
-
-    // Add debug logging
-    debugPrint('Face center: ($faceCenterX, $faceCenterY)');
-    debugPrint('Image center: ($imageCenterX, $imageCenterY)');
-    debugPrint('Distance: ($distanceX, $distanceY)');
-    debugPrint('Tolerance: ($toleranceX, $toleranceY)');
-
-    // Check if face is within tolerance AND has sufficient size
-    final bool isCentered = distanceX <= toleranceX && distanceY <= toleranceY;
-    final bool isLargeEnough = boundingBox.width >
-        imageSize.width * 0.3; // Face should occupy at least 30% of width
-
-    return isCentered && isLargeEnough;
-  }
-
-  void _updateInstruction() {
-    setState(() {
-      _instruction = _getInstructionForStep(_currentStep);
-    });
-  }
-
-  String _getInstructionForStep(VerificationStep step) {
-    switch (step) {
-      case VerificationStep.centerFace:
-        return "Center your face in the frame";
-      case VerificationStep.blink:
-        return "Blink your eyes";
-      case VerificationStep.turnLeft:
-        return "Turn left";
-      case VerificationStep.turnRight:
-        return "Turn right";
-      case VerificationStep.completed:
-        return "Verification complete!";
-    }
-  }
-
-  // ... Keep all the existing camera and face detection logic ...
-  // (Copy all the remaining methods from your existing code)
 }
 
 class CrosshairPainter extends CustomPainter {

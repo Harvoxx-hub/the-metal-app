@@ -25,10 +25,12 @@ class SparkHistoryItem extends StatelessWidget {
 
   /// Helper to get the image path based on Spark type
   String _getImagePath() {
-    if (sparkModel.type == 'Sent' && isSender)
+    if (sparkModel.type == 'Sent' && isSender) {
       return Assets.icons.sendSparks.path;
-    if (sparkModel.type == 'Sent' && isReceiver)
+    }
+    if (sparkModel.type == 'Sent' && isReceiver) {
       return Assets.icons.buySparks.path;
+    }
 
     switch (sparkModel.type) {
       case 'Purchase':
@@ -44,10 +46,12 @@ class SparkHistoryItem extends StatelessWidget {
 
   /// Helper to get the main text that explains the spark activity
   String _getMainText() {
-    if (sparkModel.type == 'Sent' && isSender)
+    if (sparkModel.type == 'Sent' && isSender) {
       return "You sent ${sparkModel.sparks} sparks";
-    if (sparkModel.type == 'Sent' && isReceiver)
+    }
+    if (sparkModel.type == 'Sent' && isReceiver) {
       return "You received ${sparkModel.sparks} sparks";
+    }
 
     switch (sparkModel.type) {
       case 'Purchase':
@@ -63,16 +67,18 @@ class SparkHistoryItem extends StatelessWidget {
 
   /// Helper to get the subtext providing additional details about the spark activity
   String _getSubText() {
-    if (sparkModel.type == 'Sent' && isSender)
+    if (sparkModel.type == 'Sent' && isSender) {
       return "Sent to @${sparkModel.receiverName ?? 'User'}";
-    if (sparkModel.type == 'Sent' && isReceiver)
+    }
+    if (sparkModel.type == 'Sent' && isReceiver) {
       return "Received from @${sparkModel.senderName ?? 'User'}";
+    }
 
     switch (sparkModel.type) {
       case 'Purchase':
         return "Purchased for \$${sparkModel.amount ?? '0.00'}";
       case 'Referred':
-        return "User @${sparkModel.referredName ?? 'Unknown'} used your code";
+        return "New User used your code";
       case 'ReferralBonus':
         return "You used @${sparkModel.referrerName ?? 'Unknown'}'s code";
       default:

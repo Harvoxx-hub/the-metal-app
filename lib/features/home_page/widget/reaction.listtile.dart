@@ -29,9 +29,11 @@ class ReactionListTile extends ConsumerWidget {
 
     return creatorUserdata.isLoading
         ? CircularProgressIndicator.adaptive()
-        : ListTile(
-            title: TextView(text: creatorUserdata.data!.username!),
-            onTap: () {
+        : creatorUserdata.data! == null
+            ? const SizedBox.shrink()
+            : ListTile(
+                title: TextView(text: creatorUserdata.data!.username!),
+                onTap: () {
               if (reactionModel.userId != ref.watch(authProvider).data!.id) {
                 Navigator.pushNamed(
                   context,

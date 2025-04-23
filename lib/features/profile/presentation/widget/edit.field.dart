@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.address.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
@@ -9,7 +11,7 @@ import 'package:metal/widgets/text_views.dart';
 
 enum EditType { text, dropdown }
 
-class EditField extends StatefulWidget {
+class EditField extends ConsumerStatefulWidget {
   const EditField(
       {super.key,
       required this.text,
@@ -21,7 +23,8 @@ class EditField extends StatefulWidget {
       this.dropDownItems,
       this.editType = EditType.text,
       this.onTap,
-      this.outboundWidget = false});
+      this.outboundWidget = false,
+      this.isAddressField = false});
 
   final String text;
   final String? floatingLabel;
@@ -32,13 +35,14 @@ class EditField extends StatefulWidget {
   final EditType editType;
   final Function(dynamic)? onSubLabel;
   final Function()? onTap;
-  final outboundWidget;
+  final bool outboundWidget;
+  final bool isAddressField;
 
   @override
-  State<EditField> createState() => _EditFieldState();
+  ConsumerState<EditField> createState() => _EditFieldState();
 }
 
-class _EditFieldState extends State<EditField> {
+class _EditFieldState extends ConsumerState<EditField> {
   late TextEditingController _controller;
   late String _selectedItem;
   bool _onEdit = false;
@@ -72,29 +76,20 @@ class _EditFieldState extends State<EditField> {
               fontWeight: FontWeight.w400,
               color: Colors.blueAccent,
               underline: true,
-              onTap: widget.outboundWidget
+              onTap: widget.outboundWidget && widget.isAddressField
                   ? () {
+                      final currentAddress =
+                          ref.read(authProvider).data?.address;
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return FutureBuilder(
-                            future: Future.delayed(
-                                Duration.zero), // Deferring the execution
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.done) {
-                                return CustomDialog(
-                                  content: EditAddress(
-                                    onPress: (p0) {
-                                      widget.onSubLabel?.call(p0);
-                                    },
-                                  ),
-                                );
-                              } else {
-                                // Return a placeholder widget while waiting
-                                return const CircularProgressIndicator(); // Or any other placeholder
-                              }
-                            },
+                          return CustomDialog(
+                            content: EditAddress(
+                              initialAddress: currentAddress,
+                              onPress: (newAddress) {
+                                widget.onSubLabel?.call(newAddress);
+                              },
+                            ),
                           );
                         },
                       );

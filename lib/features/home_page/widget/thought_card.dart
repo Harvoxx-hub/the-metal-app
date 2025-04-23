@@ -55,7 +55,9 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     creatorUserdata = ref.watch(getUserProvider(thoughtModel.userId)).data;
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: _buildThoughtCard(context),
+      child: creatorUserdata == null
+          ? const SizedBox.shrink()
+          : _buildThoughtCard(context),
     );
   }
 

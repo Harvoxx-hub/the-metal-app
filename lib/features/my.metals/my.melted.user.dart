@@ -4,11 +4,13 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/core/utils/connection_helper.dart';
 import 'package:metal/core/utils/constant/enums.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
+import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
@@ -59,16 +61,22 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
     final meltState = ref.watch(meltUserProvider);
 
     ref.listen<CheckMeltState>(
-        checkMeltProvider(widget.metalDetials["metalId"]), (prev, current) {
+        checkMeltProvider(widget.metalDetials["metalId"]), (prev, current) async {
       if (current.isSuccess) {
-        // Handle mutual melt case
-        if (meltState.isSuccess && current.data == MeltRequestState.mutual) {
-          Navigator.pushNamed(
+        //check from connection helper if the users are connected or mutual
+        final connectionStatus = await ConnectionHelper(
+          ref.read(homeRepositoryProvider),
+        ).getConnectionStatus(userData!.id!, widget.metalDetials["metalId"]);
+     
+     if(connectionStatus){
+      Navigator.pushNamed(
             context,
             AppRoutes.meltMetal,
             arguments: widget.metalDetials["metalId"],
           );
-        }
+     }
+         
+      
       }
     });
 
@@ -136,8 +144,8 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                   ),
                                   const Gap(5),
                                   TextView(
-                                    text: myMelt.data?.address != null
-                                        ? "${myMelt.data!.address?.state ?? ""} ${myMelt.data!.address?.country ?? ""}"
+                                    text: myMelt.data?.location != null
+                                        ? "${myMelt.data!.location?.address}"
                                         : "No Address Found",
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -168,7 +176,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                   connectionModel:
                                       connection?.connectionId ?? '',
                                   melted: checkMeltState.data ==
-                                      MeltRequestState.mutual,
+                                      MeltRequestState.connected,
                                   userModel: myMelt.data ?? UserModel(),
                                 ),
                                 title: 'Metal Details ',
@@ -225,9 +233,10 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
         onPressed: () {},
         fontSize: 15,
         color: AppColors.metalPinkColour40,
-        buttonText: "Melt Requested",
+        buttonText: "Melt",
       );
-    } else if (checkMeltState.data == MeltRequestState.mutual) {
+    } else if ( 
+        checkMeltState.data == MeltRequestState.connected) {
       return Row(
         children: [
           Expanded(

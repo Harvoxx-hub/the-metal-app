@@ -110,8 +110,14 @@ class MeltNotificationItem extends BaseNotificationItem {
       BuildContext context, NotificationModel notificationModel) {
     switch (notificationModel.type) {
       case NotificationType.new_connection:
-        final metalId =
-            MetalHelper.getOtherUserId(notificationModel.recipientIds);
+        // Use either connection ID or user ID, whichever is available
+        final connectionId = notificationModel.data["connectionId"];
+        final metalId = connectionId != null
+            ? notificationModel
+                .data["otherUserId"] // Use other user ID from data
+            : MetalHelper.getOtherUserId(
+                notificationModel.recipientIds); // Fallback to old method
+
         _navigateTo(context, AppRoutes.meltMetal, metalId);
         break;
       case NotificationType.new_message:

@@ -75,10 +75,10 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           ],
           editType: EditType.dropdown,
           onSubLabel: (value) {
-           final updated = {
-            'gender': value,
-          };
-          updateUser(updated);
+            final updated = {
+              'gender': value,
+            };
+            updateUser(updated);
           },
         ),
         const Gap(20),
@@ -98,10 +98,10 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                   (metal) => metal.title == value,
                 );
                 // Assign the selected metal object to the UserModel
-    final updated = {
-              'metal': selectedMetal.id,
-            };
-            updateUser(updated);
+                final updated = {
+                  'metal': selectedMetal.id,
+                };
+                updateUser(updated);
               }
             }
           },
@@ -137,7 +137,6 @@ class _EditProfileState extends ConsumerState<EditProfile> {
               }
             };
             updateUser(updated);
-          
           },
         ),
         const Gap(20),
@@ -148,13 +147,13 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           dropDownItems: metalProperties.religion,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-         final updated = {
-            'extraData': {
-              ...userState!.extraData!.toJson(),
-              'religion': p0,
-            }
-          };
-          updateUser(updated);
+            final updated = {
+              'extraData': {
+                ...userState!.extraData!.toJson(),
+                'religion': p0,
+              }
+            };
+            updateUser(updated);
           },
         ),
         const Gap(20),
@@ -164,11 +163,14 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           subLabel: "Edit",
           editType: EditType.text,
           outboundWidget: true,
-          onSubLabel: (p0) {
-          final updated = {
-            'address': p0,
-          };
-          updateUser(updated);
+          isAddressField: true,
+          onSubLabel: (newAddress) {
+            if (newAddress is Address) {
+              final updated = {
+                'address': newAddress.toJson(),
+              };
+              updateUser(updated);
+            }
           },
         ),
         const Gap(20),

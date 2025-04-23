@@ -149,13 +149,23 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
     final daysRequired = ref.watch(numberDaysProvider);
     final uniqueDailyConversations =
         connectionModel.data?.uniqueDailyConversationsCount ?? 0;
-    final hasProfilePhoto = currentUser?.profilePhoto != null &&
-        currentUser!.profilePhoto!.isNotEmpty;
-    final otherUserHasPhoto = widget.userModel.profilePhoto != null &&
-        widget.userModel.profilePhoto!.isNotEmpty;
 
-    // Check if both users have profile photos
-    if (!hasProfilePhoto || !otherUserHasPhoto) {
+    // Force refresh user data to get the latest profile photo
+    ref.read(authProvider.notifier).getUpdatedUser();
+
+    // Improved check for profile photo existence
+    final hasProfilePhoto = currentUser?.profilePhoto != null &&
+        currentUser!.profilePhoto!.isNotEmpty &&
+        currentUser.profilePhoto!.trim().isNotEmpty;
+    final otherUserHasPhoto = widget.userModel.profilePhoto != null &&
+        widget.userModel.profilePhoto!.isNotEmpty &&
+        widget.userModel.profilePhoto!.trim().isNotEmpty;
+
+    final missingYourPhoto = !hasProfilePhoto;
+    final missingOtherPhoto = !otherUserHasPhoto;
+
+    // Only block proceeding if the current user is missing a photo
+    if (missingYourPhoto) {
       return Column(
         children: [
           const Gap(38),
@@ -165,7 +175,7 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
             fontWeight: FontWeight.w700,
           ),
           const Gap(15),
-          TextView(
+          const TextView(
             text:
                 "Wait a minute, we are missing your photo! To unmetal means that the two profiles can view each others photos",
             fontSize: 16,
@@ -173,7 +183,7 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
             fontWeight: FontWeight.w400,
           ),
           const Gap(15),
-          TextView(
+          const TextView(
             text: "To continue",
             fontSize: 16,
             textAlign: TextAlign.center,
@@ -186,6 +196,60 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
               Navigator.pop(context);
               Navigator.pushNamed(context, AppRoutes.createProfilePage);
             },
+          ),
+          const Gap(23),
+        ],
+      );
+    }
+
+    // Warn about the other user's missing photo but allow proceeding
+    if (missingOtherPhoto) {
+      return Column(
+        children: [
+          const Gap(38),
+          const TextView(
+            text: "Want to Unmetal?",
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+          const Gap(15),
+          const TextView(
+            text:
+                "The other user doesn't have a profile photo yet. They will be asked to upload one when accepting your request.",
+            fontSize: 16,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.w400,
+          ),
+          const Gap(15),
+          TextView(
+            text:
+                "Do you still want to send an unmetal request to @${widget.userModel.username}?",
+            fontSize: 16,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.w400,
+          ),
+          const Gap(38),
+          Row(
+            children: [
+              Expanded(
+                child: BaseButton(
+                  buttonText: "Cancel",
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              const Gap(10),
+              Expanded(
+                child: BaseButton(
+                  buttonText: "Send Request",
+                  onPressed: () {
+                    Navigator.pop(context);
+                    sendUnmelt();
+                  },
+                ),
+              ),
+            ],
           ),
           const Gap(23),
         ],

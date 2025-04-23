@@ -9,12 +9,10 @@ import 'package:metal/features/verification/face_verification_screen.dart';
 
 import 'package:metal/features/home_page/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
-import 'package:metal/features/onboarding/metal_plus_view.dart';
-
+ 
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
 import 'package:metal/features/onboarding/tutorial_pages/tutorial_screen.dart';
-import 'package:metal/features/onboarding/sparks_info_switch_view.dart';
-import 'package:metal/features/onboarding/unmetal_view.dart';
+ 
 import 'package:metal/features/settings/presentation/delete.screen.dart';
 import 'package:metal/features/settings/presentation/edit.page.dart';
 import 'package:metal/features/splash/splash.screen.dart';
@@ -182,12 +180,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const SplashPage());
       case onboarding:
         return MaterialPageRoute(builder: (_) => const OnboardingPageView());
-      case unmetalView:
-        return MaterialPageRoute(builder: (_) => const UnmetalView());
-      case metalPlusView:
-        return MaterialPageRoute(builder: (_) => const MetalPlusView());
-      case sparkInfoSwitchView:
-        return MaterialPageRoute(builder: (_) => const SparksInfoSwitchView());
+       
       case onboardingTutorialView:
         return MaterialPageRoute(builder: (_) => const OnboardingFlowView());
       case login:

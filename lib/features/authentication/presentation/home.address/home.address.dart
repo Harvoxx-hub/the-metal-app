@@ -120,7 +120,11 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       keyboardType: TextInputType.number,
                       validator: Validators.validateInt(),
                       hintIcon: IconButton(
-                        icon: const Icon(Icons.info_outline, size: 20),
+                        icon: const Icon(
+                          Icons.info_outline,
+                          size: 20,
+                          color: AppColors.metalPinkColour,
+                        ),
                         onPressed: () {
                           showDialog(
                             context: context,
@@ -191,7 +195,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                       floatingLabel: AppStrings.postalCode,
                       label: AppStrings.enterPostalCode,
                       controller: _postalCodeController,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.text,
                       validator: Validators.validateString(),
                       suffixWidget: CustomCheckWidget(
                         initialValue: false,

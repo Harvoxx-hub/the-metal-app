@@ -102,7 +102,15 @@ class HomeRepository implements IHomeRepository {
   @override
   Future<Responses> meltUser(MeltRequestModel melt) async {
     try {
-      // 1. Check if the requester has already sent a melt request
+      // 1. Check if users are already connected
+      if (await _hasExistingConnection(melt.requesterId, melt.recipientId)) {
+        return Responses(
+          success: false,
+          message: "You are already connected with this user.",
+        );
+      }
+
+      // 2. Check if the requester has already sent a melt request
       if (await _hasExistingRequest(melt.requesterId, melt.recipientId)) {
         return Responses(
           success: false,
@@ -124,6 +132,7 @@ class HomeRepository implements IHomeRepository {
     }
   }
 
+  /// Check if a melt request already exists between two users
   Future<bool> _hasExistingRequest(
       String requesterId, String recipientId) async {
     final snapshot = await _firebaseService.firestore
@@ -135,6 +144,32 @@ class HomeRepository implements IHomeRepository {
     return snapshot.docs.isNotEmpty;
   }
 
+  /// Check if a connection already exists between two users
+  Future<bool> _hasExistingConnection(String user1Id, String user2Id) async {
+    final connection = await getConnectionBetweenUsers(user1Id, user2Id);
+    return connection != null;
+  }
+
+  /// Retrieve the connection between two specific users, if it exists
+  Future<ConnectionModel?> getConnectionBetweenUsers(
+      String user1Id, String user2Id) async {
+    final querySnapshot = await _firebaseService.firestore
+        .collection(FirebaseFirestoreCollectionKeys.connections)
+        .where('users', arrayContains: user1Id)
+        .get();
+
+    for (var doc in querySnapshot.docs) {
+      final data = doc.data();
+      List<String> users = List<String>.from(data['users']);
+      if (users.contains(user2Id)) {
+        // Add ID to the data
+        data['connectionId'] = doc.id;
+        return ConnectionModel.fromJson(data);
+      }
+    }
+    return null;
+  }
+
   Future<void> _createMeltRequest(MeltRequestModel melt) async {
     await _firebaseService.firestore
         .collection(FirebaseFirestoreCollectionKeys.meltRequests)
@@ -142,34 +177,31 @@ class HomeRepository implements IHomeRepository {
         .set(melt.toJson());
   }
 
-  // @override
-  // Future<Responses> unMeltUser(String connectionId) async {
-  //   try {
-  //     // Delete the connection document
-  //     await _firebaseService.deleteDocument(
-  //       collectionPath: FirebaseFirestoreCollectionKeys.connections,
-  //       documentId: connectionId,
-  //     );
-
-  //     return Responses(
-  //       success: true,
-  //       message: "Connection deleted successfully.",
-  //     );
-  //   } catch (e) {
-  //     rethrow;
-  //   }
-  // }
-
   @override
   Future<Responses> unMeltUser(String recipientId) async {
     try {
       User? user = _firebaseService.auth.currentUser;
-      String requesterId = user!.uid;
+      String currentUserId = user!.uid;
 
-      // Find and delete the melt request document
+      // Find connection between current user and recipient
+      final connection =
+          await getConnectionBetweenUsers(currentUserId, recipientId);
+
+      if (connection != null) {
+        // Delete the connection
+        await _firebaseService.firestore
+            .collection(FirebaseFirestoreCollectionKeys.connections)
+            .doc(connection.connectionId)
+            .delete();
+
+        return Responses(
+            success: true, message: "Successfully unmelted.", data: null);
+      }
+
+      // If no connection is found, try to delete any melt requests (for backward compatibility)
       final querySnapshot = await _firebaseService.firestore
           .collection(FirebaseFirestoreCollectionKeys.meltRequests)
-          .where('requesterId', isEqualTo: requesterId)
+          .where('requesterId', isEqualTo: currentUserId)
           .where('recipientId', isEqualTo: recipientId)
           .get();
 
@@ -179,13 +211,30 @@ class HomeRepository implements IHomeRepository {
             .collection(FirebaseFirestoreCollectionKeys.meltRequests)
             .doc(querySnapshot.docs.first.id)
             .delete();
+
+        return Responses(
+            success: true, message: "Successfully unmelted.", data: null);
       }
 
       return Responses(
-          success: true, message: "Successfully unmelted.", data: null);
+          success: false,
+          message: "No connection or melt request found.",
+          data: null);
     } catch (e) {
       throw Exception('An error occurred while unmelting: $e');
     }
+  }
+
+  /// Get connection status between two users
+  Future<bool> getConnectionStatus(String user1Id, String user2Id) async {
+    // Check if users are connected
+    if (await _hasExistingConnection(user1Id, user2Id)) {
+      return true;
+    }
+
+    
+    // No connection or melt request exists
+    return  false;
   }
 
   @override
@@ -460,6 +509,19 @@ class HomeRepository implements IHomeRepository {
       User? user = _firebaseService.auth.currentUser;
       String user1Id = user!.uid;
 
+      // First check if there's an existing connection between users
+      final connection = await getConnectionBetweenUsers(user1Id, user2Id);
+      if (connection != null) {
+        // Users are already connected, return a special state for this
+        return Responses(
+            success: true,
+            message: "Users are already connected.",
+            data:
+                MeltRequestState.connected); // Adding a new state for connected
+      }
+
+      // If no connection exists, proceed with checking melt requests
+
       // Query to check if user1 has sent a melt request to user2
       final user1ToUser2Request = await _firebaseService.firestore
           .collection(FirebaseFirestoreCollectionKeys.meltRequests)
@@ -476,11 +538,7 @@ class HomeRepository implements IHomeRepository {
 
       MeltRequestState? meltState;
 
-      if (user1ToUser2Request.docs.isNotEmpty &&
-          user2ToUser1Request.docs.isNotEmpty) {
-        // Both users have sent a request, state is "Mutual"
-        meltState = MeltRequestState.mutual;
-      } else if (user1ToUser2Request.docs.isNotEmpty) {
+       if (user1ToUser2Request.docs.isNotEmpty) {
         // One user has sent a request, state is "Pending"
         meltState = MeltRequestState.pending;
       } else {
@@ -570,7 +628,7 @@ class HomeRepository implements IHomeRepository {
 
       final data = doc.data() as Map<String, dynamic>;
       data['connectionId'] = doc.id; // Add the document ID to the data
-      
+
       final connection = ConnectionModel.fromJson(data);
       return Responses(
         success: true,

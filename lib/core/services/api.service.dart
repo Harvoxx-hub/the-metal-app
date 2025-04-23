@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/error/error.handle.dart';
 import 'package:metal/core/model/responces.dart';
-import 'package:metal/core/services/auth.pref.service.dart';
+ 
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class ApiService {
@@ -44,29 +44,7 @@ class ApiService {
     ]);
   }
 
-  Future<String?> _refreshToken() async {
-    try {
-      final refreshToken = await AuthManager.getRefreshToken();
-      final response = await _dio.post(
-        '$baseUrl/auth/refresh-token', // Your refresh token endpoint
-        data: {'refreshtoken': refreshToken},
-      );
-
-      if (response.statusCode == 200) {
-        print(response.data);
-        final newAccessToken = response.data['access_token'];
-        await AuthManager.saveRefreshToken(response.data['refresh_token']);
-        print('Token refreshed successfully');
-        return newAccessToken;
-      }
-    } catch (e) {
-      print(
-        'Refresh token failed',
-      );
-    }
-    return null;
-  }
-
+ 
   Future<dynamic> get(String endpoint) async {
     try {
       final response = await _dio.get('$baseUrl/$endpoint');

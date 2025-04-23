@@ -12,9 +12,10 @@ import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class EditAddress extends StatefulWidget {
-  const EditAddress({super.key, required this.onPress});
+  const EditAddress({super.key, required this.onPress, this.initialAddress});
 
   final Function(Address) onPress;
+  final Address? initialAddress;
 
   @override
   State<EditAddress> createState() => _EditAddressState();
@@ -37,31 +38,48 @@ class _EditAddressState extends State<EditAddress> {
 
   @override
   void initState() {
-    getCountries();
     super.initState();
+    if (widget.initialAddress != null) {
+      _apartmentNoController.text =
+          widget.initialAddress!.apartmentNumber ?? '';
+      _houseNumberController.text = widget.initialAddress!.houseNumber ?? '';
+      _streetNameController.text = widget.initialAddress!.streetName ?? '';
+      _postalCodeController.text = widget.initialAddress!.postalCode ?? '';
+      _selectedCountries = widget.initialAddress!.country;
+      _selectedState = widget.initialAddress!.state;
+      if (_selectedCountries != null) {
+        getState(_selectedCountries!);
+      }
+    }
+    getCountries();
   }
 
   final CountriesService _countriesService = CountriesService();
 
   Future<void> getCountries() async {
     final data = await _countriesService.getCountryNames();
-    setState(() {
-      country = data;
-    });
+    if (mounted) {
+      setState(() {
+        country = data;
+      });
+    }
   }
 
   Future<void> getState(String state) async {
     final data = await _countriesService.getStateNames(state);
-    setState(() {
-      states = data;
-    });
+    if (mounted) {
+      setState(() {
+        states = data;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: getDeviceHeight(context) / 1.5,
-      child: SingleChildScrollView(
+    return SingleChildScrollView(
+      child: Padding(
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Column(children: [
           const Gap(15),
           const TextView(
@@ -70,107 +88,112 @@ class _EditAddressState extends State<EditAddress> {
             fontWeight: FontWeight.w500,
           ),
           const Gap(15),
-          SingleChildScrollView(
-              child: Form(
-                  //   key: _form,
-                  child: Column(
-            children: [
-              EditFormField(
-                floatingLabel: 'Apartment number',
-                label: 'Enter number.',
-                controller: _apartmentNoController,
-                keyboardType: TextInputType.number,
-                suffixWidget: CustomCheckWidget(
-                  initialValue: false,
-                  onChanged: (bool value) {
-                    print('Value changed to $value');
-                  },
-                ),
-                radius: 10,
-              ),
-              const Gap(16),
-              EditFormField(
-                floatingLabel: 'House number',
-                label: 'Enter number.',
-                controller: _houseNumberController,
-                keyboardType: TextInputType.number,
-                validator: Validators.validateInt(),
-                suffixWidget: CustomCheckWidget(
-                  initialValue: false,
-                  onChanged: (bool value) {
-                    print('Value changed to $value');
-                  },
-                ),
-                radius: 10,
-              ),
-              const Gap(16),
-              EditFormField(
-                floatingLabel: 'Street name',
-                label: 'Enter street name.',
-                controller: _streetNameController,
-                validator: Validators.validateString(),
-                keyboardType: TextInputType.streetAddress,
-                suffixWidget: CustomCheckWidget(
-                  initialValue: false,
-                  onChanged: (bool value) {
-                    print('Value changed to $value');
-                  },
-                ),
-                radius: 10,
-              ),
-              const Gap(16),
-              MentalDropdown(
-                items: country,
-                onChanged: (String? value) {
-                  getState(value!);
-                  setState(() {
-                    _selectedCountries = value;
-                  });
-                },
-                value: _selectedCountries,
-                hint: "Please Select",
-                floatingLabel: "Country",
-              ),
-              const Gap(16),
-              MentalDropdown(
-                items: states,
-                onChanged: (String? value) {
-                  setState(() {
-                    _selectedState = value;
-                  });
-                },
-                value: _selectedState,
-                hint: "Please Select",
-                floatingLabel: "State",
-              ),
-              const Gap(16),
-              EditFormField(
-                floatingLabel: 'Postal Code',
-                label: 'Enter Postal Code',
-                controller: _postalCodeController,
-                keyboardType: TextInputType.text,
-                validator: Validators.validateString(),
-                suffixWidget: CustomCheckWidget(
-                  initialValue: false,
-                  onChanged: (bool value) {
-                    print('Value changed to $value');
-                  },
-                ),
-              ),
-            ],
-          ))),
+          Form(
+              key: _form,
+              child: Column(
+                children: [
+                  EditFormField(
+                    floatingLabel: 'Apartment number',
+                    label: 'Enter number.',
+                    controller: _apartmentNoController,
+                    keyboardType: TextInputType.number,
+                    suffixWidget: CustomCheckWidget(
+                      initialValue: false,
+                      onChanged: (bool value) {
+                        print('Value changed to $value');
+                      },
+                    ),
+                    radius: 10,
+                  ),
+                  const Gap(16),
+                  EditFormField(
+                    floatingLabel: 'House number',
+                    label: 'Enter number.',
+                    controller: _houseNumberController,
+                    keyboardType: TextInputType.number,
+                    validator: Validators.validateInt(),
+                    suffixWidget: CustomCheckWidget(
+                      initialValue: false,
+                      onChanged: (bool value) {
+                        print('Value changed to $value');
+                      },
+                    ),
+                    radius: 10,
+                  ),
+                  const Gap(16),
+                  EditFormField(
+                    floatingLabel: 'Street name',
+                    label: 'Enter street name.',
+                    controller: _streetNameController,
+                    validator: Validators.validateString(),
+                    keyboardType: TextInputType.streetAddress,
+                    suffixWidget: CustomCheckWidget(
+                      initialValue: false,
+                      onChanged: (bool value) {
+                        print('Value changed to $value');
+                      },
+                    ),
+                    radius: 10,
+                  ),
+                  const Gap(16),
+                  MentalDropdown(
+                    items: country,
+                    onChanged: (String? value) {
+                      if (value != null) {
+                        getState(value);
+                        setState(() {
+                          _selectedCountries = value;
+                          _selectedState = null;
+                        });
+                      }
+                    },
+                    value: _selectedCountries,
+                    hint: "Please Select Country",
+                    floatingLabel: "Country",
+                  ),
+                  const Gap(16),
+                  MentalDropdown(
+                    items: states,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedState = value;
+                      });
+                    },
+                    value: _selectedState,
+                    hint: "Please Select State",
+                    floatingLabel: "State",
+                  ),
+                  const Gap(16),
+                  EditFormField(
+                    floatingLabel: 'Postal Code',
+                    label: 'Enter Postal Code',
+                    controller: _postalCodeController,
+                    keyboardType: TextInputType.text,
+                    validator: Validators.validateString(),
+                    suffixWidget: CustomCheckWidget(
+                      initialValue: false,
+                      onChanged: (bool value) {
+                        print('Value changed to $value');
+                      },
+                    ),
+                  ),
+                ],
+              )),
           const Gap(38),
           BaseButton(
               buttonText: "Save",
               onPressed: () {
-                final address = Address(
-                    apartmentNumber: _apartmentNoController.text,
-                    houseNumber: _houseNumberController.text,
-                    postalCode: _postalCodeController.text,
-                    streetName: _streetNameController.text,
-                    state: _selectedState,
-                    country: _selectedCountries);
-                widget.onPress(address);
+                if (_form.currentState!.validate()) {
+                  final address = Address(
+                      apartmentNumber: _apartmentNoController.text,
+                      houseNumber: _houseNumberController.text,
+                      postalCode: _postalCodeController.text,
+                      streetName: _streetNameController.text,
+                      state: _selectedState,
+                      country: _selectedCountries);
+                  widget.onPress(address);
+                  Navigator.pop(context);
+                }
               }),
           const Gap(23),
         ]),

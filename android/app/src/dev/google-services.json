@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "325989388499",
+    "project_id": "metal-dev-bd058",
+    "storage_bucket": "metal-dev-bd058.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:325989388499:android:f6aacbd84450ee40328426",
+        "android_client_info": {
+          "package_name": "com.bwh.metal_app.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBR8xMEgauDP0jIoEG-MjLTauD2q5vQCcY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

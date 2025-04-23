@@ -1,15 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+
+import 'package:metal/features/verification/provider/verification.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:flutter/services.dart';
 
-class VerificationDialog extends StatelessWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class VerificationDialog extends ConsumerStatefulWidget {
   const VerificationDialog({super.key});
 
   @override
+  ConsumerState<VerificationDialog> createState() => _VerificationDialogState();
+}
+
+class _VerificationDialogState extends ConsumerState<VerificationDialog> {
+  String? livenessStatus;
+  //final _faceSDKService = FaceSDKService();
+  Uint8List? capturedImage;
+
+  var _status = "nil";
+
+  set status(String val) => setState(() => _status = val);
+
+  @override
+  void initState() {
+    super.initState();
+    //  _initialize();
+  }
+
+  
+
+  @override
   Widget build(BuildContext context) {
+    final verificationState = ref.watch(verficationVideoProvider);
+
+    ref.listen<VerificationState>(verficationVideoProvider, (prev, current) {
+      if (current.isSuccess) {
+        Navigator.pop(context);
+      }
+    });
     return Column(
       children: [
         const Gap(38),
@@ -23,22 +56,23 @@ class VerificationDialog extends StatelessWidget {
         const Gap(15),
         const TextView(
           text:
-              "Verifying your identity means telling other metals that you are authentic, and your information is accurate which helps to increase your chances for real connections and we can vouch that we know you. It takes a little fee!",
+              "Verifying your identity means telling other metals that you are authentic, and your information is accurate which helps to increase your chances for real connections and we can vouch that we know you. It takes a little fee!",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
         BaseButton(
-            buttonText: "Verifly Me",
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.verificationVideo,
-              );
-
-              //  confirm(context);
-            }),
+          buttonText: "Verify Me",
+          loading: verificationState.isLoading,
+          onPressed: () async {
+            Navigator.pop(context);
+            Navigator.pushNamed(
+              context,
+              AppRoutes.faceVerification,
+            );
+          },
+        ),
         const Gap(23),
         TextView(
           text: "Skip for Now",

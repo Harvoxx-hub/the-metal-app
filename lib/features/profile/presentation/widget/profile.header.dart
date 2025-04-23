@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:metal/core/utils/image_picker_util.dart';
 
 import 'package:metal/features/profile/presentation/widget/appbar.background.dart';
 import 'package:metal/features/profile/provider/upload.profile.image.notifier.dart';
@@ -49,7 +50,7 @@ class ProfileHeader extends ConsumerWidget {
                 : GestureDetector(
                     onTap: () {
                       if (myProfile) {
-                        pickImage(context, ref);
+                        ImagePickerUtil.pickImage(context, ref);
                       }
                     },
                     child: ProfilePhoto(
@@ -65,39 +66,6 @@ class ProfileHeader extends ConsumerWidget {
       ),
     );
   }
-
-  static Future<void> pickImage(BuildContext context, WidgetRef ref) async {
-    final ImagePicker picker = ImagePicker();
-
-    final option = await showModalBottomSheet<ImageSource>(
-      context: context,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Wrap(
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Camera'),
-                onTap: () => Navigator.pop(context, ImageSource.camera),
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Gallery'),
-                onTap: () => Navigator.pop(context, ImageSource.gallery),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (option != null) {
-      final pickedFile = await picker.pickImage(source: option);
-      if (pickedFile != null) {
-        ref
-            .read(profileImageProvider.notifier)
-            .UploadProfileImage(File(pickedFile.path));
-      }
-    }
-  }
 }
+
+ 

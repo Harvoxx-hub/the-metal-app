@@ -4,6 +4,7 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
@@ -107,8 +108,10 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
   }
 
   void _onNextPressed() {
-    final userData = ref.watch(updateProfileProvider).data;
-    final updated = userData!.copyWith(metal: _selectedMetal!.id);
+    final updated = {
+      'metal': _selectedMetal!.id,
+    };
+
     ref.read(updateProfileProvider.notifier).updateUserData(updated);
 
     Navigator.pushNamed(

@@ -8,16 +8,21 @@ import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/constant/enums.dart';
 
 import 'package:metal/core/utils/date.formart.dart';
+import 'package:metal/core/utils/image_picker_util.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart';
 
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
+
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
 
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
+import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
+ 
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
@@ -57,12 +62,14 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   Widget build(BuildContext context) {
     int dayRemaining =
         daysRemaining(widget.connectionModel.connectedOn, daysRequiredToUnMelt);
+    print("CHECK FOR ACTIVE USER:${widget.meltUserModel.isOnline}");
 
     final checkMeltState =
         ref.watch(checkMeltProvider(widget.meltUserModel.id!));
 
     /// Determines if the user is allowed to call
-    bool isCallAllowed = checkMeltState.data == MeltRequestState.mutual;
+    bool isCallAllowed = 
+        checkMeltState.data == MeltRequestState.connected;
 
     /// Function to check call eligibility
     Future<bool> handleCallPress(
@@ -118,8 +125,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               ),
             ],
             resourceID: 'metal_call',
-            iconSize: const Size(60, 30),
-            buttonSize: const Size(40, 30),
+            iconSize: const Size(30, 30),
+            buttonSize: const Size(40, 40),
             icon: ButtonIcon(
               icon: SvgPicture.asset(
                 iconPath,
@@ -227,7 +234,10 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                 );
               } else if (value == "View contact") {
                 Navigator.pushNamed(context, AppRoutes.myMeltedUser,
-                    arguments: {"metalId": widget.meltUserModel.id!});
+                    arguments: {
+                      "metalId": widget.meltUserModel.id!,
+                      "metalName": widget.meltUserModel.username!,
+                    });
               } else if (value == "Clear chat") {
                 ref
                     .read(getMessageList(widget.connectionModel.connectionId)
@@ -306,6 +316,119 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   }
 
   Widget unmetalDialog(BuildContext context, int remaining) {
+    final connectionModel =
+        ref.watch(getConnectionProvider(widget.connectionModel.connectionId));
+    final currentUser = ref.watch(authProvider).data;
+    final daysRequired = ref.watch(numberDaysProvider);
+    final uniqueDailyConversations =
+        connectionModel.data?.uniqueDailyConversationsCount ?? 0;
+
+    // Force refresh user data to get the latest profile photo
+    ref.read(authProvider.notifier).getUpdatedUser();
+
+    // Improved check for profile photo existence
+    final hasProfilePhoto = currentUser?.profilePhoto != null &&
+        currentUser!.profilePhoto!.isNotEmpty &&
+        currentUser.profilePhoto!.trim().isNotEmpty;
+    final otherUserHasPhoto = widget.meltUserModel.profilePhoto != null &&
+        widget.meltUserModel.profilePhoto!.isNotEmpty &&
+        widget.meltUserModel.profilePhoto!.trim().isNotEmpty;
+
+    final missingYourPhoto = !hasProfilePhoto;
+    final missingOtherPhoto = !otherUserHasPhoto;
+
+    // Only block proceeding if the current user is missing a photo
+    if (missingYourPhoto) {
+      return Column(
+        children: [
+          const Gap(38),
+          const TextView(
+            text: "Want to Unmetal?",
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+          const Gap(15),
+          const TextView(
+            text:
+                "Wait a minute, we are missing your photo! To unmetal means that the two profiles can view each others photos",
+            fontSize: 16,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.w400,
+          ),
+          const Gap(15),
+          const TextView(
+            text: "To continue",
+            fontSize: 16,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.w400,
+          ),
+          const Gap(38),
+          BaseButton(
+            buttonText: "Upload your photo",
+            onPressed: () {
+              Navigator.pop(context);
+              ImagePickerUtil.pickImage(context, ref);
+            },
+          ),
+          const Gap(23),
+        ],
+      );
+    }
+
+    // Warn about the other user's missing photo but allow proceeding
+    if (missingOtherPhoto) {
+      return Column(
+        children: [
+          const Gap(38),
+          const TextView(
+            text: "Want to Unmetal?",
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+          const Gap(15),
+          const TextView(
+            text:
+                "The other user doesn't have a profile photo yet. They will be asked to upload one when accepting your request.",
+            fontSize: 16,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.w400,
+          ),
+          const Gap(15),
+          TextView(
+            text:
+                "Do you still want to send an unmetal request to @${widget.meltUserModel.username}?",
+            fontSize: 16,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.w400,
+          ),
+          const Gap(38),
+          Row(
+            children: [
+              Expanded(
+                child: BaseButton(
+                  buttonText: "Cancel",
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              const Gap(10),
+              Expanded(
+                child: BaseButton(
+                  buttonText: "Send Request",
+                  onPressed: () {
+                    Navigator.pop(context);
+                    sendUnmelt();
+                  },
+                ),
+              ),
+            ],
+          ),
+          const Gap(23),
+        ],
+      );
+    }
+
     return Column(
       children: [
         const Gap(38),
@@ -317,35 +440,33 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         const Gap(15),
         TextView(
           text:
-              "To Unmetal, we require a minimum of $daysRequiredToUnMelt days of Melt between you and @${widget.meltUserModel.username}",
+              "To Unmetal, we require a minimum of $daysRequired days and 10 sessions of conversations between you and @${widget.meltUserModel.username}",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(15),
         TextView(
-          text: "You have had * $remaining days* remaining",
+          text:
+              "You have had $remaining days and $uniqueDailyConversations interactions",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
-        if (hasDurationReached(
-            widget.connectionModel.connectedOn, daysRequiredToUnMelt))
-          BaseButton(
-            buttonText: "Un-Metal Request",
-            onPressed: () {
-              sendUnmelt();
-              Navigator.pop(context);
-            },
-          )
-        else
-          BaseButton(
-            buttonText: "Return to chat",
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+        (remaining <= 0 && uniqueDailyConversations >= 10)
+            ? BaseButton(
+                buttonText: "Return to chat",
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            : BaseButton(
+                buttonText: "Unmetal",
+                onPressed: () {
+                  sendUnmelt();
+                },
+              ),
         const Gap(23),
       ],
     );
@@ -363,7 +484,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         const Gap(15),
         TextView(
           text:
-              "@${widget.meltUserModel.username} has opted to always be a metal.\nThis request cannot be sent.",
+              "@${widget.meltUserModel.username} has opted to always be a Metal.\nThis request cannot be sent.",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
@@ -380,37 +501,28 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     );
   }
 
-  Widget unmetalUploadPhotoDialog(BuildContext context, WidgetRef ref) {
+  Widget unmetalRequestSentDialog(BuildContext context) {
     return Column(
       children: [
         const Gap(38),
         const TextView(
-          text: "Want to Unmetal?",
+          text: "Unmetal request",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
         const Gap(15),
-        const TextView(
+        TextView(
           text:
-              "Wait a minute, we are missing your \nphoto!. To unmetal means that the two \nprofiles can view each others photos",
+              "We have sent your request to @${widget.meltUserModel.username}. We will notify you when we get a response",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
-        const Gap(25),
-        const TextView(
-          text: "To continue",
-          fontSize: 16,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
-          fontStyle: FontStyle.italic,
-        ),
-        const Gap(15),
+        const Gap(38),
         BaseButton(
-          buttonText: "Upload your photo",
-          onPressed: () async {
+          buttonText: "Return to chat",
+          onPressed: () {
             Navigator.pop(context);
-            await ProfileHeader.pickImage(context, ref);
           },
         ),
         const Gap(23),
@@ -418,24 +530,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     );
   }
 
-  void sendUnmelt() async {
-    if (widget.meltUserModel.profilePhoto == null ||
-        widget.meltUserModel.profilePhoto!.trim().isEmpty) {
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CustomDialog(
-            content: unmetalUploadPhotoDialog(context, ref),
-          );
-        },
-      );
-
-      if (widget.meltUserModel.profilePhoto == null ||
-          widget.meltUserModel.profilePhoto!.trim().isEmpty) {
-        return;
-      }
-    }
-
+  void sendUnmelt() {
     final message = MessageModel(
       senderId: ref.watch(authProvider).data!.id!,
       type: MessageType.un_melt,
@@ -447,6 +542,16 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     ref
         .read(sendMessageProvider.notifier)
         .sendMessage(message, widget.connectionModel.connectionId);
+
+    // Show the sent confirmation dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomDialog(
+          content: unmetalRequestSentDialog(context),
+        );
+      },
+    );
   }
 
   void sendCall(String callType) {
@@ -493,12 +598,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             onPressed: () {
               ref
                   .read(blockUserProvider.notifier)
-                  .BlockUser(data.username!, data.id!);
-               Navigator.pushNamedAndRemoveUntil(
-                context,
-                AppRoutes.dashboardPage,
-                (route) => false, // Removes all previous routes from the stack
-              );
+                  .blockUser(data.username!, data.id!);
+              Navigator.pop(context);
             }),
         const Gap(23),
         TextView(

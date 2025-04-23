@@ -60,7 +60,7 @@ class _VerificationVideoState extends ConsumerState<VerificationVideo> {
             const Gap(24),
             EditField(
                 onTap: () {
-                  getVideoFile(context);
+                  _navigateToPreview();
                 },
                 floatingLabel: "Full live video of yourself",
                 suffixIcon: Assets.icons.videoCamera.svg(width: 24, height: 24),
@@ -103,18 +103,12 @@ class _VerificationVideoState extends ConsumerState<VerificationVideo> {
         ));
   }
 
-  Future<void> getVideoFile(BuildContext context) async {
-    final file = await Navigator.pushNamed(
-      context,
-      AppRoutes.videoPreview,
-    );
-    setState(() {
-      _videoFile = File(file.toString());
-    });
+  void _navigateToPreview() {
+    Navigator.pushNamed(context, AppRoutes.faceVerification);
   }
 
   void _onNextPressed() {
-    ref.watch(verficationVideoProvider.notifier).verificationMe(_videoFile!);
+    ref.watch(verficationVideoProvider.notifier).verificationMe();
   }
 
   Widget verifyDialog(BuildContext context) {

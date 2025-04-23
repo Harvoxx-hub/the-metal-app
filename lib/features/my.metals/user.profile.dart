@@ -11,6 +11,7 @@ import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
+import 'package:metal/features/settings/presentation/widget/block_button.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
 
@@ -37,9 +38,13 @@ class UserProfilePage extends ConsumerWidget {
       Header: "User Profile",
       body: ProfileHeader(
           eye: false,
-          myProfile: true,
+          myProfile: false,
           metalId: user.metal!,
-          profileUrl: user.profilePhoto,
+          profileUrl: connection != null
+              ? connection.isAnonymous
+                  ? null
+                  : user.profilePhoto
+              : null,
           child: Padding(
             padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
             child: Container(
@@ -52,9 +57,20 @@ class UserProfilePage extends ConsumerWidget {
                       topLeft: Radius.circular(35),
                       topRight: Radius.circular(35))),
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                ),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    BlockUserButton(
+                      userId: user.id!,
+                      username: user.username!,
+                      isOutlined: true,
+                      fontSize: 16.0,
+                    ),
+                    const Gap(20),
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: ShapeDecoration(

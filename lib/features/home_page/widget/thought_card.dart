@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
-import 'package:metal/features/home_page/post_thought.dart';
+
 import 'package:metal/features/home_page/provider/delete.thoughts.dart';
-import 'package:metal/features/home_page/provider/edit.thoughts.dart';
 
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/home_page/provider/react.thoughts.notifier.dart';
 import 'package:metal/features/home_page/widget/reaction.listtile.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
+import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
@@ -25,6 +25,7 @@ import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:metal/features/settings/presentation/widget/block_user_helper.dart';
 
 class ThoughtCard extends ConsumerStatefulWidget {
   final ThoughtModel thoughtModel;
@@ -54,7 +55,9 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     creatorUserdata = ref.watch(getUserProvider(thoughtModel.userId)).data;
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: _buildThoughtCard(context),
+      child: creatorUserdata == null
+          ? const SizedBox.shrink()
+          : _buildThoughtCard(context),
     );
   }
 
@@ -74,7 +77,20 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
             children: [
               _buildUserInfo(context),
               const Gap(10),
-              TextView(text: thoughtModel.content),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.thoughtDetails,
+                    arguments: thoughtModel.id,
+                  );
+                },
+                child: TextView(
+                  text: thoughtModel.content,
+                  maxLines: 4,
+                  textOverflow: TextOverflow.ellipsis,
+                ),
+              ),
               const Gap(10),
               _buildReactionsRow(),
               IconButton(
@@ -98,7 +114,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           Navigator.pushNamed(
             context,
             AppRoutes.myMeltedUser,
-            arguments: {"metalId" : thoughtModel.userId}  ,
+            arguments: {"metalId": thoughtModel.userId},
           );
         }
       },
@@ -154,64 +170,54 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
   }
 
   Widget _buildOptionsBottomSheet(BuildContext context) {
+    // Capture user ID in a local variable to avoid ref access in async context
+    final currentUserId = ref.read(authProvider).data?.id;
+    final thoughtId = widget.thoughtModel.id;
+
     return SafeArea(
       child: Wrap(
         children: <Widget>[
-          if (widget.thoughtModel.userId == ref.watch(authProvider).data!.id)
+          if (widget.thoughtModel.userId == currentUserId)
             ListTile(
               title: const TextView(text: 'Edit Thoughts'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PostThought(
-                      userModel: ref.watch(authProvider).data!,
-                      thoughtModel: widget.thoughtModel,
-                    ),
-                  ),
-                );
+                Navigator.pop(context);
+                Navigator.pushNamed(context, AppRoutes.postThought,
+                    arguments: widget.thoughtModel);
               },
             ),
-          if (widget.thoughtModel.userId == ref.watch(authProvider).data!.id)
+          if (widget.thoughtModel.userId == currentUserId)
             ListTile(
               title: const TextView(text: 'Delete Thoughts'),
               onTap: () {
-                ref
-                    .read(deleteThoughtProvider.notifier)
-                    .deleteThought(widget.thoughtModel.id);
+                final deleteNotifier = ref.read(deleteThoughtProvider.notifier);
                 Navigator.pop(context);
+                deleteNotifier.deleteThought(thoughtId);
               },
             ),
-          if (widget.thoughtModel.userId != ref.watch(authProvider).data!.id)
-            ListTile(
-              title: const TextView(text: 'Block Metal'),
-              onTap: () {
-                _showDialog(
-                  context,
-                  _blockDialog(context, thoughtModel, ref),
-                );
-              },
-            ),
-          if (widget.thoughtModel.userId != ref.watch(authProvider).data!.id)
-            ListTile(
-              title: const TextView(text: 'Block and Report'),
-              onTap: () {
-                _showDialog(
-                  context,
-                  _blockAndReportDialog(context, thoughtModel, ref),
-                );
-              },
-            ),
+          // Show block options for other users' thoughts
+          if (widget.thoughtModel.userId != currentUserId)
+            _buildBlockOption(context),
+          if (widget.thoughtModel.userId != currentUserId)
+            _buildReportOption(context),
         ],
       ),
     );
   }
 
   Widget _reactionList(BuildContext context) {
+    final blockedUsers = ref.watch(getBlockUserProvider).data ?? [];
+
+    // Filter out reactions from blocked users
+    final filteredReactions = widget.thoughtModel.reactions.where((reaction) {
+      return !blockedUsers
+          .any((blockedUser) => blockedUser['id'] == reaction.userId);
+    }).toList();
+
     return SafeArea(
       child: Wrap(
         children: <Widget>[
-          for (var element in widget.thoughtModel.reactions)
+          for (var element in filteredReactions)
             ReactionListTile(
               reactionModel: element,
             )
@@ -222,22 +228,28 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
 
   Widget _buildReactionsRow() {
     final userdata = ref.watch(authProvider).data;
-    String userid = userdata!
-        .id!; // Replace this with the actual ID check logic if necessary
+    final blockedUsers = ref.watch(getBlockUserProvider).data ?? [];
+    String userid = userdata!.id!;
 
-// Check if the thought has any reactions
-    if (thoughtModel.reactions.isEmpty) {
-      return Container(); // or any other fallback widget when there are no reactions
+    // Filter out reactions from blocked users
+    final filteredReactions = thoughtModel.reactions.where((reaction) {
+      return !blockedUsers
+          .any((blockedUser) => blockedUser['id'] == reaction.userId);
+    }).toList();
+
+    // Check if the thought has any reactions after filtering
+    if (filteredReactions.isEmpty) {
+      return Container();
     }
 
-// Initialize variables to track reactions
-    int totalReactions = thoughtModel.reactions.length;
+    // Initialize variables to track reactions
+    int totalReactions = filteredReactions.length;
 
-// Check if the user has reacted
+    // Check if the user has reacted
     bool userHasReacted =
-        thoughtModel.reactions.any((reaction) => reaction.userId == userid);
+        filteredReactions.any((reaction) => reaction.userId == userid);
 
-// Build the display text based on the user's reaction status
+    // Build the display text based on the user's reaction status
     String reactionText;
     if (userHasReacted) {
       if (totalReactions > 1) {
@@ -259,7 +271,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
       },
       child: Row(
         children: [
-          for (var reaction in thoughtModel.reactions)
+          for (var reaction in filteredReactions)
             TextView(
               text: reaction.emoji,
             ),
@@ -330,40 +342,17 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     );
   }
 
-  Widget _blockDialog(BuildContext context, ThoughtModel data, WidgetRef ref) {
-    return _buildDialog(
-      context: context,
-      data: data,
-      ref: ref,
-      isReport: false,
-    );
-  }
-
-  Widget _blockAndReportDialog(
-      BuildContext context, ThoughtModel data, WidgetRef ref) {
-    return _buildDialog(
-      context: context,
-      data: data,
-      ref: ref,
-      isReport: true,
-    );
-  }
-
-  Widget _buildDialog({
-    required BuildContext context,
-    required ThoughtModel data,
-    required WidgetRef ref,
+  Widget _showBlockDialog({
+    required String? userId,
+    required String? username,
     bool isReport = false,
+    required BuildContext context,
   }) {
-    TextEditingController _controller = TextEditingController();
+    final _controller = TextEditingController();
+    final blockUserNotifier = ref.read(blockUserProvider.notifier);
+
     return Column(
       children: [
-        const Gap(38),
-        SvgPicture.asset(
-          Assets.icons.meltedMetalsSmileyXEyes.path,
-          height: 45,
-          width: 45,
-        ),
         const Gap(15),
         TextView(
           text: isReport ? 'Block and Report this User' : 'Block this User',
@@ -393,14 +382,19 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
         const Gap(15),
         const Gap(38),
         BaseButton(
-            buttonText: "Block ${creatorUserdata!.username}",
+            buttonText: "Block $username",
             onPressed: () {
-              ref
-                  .read(blockUserProvider.notifier)
-                  .BlockUser(creatorUserdata!.username!, creatorUserdata!.id!);
+              // Close this dialog first
+              Navigator.pop(context);
 
-              Navigator.pop(context);
-              Navigator.pop(context);
+              // Use the new enhanced block dialog
+              if (username != null && userId != null) {
+                showBlockReasonDialog(
+                  context,
+                  userId: userId,
+                  username: username,
+                );
+              }
             }),
         const Gap(23),
         TextView(
@@ -422,6 +416,10 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
   }
 
   void _selectReaction(String reaction) {
+    // Capture these values before async operation
+    final thoughtId = widget.thoughtModel.id;
+    final reactNotifier = ref.read(reactThoughtProvider.notifier);
+
     setState(() {
       _showReactions = false;
 
@@ -435,9 +433,138 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     });
 
     // Send the reaction to the backend
-    ref
-        .read(reactThoughtProvider.notifier)
-        .reactThought(widget.thoughtModel.id, reaction);
+    reactNotifier.reactThought(thoughtId, reaction);
+  }
+
+  void _showOverFlowMenu(BuildContext context, ThoughtModel thoughtModel) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildModalItem(
+              icon: Icons.block,
+              label: "Block",
+              color: Colors.red,
+              onTap: () {
+                Navigator.pop(context);
+                _showDialog(
+                  context,
+                  _showBlockDialog(
+                    userId: thoughtModel.userId,
+                    username: creatorUserdata?.username,
+                    isReport: false,
+                    context: context,
+                  ),
+                );
+              },
+            ),
+            _buildModalItem(
+              icon: Icons.report,
+              label: "Report",
+              color: Colors.red,
+              onTap: () {
+                Navigator.pop(context);
+                _showDialog(
+                  context,
+                  _showBlockDialog(
+                    userId: thoughtModel.userId,
+                    username: creatorUserdata?.username,
+                    isReport: true,
+                    context: context,
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildModalItem({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: color,
+      ),
+      title: TextView(text: label),
+      onTap: onTap,
+    );
+  }
+
+  PopupMenuItem _buildBlockOption(BuildContext context) {
+    return PopupMenuItem(
+      value: 'block',
+      child: Row(
+        children: [
+          SvgPicture.asset(
+            Assets.icons.meltedMetalsSmileyXEyes.path,
+            height: 21,
+            width: 21,
+          ),
+          const Gap(15),
+          const TextView(
+            text: "Block",
+            color: Colors.red,
+          ),
+        ],
+      ),
+      onTap: () {
+        // Use enhanced block flow directly
+        if (creatorUserdata?.username != null &&
+            widget.thoughtModel.userId != null) {
+          // Add a slight delay to allow menu to close
+          Future.delayed(const Duration(milliseconds: 100), () {
+            showBlockReasonDialog(
+              context,
+              userId: widget.thoughtModel.userId,
+              username: creatorUserdata!.username!,
+            );
+          });
+        }
+      },
+    );
+  }
+
+  PopupMenuItem _buildReportOption(BuildContext context) {
+    return PopupMenuItem(
+      value: 'report',
+      child: Row(
+        children: [
+          Icon(
+            Icons.report_outlined,
+            color: Colors.red,
+            size: 21,
+          ),
+          const Gap(15),
+          const TextView(
+            text: "Report",
+            color: Colors.red,
+          ),
+        ],
+      ),
+      onTap: () {
+        // Use enhanced block flow with reporting
+        if (creatorUserdata?.username != null &&
+            widget.thoughtModel.userId != null) {
+          // Add a slight delay to allow menu to close
+          Future.delayed(const Duration(milliseconds: 100), () {
+            showBlockReasonDialog(
+              context,
+              userId: widget.thoughtModel.userId,
+              username: creatorUserdata!.username!,
+            );
+          });
+        }
+      },
+    );
   }
 }
 

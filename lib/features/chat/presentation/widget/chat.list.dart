@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
- 
- 
-import 'package:metal/features/chat/presentation/chat.page.dart';
-import 'package:metal/features/chat/presentation/widget/chat.list.item.dart';
+import 'package:metal/core/utils/date.formart.dart';
+
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
- 
+import 'package:metal/features/home_page/provider/get.user.notifier.dart';
+import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
+import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/route/routes.dart';
+import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
- 
 
 class ChatListWidget extends ConsumerStatefulWidget {
   const ChatListWidget({super.key});
@@ -20,14 +24,13 @@ class ChatListWidget extends ConsumerStatefulWidget {
 
 class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
   @override
-  Widget build(BuildContext context) {
-    final myMelt = ref.watch(getMeltUserProvider).data ?? [];
-    final searchQuery = ref.watch(searchQueryProvider).toLowerCase();
+  void initState() {
+    super.initState();
+  }
 
-    // Filter the list based on username
-    final filteredList = myMelt.where((connection) {
-      return connection.otherUser!.username!.toLowerCase().contains(searchQuery);
-    }).toList();
+  @override
+  Widget build(BuildContext context) {
+    final myMelt = ref.watch(getMeltUserProvider).data;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -40,21 +43,20 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
             fontWeight: FontWeight.w600,
           ),
           const Gap(10),
-          filteredList.isEmpty
-              ? _buildEmptyChatMessage()
-              : _buildChatListContent(filteredList),
+          _buildChatListContent(myMelt),
         ],
       ),
     );
   }
 
-  Widget _buildChatListContent(List<ConnectionModel> filteredList) {
+  Widget _buildChatListContent(List<ConnectionModel>? myMelt) {
     return Expanded(
+      flex: 1,
       child: ListView.builder(
-        itemCount: filteredList.length,
+        itemCount: myMelt?.length ?? 0,
         itemBuilder: (context, index) {
-          return ChatListItem(
-            conversationsModel: filteredList[index],
+          return chatListItem(
+            conversationsModel: myMelt![index],
           );
         },
       ),
@@ -63,19 +65,19 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
 
   Widget _buildEmptyChatMessage() {
     return const Padding(
-      padding: EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
       child: Center(
         child: Column(
           children: [
-            Gap(10),
-            Gap(20),
-            TextView(
+            const Gap(10),
+            const Gap(20),
+            const TextView(
               text: "You have no messages yet",
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
-            Gap(10),
-            TextView(
+            const Gap(10),
+            const TextView(
               text: "Tap on any of your metals to kickstart a conversation",
               fontSize: 13,
               fontWeight: FontWeight.w300,
@@ -84,6 +86,103 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class chatListItem extends ConsumerWidget {
+  const chatListItem({
+    Key? key,
+    required this.conversationsModel,
+  }) : super(key: key);
+
+  final ConnectionModel conversationsModel;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    //handle blocked user
+    final blockedUsers = ref.watch(getBlockUserProvider).data ?? [];
+    final isBlocked = blockedUsers.any(
+        (blockedUser) => blockedUser['id'] == conversationsModel.otherUser?.id);
+
+    if (isBlocked) {
+      return const SizedBox.shrink();
+    }
+
+    final currentUser = ref.watch(authProvider).data;
+    final metalId = conversationsModel.users.firstWhere(
+      (user) => user != currentUser!.id,
+      orElse: () =>
+          "", // Handle cases where all user IDs match the current user
+    );
+    final getUser = ref.watch(getUserProvider(metalId));
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
+            arguments: getUser.data?.id);
+      },
+      child: getUser.isLoading
+          ? const Center(
+              child: CircularProgressIndicator.adaptive(),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  ProfilePhoto(
+                    meltId: getUser.data?.metal ?? '',
+                    imgUrl: conversationsModel.isAnonymous
+                        ? null
+                        : getUser.data?.profilePhoto ?? '',
+                  ),
+                  const Gap(16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextView(
+                          text: getUser.data?.username ?? "Unknown",
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        TextView(
+                          text: conversationsModel.lastMessage ?? "",
+                          fontWeight: FontWeight.w300,
+                          fontSize: 13,
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextView(
+                    text: formatTime(
+                        isoDateString: conversationsModel.lastUpdatedAt),
+                    fontWeight: FontWeight.w300,
+                    fontSize: 13,
+                  ),
+                  //add a badge if the message is unread
+                  if (currentUser!.id != conversationsModel.lastSenderId &&
+                      conversationsModel.unreadCount > 0)
+                    Container(
+                      margin: const EdgeInsets.only(left: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        conversationsModel.unreadCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
     );
   }
 }

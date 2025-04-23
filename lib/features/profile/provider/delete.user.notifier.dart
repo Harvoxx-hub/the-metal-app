@@ -4,35 +4,56 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/route/routes.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
-class DeleteUsersNotifier extends StateNotifier<DeleteUsersState> {
+class DeleteUsersNotifier extends StateNotifier<BaseState<String>> {
   DeleteUsersNotifier(super.state, this.ref);
   final Ref ref;
 
-  Future<void> deleteUser(BuildContext context) async {
+  Future<void> deleteUser(BuildContext context, {String? feedback}) async {
     try {
-      state = DeleteUsersState.loading();
+      state = BaseState<String>.loading();
       final repo = ref.watch(authenticationRepositoryProvider);
+
+      // Send feedback if provided
+      if (feedback != null && feedback.isNotEmpty) {
+        await repo.sendFeedback(feedback);
+      }
+
       final response = await repo.deleteUser();
 
+      if (response.message == "Re-authentication required") {
+        state = BaseState<String>.error(
+            response.message ?? "Re-authentication required");
+        return;
+      }
+
       if (mounted) {
-        state = DeleteUsersState.success(response.message!);
+        if (response.success == true) {
+          // Uninitialize services
+          await ZegoUIKitPrebuiltCallInvitationService().uninit();
 
- 
-        // Navigate after deletion is successful
+          state = BaseState<String>.success(
+              response.message ?? "Account deleted successfully");
 
-        Navigator.pushReplacementNamed(context, AppRoutes.splash);
+          // Navigate after successful deletion
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.onboarding,
+            (route) => false,
+          );
+        } else {
+          state = BaseState<String>.error(
+              response.message ?? "Failed to delete account");
+        }
       }
     } catch (e, s) {
-      state = DeleteUsersState.error(e.toString(), stackTrace: s);
+      state = BaseState<String>.error(e.toString(), stackTrace: s);
     }
   }
 }
 
-// Define a type alias
-typedef DeleteUsersState = BaseState<String>;
-
 final deleteUserProvider =
-    StateNotifierProvider.autoDispose<DeleteUsersNotifier, DeleteUsersState>(
-  (ref) => DeleteUsersNotifier(DeleteUsersState.initial(), ref),
+    StateNotifierProvider.autoDispose<DeleteUsersNotifier, BaseState<String>>(
+  (ref) => DeleteUsersNotifier(BaseState<String>.initial(), ref),
 );

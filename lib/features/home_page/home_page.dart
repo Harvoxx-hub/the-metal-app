@@ -41,26 +41,20 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return RefreshIndicator(
       onRefresh: _refreshData,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            _buildHeader(),
-            const Gap(20),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  _buildFeedTabs(),
-                  const Gap(20),
-                  tabIndex == 0
-                      ? _forYouThoughtTab(getThoughtExploreState)
-                      : _forYouThoughtTab(getThoughtForYouState),
-                ],
-              ),
-            ),
-          ],
-        ),
+      child: Column(
+        children: [
+          _buildHeader(),
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: _buildFeedTabs(),
+          ),
+          Expanded(
+            child: tabIndex == 0
+                ? _forYouThoughtTab(getThoughtExploreState)
+                : _forYouThoughtTab(getThoughtForYouState),
+          ),
+        ],
       ),
     );
   }
@@ -154,8 +148,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         } else {
           return ListView.builder(
             itemCount: thoughtState.data!.length,
-            shrinkWrap: true,
-            physics: const ClampingScrollPhysics(),
+            physics: const AlwaysScrollableScrollPhysics(),
             itemBuilder: (context, index) {
               return ThoughtCard(thoughtModel: thoughtState.data![index]);
             },

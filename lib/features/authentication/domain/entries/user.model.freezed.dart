@@ -41,6 +41,8 @@ mixin _$UserModel {
   String? get phone => throw _privateConstructorUsedError;
   String? get email => throw _privateConstructorUsedError;
   bool? get emailVerified => throw _privateConstructorUsedError;
+  String? get workEmail => throw _privateConstructorUsedError;
+  bool? get workEmailVerified => throw _privateConstructorUsedError;
   Preferences? get preferences => throw _privateConstructorUsedError;
   String? get username => throw _privateConstructorUsedError;
   String? get refreshToken => throw _privateConstructorUsedError;
@@ -61,11 +63,17 @@ mixin _$UserModel {
   String? get fcmToken => throw _privateConstructorUsedError;
   bool get isOnline => throw _privateConstructorUsedError;
   String? get lastActive => throw _privateConstructorUsedError;
-  @JsonKey(name: 'blockedUsers')
-  List<String>? get blockedUsers => throw _privateConstructorUsedError;
+  @JsonKey(name: 'createdAt')
+  String? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updatedAt')
+  String? get updatedAt => throw _privateConstructorUsedError;
 
+  /// Serializes this UserModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of UserModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $UserModelCopyWith<UserModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -94,6 +102,8 @@ abstract class $UserModelCopyWith<$Res> {
       String? phone,
       String? email,
       bool? emailVerified,
+      String? workEmail,
+      bool? workEmailVerified,
       Preferences? preferences,
       String? username,
       String? refreshToken,
@@ -114,7 +124,8 @@ abstract class $UserModelCopyWith<$Res> {
       String? fcmToken,
       bool isOnline,
       String? lastActive,
-      @JsonKey(name: 'blockedUsers') List<String>? blockedUsers});
+      @JsonKey(name: 'createdAt') String? createdAt,
+      @JsonKey(name: 'updatedAt') String? updatedAt});
 
   $AddressCopyWith<$Res>? get address;
   $ExtraDataCopyWith<$Res>? get extraData;
@@ -132,6 +143,8 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of UserModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -153,6 +166,8 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? phone = freezed,
     Object? email = freezed,
     Object? emailVerified = freezed,
+    Object? workEmail = freezed,
+    Object? workEmailVerified = freezed,
     Object? preferences = freezed,
     Object? username = freezed,
     Object? refreshToken = freezed,
@@ -173,7 +188,8 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? fcmToken = freezed,
     Object? isOnline = null,
     Object? lastActive = freezed,
-    Object? blockedUsers = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_value.copyWith(
       profileUpdated: freezed == profileUpdated
@@ -248,6 +264,14 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.emailVerified
           : emailVerified // ignore: cast_nullable_to_non_nullable
               as bool?,
+      workEmail: freezed == workEmail
+          ? _value.workEmail
+          : workEmail // ignore: cast_nullable_to_non_nullable
+              as String?,
+      workEmailVerified: freezed == workEmailVerified
+          ? _value.workEmailVerified
+          : workEmailVerified // ignore: cast_nullable_to_non_nullable
+              as bool?,
       preferences: freezed == preferences
           ? _value.preferences
           : preferences // ignore: cast_nullable_to_non_nullable
@@ -328,13 +352,19 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.lastActive
           : lastActive // ignore: cast_nullable_to_non_nullable
               as String?,
-      blockedUsers: freezed == blockedUsers
-          ? _value.blockedUsers
-          : blockedUsers // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as String?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 
+  /// Create a copy of UserModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $AddressCopyWith<$Res>? get address {
@@ -347,6 +377,8 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     });
   }
 
+  /// Create a copy of UserModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $ExtraDataCopyWith<$Res>? get extraData {
@@ -359,6 +391,8 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     });
   }
 
+  /// Create a copy of UserModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $LocationCopyWith<$Res>? get location {
@@ -371,6 +405,8 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     });
   }
 
+  /// Create a copy of UserModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $PreferencesCopyWith<$Res>? get preferences {
@@ -411,6 +447,8 @@ abstract class _$$UserModelImplCopyWith<$Res>
       String? phone,
       String? email,
       bool? emailVerified,
+      String? workEmail,
+      bool? workEmailVerified,
       Preferences? preferences,
       String? username,
       String? refreshToken,
@@ -431,7 +469,8 @@ abstract class _$$UserModelImplCopyWith<$Res>
       String? fcmToken,
       bool isOnline,
       String? lastActive,
-      @JsonKey(name: 'blockedUsers') List<String>? blockedUsers});
+      @JsonKey(name: 'createdAt') String? createdAt,
+      @JsonKey(name: 'updatedAt') String? updatedAt});
 
   @override
   $AddressCopyWith<$Res>? get address;
@@ -451,6 +490,8 @@ class __$$UserModelImplCopyWithImpl<$Res>
       _$UserModelImpl _value, $Res Function(_$UserModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of UserModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -472,6 +513,8 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? phone = freezed,
     Object? email = freezed,
     Object? emailVerified = freezed,
+    Object? workEmail = freezed,
+    Object? workEmailVerified = freezed,
     Object? preferences = freezed,
     Object? username = freezed,
     Object? refreshToken = freezed,
@@ -492,7 +535,8 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? fcmToken = freezed,
     Object? isOnline = null,
     Object? lastActive = freezed,
-    Object? blockedUsers = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_$UserModelImpl(
       profileUpdated: freezed == profileUpdated
@@ -567,6 +611,14 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.emailVerified
           : emailVerified // ignore: cast_nullable_to_non_nullable
               as bool?,
+      workEmail: freezed == workEmail
+          ? _value.workEmail
+          : workEmail // ignore: cast_nullable_to_non_nullable
+              as String?,
+      workEmailVerified: freezed == workEmailVerified
+          ? _value.workEmailVerified
+          : workEmailVerified // ignore: cast_nullable_to_non_nullable
+              as bool?,
       preferences: freezed == preferences
           ? _value.preferences
           : preferences // ignore: cast_nullable_to_non_nullable
@@ -647,10 +699,14 @@ class __$$UserModelImplCopyWithImpl<$Res>
           ? _value.lastActive
           : lastActive // ignore: cast_nullable_to_non_nullable
               as String?,
-      blockedUsers: freezed == blockedUsers
-          ? _value._blockedUsers
-          : blockedUsers // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as String?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -678,6 +734,8 @@ class _$UserModelImpl implements _UserModel {
       this.phone,
       this.email,
       this.emailVerified,
+      this.workEmail,
+      this.workEmailVerified,
       this.preferences,
       this.username,
       this.refreshToken,
@@ -698,10 +756,10 @@ class _$UserModelImpl implements _UserModel {
       this.fcmToken,
       this.isOnline = true,
       this.lastActive,
-      @JsonKey(name: 'blockedUsers') final List<String>? blockedUsers})
+      @JsonKey(name: 'createdAt') this.createdAt,
+      @JsonKey(name: 'updatedAt') this.updatedAt})
       : _connectionOption = connectionOption,
-        _passion = passion,
-        _blockedUsers = blockedUsers;
+        _passion = passion;
 
   factory _$UserModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserModelImplFromJson(json);
@@ -763,6 +821,10 @@ class _$UserModelImpl implements _UserModel {
   @override
   final bool? emailVerified;
   @override
+  final String? workEmail;
+  @override
+  final bool? workEmailVerified;
+  @override
   final Preferences? preferences;
   @override
   final String? username;
@@ -811,20 +873,16 @@ class _$UserModelImpl implements _UserModel {
   final bool isOnline;
   @override
   final String? lastActive;
-  final List<String>? _blockedUsers;
   @override
-  @JsonKey(name: 'blockedUsers')
-  List<String>? get blockedUsers {
-    final value = _blockedUsers;
-    if (value == null) return null;
-    if (_blockedUsers is EqualUnmodifiableListView) return _blockedUsers;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
+  @JsonKey(name: 'createdAt')
+  final String? createdAt;
+  @override
+  @JsonKey(name: 'updatedAt')
+  final String? updatedAt;
 
   @override
   String toString() {
-    return 'UserModel(profileUpdated: $profileUpdated, completedProfile: $completedProfile, dob: $dob, address: $address, connectWith: $connectWith, connectionOption: $connectionOption, description: $description, extraData: $extraData, fullname: $fullname, gender: $gender, isVerified: $isVerified, isActivated: $isActivated, location: $location, metal: $metal, passion: $passion, phone: $phone, email: $email, emailVerified: $emailVerified, preferences: $preferences, username: $username, refreshToken: $refreshToken, subscription: $subscription, sparkBalance: $sparkBalance, distance: $distance, id: $id, referralCode: $referralCode, referredBy: $referredBy, showOnline: $showOnline, alwaysMetal: $alwaysMetal, receiveNotification: $receiveNotification, showMyProfile: $showMyProfile, activateVoiceNote: $activateVoiceNote, activateVoiceCall: $activateVoiceCall, activateVideoCall: $activateVideoCall, profilePhoto: $profilePhoto, fcmToken: $fcmToken, isOnline: $isOnline, lastActive: $lastActive, blockedUsers: $blockedUsers)';
+    return 'UserModel(profileUpdated: $profileUpdated, completedProfile: $completedProfile, dob: $dob, address: $address, connectWith: $connectWith, connectionOption: $connectionOption, description: $description, extraData: $extraData, fullname: $fullname, gender: $gender, isVerified: $isVerified, isActivated: $isActivated, location: $location, metal: $metal, passion: $passion, phone: $phone, email: $email, emailVerified: $emailVerified, workEmail: $workEmail, workEmailVerified: $workEmailVerified, preferences: $preferences, username: $username, refreshToken: $refreshToken, subscription: $subscription, sparkBalance: $sparkBalance, distance: $distance, id: $id, referralCode: $referralCode, referredBy: $referredBy, showOnline: $showOnline, alwaysMetal: $alwaysMetal, receiveNotification: $receiveNotification, showMyProfile: $showMyProfile, activateVoiceNote: $activateVoiceNote, activateVoiceCall: $activateVoiceCall, activateVideoCall: $activateVideoCall, profilePhoto: $profilePhoto, fcmToken: $fcmToken, isOnline: $isOnline, lastActive: $lastActive, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -861,6 +919,10 @@ class _$UserModelImpl implements _UserModel {
             (identical(other.email, email) || other.email == email) &&
             (identical(other.emailVerified, emailVerified) ||
                 other.emailVerified == emailVerified) &&
+            (identical(other.workEmail, workEmail) ||
+                other.workEmail == workEmail) &&
+            (identical(other.workEmailVerified, workEmailVerified) ||
+                other.workEmailVerified == workEmailVerified) &&
             (identical(other.preferences, preferences) ||
                 other.preferences == preferences) &&
             (identical(other.username, username) ||
@@ -900,11 +962,13 @@ class _$UserModelImpl implements _UserModel {
                 other.isOnline == isOnline) &&
             (identical(other.lastActive, lastActive) ||
                 other.lastActive == lastActive) &&
-            const DeepCollectionEquality()
-                .equals(other._blockedUsers, _blockedUsers));
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hashAll([
         runtimeType,
@@ -926,6 +990,8 @@ class _$UserModelImpl implements _UserModel {
         phone,
         email,
         emailVerified,
+        workEmail,
+        workEmailVerified,
         preferences,
         username,
         refreshToken,
@@ -946,10 +1012,13 @@ class _$UserModelImpl implements _UserModel {
         fcmToken,
         isOnline,
         lastActive,
-        const DeepCollectionEquality().hash(_blockedUsers)
+        createdAt,
+        updatedAt
       ]);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of UserModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$UserModelImplCopyWith<_$UserModelImpl> get copyWith =>
@@ -983,6 +1052,8 @@ abstract class _UserModel implements UserModel {
       final String? phone,
       final String? email,
       final bool? emailVerified,
+      final String? workEmail,
+      final bool? workEmailVerified,
       final Preferences? preferences,
       final String? username,
       final String? refreshToken,
@@ -1003,8 +1074,8 @@ abstract class _UserModel implements UserModel {
       final String? fcmToken,
       final bool isOnline,
       final String? lastActive,
-      @JsonKey(name: 'blockedUsers')
-      final List<String>? blockedUsers}) = _$UserModelImpl;
+      @JsonKey(name: 'createdAt') final String? createdAt,
+      @JsonKey(name: 'updatedAt') final String? updatedAt}) = _$UserModelImpl;
 
   factory _UserModel.fromJson(Map<String, dynamic> json) =
       _$UserModelImpl.fromJson;
@@ -1049,6 +1120,10 @@ abstract class _UserModel implements UserModel {
   @override
   bool? get emailVerified;
   @override
+  String? get workEmail;
+  @override
+  bool? get workEmailVerified;
+  @override
   Preferences? get preferences;
   @override
   String? get username;
@@ -1089,10 +1164,16 @@ abstract class _UserModel implements UserModel {
   @override
   String? get lastActive;
   @override
-  @JsonKey(name: 'blockedUsers')
-  List<String>? get blockedUsers;
+  @JsonKey(name: 'createdAt')
+  String? get createdAt;
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(name: 'updatedAt')
+  String? get updatedAt;
+
+  /// Create a copy of UserModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$UserModelImplCopyWith<_$UserModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1114,8 +1195,12 @@ mixin _$Address {
   String? get state => throw _privateConstructorUsedError;
   String? get country => throw _privateConstructorUsedError;
 
+  /// Serializes this Address to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Address
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $AddressCopyWith<Address> get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -1143,6 +1228,8 @@ class _$AddressCopyWithImpl<$Res, $Val extends Address>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of Address
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1206,6 +1293,8 @@ class __$$AddressImplCopyWithImpl<$Res>
       _$AddressImpl _value, $Res Function(_$AddressImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of Address
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1298,12 +1387,14 @@ class _$AddressImpl implements _Address {
             (identical(other.country, country) || other.country == country));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, apartmentNumber, houseNumber,
       streetName, postalCode, state, country);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Address
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$AddressImplCopyWith<_$AddressImpl> get copyWith =>
@@ -1344,8 +1435,11 @@ abstract class _Address implements Address {
   String? get state;
   @override
   String? get country;
+
+  /// Create a copy of Address
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$AddressImplCopyWith<_$AddressImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1365,8 +1459,12 @@ mixin _$ExtraData {
   String? get profession => throw _privateConstructorUsedError;
   String? get religion => throw _privateConstructorUsedError;
 
+  /// Serializes this ExtraData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of ExtraData
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ExtraDataCopyWith<ExtraData> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1396,6 +1494,8 @@ class _$ExtraDataCopyWithImpl<$Res, $Val extends ExtraData>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of ExtraData
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1466,6 +1566,8 @@ class __$$ExtraDataImplCopyWithImpl<$Res>
       _$ExtraDataImpl _value, $Res Function(_$ExtraDataImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of ExtraData
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1566,12 +1668,14 @@ class _$ExtraDataImpl implements _ExtraData {
                 other.religion == religion));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, country, education, ethnicity,
       language, maritalStatus, profession, religion);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of ExtraData
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ExtraDataImplCopyWith<_$ExtraDataImpl> get copyWith =>
@@ -1613,8 +1717,11 @@ abstract class _ExtraData implements ExtraData {
   String? get profession;
   @override
   String? get religion;
+
+  /// Create a copy of ExtraData
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ExtraDataImplCopyWith<_$ExtraDataImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1632,8 +1739,12 @@ mixin _$Preferences {
   String? get ethnicity => throw _privateConstructorUsedError;
   String? get religion => throw _privateConstructorUsedError;
 
+  /// Serializes this Preferences to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Preferences
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $PreferencesCopyWith<Preferences> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1662,6 +1773,8 @@ class _$PreferencesCopyWithImpl<$Res, $Val extends Preferences>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of Preferences
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1720,6 +1833,8 @@ class __$$PreferencesImplCopyWithImpl<$Res>
       _$PreferencesImpl _value, $Res Function(_$PreferencesImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of Preferences
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1801,12 +1916,14 @@ class _$PreferencesImpl implements _Preferences {
                 other.religion == religion));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, ageRange, demography, education, ethnicity, religion);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Preferences
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PreferencesImplCopyWith<_$PreferencesImpl> get copyWith =>
@@ -1842,8 +1959,11 @@ abstract class _Preferences implements Preferences {
   String? get ethnicity;
   @override
   String? get religion;
+
+  /// Create a copy of Preferences
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PreferencesImplCopyWith<_$PreferencesImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1858,8 +1978,12 @@ mixin _$Location {
   double? get lng => throw _privateConstructorUsedError;
   String? get address => throw _privateConstructorUsedError;
 
+  /// Serializes this Location to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Location
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $LocationCopyWith<Location> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1882,6 +2006,8 @@ class _$LocationCopyWithImpl<$Res, $Val extends Location>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of Location
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1925,6 +2051,8 @@ class __$$LocationImplCopyWithImpl<$Res>
       _$LocationImpl _value, $Res Function(_$LocationImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of Location
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1979,11 +2107,13 @@ class _$LocationImpl implements _Location {
             (identical(other.address, address) || other.address == address));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, lat, lng, address);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Location
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$LocationImplCopyWith<_$LocationImpl> get copyWith =>
@@ -2012,8 +2142,11 @@ abstract class _Location implements Location {
   double? get lng;
   @override
   String? get address;
+
+  /// Create a copy of Location
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$LocationImplCopyWith<_$LocationImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

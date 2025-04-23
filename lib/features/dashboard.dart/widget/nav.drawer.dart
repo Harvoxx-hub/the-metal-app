@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:flutter_svg/svg.dart';
+
 import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
@@ -11,7 +11,6 @@ import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 class NavDrawer extends ConsumerWidget {
   const NavDrawer({super.key});
@@ -20,7 +19,7 @@ class NavDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider).data;
     final metalProperties = ref.watch(metalPropertiesProvider).data;
-   
+
     final metal = metalProperties!.metals!.firstWhere(
       (element) => element.id == authState!.metal,
       orElse: () => metalProperties.metals![0],
@@ -186,7 +185,7 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(20),
-          (false)
+          (authState.isVerified == false)
               ? Column(
                   children: [
                     ListTile(
@@ -209,7 +208,7 @@ class NavDrawer extends ConsumerWidget {
                       onTap: () => {
                         Navigator.pushNamed(
                           context,
-                          AppRoutes.verificationVideo,
+                          AppRoutes.faceVerification,
                         )
                       },
                     ),
@@ -232,7 +231,7 @@ class NavDrawer extends ConsumerWidget {
                 width: 24,
               )),
             ),
-            title: const TextView(text: "Let’s hear from you"),
+            title: const TextView(text: "Let's hear from you"),
             onTap: () => {
               Navigator.pushNamed(
                 context,
@@ -288,7 +287,7 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(40),
-            Padding(
+          Padding(
             padding: EdgeInsets.all(8.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -304,7 +303,8 @@ class NavDrawer extends ConsumerWidget {
                 ),
                 Gap(19),
                 TextView(
-                  text: ref.read(metalPropertiesProvider.notifier).currentVersion,
+                  text:
+                      ref.read(metalPropertiesProvider.notifier).currentVersion,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),

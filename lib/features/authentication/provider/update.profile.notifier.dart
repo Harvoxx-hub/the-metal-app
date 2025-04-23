@@ -7,7 +7,7 @@ import 'package:metal/features/authentication/provider/auth.notifier.dart';
 /// Notifier for managing and updating user profiles
 class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
   final Ref ref;
-  late UserModel model;
+  UserModel? _model;
 
   UpdateProfileNotifier(this.ref) : super(UpdateProfileState.initial()) {
     _initializeProfile();
@@ -17,31 +17,62 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
   Future<void> _initializeProfile() async {
     final user = ref.read(authProvider).data;
     if (user != null) {
-      model = user;
-      state = UpdateProfileState.success(user);
+      _model = user;
+      
       print("SOON USER UPDATE: ${user.toJson()}");
     } else {
       print("SOON USER UPDATE: No user data available");
     }
   }
 
-  /// Updates the state with the given [userData]
-  void updateUserData(UserModel userData) {
-    model = userData;
-    state = UpdateProfileState.success(userData);
+  /// Updates the state with the given [userData] map
+  void updateUserData(Map<String, dynamic> userData) {
+    if (_model == null) return;
+
+    final currentTime = DateTime.now().toIso8601String();
+
+    // Create a merged map combining existing data with new data
+    final Map<String, dynamic> mergedData = _model!.toJson();
+
+    // Update the merged data with new values from userData
+    userData.forEach((key, value) {
+      if (value != null) {
+        mergedData[key] = value;
+      }
+    });
+
+    // Ensure updatedAt is set
+    mergedData['updatedAt'] = currentTime;
+
+    // Convert back to UserModel and update state
+    _model = UserModel.fromJson(mergedData);
+   
   }
 
   /// Sends the user update to the repository and updates the state accordingly
-  Future<void> sendUserUpdate(UserModel userModel) async {
+  Future<void> sendUserUpdate() async {
+    if (_model == null) return;
+
     try {
       state = UpdateProfileState.loading();
       final repository = ref.read(authenticationRepositoryProvider);
+      final currentTime = DateTime.now().toIso8601String();
+
+      // Create a merged map combining existing data with new data
+      final Map<String, dynamic> mergedData = _model!.toJson();
+
+      // Update the merged data with new values from userData
+       
+
+      // Ensure updatedAt is set
+      mergedData['updatedAt'] = currentTime;
+
       final response =
-          await repository.updateUser(getNonNullValues(userModel.toJson()));
+          await repository.updateUser(getNonNullValues(mergedData));
 
       if (response.success!) {
         final updatedUser = UserModel.fromJson(response.data);
-        ref.read(authProvider.notifier).getUpdatedUser();
+    await    ref.read(authProvider.notifier).getUpdatedUser();
         state = UpdateProfileState.success(updatedUser);
       } else {
         state =
@@ -54,21 +85,6 @@ class UpdateProfileNotifier extends StateNotifier<UpdateProfileState> {
 
   /// Filters out null values from a map
   Map<String, dynamic> getNonNullValues(Map<String, dynamic> object) {
-    // Ensure nested objects are serialized
-    object.forEach((key, value) {
-      if (value is Map) {
-        object[key] = getNonNullValues(value as Map<String, dynamic>);
-      } else if (value is List) {
-        object[key] = value.map((item) {
-          if (item is Map) {
-            return getNonNullValues(item as Map<String, dynamic>);
-          }
-          return item;
-        }).toList();
-      }
-    });
-
-    // Remove null values
     return object..removeWhere((key, value) => value == null);
   }
 }

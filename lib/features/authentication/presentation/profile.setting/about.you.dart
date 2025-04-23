@@ -71,7 +71,7 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
                     Assets.icons.christianity.svg(width: 24, height: 24),
                 value: religion,
                 hint: "Please Select",
-                floatingLabel: "Religon",
+                floatingLabel: "Religion",
               ),
               const Gap(22),
               MentalDropdown(
@@ -115,15 +115,17 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
   }
 
   void _onNextPressed() {
-    final userData = ref.watch(updateProfileProvider).data;
-
+ 
     final extraData = ExtraData(
         maritalStatus: maritalStatus ?? "",
         religion: religion ?? "",
         profession: profession ?? "",
         language: language?.join(',') ?? "");
 
-    final updated = userData!.copyWith(extraData: extraData);
+    final updated = {
+      'extraData': extraData.toJson(),
+    };
+ 
 
     ref.read(updateProfileProvider.notifier).updateUserData(updated);
     Navigator.pushNamed(

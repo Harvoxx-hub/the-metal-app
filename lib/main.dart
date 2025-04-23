@@ -1,18 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/core/services/auth.pref.service.dart';
+ 
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/handler/app.lifeycle.handler.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:metal/firebase_options_dev.dart' show DefaultFirebaseOptionDev;
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 /// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
@@ -20,12 +21,36 @@ final navKey = GlobalKey<NavigatorState>();
 // Convenience getter for accessing the current [NavigatorState]
 //NavigatorState? get nav => navKey.currentState;
 
+// Must be top-level function (not a class method)
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  // Ensure Firebase is initialized in the background isolate
+  await Firebase.initializeApp(
+      options: DefaultFirebaseOptionDev.currentPlatform);
+
+  print("Handling a background message: ${message.messageId}");
+  print('Message data: ${message.data}');
+  if (message.notification != null) {
+    print('Message also contained a notification: ${message.notification}');
+  }
+  // You might need to add specific Zego handling here if just receiving the message isn't enough,
+  // but often, Zego's SDK handles the call UI presentation automatically once the message is delivered.
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeFirebase(); // Ensure Firebase is initialized for the main isolate first
 
-  await initializeFirebase();
-  initializeAuthManager();
+  // Set the background messaging handler
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+// Initialize Shorebird
+  final shorebirdCodePush = ShorebirdCodePush();
+  await shorebirdCodePush.downloadUpdateIfAvailable();
+
+ 
   // Set navigator key
   ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navKey);
 
@@ -34,7 +59,6 @@ void main() async {
       [ZegoUIKitSignalingPlugin()],
     );
   });
-
 
   runApp(
     const ProviderScope(
@@ -52,18 +76,14 @@ void main() async {
 Future<void> initializeFirebase() async {
   try {
     await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform);
+        options: DefaultFirebaseOptionDev.currentPlatform);
     FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
     await FirebaseRemoteConfigService().initialize();
-    
   } catch (e) {
     debugPrint('Error initializing Firebase: $e');
   }
 }
-
-Future<void> initializeAuthManager() async {
-  await AuthManager.ensureInitialized();
-}
+ 
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
@@ -76,8 +96,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    ref.read(authProvider.notifier).initZIMKIt();
-    ref.read(updateProfileProvider.notifier);
+    //  ref.read(authProvider.notifier).initZIMKIt();
+    // ref.read(updateProfileProvider.notifier);
   }
 
   @override

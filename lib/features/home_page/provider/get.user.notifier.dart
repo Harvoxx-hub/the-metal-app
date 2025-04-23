@@ -13,20 +13,40 @@ class GetUserNotifier extends StateNotifier<GetUserState> {
 
   void getUserById() async {
     try {
+      if (!mounted) return;
       state = GetUserState.loading();
       final homeRepository = ref.watch(authenticationRepositoryProvider);
       final response = await homeRepository.getUserByID(id: id);
 
+      if (!mounted) return;
+
       if (response.success == false) {
-        state = GetUserState.error('No user data available');
+       // state = GetUserState.error('No user data available');
       } else {
         final userData = UserModel.fromJson(response.data);
 
-        
-        state = GetUserState.success(userData);
+        // Check if createdAt or updatedAt is null and update if needed
+        if (userData.createdAt == null || userData.updatedAt == null) {
+          final currentTime = DateTime.now().toIso8601String();
+          final updatedUserData = userData.copyWith(
+            createdAt: userData.createdAt ?? currentTime,
+            updatedAt: userData.updatedAt ?? currentTime,
+          );
+
+          // Set state with updated data
+          if (mounted) {
+            state = GetUserState.success(updatedUserData);
+          }
+        } else {
+          if (mounted) {
+            state = GetUserState.success(userData);
+          }
+        }
       }
     } catch (e, s) {
-      state = GetUserState.error(e.toString(), stackTrace: s);
+      if (mounted) {
+        state = GetUserState.error(e.toString(), stackTrace: s);
+      }
     }
   }
 }

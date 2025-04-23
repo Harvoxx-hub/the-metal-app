@@ -7,23 +7,31 @@
         
 
         
+      
+
         {
-            "name": "metal",
-            "request": "launch",
+            "name": "production",
             "type": "dart",
-            "flutterMode": "debug"
+            "request": "launch",
+            "program": "lib/main.dart",
+            "args": [
+                "--flavor",
+                "prod",
+                "--target",
+                "lib/main.dart"
+            ]
         },
         {
-            "name": "metal (profile mode)",
+            "name": "dev",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "metal (release mode)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
-        }
+            "program": "lib/main_dev.dart",
+            "args": [
+                "--flavor",
+                "dev",
+                "--target",
+                "lib/main_dev.dart"
+        ]
+},
     ]
 }

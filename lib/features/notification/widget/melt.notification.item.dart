@@ -6,6 +6,7 @@ import 'package:metal/core/utils/metal.helper.dart';
 import 'package:metal/features/notification/base.item.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -17,65 +18,107 @@ class MeltNotificationItem extends BaseNotificationItem {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _handleNotificationTap(context),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: ShapeDecoration(
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: ShapeDecoration(
+          color:
+              notificationModel.isRead ? Colors.white : const Color(0xFFFFEFF5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+              color: notificationModel.isRead
+                  ? Colors.transparent
+                  : AppColors.metalPinkColour.withOpacity(0.3),
+              width: 1,
             ),
-            shadows: const [
-              BoxShadow(
-                color: Color(0x0C076DF3),
-                blurRadius: 40,
-                offset: Offset(0, 30),
-              ),
-            ],
           ),
-          child: Row(
-            children: [
-              _buildIcon(),
-              const Gap(18),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextView(
-                      text: notificationModel.title ?? '',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+          shadows: const [
+            BoxShadow(
+              color: Color(0x0C076DF3),
+              blurRadius: 40,
+              offset: Offset(0, 30),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Stack(
+              children: [
+                _buildIcon(),
+                if (!notificationModel.isRead)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: AppColors.metalPinkColour,
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                    TextView(
-                      text: notificationModel.subTitle ?? '',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ],
+                  ),
+              ],
+            ),
+            const Gap(12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextView(
+                    text: notificationModel.title ?? '',
+                    fontSize: 14,
+                    fontWeight: notificationModel.isRead
+                        ? FontWeight.w500
+                        : FontWeight.w600,
+                    color: notificationModel.isRead
+                        ? AppColors.metalBlack
+                        : AppColors.metalPinkColour,
+                  ),
+                  const Gap(4),
+                  TextView(
+                    text: notificationModel.subTitle ?? '',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.metalBlack75,
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                TextView(
+                  text: formatTime(datetime: notificationModel.timestamp),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.grey,
                 ),
-              ),
-              TextView(
-                text: formatTime(datetime: notificationModel.timestamp),
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  void _handleNotificationTap(BuildContext context) {
+  // This method is kept for reference but no longer used directly by this widget
+  // The parent widget now handles navigation
+  static void handleNotificationTap(
+      BuildContext context, NotificationModel notificationModel) {
     switch (notificationModel.type) {
       case NotificationType.new_connection:
-        final metalId =
-            MetalHelper.getOtherUserId(notificationModel.recipientIds);
-        _navigateTo(context, AppRoutes.meltMetal, metalId);
+        // Use either connection ID or user ID, whichever is available
+        final connectionId = notificationModel.data["connectionId"];
+        final metalId = connectionId != null
+            ? notificationModel
+                .data["otherUserId"] // Use other user ID from data
+            : MetalHelper.getOtherUserId(
+                notificationModel.recipientIds); // Fallback to old method
 
+        _navigateTo(context, AppRoutes.meltMetal, metalId);
         break;
       case NotificationType.new_message:
         final metalId = notificationModel.data["senderId"];
@@ -85,9 +128,10 @@ class MeltNotificationItem extends BaseNotificationItem {
         // Handle reaction notification
         break;
       case NotificationType.thought_created:
-    
-        _navigateTo(
-            context, AppRoutes.myMeltedUser, {"metalId" : notificationModel.data["userId"], "toughtId": notificationModel.data["thoughtId"]}  );
+        _navigateTo(context, AppRoutes.myMeltedUser, {
+          "metalId": notificationModel.data["userId"],
+          "toughtId": notificationModel.data["thoughtId"]
+        });
         break;
       default:
         // Handle other notification types
@@ -95,9 +139,7 @@ class MeltNotificationItem extends BaseNotificationItem {
     }
   }
 
-  void _navigateTo(BuildContext context, String route, var userId) {
-     
-
+  static void _navigateTo(BuildContext context, String route, var userId) {
     Navigator.pushNamed(context, route, arguments: userId);
   }
 

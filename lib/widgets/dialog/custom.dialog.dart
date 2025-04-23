@@ -43,7 +43,9 @@ class CustomDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              content,
+              Expanded(
+                child: content,
+              ),
             ],
           ),
         ),

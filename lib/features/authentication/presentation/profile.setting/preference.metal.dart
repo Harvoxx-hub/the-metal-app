@@ -61,6 +61,14 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               onChanged: (bool value) {
                 setState(() {
                   noSpecialPreference = value;
+                  if (value) {
+                    // Clear all selections when "No Special Preference" is checked
+                    selectedAgeRange = null;
+                    selectedReligion = null;
+                    selectedEthnicity = null;
+                    selectedEducation = null;
+                    selectedDemography = null;
+                  }
                 });
               },
             ),
@@ -71,89 +79,125 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
               fontWeight: FontWeight.w300,
             ),
             const Gap(15),
-            MentalDropdownMutipleSelection(
-              items: const [
-                "18 - 30 years",
-                "30 - 45 years",
-                "45 - 60 years",
-                "Above 60 years",
-              ],
-              value: selectedAgeRange,
-              onChanged: (newValue) {
-                setState(() {
-                  selectedAgeRange = newValue;
-                });
-              },
-              floatingLabel: "Age range",
-              hint: "Please Select",
-              prefixIcon: SvgPicture.asset(
-                Assets.icons.single.path,
-                height: 24,
-                width: 24,
+            AbsorbPointer(
+              absorbing: noSpecialPreference,
+              child: Opacity(
+                opacity: noSpecialPreference ? 0.5 : 1.0,
+                child: MentalDropdownMutipleSelection(
+                  items: const [
+                    "18 - 25 years",
+                    "25 - 30 years",
+                    "30 - 35 years",
+                    "35 - 40 years",
+                    "40 - 45 years",
+                    "45 - 50 years",
+                    "50 - 55 years",
+                    "55 - 60 years",
+                    "Above 60 years",
+                  ],
+                  value: selectedAgeRange,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedAgeRange = newValue;
+                    });
+                  },
+                  floatingLabel: "Age range",
+                  hint: "Please Select",
+                  prefixIcon: SvgPicture.asset(
+                    Assets.icons.single.path,
+                    height: 24,
+                    width: 24,
+                  ),
+                ),
               ),
             ),
             const Gap(15),
-            MentalDropdownMutipleSelection(
-              items: metalProps.data!.religion!,
-              value: selectedReligion,
-              onChanged: (newValue) {
-                setState(() {
-                  selectedReligion = newValue;
-                });
-              },
-              floatingLabel: "Religion",
-              hint: "Please Select",
-              prefixIcon: Assets.icons.christianity.svg(width: 24, height: 24),
-            ),
-            const Gap(15),
-            MentalDropdownMutipleSelection(
-              items: metalProps.data!.ethnicity!,
-              value: selectedEthnicity,
-              onChanged: (newValue) {
-                setState(() {
-                  selectedEthnicity = newValue;
-                });
-              },
-              floatingLabel: "Ethnicity",
-              hint: "Please Select",
-              prefixIcon: SvgPicture.asset(
-                Assets.icons.intersectCircle.path,
-                height: 24,
-                width: 24,
+            AbsorbPointer(
+              absorbing: noSpecialPreference,
+              child: Opacity(
+                opacity: noSpecialPreference ? 0.5 : 1.0,
+                child: MentalDropdownMutipleSelection(
+                  items: metalProps.data!.religion!,
+                  value: selectedReligion,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedReligion = newValue;
+                    });
+                  },
+                  floatingLabel: "Religion",
+                  hint: "Please Select",
+                  prefixIcon:
+                      Assets.icons.christianity.svg(width: 24, height: 24),
+                ),
               ),
             ),
             const Gap(15),
-            MentalDropdownMutipleSelection(
-              items: metalProps.data!.education!,
-              value: selectedEducation,
-              onChanged: (newValue) {
-                setState(() {
-                  selectedEducation = newValue;
-                });
-              },
-              floatingLabel: "Education",
-              hint: "Please Select",
-              prefixIcon: SvgPicture.asset(
-                Assets.icons.graduationHat01.path,
-                height: 24,
-                width: 24,
+            AbsorbPointer(
+              absorbing: noSpecialPreference,
+              child: Opacity(
+                opacity: noSpecialPreference ? 0.5 : 1.0,
+                child: MentalDropdownMutipleSelection(
+                  items: metalProps.data!.ethnicity!,
+                  value: selectedEthnicity,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedEthnicity = newValue;
+                    });
+                  },
+                  floatingLabel: "Ethnicity",
+                  hint: "Please Select",
+                  prefixIcon: SvgPicture.asset(
+                    Assets.icons.intersectCircle.path,
+                    height: 24,
+                    width: 24,
+                  ),
+                ),
               ),
             ),
             const Gap(15),
-            MentalDropdownMutipleSelection(
-              items: metalProps.data!.demography!,
-              value: selectedDemography,
-              onChanged: (newValue) {
-                setState(() {
-                  selectedDemography = newValue;
-                });
-              },
-              floatingLabel: "Demography",
-              hint: "Please Select",
-              prefixIcon: SvgPicture.asset(
-                Assets.icons.markerPin03.path,
-                height: 24,
-                width: 24,
+            AbsorbPointer(
+              absorbing: noSpecialPreference,
+              child: Opacity(
+                opacity: noSpecialPreference ? 0.5 : 1.0,
+                child: MentalDropdownMutipleSelection(
+                  items: metalProps.data!.education!,
+                  value: selectedEducation,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedEducation = newValue;
+                    });
+                  },
+                  floatingLabel: "Education",
+                  hint: "Please Select",
+                  prefixIcon: SvgPicture.asset(
+                    Assets.icons.graduationHat01.path,
+                    height: 24,
+                    width: 24,
+                  ),
+                ),
+              ),
+            ),
+            const Gap(15),
+            AbsorbPointer(
+              absorbing: noSpecialPreference,
+              child: Opacity(
+                opacity: noSpecialPreference ? 0.5 : 1.0,
+                child: MentalDropdownMutipleSelection(
+                  items: metalProps.data!.demography!,
+                  value: selectedDemography,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedDemography = newValue;
+                    });
+                  },
+                  floatingLabel: "Demography",
+                  hint: "Please Select",
+                  prefixIcon: SvgPicture.asset(
+                    Assets.icons.markerPin03.path,
+                    height: 24,
+                    width: 24,
+                  ),
+                ),
               ),
             ),
             const Gap(15),
@@ -175,14 +219,29 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
   }
 
   void _onNextPressed() {
-    final userData = ref.watch(updateProfileProvider).data;
-    Preferences preferences = Preferences(
-        ageRange: selectedAgeRange?.join(','),
-        religion: selectedReligion?.join(','),
-        demography: selectedDemography?.join(','),
-        education: selectedEducation?.join(','),
-        ethnicity: selectedEthnicity?.join(','));
-    final updated = userData!.copyWith(preferences: preferences);
+    Preferences preferences;
+
+    if (noSpecialPreference) {
+      // If no special preference is selected, create empty preferences
+      preferences = Preferences(
+          ageRange: null,
+          religion: null,
+          demography: null,
+          education: null,
+          ethnicity: null);
+    } else {
+      preferences = Preferences(
+          ageRange: selectedAgeRange?.join(','),
+          religion: selectedReligion?.join(','),
+          demography: selectedDemography?.join(','),
+          education: selectedEducation?.join(','),
+          ethnicity: selectedEthnicity?.join(','));
+    }
+
+    final updated = {
+      'preferences': preferences.toJson(),
+    };
+    // userData!.copyWith(preferences: preferences);
     ref.read(updateProfileProvider.notifier).updateUserData(updated);
 
     Navigator.pushNamed(

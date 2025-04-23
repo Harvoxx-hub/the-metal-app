@@ -19,17 +19,28 @@ class SparkModel {
   String? receiverId;
   String? receiverName;
   String? senderName;
+  String? referredName;
+  String? referrerName;
+  String? referredUserId;
+  String? referrerId;
 
   String? userId;
   String? timestamp;
 
-  SparkModel(
-      {this.type,
-      this.amount,
-      this.sparks,
-      this.receiverId,
-      this.userId,
-      this.timestamp});
+  SparkModel({
+    this.type,
+    this.amount,
+    this.sparks,
+    this.receiverId,
+    this.receiverName,
+    this.senderName,
+    this.userId,
+    this.timestamp,
+    this.referredName,
+    this.referrerName,
+    this.referredUserId,
+    this.referrerId,
+  });
 
   factory SparkModel.fromJson(Map<String, dynamic> json) =>
       _$SparkModelFromJson(json);

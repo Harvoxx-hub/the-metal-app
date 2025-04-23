@@ -1,0 +1,2 @@
+/Users/victor/Documents/GitHub/metal/android/app/.cxx/RelWithDebInfo/6t6z3o5l/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/victor/Documents/GitHub/metal/android/app/.cxx/RelWithDebInfo/6t6z3o5l/arm64-v8a/CMakeFiles/rebuild_cache.dir

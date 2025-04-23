@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'metal-ad87d.firebasestorage.app',
     iosBundleId: 'com.bwh.metal',
   );
+
 }

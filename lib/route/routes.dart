@@ -4,15 +4,15 @@ import 'package:metal/features/authentication/presentation/forget.password/forgo
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
+import 'package:metal/features/home_page/domain/entries/thought.model.dart';
+import 'package:metal/features/verification/face_verification_screen.dart';
 
 import 'package:metal/features/home_page/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
-import 'package:metal/features/onboarding/metal_plus_view.dart';
-
+ 
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
 import 'package:metal/features/onboarding/tutorial_pages/tutorial_screen.dart';
-import 'package:metal/features/onboarding/sparks_info_switch_view.dart';
-import 'package:metal/features/onboarding/unmetal_view.dart';
+ 
 import 'package:metal/features/settings/presentation/delete.screen.dart';
 import 'package:metal/features/settings/presentation/edit.page.dart';
 import 'package:metal/features/splash/splash.screen.dart';
@@ -70,6 +70,8 @@ import 'package:metal/features/upgrade/make.payment.dart';
 import 'package:metal/features/verification/verification.video.dart';
 import 'package:metal/features/verification/video.preview.dart';
 
+import 'package:metal/features/home_page/presentation/thought_details.page.dart';
+
 class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
@@ -102,6 +104,7 @@ class AppRoutes {
   static const String settingPage = '/settingPage';
   static const String verificationVideo = '/verificationVideo';
   static const String videoPreview = '/videoPreview';
+  static const String faceVerification = '/faceVerification';
   static const String meltMetal = '/meltMetal';
   static const String pushMetal = '/pushMetal';
   static const String feedBackPage = '/feedBackPage';
@@ -126,18 +129,58 @@ class AppRoutes {
   static const String editPage = '/editPage';
   static const String delete = '/deletePage';
   static const String postThought = '/postThought';
+  static const String thoughtDetails = '/thoughtDetails';
+
+  // Dashboard tab indices
+  static const int homeTab = 0;
+  static const int sparksTab = 1;
+  static const int messagesTab = 2;
+  static const int profileTab = 3;
+
+  // Helper methods to navigate to specific tabs
+  static void navigateToHome(BuildContext context, {bool replace = false}) {
+    if (replace) {
+      Navigator.pushReplacementNamed(context, dashboardPage,
+          arguments: homeTab);
+    } else {
+      Navigator.pushNamed(context, dashboardPage, arguments: homeTab);
+    }
+  }
+
+  static void navigateToSparks(BuildContext context, {bool replace = false}) {
+    if (replace) {
+      Navigator.pushReplacementNamed(context, dashboardPage,
+          arguments: sparksTab);
+    } else {
+      Navigator.pushNamed(context, dashboardPage, arguments: sparksTab);
+    }
+  }
+
+  static void navigateToMessages(BuildContext context, {bool replace = false}) {
+    if (replace) {
+      Navigator.pushReplacementNamed(context, dashboardPage,
+          arguments: messagesTab);
+    } else {
+      Navigator.pushNamed(context, dashboardPage, arguments: messagesTab);
+    }
+  }
+
+  static void navigateToProfile(BuildContext context, {bool replace = false}) {
+    if (replace) {
+      Navigator.pushReplacementNamed(context, dashboardPage,
+          arguments: profileTab);
+    } else {
+      Navigator.pushNamed(context, dashboardPage, arguments: profileTab);
+    }
+  }
+
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
         return MaterialPageRoute(builder: (_) => const SplashPage());
       case onboarding:
         return MaterialPageRoute(builder: (_) => const OnboardingPageView());
-      case unmetalView:
-        return MaterialPageRoute(builder: (_) => const UnmetalView());
-      case metalPlusView:
-        return MaterialPageRoute(builder: (_) => const MetalPlusView());
-      case sparkInfoSwitchView:
-        return MaterialPageRoute(builder: (_) => const SparksInfoSwitchView());
+       
       case onboardingTutorialView:
         return MaterialPageRoute(builder: (_) => const OnboardingFlowView());
       case login:
@@ -181,6 +224,17 @@ class AppRoutes {
       case homeAddressPage:
         return MaterialPageRoute(builder: (_) => const HomeAddressPage());
       case dashboardPage:
+        // Check if arguments contain a tab index
+        final args = settings.arguments;
+        if (args is int) {
+          return MaterialPageRoute(
+              builder: (_) => DashboardPage(initialPageIndex: args));
+        } else if (args is Map<String, dynamic> &&
+            args.containsKey('tabIndex')) {
+          return MaterialPageRoute(
+              builder: (_) =>
+                  DashboardPage(initialPageIndex: args['tabIndex']));
+        }
         return MaterialPageRoute(builder: (_) => const DashboardPage());
       case viewEyes:
         return MaterialPageRoute(
@@ -202,7 +256,9 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const VerificationVideo());
       case videoPreview:
         return MaterialPageRoute(builder: (_) => const VideoPreview());
-
+      case faceVerification:
+        return MaterialPageRoute(
+            builder: (_) => const FaceVerificationScreen());
       case feedBackPage:
         return MaterialPageRoute(builder: (_) => FeedBackPage());
       case blockedUser:
@@ -233,15 +289,18 @@ class AppRoutes {
                 ));
 
       case meltMetal:
-       
+
 //"NUFXmf3EzrOAiw7k9PQsVzf7x7B3"
         return MaterialPageRoute(
             builder: (_) => MeltMetal(
-
                   id: settings.arguments as String,
                 ));
       case sendSpark:
-        return MaterialPageRoute(builder: (_) => const SendSpark());
+        return MaterialPageRoute(
+            builder: (_) => SendSpark(
+                recipient: settings.arguments != null
+                    ? (settings.arguments as UserModel)
+                    : null));
       case buySpark:
         return MaterialPageRoute(builder: (_) => BuySpark());
       case referEarnSpark:
@@ -270,8 +329,13 @@ class AppRoutes {
       case postThought:
         return MaterialPageRoute(
             builder: (_) => PostThought(
-                  userModel: settings.arguments as UserModel,
+                  thoughtModel: settings.arguments as ThoughtModel?,
                 ));
+      case thoughtDetails:
+        return MaterialPageRoute(
+          builder: (_) => ThoughtDetailsPage(),
+          settings: settings,
+        );
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

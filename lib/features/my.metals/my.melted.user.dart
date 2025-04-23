@@ -4,17 +4,19 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/core/utils/connection_helper.dart';
 import 'package:metal/core/utils/constant/enums.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
+import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
 import 'package:metal/features/my.metals/metal.tabs/metal.details.dart';
- 
+
 import 'package:metal/features/profile/presentation/tab.screen/thought.tab.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -49,24 +51,32 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
 
   @override
   Widget build(BuildContext context) {
-    final checkMeltState = ref.watch(checkMeltProvider(widget.metalDetials["metalId"]));
-    final connection =
-        ref.watch(getMeltUserProvider.notifier).getMeltUserById(widget.metalDetials["metalId"]);
+    final checkMeltState =
+        ref.watch(checkMeltProvider(widget.metalDetials["metalId"]));
+    final connection = ref
+        .watch(getMeltUserProvider.notifier)
+        .getMeltUserById(widget.metalDetials["metalId"]);
     final connectionList = ref.watch(getMeltUserProvider).data;
     final myMelt = ref.watch(getUserProvider(widget.metalDetials["metalId"]));
     final meltState = ref.watch(meltUserProvider);
 
-    ref.listen<CheckMeltState>(checkMeltProvider(widget.metalDetials["metalId"]),
-        (prev, current) {
+    ref.listen<CheckMeltState>(
+        checkMeltProvider(widget.metalDetials["metalId"]), (prev, current) async {
       if (current.isSuccess) {
-        // Handle mutual melt case
-        if (meltState.isSuccess && current.data == MeltRequestState.mutual) {
-          Navigator.pushNamed(
+        //check from connection helper if the users are connected or mutual
+        final connectionStatus = await ConnectionHelper(
+          ref.read(homeRepositoryProvider),
+        ).getConnectionStatus(userData!.id!, widget.metalDetials["metalId"]);
+     
+     if(connectionStatus){
+      Navigator.pushNamed(
             context,
             AppRoutes.meltMetal,
             arguments: widget.metalDetials["metalId"],
           );
-        }
+     }
+         
+      
       }
     });
 
@@ -79,7 +89,8 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                   padding: const EdgeInsets.all(40.0),
                   child: _buildErrorSection(myMelt.errorMessage.toString(), () {
                     // Retry the request by refreshing the notifier
-                    ref.refresh(getUserProvider(widget.metalDetials["metalId"]));
+                    ref.refresh(
+                        getUserProvider(widget.metalDetials["metalId"]));
                   }),
                 )
               : ProfileHeader(
@@ -133,8 +144,8 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                   ),
                                   const Gap(5),
                                   TextView(
-                                    text: myMelt.data?.address != null
-                                        ? "${myMelt.data!.address?.state ?? ""}, ${myMelt.data!.address?.country ?? ""}"
+                                    text: myMelt.data?.location != null
+                                        ? "${myMelt.data!.location?.address}"
                                         : "No Address Found",
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -148,12 +159,16 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                             meltState,
                             context,
                             connectionList?.length ?? 0,
+                            myMelt.data,
                           ),
                           const Gap(10),
                           BaseTab(
                             tabs: [
                               BaseTabModel(
-                                  child: MyThoughtTab(id: myMelt.data!.id, toughtID: widget.metalDetials["toughtId"] ,),
+                                  child: MyThoughtTab(
+                                    id: myMelt.data!.id,
+                                    toughtID: widget.metalDetials["toughtId"],
+                                  ),
                                   title: 'Metal Thought'),
                               BaseTabModel(
                                 child: MetalDetailsTab(
@@ -161,7 +176,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                   connectionModel:
                                       connection?.connectionId ?? '',
                                   melted: checkMeltState.data ==
-                                      MeltRequestState.mutual,
+                                      MeltRequestState.connected,
                                   userModel: myMelt.data ?? UserModel(),
                                 ),
                                 title: 'Metal Details ',
@@ -206,26 +221,29 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
   }
 
   // Widget to handle melt-related actions
-  Widget _buildMeltActionSection(BaseState<MeltRequestState> checkMeltState,
-      MeltUsersState meltState, BuildContext context, int connectionInt) {
+  Widget _buildMeltActionSection(
+      BaseState<MeltRequestState> checkMeltState,
+      MeltUsersState meltState,
+      BuildContext context,
+      int connectionInt,
+      UserModel? recipient) {
     if (checkMeltState.data == MeltRequestState.pending) {
       return PlainButton(
         loading: meltState.isLoading,
         onPressed: () {},
         fontSize: 15,
         color: AppColors.metalPinkColour40,
-        buttonText: "Melt Requested",
+        buttonText: "Melt",
       );
-    } else if (checkMeltState.data == MeltRequestState.mutual) {
+    } else if ( 
+        checkMeltState.data == MeltRequestState.connected) {
       return Row(
         children: [
           Expanded(
             child: BaseButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(
-                  context,
-                  AppRoutes.sendSpark,
-                );
+                Navigator.pushReplacementNamed(context, AppRoutes.sendSpark,
+                    arguments: recipient);
               },
               fontSize: 15,
               buttonText: "Send Spark",
@@ -258,7 +276,9 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
               },
             );
           } else if (connectionInt <= 10) {
-            ref.read(meltUserProvider.notifier).meltUser(widget.metalDetials["metalId"]);
+            ref
+                .read(meltUserProvider.notifier)
+                .meltUser(widget.metalDetials["metalId"]);
           } else {
             showDialog(
               context: context,

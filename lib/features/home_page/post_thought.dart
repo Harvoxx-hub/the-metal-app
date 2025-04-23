@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
 import 'package:metal/features/home_page/provider/send.thoughts.dart';
 import 'package:metal/features/home_page/provider/edit.thoughts.dart';
@@ -15,11 +16,9 @@ import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 class PostThought extends ConsumerStatefulWidget {
   const PostThought({
     super.key,
-    required this.userModel,
     this.thoughtModel,
   });
 
-  final UserModel userModel;
   final ThoughtModel? thoughtModel;
 
   @override
@@ -27,20 +26,26 @@ class PostThought extends ConsumerStatefulWidget {
 }
 
 class _PostThoughtState extends ConsumerState<PostThought> {
-  TextEditingController controller = TextEditingController();
+  late TextEditingController controller;
 
   @override
   void initState() {
     super.initState();
-    if (widget.thoughtModel != null) {
-      controller.text = widget.thoughtModel!.content;
-    }
+    controller =
+        TextEditingController(text: widget.thoughtModel?.content ?? '');
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final sendThoughtState = ref.watch(sendThoughtProvider);
     final editThoughtState = ref.watch(editThoughtProvider);
+    final userModel = ref.watch(authProvider).data!;
 
     ref.listen<SendThoughtState>(sendThoughtProvider, (prev, current) {
       if (current.isSuccess) {
@@ -71,11 +76,11 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                   ProfilePhoto(
                     verfly: false,
                     size: 24,
-                    meltId: widget.userModel.metal!,
+                    meltId: userModel.metal!,
                   ),
-                  TextView(text: widget.userModel.username ?? ''),
+                  TextView(text: userModel.username ?? ''),
                   const Gap(5),
-                  if (widget.userModel.isVerified ?? false)
+                  if (userModel.isVerified ?? false)
                     Assets.icons.checkVerified.svg(height: 16),
                   const Spacer(),
                   ValueListenableBuilder<TextEditingValue>(
@@ -90,8 +95,7 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                             ? () {
                                 FocusScope.of(context).unfocus();
 
-                                if (!(widget.userModel.completedProfile ??
-                                    false)) {
+                                if (!(userModel.completedProfile ?? false)) {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -116,7 +120,7 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                                   }
                                 }
                               }
-                            : null, // Disable `onPressed` when the button is disabled
+                            : null,
                         width: 100,
                         loading: sendThoughtState.isLoading ||
                             editThoughtState.isLoading,
@@ -129,16 +133,17 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Express your Thought...',
-                      border: InputBorder.none, // Remove underline border
+                    decoration: InputDecoration(
+                      hintText: widget.thoughtModel == null
+                          ? 'Express your Thought...'
+                          : 'Edit your Thought...',
+                      border: InputBorder.none,
                     ),
                     controller: controller,
-                    style:
-                        const TextStyle(fontSize: 18), // Adjust the text size
-                    autofocus: true, // Automatically focus the text field
+                    style: const TextStyle(fontSize: 18),
+                    autofocus: true,
                     keyboardType: TextInputType.multiline,
-                    maxLines: null, // Makes it multiline
+                    maxLines: null,
                   ),
                 ),
               ),

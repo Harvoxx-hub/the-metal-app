@@ -33,8 +33,8 @@ class ProfileImage extends ConsumerWidget {
           metalProperties.metals![0], // Fallback in case no match is found
     );
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
+        onTap: onTap,
+        child: Container(
           width: width ?? 66,
           height: height ?? 66,
           padding: const EdgeInsets.all(2),
@@ -60,20 +60,24 @@ class ProfileImage extends ConsumerWidget {
                           ),
                       errorWidget: (context, url, error) =>
                           Assets.images.logo.image(height: 24, width: 24))
-                  : CachedNetworkImage(
-                      imageUrl: metal.img,
-                      imageBuilder: (context, imageProvider) => CircleAvatar(
-                            radius: 33, // Image radius
-                            backgroundImage: imageProvider,
-                          ),
-                      placeholder: (context, url) => const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator
-                                .adaptive(), // Loading indicator
-                          ),
-                      errorWidget: (context, url, error) =>
-                          Assets.images.logo.image(height: 24, width: 24)))),
-    );
+                  : Padding(
+                      padding: EdgeInsets.all(9),
+                      child: CachedNetworkImage(
+                          imageUrl: metal.img,
+                          imageBuilder: (context, imageProvider) =>
+                              CircleAvatar(
+                                radius: 33, // Image radius
+                                backgroundImage: imageProvider,
+                              ),
+                          placeholder: (context, url) => const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator
+                                    .adaptive(), // Loading indicator
+                              ),
+                          errorWidget: (context, url, error) => Assets
+                              .images.logo
+                              .image(height: 24, width: 24)))),
+        ));
   }
 }

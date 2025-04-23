@@ -57,7 +57,20 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseScreen(
+    return WillPopScope(
+      onWillPop: () async {
+        if (currentPage > 0) {
+          _controller.previousPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+          return false;
+        }
+        return true;
+      },
+      child:
+    
+     BaseScreen(
       isScrollable: true,
       appBarEnabled: false,
       bgImage: Assets.images.bg2.path,
@@ -188,8 +201,8 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
           ),
         ),
       ),
-    );
-  }
+    )
+  );}
 
   Widget buildDot(bool isActive) {
     return Container(

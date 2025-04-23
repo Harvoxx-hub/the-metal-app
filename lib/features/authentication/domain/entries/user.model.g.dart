@@ -35,6 +35,8 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       phone: json['phone'] as String?,
       email: json['email'] as String?,
       emailVerified: json['emailVerified'] as bool?,
+      workEmail: json['workEmail'] as String?,
+      workEmailVerified: json['workEmailVerified'] as bool?,
       preferences: json['preferences'] == null
           ? null
           : Preferences.fromJson(json['preferences'] as Map<String, dynamic>),
@@ -60,9 +62,8 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       fcmToken: json['fcmToken'] as String?,
       isOnline: json['isOnline'] as bool? ?? true,
       lastActive: json['lastActive'] as String?,
-      blockedUsers: (json['blockedUsers'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
+      createdAt: json['createdAt'] as String?,
+      updatedAt: json['updatedAt'] as String?,
     );
 
 Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
@@ -85,6 +86,8 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'phone': instance.phone,
       'email': instance.email,
       'emailVerified': instance.emailVerified,
+      'workEmail': instance.workEmail,
+      'workEmailVerified': instance.workEmailVerified,
       'preferences': instance.preferences?.toJson(),
       'username': instance.username,
       'refreshToken': instance.refreshToken,
@@ -105,7 +108,8 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'fcmToken': instance.fcmToken,
       'isOnline': instance.isOnline,
       'lastActive': instance.lastActive,
-      'blockedUsers': instance.blockedUsers,
+      'createdAt': instance.createdAt,
+      'updatedAt': instance.updatedAt,
     };
 
 _$AddressImpl _$$AddressImplFromJson(Map<String, dynamic> json) =>

@@ -11,11 +11,15 @@ SparkModel _$SparkModelFromJson(Map<String, dynamic> json) => SparkModel(
       amount: json['amount'] as String?,
       sparks: (json['sparks'] as num?)?.toInt(),
       receiverId: json['receiverId'] as String?,
+      receiverName: json['receiverName'] as String?,
+      senderName: json['senderName'] as String?,
       userId: json['userId'] as String?,
       timestamp: json['timestamp'] as String?,
-    )
-      ..receiverName = json['receiverName'] as String?
-      ..senderName = json['senderName'] as String?;
+      referredName: json['referredName'] as String?,
+      referrerName: json['referrerName'] as String?,
+      referredUserId: json['referredUserId'] as String?,
+      referrerId: json['referrerId'] as String?,
+    );
 
 Map<String, dynamic> _$SparkModelToJson(SparkModel instance) =>
     <String, dynamic>{
@@ -25,6 +29,10 @@ Map<String, dynamic> _$SparkModelToJson(SparkModel instance) =>
       'receiverId': instance.receiverId,
       'receiverName': instance.receiverName,
       'senderName': instance.senderName,
+      'referredName': instance.referredName,
+      'referrerName': instance.referrerName,
+      'referredUserId': instance.referredUserId,
+      'referrerId': instance.referrerId,
       'userId': instance.userId,
       'timestamp': instance.timestamp,
     };

@@ -300,13 +300,10 @@ class AuthenticationRepository implements IAuthenticationRepository {
         return Responses(success: false, message: "No user logged in.");
       }
 
-      // // Delete user data from Firestore
-      // await _firebaseService.deleteDocument(
-      //   collectionPath: FirebaseFirestoreCollectionKeys.users,
-      //   documentId: user.uid,
-      // );
+      // Delete all user data from Firestore
+      await _deleteAllUserData(user.uid);
 
-      // Try to delete the user from Firebase Auth
+      // Delete user authentication
       try {
         await user.delete();
       } catch (e) {
@@ -316,7 +313,7 @@ class AuthenticationRepository implements IAuthenticationRepository {
             message: "You need to re-login before deleting your account.",
           );
         } else {
-          rethrow; // If it's another error, throw it again
+          rethrow;
         }
       }
 
@@ -327,6 +324,118 @@ class AuthenticationRepository implements IAuthenticationRepository {
         success: false,
         message: "Error: $errorMessage",
       );
+    }
+  }
+
+  Future<void> _deleteAllUserData(String userId) async {
+    // Delete user profile
+    await _firebaseService.deleteDocument(
+      collectionPath: FirebaseFirestoreCollectionKeys.users,
+      documentId: userId,
+    );
+
+    // Delete user's thoughts
+    final thoughts = await _firebaseService.queryCollection(
+      collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
+      field: 'userId',
+      value: userId,
+    );
+
+    if (thoughts != null) {
+      await _firebaseService.deleteDocument(
+        collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
+        documentId: userId,
+      );
+    }
+
+    // Delete user's connections
+    // First, get all connections where this user is referenced
+    final allConnections = await _firebaseService.readCollection(
+      collectionPath: FirebaseFirestoreCollectionKeys.connections,
+    );
+
+    if (allConnections != null) {
+      for (var connection in allConnections) {
+        if (connection['users']?.contains(userId)) {
+          await _firebaseService.deleteDocument(
+            collectionPath: FirebaseFirestoreCollectionKeys.connections,
+            documentId: connection['id'],
+          );
+        }
+      }
+    }
+
+    // Delete user's blocked list
+    final blocked = await _firebaseService.queryCollection(
+      collectionPath: FirebaseFirestoreCollectionKeys.blocked,
+      field: 'userId',
+      value: userId,
+    );
+
+    if (blocked != null) {
+      for (var item in blocked) {
+        await _firebaseService.deleteDocument(
+          collectionPath: FirebaseFirestoreCollectionKeys.blocked,
+          documentId: item['id'],
+        );
+      }
+    }
+    // Delete user's spark transactions
+    final sparkTransactions = await _firebaseService.queryCollection(
+      collectionPath: FirebaseFirestoreCollectionKeys.sparksTransactions,
+      field: 'userId',
+      value: userId,
+    );
+
+    if (sparkTransactions != null) {
+      for (var item in sparkTransactions) {
+        await _firebaseService.deleteDocument(
+          collectionPath: FirebaseFirestoreCollectionKeys.sparksTransactions,
+          documentId: item['id'],
+        );
+      }
+    }
+
+    // Delete user's melt requests
+    final meltRequests = await _firebaseService.queryCollection(
+      collectionPath: FirebaseFirestoreCollectionKeys.meltRequests,
+      field: 'userId',
+      value: userId,
+    );
+
+    if (meltRequests != null) {
+      for (var item in meltRequests) {
+        await _firebaseService.deleteDocument(
+          collectionPath: FirebaseFirestoreCollectionKeys.meltRequests,
+          documentId: item['id'],
+        );
+      }
+    }
+
+    // Delete user's feedback
+    final feedback = await _firebaseService.queryCollection(
+      collectionPath: FirebaseFirestoreCollectionKeys.feedback,
+      field: 'userId',
+      value: userId,
+    );
+
+    if (feedback != null) {
+      for (var item in feedback) {
+        await _firebaseService.deleteDocument(
+          collectionPath: FirebaseFirestoreCollectionKeys.feedback,
+          documentId: item['id'],
+        );
+      }
+    }
+
+    // Delete any profile images from storage
+    try {
+      await _firebaseService.storage
+          .ref()
+          .child('profileImages/$userId')
+          .delete();
+    } catch (e) {
+      // Ignore if profile image doesn't exist
     }
   }
 

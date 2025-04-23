@@ -4,6 +4,8 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 
 import 'package:metal/gen/assets.gen.dart';
@@ -25,8 +27,11 @@ class MoreAboutYouPage extends ConsumerStatefulWidget {
 
 class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
   final TextEditingController _controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    final userData = ref.watch(authProvider).data;
+    final metalProperties = ref.watch(metalPropertiesProvider).data;
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -38,13 +43,13 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
               CreateProfileHeader2(
                   path: Assets.images.chooseMetal.path,
                   title:
-                      "Anything more, you would love us to know about being an aluminium?",
+                      "Anything more, you would love us to know about being an ${metalProperties!.metals!.firstWhere((element) => element.id == userData?.metal).title}?",
                   subtitle: "This will be displayed to your matched metals."),
               const Gap(22),
               EditFormField(
                 floatingLabel: '',
                 label:
-                    'I term myself a Aluminium because I am light and emotional. I like to be cared for as I have some tendencies to get rusty',
+                    'I term myself a ${metalProperties!.metals!.firstWhere((element) => element.id == userData?.metal).title} because I am light and emotional. I like to be cared for as I have some tendencies to get rusty',
                 controller: _controller,
                 keyboardType: TextInputType.name,
                 minLines: 13,
@@ -65,8 +70,9 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
   }
 
   void _onNextPressed() {
-    final userData = ref.watch(updateProfileProvider).data;
-    final updated = userData!.copyWith(description: _controller.text);
+    final updated = {
+      'description': _controller.text,
+    };
 
     ref.read(updateProfileProvider.notifier).updateUserData(updated);
 

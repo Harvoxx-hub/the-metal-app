@@ -75,10 +75,10 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           ],
           editType: EditType.dropdown,
           onSubLabel: (value) {
-            updateUser(userState!.copyWith(gender: value)
-
-                //  UserModel(gender: value)
-                );
+            final updated = {
+              'gender': value,
+            };
+            updateUser(updated);
           },
         ),
         const Gap(20),
@@ -98,7 +98,10 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                   (metal) => metal.title == value,
                 );
                 // Assign the selected metal object to the UserModel
-                updateUser(userState!.copyWith(metal: selectedMetal.id));
+                final updated = {
+                  'metal': selectedMetal.id,
+                };
+                updateUser(updated);
               }
             }
           },
@@ -113,7 +116,10 @@ class _EditProfileState extends ConsumerState<EditProfile> {
               .toList(),
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(userState!.copyWith(passion: [p0!]));
+            final updated = {
+              'passion': [p0!],
+            };
+            updateUser(updated);
           },
         ),
         const Gap(20),
@@ -124,8 +130,13 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           dropDownItems: metalProperties.marriageStatus,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(userState!.copyWith(
-                extraData: userState.extraData!.copyWith(maritalStatus: p0)));
+            final updated = {
+              'extraData': {
+                ...userState!.extraData!.toJson(),
+                'maritalStatus': p0,
+              }
+            };
+            updateUser(updated);
           },
         ),
         const Gap(20),
@@ -136,8 +147,13 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           dropDownItems: metalProperties.religion,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(userState!.copyWith(
-                extraData: userState.extraData!.copyWith(religion: p0)));
+            final updated = {
+              'extraData': {
+                ...userState!.extraData!.toJson(),
+                'religion': p0,
+              }
+            };
+            updateUser(updated);
           },
         ),
         const Gap(20),
@@ -147,8 +163,14 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           subLabel: "Edit",
           editType: EditType.text,
           outboundWidget: true,
-          onSubLabel: (p0) {
-            updateUser(userState.copyWith(address: p0 as Address));
+          isAddressField: true,
+          onSubLabel: (newAddress) {
+            if (newAddress is Address) {
+              final updated = {
+                'address': newAddress.toJson(),
+              };
+              updateUser(updated);
+            }
           },
         ),
         const Gap(20),
@@ -159,8 +181,13 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           dropDownItems: metalProperties.profession,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser(userState.copyWith(
-                extraData: userState.extraData!.copyWith(profession: p0)));
+            final updated = {
+              'extraData': {
+                ...userState.extraData!.toJson(),
+                'profession': p0,
+              }
+            };
+            updateUser(updated);
           },
         ),
         // Gap(20 ),
@@ -180,7 +207,11 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           subLabel: "Edit",
           editType: EditType.text,
           onSubLabel: (p0) {
-            updateUser(userState.copyWith(description: p0));
+            final updated = {
+              'description': p0,
+            };
+
+            updateUser(updated);
           },
         ),
 
@@ -189,7 +220,8 @@ class _EditProfileState extends ConsumerState<EditProfile> {
     );
   }
 
-  void updateUser(UserModel user) {
-    ref.watch(updateProfileProvider.notifier).sendUserUpdate(user);
+  void updateUser(Map<String, dynamic> user) {
+    ref.watch(updateProfileProvider.notifier).updateUserData(user);
+    ref.watch(updateProfileProvider.notifier).sendUserUpdate();
   }
 }

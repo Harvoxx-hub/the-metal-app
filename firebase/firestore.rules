@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ... existing code ...
+    
+    // Block Reasons collection
+    match /blockReasons/{blockReasonId} {
+      allow read: if request.auth != null && 
+                  (request.auth.uid == resource.data.userId ||
+                   request.auth.uid == resource.data.blockedUserId);
+      allow create: if request.auth != null && 
+                     request.auth.uid == request.resource.data.userId;
+      allow update, delete: if request.auth != null && 
+                             request.auth.uid == resource.data.userId;
+    }
+    
+    // Reports collection - only moderators and reporters can read
+    match /reports/{reportId} {
+      allow read: if request.auth != null && 
+                   (request.auth.uid == resource.data.reporterId || 
+                    isModerator(request.auth.uid));
+      allow create: if request.auth != null && 
+                     request.auth.uid == request.resource.data.reporterId;
+      // Only moderators can update the status
+      allow update: if request.auth != null && 
+                     (isModerator(request.auth.uid) ||
+                      (request.auth.uid == resource.data.reporterId && 
+                       request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['additionalDetails'])));
+      allow delete: if false; // Reports should never be deleted
+    }
+    
+    // Helper function to check if a user is a moderator
+    function isModerator(userId) {
+      return exists(/databases/$(database)/documents/moderators/$(userId));
+    }
+    
+    // ... existing code ...
+  }
+} 

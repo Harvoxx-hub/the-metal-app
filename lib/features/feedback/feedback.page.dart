@@ -111,7 +111,7 @@ class FeedBackPage extends ConsumerWidget {
         const Gap(15),
         const TextView(
           text:
-              "Your feedback is invaluable which drives us to improve the Metal app experience. If you have more thoughts or suggestions, please don't hesitate to share a review. We are here to listen!",
+              "Your feedback is Valuable which drives us to improve the Metal app experience. If you have more thoughts or suggestions, please don't hesitate to share a review. We are here to listen!",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,

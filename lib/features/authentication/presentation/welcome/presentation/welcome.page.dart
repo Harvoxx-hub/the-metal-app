@@ -22,8 +22,10 @@ class WelcomePage extends ConsumerWidget {
     return BaseScreen(
         appBarEnabled: false,
         bgImage: Assets.images.bg2.path,
+        isScrollable: true,
         authFlow: true,
-        body: Column(
+        body: SingleChildScrollView(
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -66,7 +68,7 @@ class WelcomePage extends ConsumerWidget {
                   );
                 })
           ],
-        ));
+        )));
   }
 
   Widget welcomeItem(BuildContext context, String title, String subtitle) {

@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 
 import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 import 'package:metal/features/authentication/provider/forget.password.notifier.dart';
@@ -46,20 +47,18 @@ class ForgetPasswordPage extends ConsumerWidget {
       authFlow: true,
       bgImage: Assets.images.bg2.path,
       appBarEnabled: false,
-      Header: 'Forgot Password',
+      Header: AppStrings.forgotPasswordTitle,
       body: SingleChildScrollView(
         child: Column(children: [
           const Gap(52),
           const TextView(
-            text:
-                'Forgetting password is common and you are not alone. Let us help you recover your password.',
+            text: AppStrings.forgotPasswordDesc,
             fontSize: 13,
             fontWeight: FontWeight.w300,
           ),
           const Gap(52),
           const TextView(
-            text:
-                'Kindly enter the phone number or email address associated with *your* account and we`ll send you instructions on how to reset your password. ',
+            text: AppStrings.forgotPasswordInstructions,
             fontSize: 13,
             fontWeight: FontWeight.w300,
           ),
@@ -69,8 +68,8 @@ class ForgetPasswordPage extends ConsumerWidget {
               child: Column(
                 children: [
                   EditFormField(
-                    floatingLabel: 'Email address',
-                    label: 'someone@gmail.com',
+                    floatingLabel: AppStrings.emailAddress,
+                    label: AppStrings.emailPlaceholder,
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     prefixWidget: SvgPicture.asset(
@@ -83,7 +82,7 @@ class ForgetPasswordPage extends ConsumerWidget {
                   const Gap(32),
                   BaseButton(
                     loading: forgetData.isLoading,
-                    buttonText: 'Send Instructions',
+                    buttonText: AppStrings.sendInstructions,
                     onPressed: () {
                       FocusScope.of(context).unfocus();
                       ref

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 import 'package:metal/features/authentication/provider/account.setting.notifier.dart';
@@ -50,8 +51,7 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
           arguments: VerificationSentArgument(
               type: RouteFrom.AccountSetting,
               code: 123456,
-              uuid: current.data?.id?? "",
-              
+              uuid: current.data?.id ?? "",
               email: _emailController.text),
         );
       }
@@ -70,17 +70,17 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
           children: [
             const Gap(43),
             const TextView(
-              text: '👋　Hello',
+              text: AppStrings.helloEmoji,
               fontSize: 20,
               fontWeight: FontWeight.w400,
             ),
             const TextView(
-              text: 'Let’s set up your account.',
+              text: AppStrings.setupAccount,
               fontSize: 20,
               fontWeight: FontWeight.w400,
             ),
             const TextView(
-              text: 'It takes only 3 minutes!',
+              text: AppStrings.setupTimeShort,
               fontSize: 14,
               fontStyle: FontStyle.italic,
               fontWeight: FontWeight.w300,
@@ -91,8 +91,8 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
               child: Column(
                 children: [
                   EditFormField(
-                    floatingLabel: 'Email address',
-                    label: 'someone@gmail.com',
+                    floatingLabel: AppStrings.emailAddress,
+                    label: AppStrings.emailPlaceholder,
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     validator: Validators.validateEmail(),
@@ -100,8 +100,8 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
                   ),
                   const Gap(22),
                   EditFormField(
-                    floatingLabel: 'Password',
-                    label: '**********',
+                    floatingLabel: AppStrings.password,
+                    label: AppStrings.passwordPlaceholder,
                     obscureText: true,
                     controller: _passwordController,
                     keyboardType: TextInputType.visiblePassword,
@@ -116,8 +116,8 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
                       }),
                   const Gap(16),
                   EditFormField(
-                    floatingLabel: 'Referal Code (Optional)',
-                    label: 'Referal Code',
+                    floatingLabel: AppStrings.referalCode,
+                    label: AppStrings.referalCodePlaceholder,
                     controller: _referController,
                     keyboardType: TextInputType.text,
                   ),
@@ -125,8 +125,7 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
               ),
             ),
             TextView(
-              text:
-                  'A verification code will be sent to this number. Message and data rates may apply.',
+              text: AppStrings.verificationNotice,
               fontSize: 12,
               fontWeight: FontWeight.w400,
               fontStyle: FontStyle.italic,
@@ -134,7 +133,7 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
             ),
             const Gap(27),
             BaseButton(
-                buttonText: "Continue",
+                buttonText: AppStrings.continueText,
                 loading: accountSettingState.isLoading,
                 onPressed: _validateAndSubmit),
           ],
@@ -145,7 +144,6 @@ class _AccountSettingState extends ConsumerState<AccountSetting> {
 
   void _validateAndSubmit() {
     if (_form.currentState?.validate() ?? false) {
-      
       // Dismiss the keyboard
       FocusScope.of(context).unfocus();
       ref.read(accountSettingProvider.notifier).signup(

@@ -84,10 +84,11 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
   }
 
   void _onNextPressed() {
-    final userData = ref.watch(updateProfileProvider).data;
+    final updated = {
+      'connectionOption': _seletedOption.cast<String>(),
+    };
 
-    final updated =
-        userData!.copyWith(connectionOption: _seletedOption.cast<String>());
+    // userData!.copyWith(connectionOption: _seletedOption.cast<String>());
     ref.read(updateProfileProvider.notifier).updateUserData(updated);
 
     Navigator.pushNamed(

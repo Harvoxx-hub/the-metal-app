@@ -61,7 +61,8 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
       ..androidEncoder = AndroidEncoder.aac
       ..androidOutputFormat = AndroidOutputFormat.mpeg4
       ..iosEncoder = IosEncoder.kAudioFormatMPEG4AAC
-      ..sampleRate = 44100;
+      ..sampleRate = 44100
+      ..bitRate = 128000;
   }
 
   @override

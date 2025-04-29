@@ -4,7 +4,7 @@ description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
  
-version: 1.0.20+54
+version: 1.0.20+55
 
 
 environment:
@@ -20,37 +20,38 @@ dependencies:
   flutter_svg: ^2.0.10+1
   gap: ^3.0.1
   shared_preferences: ^2.2.2
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.3
   url_launcher: ^6.1.9
   flutter_rating_bar: ^4.0.0
   country_pickers: ^3.0.1
   pie_chart: ^5.4.0
   dotted_border: ^2.1.0
-  go_router: ^14.2.1
+  go_router: ^15.1.1
   image_picker: ^1.0.2
   dio: ^5.0.0
   pretty_dio_logger: ^1.3.1
   json_serializable: ^6.5.4
-  flutter_tts: ^3.8.3
+  flutter_tts: ^4.2.2
   
   flutter_screenutil: ^5.7.0
-  freezed_annotation: ^2.4.1
+  freezed_annotation: ^3.0.0
   json_annotation: ^4.8.1
-  flutter_local_notifications: ^17.0.0
+  flutter_local_notifications: ^19.1.0
   intl_phone_field: ^3.2.0
   pin_code_fields: ^8.0.1
   range_slider_flutter: ^0.0.2
-  fluttertoast: ^8.2.4
+  fluttertoast: ^8.2.12
  
-  shorebird_code_push: ^1.1.0
-  geolocator: ^12.0.0
+  shorebird_code_push: ^2.0.3
+  geolocator: ^14.0.0
   camera: ^0.11.0+1
   firebase_core: ^3.6.0
   firebase_analytics: ^11.2.0
   photo_view: ^0.15.0
  
   shimmer: ^3.0.0
- 
+  flutter_ringtone_player: ^4.0.0+4
+  audioplayers: ^6.4.0
   cloud_firestore: ^5.1.0
   firebase_storage: ^12.1.1
  
@@ -59,11 +60,11 @@ dependencies:
   responsive_framework: ^1.4.0
   connectivity_plus: ^6.0.3
   
-  bottom_picker: ^2.8.0
+  bottom_picker: ^3.0.0
   video_player: ^2.9.2
   just_the_tooltip: ^0.0.12
-  emoji_picker_flutter: ^3.1.0
-  share_plus: ^10.0.2
+  emoji_picker_flutter: ^4.3.0
+  share_plus: ^11.0.0
   flutter_dropzone: ^4.0.3
   cached_network_image: ^3.3.1
   timeago: ^3.7.0
@@ -73,11 +74,11 @@ dependencies:
   audio_waveforms: ^1.2.0
   file_picker: ^8.1.4
   cloud_functions: ^5.2.0
-  zego_uikit_prebuilt_call: ^4.16.21
-  zego_uikit_signaling_plugin: ^2.8.8
+  zego_uikit_prebuilt_call: ^4.16.28
+  zego_uikit_signaling_plugin: ^2.8.12
   package_info_plus: ^8.1.3
   geocoding: ^3.0.0
-  google_mlkit_face_detection: ^0.12.0
+  google_mlkit_face_detection: ^0.13.1
   floating: ^6.0.0
   video_compress: ^3.1.4
   flutter_flavor: ^3.1.4
@@ -92,10 +93,10 @@ dev_dependencies:
     sdk: flutter
 
  
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
   build_runner: ^2.3.3
   flutter_gen_runner:
-  freezed: ^2.3.2
+  freezed: ^3.0.6
 
 flutter_gen:
   output: lib/gen/ # Optional (default: lib/gen/)

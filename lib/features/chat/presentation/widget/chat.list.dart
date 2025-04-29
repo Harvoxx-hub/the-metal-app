@@ -14,6 +14,7 @@ import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:metal/features/chat/presentation/chat.page.dart'; // Import for searchQueryProvider
 
 class ChatListWidget extends ConsumerStatefulWidget {
   const ChatListWidget({super.key});
@@ -31,6 +32,8 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
   @override
   Widget build(BuildContext context) {
     final myMelt = ref.watch(getMeltUserProvider).data;
+    final searchQuery =
+        ref.watch(searchQueryProvider).toLowerCase(); // Get the search query
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -43,20 +46,57 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
             fontWeight: FontWeight.w600,
           ),
           const Gap(10),
-          _buildChatListContent(myMelt),
+          _buildChatListContent(myMelt, searchQuery),
         ],
       ),
     );
   }
 
-  Widget _buildChatListContent(List<ConnectionModel>? myMelt) {
+  Widget _buildChatListContent(
+      List<ConnectionModel>? myMelt, String searchQuery) {
+    // Filter the chat list based on search query if there's a search term
+    List<ConnectionModel>? filteredList = myMelt;
+
+    if (searchQuery.isNotEmpty && myMelt != null) {
+      filteredList = [];
+
+      // For each connection, check if it matches the search query
+      for (var connection in myMelt) {
+        // Get the other user's details to match against the query
+        final currentUser = ref.read(authProvider).data;
+        final metalId = connection.users.firstWhere(
+          (user) => user != currentUser!.id,
+          orElse: () => "",
+        );
+
+        // Get user data to check username
+        final userData = ref.read(getUserProvider(metalId)).data;
+
+        // Check if username or last message contains the search query
+        if ((userData?.username?.toLowerCase().contains(searchQuery) ??
+                false) ||
+            (connection.lastMessage?.toLowerCase().contains(searchQuery) ??
+                false)) {
+          filteredList.add(connection);
+        }
+      }
+    }
+
+    // If there are no matches, show empty state
+    if (filteredList == null || filteredList.isEmpty) {
+      if (searchQuery.isNotEmpty) {
+        return _buildNoSearchResultsMessage();
+      }
+      return _buildEmptyChatMessage();
+    }
+
     return Expanded(
       flex: 1,
       child: ListView.builder(
-        itemCount: myMelt?.length ?? 0,
+        itemCount: filteredList.length,
         itemBuilder: (context, index) {
           return chatListItem(
-            conversationsModel: myMelt![index],
+            conversationsModel: filteredList![index],
           );
         },
       ),
@@ -65,20 +105,48 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
 
   Widget _buildEmptyChatMessage() {
     return const Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(16.0),
       child: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Gap(10),
-            const Gap(20),
-            const TextView(
+            Gap(10),
+            Gap(20),
+            TextView(
               text: "You have no messages yet",
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
-            const Gap(10),
-            const TextView(
+            Gap(10),
+            TextView(
               text: "Tap on any of your metals to kickstart a conversation",
+              fontSize: 13,
+              fontWeight: FontWeight.w300,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoSearchResultsMessage() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Gap(20),
+            const TextView(
+              text: "No matches found",
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+            const Gap(10),
+            TextView(
+              text:
+                  "No conversations match '${ref.watch(searchQueryProvider)}'",
               fontSize: 13,
               fontWeight: FontWeight.w300,
               textAlign: TextAlign.center,

@@ -13,6 +13,7 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'verification_step.dart';
 
 // Helper function to compute rotation based on sensor orientation
@@ -83,11 +84,12 @@ class _FaceVerificationScreenState
   Timer? _holdStillTimer; // Timer to delay transition after centering
   DateTime? _lastBlinkTime; // Track last blink time
   String _previousInstruction = ""; // Track previous instruction
+  bool _isCameraInitialized = false; // Track camera initialization status
 
   @override
   void initState() {
     super.initState();
-    _initializeCamera();
+    _initializeCameraAndPermissions();
     _setupTts(); // Initialize TTS
   }
 
@@ -253,6 +255,73 @@ class _FaceVerificationScreenState
       if (mounted) {
         setState(() {
           _instruction = "Error initializing camera. Please check permissions.";
+        });
+      }
+    }
+  }
+
+  // Renamed and updated method to handle permissions first
+  Future<void> _initializeCameraAndPermissions() async {
+    // 1. Request Camera Permission
+    final permissionStatus = await Permission.camera.request();
+
+    if (mounted) {
+      // Check if widget is still mounted
+      if (permissionStatus.isGranted) {
+        // 2. Permission Granted: Proceed with Camera Initialization
+        try {
+          final cameras = await availableCameras();
+          // Find the front camera
+          _cameraDescription = cameras.firstWhere(
+            (camera) => camera.lensDirection == CameraLensDirection.front,
+            orElse: () =>
+                cameras.first, // Fallback to the first camera if no front
+          );
+
+          _cameraController = CameraController(
+            _cameraDescription!,
+            ResolutionPreset.medium, // Medium resolution for balance
+            enableAudio: false, // Audio not needed
+            imageFormatGroup: Platform.isAndroid // Platform-specific format
+                ? ImageFormatGroup.yuv420 // Preferred on Android
+                : ImageFormatGroup.bgra8888, // Preferred on iOS
+          );
+
+          await _cameraController!.initialize();
+
+          // Check if the widget is still mounted after async initialization
+          if (!mounted) return;
+
+          setState(() {
+            _isCameraInitialized = true; // Mark camera as initialized
+          });
+          _startFaceDetection(); // Start processing frames
+          // Update UI to show preview only after successful init
+        } catch (e) {
+          debugPrint("Error initializing camera: $e");
+          if (mounted) {
+            setState(() {
+              _instruction =
+                  "Error initializing camera. Please try again later.";
+              _isCameraInitialized = false; // Mark as not initialized on error
+            });
+          }
+        }
+      } else {
+        // 3. Permission Denied: Update instruction
+        debugPrint("Camera permission denied. Status: $permissionStatus");
+        setState(() {
+          if (permissionStatus.isPermanentlyDenied) {
+            _instruction =
+                "Camera permission is permanently denied. Please enable it in app settings.";
+            // Optionally: Add a button to open app settings
+            openAppSettings();
+          } else {
+            _instruction =
+                "Camera permission is required for face verification. Please grant permission.";
+          }
+          _isCameraInitialized =
+              false; // Ensure camera is marked as not initialized
         });
       }
     }
@@ -708,17 +777,44 @@ class _FaceVerificationScreenState
 
     // --- Build UI ---
 
-    // Loading state while camera initializes
-    if (_cameraController == null || !_cameraController!.value.isInitialized) {
+    // Loading state while camera initializes OR permission pending/denied
+    if (!_isCameraInitialized) {
+      // Use the new state variable
       return Scaffold(
         backgroundColor: Colors.white,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator.adaptive(),
+              // Show progress indicator only if not a permission error message
+              if (!_instruction.contains("permission"))
+                const CircularProgressIndicator.adaptive(),
               const SizedBox(height: 16),
-              Text(_instruction), // Show initial or error instruction
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Text(
+                  _instruction,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+              // Optionally, add a button to retry permission request or open settings
+              if (_instruction.contains("permission is required"))
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: ElevatedButton(
+                    onPressed: _initializeCameraAndPermissions, // Retry
+                    child: const Text("Grant Permission"),
+                  ),
+                ),
+              if (_instruction.contains("permanently denied"))
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: ElevatedButton(
+                    onPressed: openAppSettings, // Open settings
+                    child: const Text("Open Settings"),
+                  ),
+                ),
             ],
           ),
         ),

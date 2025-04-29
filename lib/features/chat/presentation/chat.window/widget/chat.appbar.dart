@@ -68,8 +68,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         ref.watch(checkMeltProvider(widget.meltUserModel.id!));
 
     /// Determines if the user is allowed to call
-    bool isCallAllowed = 
-        checkMeltState.data == MeltRequestState.connected;
+    bool isCallAllowed = checkMeltState.data == MeltRequestState.connected;
 
     /// Function to check call eligibility
     Future<bool> handleCallPress(
@@ -193,7 +192,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           buildCallButton(
             isVideoCall: true,
             tooltip: tooltipController,
-            tooltipText: 'Video call is available after mutual melting.',
+            tooltipText: 'Video call is available after mutual unmelt.',
             iconPath: Assets.icons.chatsWindowactiveVideoRecorder.path,
           ),
           const Gap(15),
@@ -202,7 +201,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           buildCallButton(
             isVideoCall: false,
             tooltip: tooltipController2,
-            tooltipText: 'Voice call is available after mutual melting.',
+            tooltipText: 'Voice call is available after mutual unmelt.',
             iconPath: Assets.icons.chatsWindowactiveFill.path,
           ),
           const Gap(15),

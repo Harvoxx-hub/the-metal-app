@@ -1,10 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
- 
+
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/handler/app.lifeycle.handler.dart';
-
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/firebase_options_dev.dart';
@@ -23,11 +22,11 @@ final navKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 // Initialize Shorebird
-  final shorebirdCodePush = ShorebirdCodePush();
-  await shorebirdCodePush.downloadUpdateIfAvailable();
+  // final shorebirdCodePush = ShorebirdCodePush();
+  // await shorebirdCodePush.downloadUpdateIfAvailable();
 
   await initializeFirebase();
- 
+
   // Set navigator key
   ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navKey);
 
@@ -52,10 +51,12 @@ void main() async {
 /// Initializes Firebase and sets analytics
 Future<void> initializeFirebase() async {
   try {
-    debugPrint('Existing Firebase apps: ${Firebase.apps.map((e) => e.name).toList()}');
-    
+    debugPrint(
+        'Existing Firebase apps: ${Firebase.apps.map((e) => e.name).toList()}');
+
     if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(options: DefaultFirebaseOptionDev.currentPlatform);
+      await Firebase.initializeApp(
+          options: DefaultFirebaseOptionDev.currentPlatform);
       FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
       await FirebaseRemoteConfigService().initialize();
     }
@@ -63,9 +64,6 @@ Future<void> initializeFirebase() async {
     debugPrint('Error initializing Firebase: $e');
   }
 }
-
-
- 
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});

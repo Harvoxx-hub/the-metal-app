@@ -46,9 +46,9 @@ void main() async {
   // Set the background messaging handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-// Initialize Shorebird
-  final shorebirdCodePush = ShorebirdCodePush();
-  await shorebirdCodePush.downloadUpdateIfAvailable();
+// // Initialize Shorebird
+//   final shorebirdCodePush = ShorebirdCodePush();
+//   await shorebirdCodePush.downloadUpdateIfAvailable();
 
  
   // Set navigator key

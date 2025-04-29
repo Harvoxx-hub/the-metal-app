@@ -62,11 +62,14 @@ class GameRules extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                             const Gap(13),
-                            TextView(
-                              text: games.about,
-                              fontSize: 14,
-                              textAlign: TextAlign.center,
-                              fontWeight: FontWeight.w500,
+                            Container(
+                              width: 290,
+                              child: TextView(
+                                text: games.about,
+                                fontSize: 14,
+                                textAlign: TextAlign.center,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ],
                         ),

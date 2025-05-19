@@ -9,10 +9,9 @@ import 'package:metal/features/verification/face_verification_screen.dart';
 
 import 'package:metal/features/home_page/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
- 
+
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
- 
- 
+
 import 'package:metal/features/settings/presentation/delete.screen.dart';
 import 'package:metal/features/settings/presentation/edit.page.dart';
 import 'package:metal/features/splash/splash.screen.dart';
@@ -71,6 +70,7 @@ import 'package:metal/features/verification/verification.video.dart';
 import 'package:metal/features/verification/video.preview.dart';
 
 import 'package:metal/features/home_page/presentation/thought_details.page.dart';
+ 
 
 class AppRoutes {
   static const String splash = '/';
@@ -130,7 +130,6 @@ class AppRoutes {
   static const String delete = '/deletePage';
   static const String postThought = '/postThought';
   static const String thoughtDetails = '/thoughtDetails';
-
   // Dashboard tab indices
   static const int homeTab = 0;
   static const int sparksTab = 1;
@@ -180,8 +179,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const SplashPage());
       case onboarding:
         return MaterialPageRoute(builder: (_) => const OnboardingPageView());
-       
- 
+
       case login:
         return MaterialPageRoute(builder: (_) => const LoginPage());
       case forgetPassword:

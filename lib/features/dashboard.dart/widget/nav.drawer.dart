@@ -161,29 +161,24 @@ class NavDrawer extends ConsumerWidget {
             },
           ),
           const Gap(20),
-          ListTile(
-            leading: Container(
-              height: 46,
-              width: 46,
-              decoration: ShapeDecoration(
-                color: AppColors.metalPinkColour.withOpacity(0.06),
-                shape: const OvalBorder(),
-              ),
-              child: Center(
-                  child: SvgPicture.asset(
-                Assets.icons.videoCamera.path,
-                height: 24,
-                width: 24,
-              )),
-            ),
-            title: const TextView(text: "Watch tutorial"),
-            onTap: () => {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.onboardingTutorialView,
-              )
-            },
-          ),
+          // ListTile(
+          //   leading: Container(
+          //     height: 46,
+          //     width: 46,
+          //     decoration: ShapeDecoration(
+          //       color: AppColors.metalPinkColour.withOpacity(0.06),
+          //       shape: const OvalBorder(),
+          //     ),
+          //     child: Center(
+          //         child: SvgPicture.asset(
+          //       Assets.icons.videoCamera.path,
+          //       height: 24,
+          //       width: 24,
+          //     )),
+          //   ),
+          //   title: const TextView(text: "Watch tutorial"),
+          //   onTap: () => {},
+          // ),
           const Gap(20),
           (authState.isVerified == false)
               ? Column(

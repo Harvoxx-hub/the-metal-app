@@ -282,7 +282,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       thoughtModel: thoughts[index],
                       toughtProfileKey: widget.profileKey,
                       toughtCommentKey: widget.commentKey,
-                      reactionIconKey: widget.reactionKey,
+                      reactionKey: widget.reactionKey,
                     ),
                   );
                 }

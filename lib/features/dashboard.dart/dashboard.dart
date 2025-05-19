@@ -97,7 +97,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final bool isWithin7Days =
         DateTime.now().difference(creationDate).inDays <= 7;
 
-    if (!hasSeenOnboarding) {
+    if (true) {
       await showDialog(
         context: context,
         barrierDismissible: false,

@@ -488,7 +488,7 @@ class HomeRepository implements IHomeRepository {
       await _firebaseService.updateDocument(
         collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
         documentId: thoughtId,
-        data: {'reactions': reactions},
+        data: {'reactions': reactions },
       );
 
       return Responses(

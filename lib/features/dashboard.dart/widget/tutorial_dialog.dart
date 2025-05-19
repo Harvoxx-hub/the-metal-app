@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -34,7 +35,8 @@ class TutorialDialog extends StatelessWidget {
           fontWeight: FontWeight.w400,
         ),
         const Gap(38),
-        BaseButton(buttonText: "Start Tutorial", onPressed: onStartTutorial),
+        BaseButton(
+            buttonText: AppStrings.startTutorial, onPressed: onStartTutorial),
         const Gap(23),
         TextView(
           text: "Skip for Now",

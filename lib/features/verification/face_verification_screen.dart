@@ -15,6 +15,7 @@ import 'package:metal/widgets/text_views.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'verification_step.dart';
+import 'package:google_mlkit_commons/google_mlkit_commons.dart' as mlkit;
 
 // Helper function to compute rotation based on sensor orientation
 InputImageRotation _computeRotation(CameraDescription cameraDescription) {
@@ -224,42 +225,6 @@ class _FaceVerificationScreenState
     super.dispose();
   }
 
-  // Initialize the front camera
-  Future<void> _initializeCamera() async {
-    try {
-      final cameras = await availableCameras();
-      // Find the front camera
-      _cameraDescription = cameras.firstWhere(
-        (camera) => camera.lensDirection == CameraLensDirection.front,
-        orElse: () => cameras.first, // Fallback to the first camera if no front
-      );
-
-      _cameraController = CameraController(
-        _cameraDescription!,
-        ResolutionPreset.medium, // Medium resolution for balance
-        enableAudio: false, // Audio not needed
-        imageFormatGroup: Platform.isAndroid // Platform-specific format
-            ? ImageFormatGroup.yuv420 // Preferred on Android
-            : ImageFormatGroup.bgra8888, // Preferred on iOS
-      );
-
-      await _cameraController!.initialize();
-
-      // Check if the widget is still mounted after async initialization
-      if (!mounted) return;
-
-      _startFaceDetection(); // Start processing frames
-      setState(() {}); // Update UI to show preview
-    } catch (e) {
-      debugPrint("Error initializing camera: $e");
-      if (mounted) {
-        setState(() {
-          _instruction = "Error initializing camera. Please check permissions.";
-        });
-      }
-    }
-  }
-
   // Renamed and updated method to handle permissions first
   Future<void> _initializeCameraAndPermissions() async {
     // 1. Request Camera Permission
@@ -279,15 +244,18 @@ class _FaceVerificationScreenState
           );
 
           _cameraController = CameraController(
-            _cameraDescription!,
-            ResolutionPreset.medium, // Medium resolution for balance
-            enableAudio: false, // Audio not needed
-            imageFormatGroup: Platform.isAndroid // Platform-specific format
-                ? ImageFormatGroup.yuv420 // Preferred on Android
-                : ImageFormatGroup.bgra8888, // Preferred on iOS
-          );
+              _cameraDescription!,
+              ResolutionPreset
+                  .low, // Use low resolution for better compatibility
+              enableAudio: false,
+              imageFormatGroup: Platform.isAndroid // Platform-specific format
+                  ? ImageFormatGroup.yuv420 // Preferred on Android
+                  : ImageFormatGroup.bgra8888);
 
+          // Set preferred camera settings
           await _cameraController!.initialize();
+          await _cameraController!.setFocusMode(FocusMode.auto);
+          await _cameraController!.setExposureMode(ExposureMode.auto);
 
           // Check if the widget is still mounted after async initialization
           if (!mounted) return;
@@ -328,6 +296,9 @@ class _FaceVerificationScreenState
   }
 
   // Start streaming camera frames for face detection
+  bool _isDetectingFaces =
+      false; // Add this at class level to avoid multiple detections at once
+
   void _startFaceDetection() {
     if (_cameraController == null ||
         !_cameraController!.value.isInitialized ||
@@ -337,41 +308,77 @@ class _FaceVerificationScreenState
     }
 
     _cameraController!.startImageStream((CameraImage image) async {
-      // Only prevent processing if widget is disposed
-      if (!mounted) return;
+      if (!mounted || _isDetectingFaces) return;
 
-      // Don't use _isDetecting flag for throttling anymore
+      _isDetectingFaces = true;
+
       try {
-        // Prepare image bytes for ML Kit
+        // Convert all image planes to a single byte buffer
         final WriteBuffer allBytes = WriteBuffer();
-        for (var plane in image.planes) {
+        for (Plane plane in image.planes) {
           allBytes.putUint8List(plane.bytes);
         }
         final bytes = allBytes.done().buffer.asUint8List();
 
-        // Determine the correct image rotation for ML Kit
+        // Get image metadata
+        final Size imageSize =
+            Size(image.width.toDouble(), image.height.toDouble());
+
+        // Rotation for InputImage
         final rotation = _computeRotation(_cameraDescription!);
+
+        // Convert image format based on platform
+        final Uint8List imageBytes;
+        final InputImageFormat format;
+
+        if (Platform.isAndroid) {
+          imageBytes = _yuv420ToNV21(image);
+          format = InputImageFormat.nv21;
+        } else {
+          imageBytes = bytes;
+          format = InputImageFormat.bgra8888;
+        }
 
         // Create InputImage for ML Kit
         final inputImage = InputImage.fromBytes(
-          bytes: bytes,
+          bytes: imageBytes,
           metadata: InputImageMetadata(
-            size: Size(image.width.toDouble(), image.height.toDouble()),
+            size: imageSize,
             rotation: rotation,
-            format: InputImageFormatValue.fromRawValue(image.format.raw) ??
-                (Platform.isAndroid
-                    ? InputImageFormat.yuv420
-                    : InputImageFormat.bgra8888),
+            format: format,
             bytesPerRow: image.planes[0].bytesPerRow,
           ),
         );
 
-        // Process the image without waiting
-        _processImage(inputImage);
+        // Process the image with ML Kit
+        await _processImage(inputImage);
       } catch (e) {
         debugPrint("Error during image stream processing: $e");
+      } finally {
+        _isDetectingFaces = false;
       }
     });
+  }
+
+  Uint8List _yuv420ToNV21(CameraImage image) {
+    var nv21 = Uint8List(image.planes[0].bytes.length +
+        image.planes[1].bytes.length +
+        image.planes[2].bytes.length);
+
+    var yBuffer = image.planes[0].bytes;
+    var uBuffer = image.planes[1].bytes;
+    var vBuffer = image.planes[2].bytes;
+
+    nv21.setRange(0, yBuffer.length, yBuffer);
+
+    int i = 0;
+    while (i < uBuffer.length) {
+      nv21[yBuffer.length + i] = vBuffer[i];
+      nv21[yBuffer.length + i + 1] = uBuffer[i];
+      i += 2;
+    }
+
+    return nv21;
   }
 
   // Process the InputImage using ML Kit Face Detector

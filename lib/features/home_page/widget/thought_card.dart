@@ -29,10 +29,16 @@ import 'package:metal/features/settings/presentation/widget/block_user_helper.da
 
 class ThoughtCard extends ConsumerStatefulWidget {
   final ThoughtModel thoughtModel;
+  final GlobalKey? toughtProfileKey;
+  final GlobalKey? toughtCommentKey;
+  final GlobalKey? reactionIconKey;
 
   const ThoughtCard({
     super.key,
     required this.thoughtModel,
+    this.toughtProfileKey,
+    this.toughtCommentKey,
+    this.reactionIconKey,
   });
 
   @override
@@ -93,9 +99,32 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
               ),
               const Gap(10),
               _buildReactionsRow(),
-              IconButton(
-                onPressed: _toggleReactions,
-                icon: const Icon(Icons.favorite_border),
+              Row(
+                children: [
+                  IconButton(
+                    key: widget.toughtProfileKey,
+                    onPressed: _toggleReactions,
+                    icon: SvgPicture.asset(
+                      Assets.icons.toughtProfile.path,
+                      height: 24,
+                      width: 24,
+                    ),
+                  ),
+                  IconButton(
+                    key: widget.toughtCommentKey,
+                    onPressed: () {},
+                    icon: SvgPicture.asset(
+                      Assets.icons.thoughComment.path,
+                      height: 24,
+                      width: 24,
+                    ),
+                  ),
+                  IconButton(
+                    key: widget.reactionIconKey,
+                    onPressed: _toggleReactions,
+                    icon: const Icon(Icons.favorite_border),
+                  ),
+                ],
               ),
             ],
           ),

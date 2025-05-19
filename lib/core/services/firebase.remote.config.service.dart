@@ -5,19 +5,19 @@ import 'package:metal/core/utils/metal.helper.dart';
 
 class FirebaseRemoteConfigService {
   FirebaseRemoteConfigService._()
-      : _remoteConfig = FirebaseRemoteConfig.instance; // MODIFIED
+      : _remoteConfig = FirebaseRemoteConfig.instance;
 
-  static FirebaseRemoteConfigService? _instance; // NEW
+  static FirebaseRemoteConfigService? _instance;
   factory FirebaseRemoteConfigService() =>
-      _instance ??= FirebaseRemoteConfigService._(); // NEW
+      _instance ??= FirebaseRemoteConfigService._();
 
   final FirebaseRemoteConfig _remoteConfig;
-  FirebaseRemoteConfig get remoteConfig => _remoteConfig; // Public getter
+  FirebaseRemoteConfig get remoteConfig => _remoteConfig;
 
-  String getString(String key) => _remoteConfig.getString(key); // NEW
-  bool getBool(String key) => _remoteConfig.getBool(key); // NEW
-  int getInt(String key) => _remoteConfig.getInt(key); // NEW
-  double getDouble(String key) => _remoteConfig.getDouble(key); // NEW
+  String getString(String key) => _remoteConfig.getString(key);
+  bool getBool(String key) => _remoteConfig.getBool(key);
+  int getInt(String key) => _remoteConfig.getInt(key);
+  double getDouble(String key) => _remoteConfig.getDouble(key);
 
   Future<void> initialize() async {
     await _setConfigSettings();
@@ -49,13 +49,14 @@ class FirebaseRemoteConfigService {
       debugPrint('The config is not updated..');
     }
   }
+
+  // Helper methods to get specific values
+  String getLatestVersion() =>
+      getString(FirebaseRemoteConfigKeys.latest_version);
+  Map<String, dynamic> getMetalProperties() =>
+      MetalHelper.parseJson(
+          getString(FirebaseRemoteConfigKeys.metalProperties)) ??
+      {};
+  int getDaysRequiredToUnMelt() =>
+      getInt(FirebaseRemoteConfigKeys.daysRequiredToUnMelt);
 }
-
-final metalPropertiesJson = MetalHelper.parseJson(FirebaseRemoteConfigService()
-    .getString(FirebaseRemoteConfigKeys.metalProperties));
-
-final daysRequiredToUnMelt = FirebaseRemoteConfigService()
-    .getInt(FirebaseRemoteConfigKeys.daysRequiredToUnMelt);
-
-final latestVersion = FirebaseRemoteConfigService()
-    .getString(FirebaseRemoteConfigKeys.latest_version);

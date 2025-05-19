@@ -11,7 +11,7 @@ import 'package:metal/features/home_page/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
  
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
-import 'package:metal/features/onboarding/tutorial_pages/tutorial_screen.dart';
+ 
  
 import 'package:metal/features/settings/presentation/delete.screen.dart';
 import 'package:metal/features/settings/presentation/edit.page.dart';
@@ -181,8 +181,7 @@ class AppRoutes {
       case onboarding:
         return MaterialPageRoute(builder: (_) => const OnboardingPageView());
        
-      case onboardingTutorialView:
-        return MaterialPageRoute(builder: (_) => const OnboardingFlowView());
+ 
       case login:
         return MaterialPageRoute(builder: (_) => const LoginPage());
       case forgetPassword:

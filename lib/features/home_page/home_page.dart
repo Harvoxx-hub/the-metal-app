@@ -16,9 +16,214 @@ import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 
 import 'package:metal/widgets/text_views.dart';
+import 'package:metal/features/dashboard.dart/widget/tutorial_overlay.dart';
 
 class HomePage extends ConsumerStatefulWidget {
-  const HomePage({super.key});
+  final GlobalKey? newPostFabKey;
+  static final GlobalKey exploreTabKey = GlobalKey();
+  static final GlobalKey forYouTabKey = GlobalKey();
+  static final GlobalKey sparksTabKey = GlobalKey();
+  static final GlobalKey chatTabKey = GlobalKey();
+  final GlobalKey profileKey;
+  final GlobalKey commentKey;
+  final GlobalKey reactionKey;
+
+  const HomePage({
+    super.key,
+    this.newPostFabKey,
+    required this.profileKey,
+    required this.commentKey,
+    required this.reactionKey,
+  });
+
+  static List<TutorialStep> getTutorialSteps(
+    GlobalKey? fabKey,
+    GlobalKey profileKey,
+    GlobalKey commentKey,
+    GlobalKey reactionKey,
+  ) {
+    return [
+      TutorialStep(
+        targetKey: exploreTabKey,
+        content: const Column(
+          children: [
+            TextView(
+              text: "Explore Thoughts Posted",
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+            SizedBox(height: 10),
+            TextView(
+              text:
+                  "The *Explore* section highlight popular posts, new members, or trending conversations to keep users engaged with fresh content.",
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: Colors.white,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onNext: () {},
+      ),
+      TutorialStep(
+        targetKey: forYouTabKey,
+        content: const Column(
+          children: [
+            TextView(
+              text: "Personalized Thoughts",
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+            SizedBox(height: 10),
+            TextView(
+              text:
+                  "The *For You* section helps you discover new connections, conversations, and content tailored to your personality, preferences, and past behaviors on the app.",
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: Colors.white,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onNext: () {},
+      ),
+      TutorialStep(
+        targetKey: sparksTabKey,
+        content: const Column(
+          children: [
+            TextView(
+              text: "About Sparks!",
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+            SizedBox(height: 10),
+            TextView(
+              text:
+                  "Our point payment in-app system. 1 Dollar = 10 Sparks. You can refer friends and earn more sparks. You can also send and buy Sparks.",
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: Colors.white,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onNext: () {},
+      ),
+      TutorialStep(
+        targetKey: chatTabKey,
+        content: const Column(
+          children: [
+            TextView(
+              text: "About Chats!",
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+            SizedBox(height: 10),
+            TextView(
+              text:
+                  "Send and receive messages to build real connections with metals for the next 15days without showing your pictures. Play games to deepen conversations and sparks to ignite connections",
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: Colors.white,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onNext: () {},
+      ),
+      TutorialStep(
+        targetKey: profileKey,
+        content: const Column(
+          children: [
+            TextView(
+              text: "View Metal",
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+            TextView(
+              text:
+                  "Go to the user profile to chat with Metal and to see other thoughts from this Metal",
+              fontSize: 16,
+              color: Colors.white,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onNext: () {},
+      ),
+      TutorialStep(
+        targetKey: commentKey,
+        content: const Column(
+          children: [
+            TextView(
+              text: "Comment to Connect",
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+            TextView(
+              text:
+                  " Drop a thoughtful comment on a profile to spark meaningful conversation and stand out from the crowd. It’s a great way to show genuine interest before a melt happens!",
+              fontSize: 16,
+              color: Colors.white,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onNext: () {},
+      ),
+      TutorialStep(
+        targetKey: reactionKey,
+        content: const Column(
+          children: [
+            TextView(
+              text: "Tap to Like or React",
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+            TextView(
+              text:
+                  "Show appreciation by liking or reacting to each other’s thoughts.",
+              fontSize: 16,
+              color: Colors.white,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onNext: () {},
+      ),
+      if (fabKey != null)
+        TutorialStep(
+          targetKey: fabKey,
+          content: const Column(
+            children: [
+              TextView(
+                text: "Post Your Thoughts Anonymously",
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+              SizedBox(height: 10),
+              TextView(
+                text:
+                    "A simple and intuitive posting tool that allows you to share your thoughts, feelings, or introduce yourself to the community.",
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: Colors.white,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          onNext: () {},
+        ),
+    ];
+  }
 
   @override
   ConsumerState<HomePage> createState() => _HomePageState();
@@ -26,18 +231,36 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   int tabIndex = 0;
-  final TextEditingController _controller = TextEditingController();
+  bool _tutorialShown = false;
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+  }
+
+  void _showTutorialIfNeeded() {
+    if (_tutorialShown) return;
+    _tutorialShown = true;
+
+    showTutorial(
+      context,
+      HomePage.getTutorialSteps(
+        widget.newPostFabKey,
+        widget.profileKey,
+        widget.commentKey,
+        widget.reactionKey,
+      ),
+      'home_tutorial_key',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final getThoughtForYouState = ref.watch(getThoughtForYouProvider);
     final getThoughtExploreState = ref.watch(getThoughtExploreProvider);
+    final thoughts = tabIndex == 0
+        ? getThoughtExploreState.data ?? []
+        : getThoughtForYouState.data ?? [];
 
     return RefreshIndicator(
       onRefresh: _refreshData,
@@ -50,9 +273,22 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: _buildFeedTabs(),
           ),
           Expanded(
-            child: tabIndex == 0
-                ? _forYouThoughtTab(getThoughtExploreState)
-                : _forYouThoughtTab(getThoughtForYouState),
+            child: ListView.builder(
+              itemCount: thoughts.length,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return Container(
+                    child: ThoughtCard(
+                      thoughtModel: thoughts[index],
+                      toughtProfileKey: widget.profileKey,
+                      toughtCommentKey: widget.commentKey,
+                      reactionIconKey: widget.reactionKey,
+                    ),
+                  );
+                }
+                return ThoughtCard(thoughtModel: thoughts[index]);
+              },
+            ),
           ),
         ],
       ),
@@ -100,9 +336,17 @@ class _HomePageState extends ConsumerState<HomePage> {
           fontWeight: FontWeight.w600,
         ),
         const Spacer(),
-        _buildFeedTabItem("Explore", tabIndex == 0, () => _onTabChange(0)),
+        Container(
+          key: HomePage.exploreTabKey,
+          child: _buildFeedTabItem(
+              "Explore", tabIndex == 0, () => _onTabChange(0)),
+        ),
         const Gap(20),
-        _buildFeedTabItem("For You", tabIndex == 1, () => _onTabChange(1)),
+        Container(
+          key: HomePage.forYouTabKey,
+          child: _buildFeedTabItem(
+              "For You", tabIndex == 1, () => _onTabChange(1)),
+        ),
       ],
     );
   }

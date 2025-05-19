@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
-import 'package:metal/route/routes.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class DeleteUsersNotifier extends StateNotifier<BaseState<String>> {
@@ -22,11 +21,7 @@ class DeleteUsersNotifier extends StateNotifier<BaseState<String>> {
 
       final response = await repo.deleteUser();
 
-      if (response.message == "Re-authentication required") {
-        state = BaseState<String>.error(
-            response.message ?? "Re-authentication required");
-        return;
-      }
+      
 
       if (mounted) {
         if (response.success == true) {
@@ -36,12 +31,6 @@ class DeleteUsersNotifier extends StateNotifier<BaseState<String>> {
           state = BaseState<String>.success(
               response.message ?? "Account deleted successfully");
 
-          // Navigate after successful deletion
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.onboarding,
-            (route) => false,
-          );
         } else {
           state = BaseState<String>.error(
               response.message ?? "Failed to delete account");

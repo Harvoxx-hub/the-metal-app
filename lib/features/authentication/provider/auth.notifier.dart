@@ -84,27 +84,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
         userName: state.data!.username!,
         plugins: [ZegoUIKitSignalingPlugin()],
         notificationConfig: ZegoCallInvitationNotificationConfig(
-      androidNotificationConfig: ZegoCallAndroidNotificationConfig(
-        showFullScreen: true,
-        fullScreenBackgroundAssetURL: 'assets/image/call.png',
-        callChannel: ZegoCallAndroidNotificationChannelConfig(
-          channelID: "ZegoUIKit",
-          channelName: "Call Notifications",
-          sound: "call",
-          icon: "call",
+          androidNotificationConfig: ZegoCallAndroidNotificationConfig(
+            showFullScreen: true,
+            fullScreenBackgroundAssetURL: 'assets/image/call.png',
+            callChannel: ZegoCallAndroidNotificationChannelConfig(
+              channelID: "ZegoUIKit",
+              channelName: "Call Notifications",
+              sound: "call",
+              icon: "call",
+            ),
+            missedCallChannel: ZegoCallAndroidNotificationChannelConfig(
+              channelID: "MissedCall",
+              channelName: "Missed Call",
+              sound: "missed_call",
+              icon: "missed_call",
+              vibrate: false,
+            ),
+          ),
+          iOSNotificationConfig: ZegoCallIOSNotificationConfig(
+            systemCallingIconName: 'CallKitIcon',
+          ),
         ),
-        missedCallChannel: ZegoCallAndroidNotificationChannelConfig(
-          channelID: "MissedCall",
-          channelName: "Missed Call",
-          sound: "missed_call",
-          icon: "missed_call",
-          vibrate: false,
-        ),
-      ),
-      iOSNotificationConfig: ZegoCallIOSNotificationConfig(
-        systemCallingIconName: 'CallKitIcon',
-      ),
-    ),
         requireConfig: (ZegoCallInvitationData data) {
           final config = (data.invitees.length > 1)
               ? ZegoCallInvitationType.videoCall == data.type
@@ -112,7 +112,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
                   : ZegoUIKitPrebuiltCallConfig.groupVoiceCall()
               : ZegoCallInvitationType.videoCall == data.type
                   ? ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall()
-                  
                   : ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall();
 
           config.topMenuBar.isVisible = true;

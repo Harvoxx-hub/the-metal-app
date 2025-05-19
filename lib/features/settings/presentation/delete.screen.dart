@@ -20,8 +20,7 @@ import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 class DeleteScreen extends ConsumerWidget {
   DeleteScreen({super.key});
   final TextEditingController _feedbackController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
+  
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen<BaseState<String>>(deleteUserProvider, (prev, current) {
@@ -45,6 +44,8 @@ class DeleteScreen extends ConsumerWidget {
         );
       }
     });
+
+    final isLoading = ref.watch(deleteUserProvider).isLoading;
 
     return BaseScreen(
       appBarState: AppBarState.BackWithHeader,
@@ -178,6 +179,7 @@ class DeleteScreen extends ConsumerWidget {
   }
 
   Widget verifyDelete(BuildContext context, WidgetRef ref) {
+    final isLoading = ref.watch(deleteUserProvider).isLoading;
     return Column(
       children: [
         const Gap(38),
@@ -197,8 +199,8 @@ class DeleteScreen extends ConsumerWidget {
         ),
         const Gap(38),
         BaseButton(
-          buttonText: "Yes, Delete my account",
-          onPressed: () {
+          buttonText: isLoading ? "Deleting..." : "Yes, Delete my account",
+          onPressed: isLoading ? null : () {
             ref.read(deleteUserProvider.notifier).deleteUser(
                   context,
                   feedback: _feedbackController.text.trim(),

@@ -44,7 +44,8 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
   @override
   void initState() {
     super.initState();
-    dayRemaining = daysRemaining(widget.connectedOn, daysRequiredToUnMelt);
+    dayRemaining = daysRemaining(widget.connectedOn,
+        FirebaseRemoteConfigService().getDaysRequiredToUnMelt());
   }
 
   @override

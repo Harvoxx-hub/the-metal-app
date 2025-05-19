@@ -26,6 +26,9 @@ ConnectionModel _$ConnectionModelFromJson(Map<String, dynamic> json) =>
       otherUser: json['otherUser'] == null
           ? null
           : UserModel.fromJson(json['otherUser'] as Map<String, dynamic>),
+      initiatorId: json['initiatorId'] as String?,
+      receiverId: json['receiverId'] as String?,
+      wasAnonymous: json['wasAnonymous'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ConnectionModelToJson(ConnectionModel instance) =>
@@ -43,4 +46,7 @@ Map<String, dynamic> _$ConnectionModelToJson(ConnectionModel instance) =>
       'dailyConversations': instance.dailyConversations,
       'lastConversationDate': instance.lastConversationDate,
       'lastSenderId': instance.lastSenderId,
+      'initiatorId': instance.initiatorId,
+      'receiverId': instance.receiverId,
+      'wasAnonymous': instance.wasAnonymous,
     };

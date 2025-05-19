@@ -5,6 +5,7 @@ import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/features/dashboard.dart/widget/new_update_dialog.dart';
 import 'package:metal/features/dashboard.dart/widget/tutorial_dialog.dart';
+import 'package:metal/features/dashboard.dart/widget/tutorial_overlay.dart';
 import 'package:metal/features/dashboard.dart/widget/verification.dialog.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +20,6 @@ import 'package:metal/features/authentication/data/repositories/authetication.re
 import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
-import 'package:metal/features/onboarding/tutorial_pages/tutorial_screen.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/profile/presentation/profile.page.dart';
 import 'package:metal/features/sparks_page/screens/sparks_page.dart';
@@ -31,6 +31,7 @@ import 'package:metal/features/chat/provider/unread.count.notifier.dart';
 
 import '../home_page/home_page.dart';
 import 'package:metal/features/dashboard.dart/widget/thought_reminder_dialog.dart';
+import 'package:metal/widgets/text_views.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   final int? initialPageIndex;
@@ -48,6 +49,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   late int currentIndex;
   bool _initialized = false;
   PackageInfo? _packageInfo;
+
+  // Add a key for the new post FAB to be referenced by the tutorial
+  final GlobalKey newPostFabKey = GlobalKey();
+  final GlobalKey thoughtCardKey = GlobalKey();
+  final GlobalKey profileKey = GlobalKey();
+  final GlobalKey commentKey = GlobalKey();
+  final GlobalKey reactionKey = GlobalKey();
 
   @override
   void initState() {
@@ -97,18 +105,34 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           return CustomDialog(
             content: TutorialDialog(
               onStartTutorial: () async {
+                // Close the dialog first
                 Navigator.pop(dialogContext);
-                await Navigator.of(context).push(
-                  PageRouteBuilder(
-                    opaque: false,
-                    pageBuilder: (_, __, ___) => const OnboardingFlowView(),
-                    transitionsBuilder: (_, animation, __, child) {
-                      return FadeTransition(opacity: animation, child: child);
-                    },
-                  ),
-                );
+
+                // Make sure the widget is still mounted before proceeding
+                if (!mounted) return;
+
+                // Navigate to Home tab first
+                setState(() {
+                  currentIndex = 0;
+                });
+
+                // Give UI time to update
+                await Future.delayed(const Duration(milliseconds: 300));
+
+                // Check again if still mounted
+                if (!mounted) return;
+
+                // Show the tutorial overlay directly
+                _showFeaturesTutorial();
+
+                // We need to mark onboarding as seen
                 await prefs.setBool('hasSeenOnboarding', true);
-                await _checkUserStatus(userData);
+
+                // Only proceed if still mounted
+                if (!mounted) return;
+
+                // After that's done, check user status
+                //   await _checkUserStatus(userData);
               },
               onSkipTutorial: () async {
                 // Mark that user has seen onboarding when they skip
@@ -119,7 +143,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           );
         },
       );
-    } else if (_isUpdateAvailable(currentVersion, latestVersion)) {
+    } else if (_isUpdateAvailable(
+        currentVersion, FirebaseRemoteConfigService().getLatestVersion())) {
       await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -198,10 +223,47 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     }
   }
 
+  // Create the tutorial overlay directly
+  void _showFeaturesTutorial() {
+    // Make sure we're still mounted
+    if (!mounted) return;
+
+    // Force home tab to be selected to ensure all elements are visible
+    setState(() {
+      currentIndex = 0;
+    });
+
+    // Give UI time to update before showing tutorial
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+
+      // Get tutorial steps from HomePage that include the tab tutorials
+      final steps = HomePage.getTutorialSteps(
+        newPostFabKey,
+        profileKey,
+        commentKey,
+        reactionKey,
+      );
+
+      if (steps.isEmpty) {
+        debugPrint("Warning: No tutorial steps available");
+        return;
+      }
+
+      // Show the tutorial - this will now bypass the hasSeenTutorial check
+      showTutorial(context, steps, 'dashboard_tutorial_key');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final bottomNavPages = [
-      const HomePage(),
+      HomePage(
+        newPostFabKey: newPostFabKey,
+        profileKey: profileKey,
+        commentKey: commentKey,
+        reactionKey: reactionKey,
+      ),
       const SparksPage(),
       const ChatPage(),
       const ProfilePage(),
@@ -231,6 +293,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             ),
       floatingActionButton: currentIndex == 0
           ? FloatingActionButton(
+              key: newPostFabKey, // Add the key to the FAB
               backgroundColor: const Color(0xFFD2128B),
               child: const Icon(
                 Icons.add,
@@ -260,11 +323,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               activeIcon: Image.asset(Assets.images.activeHome.path),
               label: AppStrings.home),
           BottomNavigationBarItem(
-              icon: Image.asset(Assets.images.inactiveSpark.path),
+              icon: Container(
+                key: HomePage.sparksTabKey,
+                child: Image.asset(Assets.images.inactiveSpark.path),
+              ),
               activeIcon: Image.asset(Assets.images.activeSpark.path),
               label: AppStrings.sparks),
           BottomNavigationBarItem(
               icon: Stack(
+                key: HomePage.chatTabKey,
                 children: [
                   Image.asset(Assets.images.inactiveMessage.path),
                   if (ref.watch(unreadCountProvider).data != null &&

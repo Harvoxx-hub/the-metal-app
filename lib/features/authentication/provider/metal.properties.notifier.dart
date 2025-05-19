@@ -20,8 +20,8 @@ class MetalPropertiesNotifier extends StateNotifier<MetalPropertiesState> {
   void getMetalProperties() async {
     state = MetalPropertiesState.loading();
     try {
-      final metalPropertires =
-          MetalPropertiesModel.fromJson(metalPropertiesJson!);
+      final metalPropertires = MetalPropertiesModel.fromJson(
+          FirebaseRemoteConfigService().getMetalProperties());
       final repo = ref.watch(authenticationRepositoryProvider);
       final response = await repo.getMetals();
 
@@ -31,7 +31,7 @@ class MetalPropertiesNotifier extends StateNotifier<MetalPropertiesState> {
       });
       metalPropertires.metals = metals;
       final PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      currentVersion = packageInfo.version+"+"+packageInfo.buildNumber;
+      currentVersion = packageInfo.version + "+" + packageInfo.buildNumber;
 
       state = MetalPropertiesState.success(metalPropertires);
     } catch (e, s) {

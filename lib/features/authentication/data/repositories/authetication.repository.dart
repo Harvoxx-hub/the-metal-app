@@ -10,7 +10,7 @@ import 'package:metal/core/services/api.service.dart';
 
 import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/core/utils/constant/firebase.firestore.collection.key.dart';
-
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:metal/fcm/fcm_client.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 
@@ -294,28 +294,9 @@ class AuthenticationRepository implements IAuthenticationRepository {
   @override
   Future<Responses> deleteUser() async {
     try {
-      User? user = _firebaseService.auth.currentUser;
-
-      if (user == null) {
-        return Responses(success: false, message: "No user logged in.");
-      }
-
-      // Delete all user data from Firestore
-      await _deleteAllUserData(user.uid);
-
-      // Delete user authentication
-      try {
-        await user.delete();
-      } catch (e) {
-        if (e is FirebaseAuthException && e.code == 'requires-recent-login') {
-          return Responses(
-            success: false,
-            message: "You need to re-login before deleting your account.",
-          );
-        } else {
-          rethrow;
-        }
-      }
+      final functions = FirebaseFunctions.instance;
+      final callable = functions.httpsCallable('deleteUserAccount');
+      await callable.call();
 
       return Responses(success: true, message: "User deleted successfully.");
     } catch (e) {
@@ -324,118 +305,6 @@ class AuthenticationRepository implements IAuthenticationRepository {
         success: false,
         message: "Error: $errorMessage",
       );
-    }
-  }
-
-  Future<void> _deleteAllUserData(String userId) async {
-    // Delete user profile
-    await _firebaseService.deleteDocument(
-      collectionPath: FirebaseFirestoreCollectionKeys.users,
-      documentId: userId,
-    );
-
-    // Delete user's thoughts
-    final thoughts = await _firebaseService.queryCollection(
-      collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
-      field: 'userId',
-      value: userId,
-    );
-
-    if (thoughts != null) {
-      await _firebaseService.deleteDocument(
-        collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
-        documentId: userId,
-      );
-    }
-
-    // Delete user's connections
-    // First, get all connections where this user is referenced
-    final allConnections = await _firebaseService.readCollection(
-      collectionPath: FirebaseFirestoreCollectionKeys.connections,
-    );
-
-    if (allConnections != null) {
-      for (var connection in allConnections) {
-        if (connection['users']?.contains(userId)) {
-          await _firebaseService.deleteDocument(
-            collectionPath: FirebaseFirestoreCollectionKeys.connections,
-            documentId: connection['id'],
-          );
-        }
-      }
-    }
-
-    // Delete user's blocked list
-    final blocked = await _firebaseService.queryCollection(
-      collectionPath: FirebaseFirestoreCollectionKeys.blocked,
-      field: 'userId',
-      value: userId,
-    );
-
-    if (blocked != null) {
-      for (var item in blocked) {
-        await _firebaseService.deleteDocument(
-          collectionPath: FirebaseFirestoreCollectionKeys.blocked,
-          documentId: item['id'],
-        );
-      }
-    }
-    // Delete user's spark transactions
-    final sparkTransactions = await _firebaseService.queryCollection(
-      collectionPath: FirebaseFirestoreCollectionKeys.sparksTransactions,
-      field: 'userId',
-      value: userId,
-    );
-
-    if (sparkTransactions != null) {
-      for (var item in sparkTransactions) {
-        await _firebaseService.deleteDocument(
-          collectionPath: FirebaseFirestoreCollectionKeys.sparksTransactions,
-          documentId: item['id'],
-        );
-      }
-    }
-
-    // Delete user's melt requests
-    final meltRequests = await _firebaseService.queryCollection(
-      collectionPath: FirebaseFirestoreCollectionKeys.meltRequests,
-      field: 'userId',
-      value: userId,
-    );
-
-    if (meltRequests != null) {
-      for (var item in meltRequests) {
-        await _firebaseService.deleteDocument(
-          collectionPath: FirebaseFirestoreCollectionKeys.meltRequests,
-          documentId: item['id'],
-        );
-      }
-    }
-
-    // Delete user's feedback
-    final feedback = await _firebaseService.queryCollection(
-      collectionPath: FirebaseFirestoreCollectionKeys.feedback,
-      field: 'userId',
-      value: userId,
-    );
-
-    if (feedback != null) {
-      for (var item in feedback) {
-        await _firebaseService.deleteDocument(
-          collectionPath: FirebaseFirestoreCollectionKeys.feedback,
-          documentId: item['id'],
-        );
-      }
-    }
-
-    // Delete any profile images from storage
-    try {
-      await _firebaseService.storage
-          .ref()
-          .child('profileImages/$userId')
-          .delete();
-    } catch (e) {
-      // Ignore if profile image doesn't exist
     }
   }
 

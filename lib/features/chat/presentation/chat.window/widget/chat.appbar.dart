@@ -22,7 +22,7 @@ import 'package:metal/features/chat/provider/send.message.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
 import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
- 
+
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
@@ -60,8 +60,8 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    int dayRemaining =
-        daysRemaining(widget.connectionModel.connectedOn, daysRequiredToUnMelt);
+    int dayRemaining = daysRemaining(widget.connectionModel.connectedOn,
+        FirebaseRemoteConfigService().getDaysRequiredToUnMelt());
     print("CHECK FOR ACTIVE USER:${widget.meltUserModel.isOnline}");
 
     final checkMeltState =
@@ -192,7 +192,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           buildCallButton(
             isVideoCall: true,
             tooltip: tooltipController,
-            tooltipText: 'Video call is available after mutual unmelt.',
+            tooltipText: 'Video call is available after mutual Unmetal.',
             iconPath: Assets.icons.chatsWindowactiveVideoRecorder.path,
           ),
           const Gap(15),
@@ -201,7 +201,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           buildCallButton(
             isVideoCall: false,
             tooltip: tooltipController2,
-            tooltipText: 'Voice call is available after mutual unmelt.',
+            tooltipText: 'Voice call is available after mutual Unmetal.',
             iconPath: Assets.icons.chatsWindowactiveFill.path,
           ),
           const Gap(15),

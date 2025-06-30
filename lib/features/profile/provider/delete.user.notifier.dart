@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
@@ -19,25 +20,41 @@ class DeleteUsersNotifier extends StateNotifier<BaseState<String>> {
         await repo.sendFeedback(feedback);
       }
 
-      final response = await repo.deleteUser();
+      // Sign out the Firebase Auth user first to prevent lifecycle issues
+      try {
+        await FirebaseAuth.instance.signOut();
+      } catch (e) {
+        print('Error signing out during deletion: $e');
+        // Continue with deletion even if sign out fails
+      }
 
-      
+      final response = await repo.deleteUser();
 
       if (mounted) {
         if (response.success == true) {
           // Uninitialize services
-          await ZegoUIKitPrebuiltCallInvitationService().uninit();
+          try {
+            await ZegoUIKitPrebuiltCallInvitationService().uninit();
+          } catch (e) {
+            print('Error uninitializing ZegoUIKit: $e');
+            // Continue even if uninit fails
+          }
 
           state = BaseState<String>.success(
               response.message ?? "Account deleted successfully");
-
         } else {
           state = BaseState<String>.error(
               response.message ?? "Failed to delete account");
         }
       }
     } catch (e, s) {
-      state = BaseState<String>.error(e.toString(), stackTrace: s);
+      // If the error is related to user not found, consider it a success
+      if (e.toString().toLowerCase().contains('user') &&
+          e.toString().toLowerCase().contains('not found')) {
+        state = BaseState<String>.success("Account deleted successfully");
+      } else {
+        state = BaseState<String>.error(e.toString(), stackTrace: s);
+      }
     }
   }
 }

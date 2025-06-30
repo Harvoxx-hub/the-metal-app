@@ -7,6 +7,7 @@ import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart'
     hide ReactionModel;
+import 'package:metal/features/home_page/provider/comment.provider.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
@@ -66,6 +67,9 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
 
   Widget _buildThoughtCard(BuildContext context) {
     final userdata = ref.watch(authProvider).data;
+    final commentsState = ref.watch(commentProvider(thoughtModel.id));
+    final commentCount = commentsState.data?.length ?? 0;
+
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -95,6 +99,8 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
             ),
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               IconButton(
                 key: widget.toughtProfileKey,
@@ -113,24 +119,36 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
                   width: 24,
                 ),
               ),
-              IconButton(
+              Row(
                 key: widget.toughtCommentKey,
-                icon: SvgPicture.asset(
-                  Assets.icons.thoughComment.path,
-                  height: 24,
-                  width: 24,
-                ),
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) =>
-                        CommentBottomSheet(thought: thoughtModel),
-                  );
-                },
+                children: [
+                  IconButton(
+                    icon: SvgPicture.asset(
+                      Assets.icons.thoughComment.path,
+                      height: 24,
+                      width: 24,
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) =>
+                            CommentBottomSheet(thought: thoughtModel),
+                      );
+                    },
+                  ),
+                  TextView(
+                    text: commentCount.toString(),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ],
               ),
-              ReactionSection(thoughtId: thoughtModel.id, reactionKey: widget.reactionKey),
+              ReactionSection(
+                thoughtId: thoughtModel.id,
+                reactionKey: widget.reactionKey,
+              ),
             ],
           ),
         ],

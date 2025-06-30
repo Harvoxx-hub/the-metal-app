@@ -6,7 +6,7 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
@@ -39,6 +39,8 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
   @override
   Widget build(BuildContext context) {
     final metalProps = ref.watch(metalPropertiesProvider);
+    final setupState = ref.watch(profileSetupManagerProvider);
+
     return BaseScreen(
       bgImage: Assets.images.bg2.path,
       appBarEnabled: false,
@@ -202,14 +204,16 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
             ),
             const Gap(15),
             BaseButton(
-              enabled: noSpecialPreference == true
-                  ? true
-                  : (selectedAgeRange != null &&
-                      selectedReligion != null &&
-                      selectedEthnicity != null &&
-                      selectedEducation != null &&
-                      selectedDemography != null),
-              buttonText: "Next",
+              enabled: (noSpecialPreference == true
+                      ? true
+                      : (selectedAgeRange != null &&
+                          selectedReligion != null &&
+                          selectedEthnicity != null &&
+                          selectedEducation != null &&
+                          selectedDemography != null)) &&
+                  !setupState.isLoading,
+              loading: setupState.isLoading,
+              buttonText: setupState.isLoading ? "Saving..." : "Next",
               onPressed: _onNextPressed,
             ),
           ],
@@ -218,7 +222,7 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
     );
   }
 
-  void _onNextPressed() {
+  void _onNextPressed() async {
     Preferences preferences;
 
     if (noSpecialPreference) {
@@ -238,15 +242,23 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
           ethnicity: selectedEthnicity?.join(','));
     }
 
-    final updated = {
+    final preferencesData = {
       'preferences': preferences.toJson(),
     };
-    // userData!.copyWith(preferences: preferences);
-    ref.read(updateProfileProvider.notifier).updateUserData(updated);
 
-    Navigator.pushNamed(
-      context,
-      AppRoutes.homeAddressPage,
-    );
+    await ref.read(profileSetupManagerProvider.notifier).saveStepData(
+          step: ProfileSetupStep.preferences,
+          stepData: preferencesData,
+          moveToNext: true,
+        );
+
+    // Check if save was successful before navigating
+    final setupState = ref.read(profileSetupManagerProvider);
+    if (setupState.errorMessage == null && mounted) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.homeAddressPage,
+      );
+    }
   }
 }

@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart' as geo;
+import 'package:geocoding/geocoding.dart' as geo_coding;
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/features/dashboard.dart/widget/new_update_dialog.dart';
@@ -16,6 +18,8 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
+
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/chat/presentation/chat.page.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
@@ -57,9 +61,38 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   final GlobalKey commentKey = GlobalKey();
   final GlobalKey reactionKey = GlobalKey();
 
+  // Create HomePage instance as class member
+  late final HomePage homePage;
+
+  // Initialize ZegoUIKit safely after the widget is built
+  Future<void> _initializeZegoUIKit() async {
+    if (!mounted) return;
+
+    try {
+      await ref.read(authProvider.notifier).initZIMKItWithContext(context);
+    } catch (e) {
+      // Log error but don't crash the app
+      debugPrint('Error initializing ZegoUIKit: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+
+    // Initialize HomePage instance
+    homePage = HomePage(
+      newPostFabKey: newPostFabKey,
+      profileKey: profileKey,
+      commentKey: commentKey,
+      reactionKey: reactionKey,
+    );
+
+    // Initialize ZegoUIKit with permission handling after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeZegoUIKit();
+    });
+
     // Initialize with the provided index or default to 0
     currentIndex = widget.initialPageIndex ?? 0;
     _initializeData();
@@ -72,6 +105,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final userdata = ref.read(authProvider).data;
     if (userdata != null && mounted) {
       await _checkOnboardingAndUserStatus(userdata);
+      await _updateUserLocation();
     }
   }
 
@@ -97,7 +131,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final bool isWithin7Days =
         DateTime.now().difference(creationDate).inDays <= 7;
 
-    if (true) {
+    if (!hasSeenOnboarding) {
       await showDialog(
         context: context,
         barrierDismissible: false,
@@ -237,13 +271,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (!mounted) return;
 
-      // Get tutorial steps from HomePage that include the tab tutorials
-      final steps = HomePage.getTutorialSteps(
-        newPostFabKey,
-        profileKey,
-        commentKey,
-        reactionKey,
-      );
+      // Get tutorial steps from HomePage instance
+      final steps = homePage.getTutorialSteps(
+          newPostFabKey, profileKey, commentKey, reactionKey);
 
       if (steps.isEmpty) {
         debugPrint("Warning: No tutorial steps available");
@@ -255,15 +285,60 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     });
   }
 
+  // Update user's current location
+  Future<void> _updateUserLocation() async {
+    try {
+      // Check if location services are enabled
+      bool serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      // Check location permission
+      geo.LocationPermission permission =
+          await geo.Geolocator.checkPermission();
+      if (permission == geo.LocationPermission.denied ||
+          permission == geo.LocationPermission.deniedForever) {
+        return; // Don't request permission silently, just skip location update
+      }
+
+      // Get current position
+      geo.Position position = await geo.Geolocator.getCurrentPosition(
+        desiredAccuracy: geo.LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10), // Timeout after 10 seconds
+      );
+
+      // Get address from coordinates
+      List<geo_coding.Placemark> placemarks =
+          await geo_coding.placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty && mounted) {
+        geo_coding.Placemark place = placemarks[0];
+        String address = "${place.locality}, ${place.country}";
+
+        Location location = Location(
+          lat: position.latitude,
+          lng: position.longitude,
+          address: address,
+        );
+
+        // Update user location silently
+        await ref.read(userStateProvider.notifier).updateUserField(
+              field: 'location',
+              value: location.toJson(),
+            );
+      }
+    } catch (e) {
+      // Silently handle location update errors
+      debugPrint('Location update failed: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bottomNavPages = [
-      HomePage(
-        newPostFabKey: newPostFabKey,
-        profileKey: profileKey,
-        commentKey: commentKey,
-        reactionKey: reactionKey,
-      ),
+      homePage,
       const SparksPage(),
       const ChatPage(),
       const ProfilePage(),
@@ -271,7 +346,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final user = ref.watch(authProvider);
     ref.watch(getMeltUserProvider);
     ref.watch(metalPropertiesProvider);
-    ref.read(authProvider.notifier).initZIMKIt();
 
     return BaseScreen(
       appBarState: AppBarState.Dashboard,
@@ -324,14 +398,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               label: AppStrings.home),
           BottomNavigationBarItem(
               icon: Container(
-                key: HomePage.sparksTabKey,
+                key: homePage.sparksTabKey,
                 child: Image.asset(Assets.images.inactiveSpark.path),
               ),
               activeIcon: Image.asset(Assets.images.activeSpark.path),
               label: AppStrings.sparks),
           BottomNavigationBarItem(
               icon: Stack(
-                key: HomePage.chatTabKey,
+                key: homePage.chatTabKey,
                 children: [
                   Image.asset(Assets.images.inactiveMessage.path),
                   if (ref.watch(unreadCountProvider).data != null &&

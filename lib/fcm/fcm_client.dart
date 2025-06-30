@@ -38,62 +38,95 @@ class FCMClient {
         return _firebaseMessaging.getToken();
       }
 
-      await _firebaseMessaging.requestPermission(
-        alert: true,
-        announcement: false,
-        badge: true,
-        carPlay: false,
-        criticalAlert: false,
-        provisional: false,
-        sound: true,
-      );
-
-      if (Platform.isAndroid) {
-        await FirebaseMessaging.instance.setAutoInitEnabled(true);
-      }
-
-      // Set the foreground notification presentation options
-      FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-
-      // Handle initial message
-      final initialMessage = await _firebaseMessaging.getInitialMessage();
-      if (initialMessage != null) {
-        final payload =
-            NotificationPayloadModel.fromRemoteMessage(initialMessage);
-        Future.delayed(
-          const Duration(seconds: 2),
-          () => _onTapNotification(payload),
+      try {
+        // Request notification permissions first
+        await _firebaseMessaging.requestPermission(
+          alert: true,
+          announcement: false,
+          badge: true,
+          carPlay: false,
+          criticalAlert: false,
+          provisional: false,
+          sound: true,
         );
+
+        if (Platform.isAndroid) {
+          await FirebaseMessaging.instance.setAutoInitEnabled(true);
+        }
+
+        // For iOS, ensure APNS token is set before getting FCM token
+        if (Platform.isIOS) {
+          await _ensureAPNSToken();
+        }
+
+        // Set the foreground notification presentation options
+        FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+
+        // Handle initial message
+        final initialMessage = await _firebaseMessaging.getInitialMessage();
+        if (initialMessage != null) {
+          final payload =
+              NotificationPayloadModel.fromRemoteMessage(initialMessage);
+          Future.delayed(
+            const Duration(seconds: 2),
+            () => _onTapNotification(payload),
+          );
+        }
+
+        // Set up message listeners
+        _onMessageSub = FirebaseMessaging.onMessage.listen(_onMessage);
+        _onMessageOpenedAppSub =
+            FirebaseMessaging.onMessageOpenedApp.listen(_onMessageOpenedApp);
+
+        // Initialize local notifications
+        await _localNotifications.init(
+          onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
+        );
+
+        // Subscribe to dev topic
+        await _firebaseMessaging.subscribeToTopic("dev");
+
+        // Get and handle FCM token with proper error handling
+        String? token;
+        try {
+          token = await _firebaseMessaging.getToken();
+        } catch (e) {
+          print('Error getting FCM token: $e');
+          // If it's an APNS token error, try to get the APNS token first
+          if (Platform.isIOS && e.toString().contains('APNS token')) {
+            try {
+              // Wait a bit for APNS token to be set
+              await Future.delayed(const Duration(seconds: 2));
+              token = await _firebaseMessaging.getToken();
+            } catch (retryError) {
+              print('Retry getting FCM token failed: $retryError');
+              // Return null but don't fail the initialization
+              token = null;
+            }
+          } else {
+            // For other errors, return null but don't fail the initialization
+            token = null;
+          }
+        }
+
+        if (token != null) {
+          await _updateFCMToken(token);
+
+          // Listen for token refresh
+          tokenRefreshStream.listen(_updateFCMToken);
+        }
+
+        _isInit = true;
+        return token;
+      } catch (e) {
+        print('Error initializing FCM: $e');
+        // Return null but don't throw to prevent app crashes
+        return null;
       }
-
-      // Set up message listeners
-      _onMessageSub = FirebaseMessaging.onMessage.listen(_onMessage);
-      _onMessageOpenedAppSub =
-          FirebaseMessaging.onMessageOpenedApp.listen(_onMessageOpenedApp);
-
-      // Initialize local notifications
-      await _localNotifications.init(
-        onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
-      );
-
-      // Subscribe to dev topic
-      await _firebaseMessaging.subscribeToTopic("dev");
-
-      // Get and handle FCM token
-      final token = await _firebaseMessaging.getToken();
-      if (token != null) {
-        await _updateFCMToken(token);
-
-        // Listen for token refresh
-        tokenRefreshStream.listen(_updateFCMToken);
-      }
-
-      _isInit = true;
-      return token;
     });
   }
 
@@ -183,6 +216,26 @@ class FCMClient {
         'body: ${message.notification?.body}, '
         'data: ${message.data}',
       );
+    }
+  }
+
+  /// Ensure APNS token is set for iOS
+  Future<void> _ensureAPNSToken() async {
+    if (!Platform.isIOS) return;
+
+    try {
+      // Get the APNS token
+      final apnsToken = await _firebaseMessaging.getAPNSToken();
+      print('APNS token: $apnsToken');
+
+      if (apnsToken == null) {
+        // Wait a bit and try again
+        await Future.delayed(const Duration(seconds: 1));
+        final retryToken = await _firebaseMessaging.getAPNSToken();
+        print('Retry APNS token: $retryToken');
+      }
+    } catch (e) {
+      print('Error getting APNS token: $e');
     }
   }
 }

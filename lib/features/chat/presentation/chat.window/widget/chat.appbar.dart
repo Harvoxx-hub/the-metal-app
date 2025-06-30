@@ -35,6 +35,9 @@ import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:io';
+import 'package:metal/core/utils/permission_helper.dart';
 
 class ChatWindowsAppBar extends ConsumerStatefulWidget {
   const ChatWindowsAppBar({
@@ -79,6 +82,20 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
       }
 
       try {
+        // Check permissions before making the call
+        final authNotifier = ref.read(authProvider.notifier);
+        final hasPermissions =
+            await authNotifier.handleCallPermissionsBeforeCall(context);
+
+        if (!hasPermissions) {
+          // Permissions were denied, don't proceed with the call
+          // On iOS, show a one-time explanation dialog if permissions are denied
+          if (Platform.isIOS) {
+            await PermissionHelper.showPermissionExplanationDialog(context);
+          }
+          return false;
+        }
+
         final connectionState = ZegoUIKitSignalingPlugin().getConnectionState();
 
         if (connectionState != ZegoSignalingPluginConnectionState.connected) {
@@ -172,16 +189,12 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               ),
               const Gap(3),
               TextView(
-                text: !widget.meltUserModel.showOnline
-                    ? "Offline"
-                    : widget.meltUserModel.isOnline
-                        ? "active"
-                        : widget.meltUserModel.lastActive == null
-                            ? "Offline"
-                            : ActiveTime(
-                                isoDateString:
-                                    widget.meltUserModel.lastActive ??
-                                        DateTime.now().toIso8601String()),
+                text: getAccurateOnlineStatus(
+                  isOnline: widget.meltUserModel.isOnline,
+                  showOnline: widget.meltUserModel.showOnline,
+                  lastActive: widget.meltUserModel.lastActive,
+                  maxOfflineMinutes: 5, // Consider offline after 5 minutes
+                ),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: AppColors.metalBlack50,

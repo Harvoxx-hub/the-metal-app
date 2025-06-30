@@ -6,17 +6,22 @@ import 'package:geocoding/geocoding.dart' as geo_coding;
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:geolocator/geolocator.dart' as geo;
+import 'package:metal/core/utils/permission_helper.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
+import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
+import 'package:metal/res/colors/cr_colors.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LocationEnablePage extends ConsumerStatefulWidget {
   const LocationEnablePage({super.key});
-  static const name = 'location';
+  static const name = 'locationEnable';
   static const route = name;
 
   @override
@@ -25,130 +30,146 @@ class LocationEnablePage extends ConsumerStatefulWidget {
 }
 
 class _LocationEnablePageState extends ConsumerState<LocationEnablePage> {
-  geo.Position? _currentPosition;
   @override
   Widget build(BuildContext context) {
-    final updateProfile = ref.watch(updateProfileProvider);
+    final userState = ref.watch(userStateProvider);
 
-    ref.listen<UpdateProfileState>(updateProfileProvider, (prev, current) {
-      if (current.isSuccess) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, AppRoutes.dashboardPage, (route) => false);
-      }
-    });
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
-        Header: 'Location',
+        Header: AppStrings.enableLocationTitle,
         authFlow: true,
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Image.asset(
-              Assets.images.location.path,
-            ),
-            const Gap(41),
-            const TextView(
-              text: "You'll need to enable location in order to use Metal",
-              fontWeight: FontWeight.w400,
-              fontSize: 20,
-            ),
-            const Gap(10),
-            const TextView(
-              text:
-                  "Your location would be used to show you potential metals near you",
-              fontWeight: FontWeight.w400,
-              fontSize: 16,
-            ),
-            const Gap(70),
-            BaseButton(
-              loading: updateProfile.isLoading,
-              buttonText: "Enable Location",
-              onPressed: () {
-                _onNextPressed(updateProfile.data);
-              },
-            ),
-          ]),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              CreateProfileHeader2(
+                  path: Assets.images.location.path,
+                  title: AppStrings.enableLocationDesc,
+                  subtitle:
+                      "Your location helps us match you with nearby people"),
+              const Gap(26),
+              BaseButton(
+                loading: userState.isLoading,
+                buttonText: AppStrings.enableLocation,
+                onPressed: () async {
+                  await _requestLocationPermission();
+                },
+              ),
+              const Gap(16),
+              BaseButton(
+                outlined: true,
+                buttonText: AppStrings.skipForNow,
+                onPressed: () {
+                  Navigator.pushNamed(
+                      context, AppRoutes.notificationEnablePage);
+                },
+              ),
+              const Gap(80),
+              _buildFeaturesList(),
+            ],
+          ),
         ));
   }
 
-  Future<bool> _handleLocationPermission() async {
-    bool serviceEnabled;
-    geo.LocationPermission permission;
+  Future<void> _requestLocationPermission() async {
+    try {
+      final permissionStatus = await Permission.location.request();
 
-    serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      await geo.Geolocator.openLocationSettings();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Location services are disabled. Please enable the services')));
-      return false;
-    }
-    permission = await geo.Geolocator.checkPermission();
-    if (permission == geo.LocationPermission.denied) {
-      permission = await geo.Geolocator.requestPermission();
-      if (permission == geo.LocationPermission.denied) {
+      if (permissionStatus.isGranted) {
+        // Update user location permission status
+        await ref.read(userStateProvider.notifier).updateUserField(
+              field: 'locationPermissionGranted',
+              value: true,
+            );
+
+        if (mounted) {
+          Navigator.pushNamed(context, AppRoutes.notificationEnablePage);
+        }
+      } else if (permissionStatus.isPermanentlyDenied) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                  'Location permission permanently denied. Please enable it in Settings.'),
+              backgroundColor: Colors.orange,
+              action: SnackBarAction(
+                label: 'Settings',
+                onPressed: () => openAppSettings(),
+              ),
+            ),
+          );
+        }
+      } else {
+        // Show error or handle permission denied
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content:
+                  Text('Location permission is required for better matching'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location permissions are denied')));
-        return false;
-      }
-    }
-    if (permission == geo.LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Location permissions are permanently denied, we cannot request permissions.')));
-      return false;
-    }
-    return true;
-  }
-
-  Future<void> _onNextPressed(user) async {
-    await _getCurrentPosition();
-    if (_currentPosition != null) {
-     
-      // Get address from coordinates
-      List<geo_coding.Placemark> placemarks =
-          await geo_coding.placemarkFromCoordinates(
-        _currentPosition!.latitude,
-        _currentPosition!.longitude,
-      );
-
-      if (placemarks.isNotEmpty) {
-        geo_coding.Placemark place = placemarks[0];
-        String address =
-            "${place.locality}, ${place.country}"; // e.g. "Lagos, Nigeria"
-
-        Location location = Location(
-          lat: _currentPosition!.latitude,
-          lng: _currentPosition!.longitude,
-          address: address,
+          SnackBar(
+            content:
+                Text('Error requesting location permission: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
         );
-
-        final updated = {
-          'location': location.toJson(),
-          'profileUpdated': true,
-        };
-
-        
-         
-
-        ref.read(updateProfileProvider.notifier).updateUserData(updated);
-    ref.read(updateProfileProvider.notifier).sendUserUpdate();
       }
     }
   }
 
-  void updateProfile(UserModel user) {
-  
+  Widget _buildFeaturesList() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.metalWhite.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Location helps us:',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.metalWhite,
+            ),
+          ),
+          const Gap(12),
+          _buildFeatureItem('🎯', 'Match you with nearby people'),
+          _buildFeatureItem('📍', 'Show distance in profiles'),
+          _buildFeatureItem('🔒', 'Keep your exact location private'),
+          _buildFeatureItem('⚡', 'Find local events and activities'),
+        ],
+      ),
+    );
   }
 
-  Future<void> _getCurrentPosition() async {
-    final hasPermission = await _handleLocationPermission();
-    if (!hasPermission) return;
-    await geo.Geolocator.getCurrentPosition(
-            desiredAccuracy: geo.LocationAccuracy.high)
-        .then((geo.Position position) {
-      setState(() => _currentPosition = position);
-    }).catchError((e) {});
+  Widget _buildFeatureItem(String icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 16)),
+          const Gap(8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.metalWhite,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

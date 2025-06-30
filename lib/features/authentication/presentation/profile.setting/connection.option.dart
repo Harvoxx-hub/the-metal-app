@@ -5,7 +5,7 @@ import 'package:metal/core/utils/screen.size.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
@@ -31,6 +31,8 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
   @override
   Widget build(BuildContext context) {
     final metalProps = ref.watch(metalPropertiesProvider);
+    final setupState = ref.watch(profileSetupManagerProvider);
+
     return BaseScreen(
       bgImage: Assets.images.bg2.path,
       appBarEnabled: false,
@@ -64,8 +66,9 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
             ),
           ),
           BaseButton(
-            enabled: _seletedOption.isNotEmpty,
-            buttonText: "Next ",
+            enabled: _seletedOption.isNotEmpty && !setupState.isLoading,
+            loading: setupState.isLoading,
+            buttonText: setupState.isLoading ? "Saving..." : "Next",
             onPressed: _onNextPressed,
           )
         ],
@@ -83,17 +86,26 @@ class _ConnectionOptionsPageState extends ConsumerState<ConnectionOptionsPage> {
     });
   }
 
-  void _onNextPressed() {
-    final updated = {
+  void _onNextPressed() async {
+    if (_seletedOption.isEmpty) return;
+
+    final connectionData = {
       'connectionOption': _seletedOption.cast<String>(),
     };
 
-    // userData!.copyWith(connectionOption: _seletedOption.cast<String>());
-    ref.read(updateProfileProvider.notifier).updateUserData(updated);
+    await ref.read(profileSetupManagerProvider.notifier).saveStepData(
+          step: ProfileSetupStep.connectionOptions,
+          stepData: connectionData,
+          moveToNext: true,
+        );
 
-    Navigator.pushNamed(
-      context,
-      AppRoutes.preferenceMetalPage,
-    );
+    // Check if save was successful before navigating
+    final setupState = ref.read(profileSetupManagerProvider);
+    if (setupState.errorMessage == null && mounted) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.preferenceMetalPage,
+      );
+    }
   }
 }

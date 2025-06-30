@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class EnhancedDialog extends StatelessWidget {
@@ -71,13 +72,10 @@ class EnhancedDialog extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
               ],
-              ElevatedButton(
+              BaseButton(
                 onPressed: onPrimaryButtonPressed,
-                child: TextView(
-                  text: primaryButtonText,
-                  fontSize: 14,
-                  color: Colors.white,
-                ),
+                buttonText: primaryButtonText,
+                width: 200,
               ),
             ],
           ),

@@ -31,11 +31,73 @@ String formatTime({
 }
 
 String ActiveTime({String? isoDateString, DateTime? datetime}) {
-  String time = formatTime(isoDateString: isoDateString);
+  String time = formatTime(isoDateString: isoDateString, datetime: datetime);
   if (time == "a moment ago") {
     return "active";
   } else {
     return time;
+  }
+}
+
+/// Determines the accurate online status based on both isOnline flag and lastActive timestamp
+/// This prevents showing "active" for users who went offline but have stale isOnline=true
+String getAccurateOnlineStatus({
+  required bool isOnline,
+  required bool showOnline,
+  String? lastActive,
+  int maxOfflineMinutes = 5, // Consider offline after 5 minutes of inactivity
+}) {
+  // If user has disabled showing online status
+  if (!showOnline) {
+    return "Offline";
+  }
+
+  // If no lastActive data, fall back to isOnline flag
+  if (lastActive == null || lastActive.isEmpty) {
+    return isOnline ? "active" : "Offline";
+  }
+
+  try {
+    final lastActiveTime = DateTime.parse(lastActive);
+    final now = DateTime.now();
+    final timeDifference = now.difference(lastActiveTime);
+
+    // If lastActive is more than maxOfflineMinutes ago, definitely offline
+    if (timeDifference.inMinutes > maxOfflineMinutes) {
+      return ActiveTime(isoDateString: lastActive);
+    }
+
+    // If recent activity AND isOnline flag is true, show active
+    if (isOnline && timeDifference.inMinutes <= maxOfflineMinutes) {
+      return "active";
+    }
+
+    // If isOnline is false or activity is getting stale, show time-based status
+    return ActiveTime(isoDateString: lastActive);
+  } catch (e) {
+    // Fallback to isOnline flag if parsing fails
+    return isOnline ? "active" : "Offline";
+  }
+}
+
+/// Quick check if user should be considered truly online
+bool isUserTrulyOnline({
+  required bool isOnline,
+  String? lastActive,
+  int maxOfflineMinutes = 5,
+}) {
+  if (!isOnline) return false;
+
+  if (lastActive == null || lastActive.isEmpty) return isOnline;
+
+  try {
+    final lastActiveTime = DateTime.parse(lastActive);
+    final now = DateTime.now();
+    final timeDifference = now.difference(lastActiveTime);
+
+    return timeDifference.inMinutes <= maxOfflineMinutes;
+  } catch (e) {
+    return isOnline;
   }
 }
 

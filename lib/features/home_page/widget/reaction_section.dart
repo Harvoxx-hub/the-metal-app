@@ -11,7 +11,6 @@ import 'package:metal/res/res.dart';
 class ReactionSection extends ConsumerStatefulWidget {
   final String thoughtId;
   final GlobalKey? reactionKey;
-
   const ReactionSection({
     Key? key,
     required this.thoughtId,
@@ -34,19 +33,19 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
   @override
   Widget build(BuildContext context) {
     final reactions = ref.watch(reactionProvider(widget.thoughtId)).data ?? [];
+    final userdata = ref.watch(authProvider).data;
 
     return Stack(
       children: [
         SizedBox(
           height: _showReactions ? 100 : 60,
-          width: 230,
+          width: 180,
           child: Row(
             children: [
-              IconButton(
-                onPressed: _toggleReactions,
-                icon: _buildReactionIcon(),
+              GestureDetector(
+                onTap: _toggleReactions,
+                child: _buildReactionDisplay(reactions, userdata?.id),
               ),
-              _buildReactionsRow(reactions),
             ],
           ),
         ),
@@ -55,62 +54,109 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
     );
   }
 
-  Widget _buildReactionIcon() {
-    final userdata = ref.watch(authProvider).data;
-    if (userdata == null) return const Icon(Icons.favorite_border);
-
-    final reactions = ref.watch(reactionProvider(widget.thoughtId)).data ?? [];
-    final userReaction = reactions
-        .where((reaction) => reaction.userId == userdata.id)
-        .firstOrNull;
-
-    if (userReaction == null) {
-      return const Icon(Icons.favorite_border);
+  Widget _buildReactionDisplay(List<ReactionModel> reactions, String? userId) {
+    if (reactions.isEmpty) {
+      return Row(
+        key: widget.reactionKey,
+        children: [
+          IconButton(
+            onPressed: _toggleReactions,
+            icon: const Icon(Icons.favorite_border),
+          ),
+          const TextView(
+            text: "0",
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ],
+      );
     }
 
-    return Text(
-      userReaction.emoji,
-      style: const TextStyle(fontSize: 24),
-    );
-  }
+    // Find user's reaction if exists
+    final userReaction = userId != null
+        ? reactions.where((reaction) => reaction.userId == userId).firstOrNull
+        : null;
 
-  Widget _buildReactionsRow(List<ReactionModel> reactions) {
-    final userdata = ref.watch(authProvider).data;
-    if (userdata == null || reactions.isEmpty) return const SizedBox();
-
-    int totalReactions = reactions.length;
-    bool userHasReacted =
-        reactions.any((reaction) => reaction.userId == userdata.id);
-
-    String reactionText = userHasReacted
-        ? (totalReactions > 1
-            ? 'You and ${totalReactions - 1} others reacted'
-            : 'You reacted')
-        : '$totalReactions reacted';
-
-    return GestureDetector(
-      onTap: () {
-        showModalBottomSheet(
-          backgroundColor: Colors.white,
-          context: context,
-          builder: (BuildContext context) => _buildReactionList(reactions),
-        );
-      },
-      child: Row(
-        children: [
-          for (var reaction in reactions) TextView(text: reaction.emoji),
-          TextView(text: reactionText),
-        ],
-      ),
+    return Row(
+      key: widget.reactionKey,
+      children: [
+        if (userReaction != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              userReaction.emoji,
+              style: const TextStyle(fontSize: 20),
+            ),
+          )
+        else
+          IconButton(
+            onPressed: _toggleReactions,
+            icon: const Icon(Icons.favorite_border),
+          ),
+        GestureDetector(
+          onTap: () {
+            if (reactions.isNotEmpty) {
+              showModalBottomSheet(
+                backgroundColor: Colors.white,
+                context: context,
+                builder: (BuildContext context) =>
+                    _buildReactionList(reactions),
+              );
+            }
+          },
+          child: Row(
+            children: [
+              TextView(
+                text: reactions.length.toString(),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              const Gap(4),
+              // TextView(
+              //   text: "reactions",
+              //   fontSize: 12,
+              //   fontWeight: FontWeight.w400,
+              //   color: AppColors.metalBlack50,
+              // ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildReactionList(List<ReactionModel> reactions) {
     return SafeArea(
-      child: Wrap(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          for (var reaction in reactions)
-            ReactionListTile(reactionModel: reaction),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextView(
+                  text: '${reactions.length}',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+                const Gap(4),
+                // TextView(
+                //   text: 'Reactions',
+                //   fontSize: 16,
+                //   fontWeight: FontWeight.w600,
+                // ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: reactions.length,
+              itemBuilder: (context, index) => ReactionListTile(
+                reactionModel: reactions[index],
+              ),
+            ),
+          ),
         ],
       ),
     );

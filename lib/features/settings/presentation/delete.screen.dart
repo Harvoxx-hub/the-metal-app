@@ -20,20 +20,19 @@ import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 class DeleteScreen extends ConsumerWidget {
   DeleteScreen({super.key});
   final TextEditingController _feedbackController = TextEditingController();
-  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen<BaseState<String>>(deleteUserProvider, (prev, current) {
       if (current.isError &&
           current.errorMessage?.contains('re-login') == true) {
         // Show re-authentication dialog
-        
       } else if (current.isSuccess) {
-           Navigator.pushNamedAndRemoveUntil(
-              context,
-              AppRoutes.onboarding,
-              (route) => false,
-            );
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.onboarding,
+          (route) => false,
+        );
       } else if (current.isError) {
         // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
@@ -150,6 +149,7 @@ class DeleteScreen extends ConsumerWidget {
                     const Gap(10),
                     PlainButton(
                       buttonText: "Delete my account",
+                      loading: isLoading,
                       onPressed: () {
                         showDialog(
                           context: context,
@@ -200,12 +200,14 @@ class DeleteScreen extends ConsumerWidget {
         const Gap(38),
         BaseButton(
           buttonText: isLoading ? "Deleting..." : "Yes, Delete my account",
-          onPressed: isLoading ? null : () {
-            ref.read(deleteUserProvider.notifier).deleteUser(
-                  context,
-                  feedback: _feedbackController.text.trim(),
-                );
-          },
+          onPressed: isLoading
+              ? null
+              : () {
+                  ref.read(deleteUserProvider.notifier).deleteUser(
+                        context,
+                        feedback: _feedbackController.text.trim(),
+                      );
+                },
         ),
         const Gap(23),
         TextView(
@@ -218,6 +220,4 @@ class DeleteScreen extends ConsumerWidget {
       ],
     );
   }
-
- 
- }
+}

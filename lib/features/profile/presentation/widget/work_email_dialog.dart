@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
+
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text.field/base.text.field.dart';
@@ -40,7 +41,7 @@ class _WorkEmailDialogState extends ConsumerState<WorkEmailDialog> {
     return !publicDomains.contains(domain);
   }
 
-  void _verifyEmail() {
+  void _verifyEmail() async {
     final email = _emailController.text.trim();
 
     if (email.isEmpty) {
@@ -55,14 +56,16 @@ class _WorkEmailDialogState extends ConsumerState<WorkEmailDialog> {
     }
 
     // Update the user model with work email
-   
-      final updated = {
-        'workEmail': email,
-        'workEmailVerified': false, // Will be set to true after verification
-      };
-      // TODO: Implement email verification logic here
-      ref.read(updateProfileProvider.notifier).updateUserData(updated);
-    
+
+    final updated = {
+      'workEmail': email,
+      'workEmailVerified': false, // Will be set to true after verification
+    };
+    // TODO: Implement email verification logic here
+    await ref.read(userStateProvider.notifier).updateUserFields(
+          updates: updated,
+          validateRequired: false,
+        );
 
     Navigator.of(context).pop();
   }

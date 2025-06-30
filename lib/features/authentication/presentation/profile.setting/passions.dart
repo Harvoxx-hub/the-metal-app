@@ -7,7 +7,7 @@ import 'package:metal/features/authentication/domain/entries/metal.properties.mo
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
 import 'package:metal/gen/assets.gen.dart';
 
 import 'package:metal/route/routes.dart';
@@ -34,6 +34,7 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
   Widget build(BuildContext context) {
     debugPrint('Build was called...');
     final metalProps = ref.watch(metalPropertiesProvider);
+    final setupState = ref.watch(profileSetupManagerProvider);
     debugPrint('metalProps.isLoading: ${metalProps.isLoading}');
     debugPrint('metalProps.data: ${metalProps.data}');
 
@@ -84,8 +85,9 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
                   right: 0,
                   left: 0,
                   child: BaseButton(
-                    buttonText: "Next",
-                    enabled: _seletedPassion.isNotEmpty,
+                    buttonText: setupState.isLoading ? "Saving..." : "Next",
+                    enabled:
+                        _seletedPassion.isNotEmpty && !setupState.isLoading,
                     onPressed: _onNextPressed,
                   ),
                 )
@@ -103,16 +105,26 @@ class _PassionsPageState extends ConsumerState<PassionsPage> {
     });
   }
 
-  void _onNextPressed() {
-  
-    final updated = {
+  void _onNextPressed() async {
+    if (_seletedPassion.isEmpty) return;
+
+    final passionData = {
       'passion': _seletedPassion,
     };
-    //userData!.copyWith(passion: _seletedPassion);
-    ref.read(updateProfileProvider.notifier).updateUserData(updated);
-    Navigator.pushNamed(
-      context,
-      AppRoutes.aboutYouPage,
-    );
+
+    await ref.read(profileSetupManagerProvider.notifier).saveStepData(
+          step: ProfileSetupStep.passions,
+          stepData: passionData,
+          moveToNext: true,
+        );
+
+    // Check if save was successful before navigating
+    final setupState = ref.read(profileSetupManagerProvider);
+    if (setupState.errorMessage == null && mounted) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.aboutYouPage,
+      );
+    }
   }
 }

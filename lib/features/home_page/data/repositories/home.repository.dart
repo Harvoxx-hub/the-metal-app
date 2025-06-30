@@ -232,9 +232,8 @@ class HomeRepository implements IHomeRepository {
       return true;
     }
 
-    
     // No connection or melt request exists
-    return  false;
+    return false;
   }
 
   @override
@@ -269,15 +268,20 @@ class HomeRepository implements IHomeRepository {
   @override
   Future markUserOffline(String userId) async {
     try {
-      // Fetch the thought document by its ID
+      final now = DateTime.now().toIso8601String();
+      print('Marking user offline: $userId at $now');
+
       await _firebaseService.updateDocument(
           collectionPath: FirebaseFirestoreCollectionKeys.users,
           documentId: userId,
           data: {
             'isOnline': false,
-            'lastActive': DateTime.now().toIso8601String(),
+            'lastActive': now,
           });
+
+      print('Successfully marked user offline: $userId');
     } catch (e) {
+      print('Error marking user offline: $e');
       rethrow;
     }
   }
@@ -285,15 +289,20 @@ class HomeRepository implements IHomeRepository {
   @override
   Future markUserOnline(String userId) async {
     try {
-      // Fetch the thought document by its ID
+      final now = DateTime.now().toIso8601String();
+      print('Marking user online: $userId at $now');
+
       await _firebaseService.updateDocument(
           collectionPath: FirebaseFirestoreCollectionKeys.users,
           documentId: userId,
           data: {
             'isOnline': true,
-            'lastActive': DateTime.now().toIso8601String(),
+            'lastActive': now,
           });
+
+      print('Successfully marked user online: $userId');
     } catch (e) {
+      print('Error marking user online: $e');
       rethrow;
     }
   }
@@ -488,7 +497,7 @@ class HomeRepository implements IHomeRepository {
       await _firebaseService.updateDocument(
         collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
         documentId: thoughtId,
-        data: {'reactions': reactions },
+        data: {'reactions': reactions},
       );
 
       return Responses(
@@ -538,7 +547,7 @@ class HomeRepository implements IHomeRepository {
 
       MeltRequestState? meltState;
 
-       if (user1ToUser2Request.docs.isNotEmpty) {
+      if (user1ToUser2Request.docs.isNotEmpty) {
         // One user has sent a request, state is "Pending"
         meltState = MeltRequestState.pending;
       } else {

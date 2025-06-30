@@ -10,8 +10,8 @@ import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
-
+import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
+ 
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
@@ -32,7 +32,7 @@ class HomeAddressPage extends ConsumerStatefulWidget {
 }
 
 class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
-  static final GlobalKey<FormState> _form = GlobalKey<FormState>();
+  final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   final TextEditingController _apartmentNoController = TextEditingController();
 
@@ -73,15 +73,15 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
   Widget build(BuildContext context) {
     getCountries();
 
-    final updateProfile = ref.watch(updateProfileProvider);
+    final setupState = ref.watch(profileSetupManagerProvider);
 
-    ref.listen<UpdateProfileState>(updateProfileProvider, (prev, current) {
-      if (current.isSuccess) {
-        Navigator.pop(context);
-        Navigator.pushNamedAndRemoveUntil(
-            context, AppRoutes.dashboardPage, (route) => true);
+    ref.listen(profileSetupManagerProvider, (prev, current) {
+      if (current.errorMessage == null && !current.isLoading) {
+        // Navigate to location page as next step in profile completion
+        Navigator.pushNamed(context, AppRoutes.locationEnablePage);
       }
     });
+
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -206,11 +206,23 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
                     ),
                     const Gap(16),
                     BaseButton(
-                      loading: updateProfile.isLoading,
+                      loading: setupState.isLoading,
                       buttonText: AppStrings.next,
                       onPressed: () {
-                        if (_form.currentState!.validate()) {
+                        if (_form.currentState!.validate() &&
+                            _selectedCountries != null &&
+                            _selectedState != null) {
                           _onNextPressed();
+                        } else if (_selectedCountries == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Please select a country')),
+                          );
+                        } else if (_selectedState == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Please select a state')),
+                          );
                         }
                       },
                     ),
@@ -221,7 +233,7 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
         )));
   }
 
-  void _onNextPressed() {
+  void _onNextPressed() async {
     Address address = Address(
         country: _selectedCountries,
         streetName: _streetNameController.text,
@@ -229,13 +241,19 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
         state: _selectedState,
         postalCode: _postalCodeController.text,
         houseNumber: _houseNumberController.text);
-    final updated = {
+
+    final addressData = {
       'address': address.toJson(),
-      'completedProfile': true,
     };
 
-    ref.read(updateProfileProvider.notifier).updateUserData(updated);
+    // Save address data and complete profile
+    await ref.read(profileSetupManagerProvider.notifier).saveStepData(
+          step: ProfileSetupStep.address,
+          stepData: addressData,
+          moveToNext: false,
+        );
 
-    ref.read(updateProfileProvider.notifier).sendUserUpdate();
+    // Complete the entire profile setup
+    await ref.read(profileSetupManagerProvider.notifier).completeProfileSetup();
   }
 }

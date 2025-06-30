@@ -7,7 +7,7 @@ import 'package:metal/features/authentication/domain/entries/metal.properties.mo
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
@@ -33,6 +33,8 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
   @override
   Widget build(BuildContext context) {
     final metalProps = ref.watch(metalPropertiesProvider);
+    final setupState = ref.watch(profileSetupManagerProvider);
+
     return BaseScreen(
         //   isLoading: metalProps.isLoading,
         bgImage: Assets.images.bg2.path,
@@ -90,8 +92,10 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
                         right: 0,
                         left: 0,
                         child: BaseButton(
-                          buttonText: "Next",
-                          enabled: _selectedMetal != null,
+                          buttonText:
+                              setupState.isLoading ? "Saving..." : "Next",
+                          enabled:
+                              _selectedMetal != null && !setupState.isLoading,
                           onPressed: _onNextPressed,
                         ),
                       )
@@ -107,16 +111,26 @@ class _ChooseYourMetalPageState extends ConsumerState<ChooseYourMetalPage> {
     });
   }
 
-  void _onNextPressed() {
-    final updated = {
+  void _onNextPressed() async {
+    if (_selectedMetal == null) return;
+
+    final metalData = {
       'metal': _selectedMetal!.id,
     };
 
-    ref.read(updateProfileProvider.notifier).updateUserData(updated);
+    await ref.read(profileSetupManagerProvider.notifier).saveStepData(
+          step: ProfileSetupStep.metalSelection,
+          stepData: metalData,
+          moveToNext: true,
+        );
 
-    Navigator.pushNamed(
-      context,
-      AppRoutes.locationEnablePage,
-    );
+    // Check if save was successful before navigating
+    final setupState = ref.read(profileSetupManagerProvider);
+    if (setupState.errorMessage == null && mounted) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.passionsPage,
+      );
+    }
   }
 }

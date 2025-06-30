@@ -7,7 +7,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -70,36 +70,28 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         text: "Show when I am online",
                         floatingLabel: "Privacy",
                         prefixIcon: CustomToggle(
-                          initialValue:
-                              user.showOnline, // Set the initial value
-                          onChanged: (value) {
-                            final updated = {
-                              'showOnline': value,
-                            };
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .updateUserData(updated);
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .sendUserUpdate();
+                          initialValue: user.showOnline,
+                          onChanged: (value) async {
+                            await ref
+                                .read(userStateProvider.notifier)
+                                .updateUserField(
+                                  field: 'showOnline',
+                                  value: value,
+                                );
                           },
                         ),
                       ),
                       EditField(
                         text: "Always a Metal",
                         prefixIcon: CustomToggle(
-                          initialValue:
-                              user.alwaysMetal, // Set the initial value
-                          onChanged: (value) {
-                            final updated = {
-                              'alwaysMetal': value,
-                            };
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .updateUserData(updated);
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .sendUserUpdate();
+                          initialValue: user.alwaysMetal,
+                          onChanged: (value) async {
+                            await ref
+                                .read(userStateProvider.notifier)
+                                .updateUserField(
+                                  field: 'alwaysMetal',
+                                  value: value,
+                                );
                           },
                         ),
                       ),
@@ -109,16 +101,13 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         floatingLabel: AppStrings.notifications,
                         prefixIcon: CustomToggle(
                           initialValue: user.receiveNotification,
-                          onChanged: (value) {
-                            final updated = {
-                              'receiveNotification': value,
-                            };
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .updateUserData(updated);
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .sendUserUpdate();
+                          onChanged: (value) async {
+                            await ref
+                                .read(userStateProvider.notifier)
+                                .updateUserField(
+                                  field: 'receiveNotification',
+                                  value: value,
+                                );
                           },
                         ),
                       ),
@@ -128,16 +117,13 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         floatingLabel: AppStrings.profileVisibility,
                         prefixIcon: CustomToggle(
                           initialValue: user.showMyProfile,
-                          onChanged: (value) {
-                            final updated = {
-                              'showMyProfile': value,
-                            };
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .updateUserData(updated);
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .sendUserUpdate();
+                          onChanged: (value) async {
+                            await ref
+                                .read(userStateProvider.notifier)
+                                .updateUserField(
+                                  field: 'showMyProfile',
+                                  value: value,
+                                );
                           },
                         ),
                       ),
@@ -160,55 +146,42 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         text: "Activate voice notes",
                         floatingLabel: "Call Preferences",
                         prefixIcon: CustomToggle(
-                          initialValue:
-                              user.activateVoiceNote, // Set the initial value
-                          onChanged: (value) {
-                            // Handle the state change
-                            final updated = {
-                              'activateVoiceNote': value,
-                            };
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .updateUserData(updated);
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .sendUserUpdate();
+                          initialValue: user.activateVoiceNote,
+                          onChanged: (value) async {
+                            await ref
+                                .read(userStateProvider.notifier)
+                                .updateUserField(
+                                  field: 'activateVoiceNote',
+                                  value: value,
+                                );
                           },
                         ),
                       ),
                       EditField(
                         text: "Activate video call",
                         prefixIcon: CustomToggle(
-                          initialValue:
-                              user.activateVideoCall, // Set the initial value
-                          onChanged: (value) {
-                            final updated = {
-                              'activateVideoCall': value,
-                            };
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .updateUserData(updated);
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .sendUserUpdate();
+                          initialValue: user.activateVideoCall,
+                          onChanged: (value) async {
+                            await ref
+                                .read(userStateProvider.notifier)
+                                .updateUserField(
+                                  field: 'activateVideoCall',
+                                  value: value,
+                                );
                           },
                         ),
                       ),
                       EditField(
                         text: "Activate voice call",
                         prefixIcon: CustomToggle(
-                          initialValue:
-                              user.activateVoiceCall, // Set the initial value
-                          onChanged: (value) {
-                            final updated = {
-                              'activateVoiceCall': value,
-                            };
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .updateUserData(updated);
-                            ref
-                                .read(updateProfileProvider.notifier)
-                                .sendUserUpdate();
+                          initialValue: user.activateVoiceCall,
+                          onChanged: (value) async {
+                            await ref
+                                .read(userStateProvider.notifier)
+                                .updateUserField(
+                                  field: 'activateVoiceCall',
+                                  value: value,
+                                );
                           },
                         ),
                       ),
@@ -221,9 +194,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             onTap: () {
-                              if ((blocked?.length ?? 0) >= 1)
+                              if ((blocked?.length ?? 0) >= 1) {
                                 Navigator.pushNamed(
                                     context, AppRoutes.blockedUser);
+                              }
                             }),
                       ),
                       const Gap(20),

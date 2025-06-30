@@ -22,7 +22,7 @@ class BuySpark extends ConsumerWidget {
   BuySpark({super.key});
   static const name = 'buySpark';
   static const route = name;
-  static final GlobalKey<FormState> _form = GlobalKey<FormState>();
+  final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   final TextEditingController _sparkNumberController = TextEditingController();
 

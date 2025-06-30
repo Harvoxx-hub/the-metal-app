@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
@@ -13,6 +14,7 @@ import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
+import 'package:metal/widgets/text.field/edit.from.field.dart';
 
 import '../../../../widgets/dropdown/metal.dropdown.dart';
 
@@ -30,9 +32,12 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
   String? religion;
   String? profession;
   List<String>? language;
+
   @override
   Widget build(BuildContext context) {
     final metalProps = ref.watch(metalPropertiesProvider);
+    final setupState = ref.watch(profileSetupManagerProvider);
+
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
@@ -105,8 +110,9 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
                     language!.isNotEmpty &&
                     maritalStatus != null &&
                     religion != null &&
-                    profession != null,
-                buttonText: "Next 4/5",
+                    profession != null &&
+                    !setupState.isLoading,
+                buttonText: setupState.isLoading ? "Saving..." : "Next 4/5",
                 onPressed: _onNextPressed,
               ),
             ],
@@ -114,23 +120,38 @@ class _AboutYouPageState extends ConsumerState<AboutYouPage> {
         ));
   }
 
-  void _onNextPressed() {
- 
+  void _onNextPressed() async {
+    if (language == null ||
+        language!.isEmpty ||
+        maritalStatus == null ||
+        religion == null ||
+        profession == null) {
+      return;
+    }
+
     final extraData = ExtraData(
         maritalStatus: maritalStatus ?? "",
         religion: religion ?? "",
         profession: profession ?? "",
         language: language?.join(',') ?? "");
 
-    final updated = {
+    final aboutYouData = {
       'extraData': extraData.toJson(),
     };
- 
 
-    ref.read(updateProfileProvider.notifier).updateUserData(updated);
-    Navigator.pushNamed(
-      context,
-      AppRoutes.moreAboutYouPage,
-    );
+    await ref.read(profileSetupManagerProvider.notifier).saveStepData(
+          step: ProfileSetupStep.aboutYou,
+          stepData: aboutYouData,
+          moveToNext: true,
+        );
+
+    // Check if save was successful before navigating
+    final setupState = ref.read(profileSetupManagerProvider);
+    if (setupState.errorMessage == null && mounted) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.moreAboutYouPage,
+      );
+    }
   }
 }

@@ -9,11 +9,15 @@ const appSignKey =
     "a593a3eacbd96523d72730d336acaf02574848a9fda4f4fdb3110cb18b3c23f0";
 const appIDKey = 918677174;
 
-const String devBaseUrl = 'https://dev.example.com';
-const String liveBaseUrl = 'https://live.example.com';
+// Development environment URLs
+const String devBaseUrl =
+    'https://dev-api.metal.com'; // Update with your actual dev API URL
+const String liveBaseUrl =
+    'https://api.metal.com'; // Update with your actual prod API URL
 
-const String kPackageNameDev = 'com.example.myapp.dev';
-const String kPackageName = 'com.example.myapp';
+// Package names for different environments
+const String kPackageNameDev = 'com.bwh.metal.dev';
+const String kPackageName = 'com.bwh.metal';
 
 
 // class AppConstants {

@@ -5,7 +5,7 @@ import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 
 class EditProfile extends ConsumerStatefulWidget {
@@ -75,10 +75,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           ],
           editType: EditType.dropdown,
           onSubLabel: (value) {
-            final updated = {
-              'gender': value,
-            };
-            updateUser(updated);
+            updateUser({'gender': value});
           },
         ),
         const Gap(20),
@@ -91,18 +88,12 @@ class _EditProfileState extends ConsumerState<EditProfile> {
               .toList(),
           editType: EditType.dropdown,
           onSubLabel: (value) {
-            {
-              if (value != null) {
-                // Find the metal object with the selected title
-                var selectedMetal = metalProperties.metals!.firstWhere(
-                  (metal) => metal.title == value,
-                );
-                // Assign the selected metal object to the UserModel
-                final updated = {
-                  'metal': selectedMetal.id,
-                };
-                updateUser(updated);
-              }
+            if (value != null) {
+              // Find the metal object with the selected title
+              var selectedMetal = metalProperties.metals!.firstWhere(
+                (metal) => metal.title == value,
+              );
+              updateUser({'metal': selectedMetal.id});
             }
           },
         ),
@@ -116,10 +107,9 @@ class _EditProfileState extends ConsumerState<EditProfile> {
               .toList(),
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            final updated = {
-              'passion': [p0!],
-            };
-            updateUser(updated);
+            updateUser({
+              'passion': [p0!]
+            });
           },
         ),
         const Gap(20),
@@ -166,10 +156,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           isAddressField: true,
           onSubLabel: (newAddress) {
             if (newAddress is Address) {
-              final updated = {
-                'address': newAddress.toJson(),
-              };
-              updateUser(updated);
+              updateUser({'address': newAddress.toJson()});
             }
           },
         ),
@@ -190,16 +177,6 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             updateUser(updated);
           },
         ),
-        // Gap(20 ),
-        // EditFormField(
-        //   floatingLabel: 'Interested in',
-        //   label: 'Interested in',
-        //   controller: _intrestedInController,
-        //   keyboardType: TextInputType.name,
-        //   radius: 10,
-        //   editButton: true,
-        //   onEditTap: () {},
-        // ),
         const Gap(20),
         EditField(
           text: userState.description ?? "Little Bio about me",
@@ -207,21 +184,32 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           subLabel: "Edit",
           editType: EditType.text,
           onSubLabel: (p0) {
-            final updated = {
-              'description': p0,
-            };
-
-            updateUser(updated);
+            updateUser({'description': p0});
           },
         ),
-
         const Gap(20),
       ],
     );
   }
 
-  void updateUser(Map<String, dynamic> user) {
-    ref.watch(updateProfileProvider.notifier).updateUserData(user);
-    ref.watch(updateProfileProvider.notifier).sendUserUpdate();
+  void updateUser(Map<String, dynamic> updates) async {
+    try {
+      // Use the new UserStateNotifier for batch updates
+      await ref.read(userStateProvider.notifier).updateUserFields(
+            updates: updates,
+            validateRequired: false,
+          );
+    } catch (e) {
+      // Handle error - could show snackbar or toast
+      debugPrint('Error updating user: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update profile: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

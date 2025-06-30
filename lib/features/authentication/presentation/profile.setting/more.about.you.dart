@@ -3,10 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
+import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
-import 'package:metal/features/authentication/provider/update.profile.notifier.dart';
+import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
@@ -26,59 +25,75 @@ class MoreAboutYouPage extends ConsumerStatefulWidget {
 }
 
 class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
-  final TextEditingController _controller = TextEditingController();
+  final GlobalKey<FormState> _form = GlobalKey<FormState>();
+
+  final TextEditingController _bioController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final userData = ref.watch(authProvider).data;
-    final metalProperties = ref.watch(metalPropertiesProvider).data;
+    final setupState = ref.watch(profileSetupManagerProvider);
+
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
         appBarEnabled: false,
-        Header: 'More about you',
+        Header: 'More About You',
         authFlow: true,
         body: SingleChildScrollView(
           child: Column(
             children: [
               CreateProfileHeader2(
-                  path: Assets.images.chooseMetal.path,
-                  title:
-                      "Anything more, you would love us to know about being an ${metalProperties!.metals!.firstWhere((element) => element.id == userData?.metal).title}?",
-                  subtitle: "This will be displayed to your matched metals."),
-              const Gap(22),
-              EditFormField(
-                floatingLabel: '',
-                label:
-                    'I term myself a ${metalProperties!.metals!.firstWhere((element) => element.id == userData?.metal).title} because I am light and emotional. I like to be cared for as I have some tendencies to get rusty',
-                controller: _controller,
-                keyboardType: TextInputType.name,
-                minLines: 13,
-                maxLines: 13,
-                validator: Validators.validateString(),
-                autoValidate: true,
-
-                // fillColor: AppColors.appGrey,
-              ),
-              const Gap(20),
-              BaseButton(
-                buttonText: "Next",
-                onPressed: _onNextPressed,
-              ),
+                  path: Assets.images.aboutYou.path,
+                  title: "Tell us about yourself",
+                  subtitle: "Write something about yourself"),
+              const Gap(40),
+              Form(
+                  key: _form,
+                  child: Column(
+                    children: [
+                      EditFormField(
+                        floatingLabel: "Bio",
+                        label: "Tell us about yourself",
+                        controller: _bioController,
+                        minLines: 4,
+                        maxLines: 6,
+                        validator: Validators.validateString(),
+                        keyboardType: TextInputType.multiline,
+                        radius: 10,
+                      ),
+                      const Gap(20),
+                      BaseButton(
+                        enabled: !setupState.isLoading,
+                        loading: setupState.isLoading,
+                        buttonText: "Next",
+                        onPressed: _onNextPressed,
+                      ),
+                    ],
+                  )),
             ],
           ),
         ));
   }
 
-  void _onNextPressed() {
-    final updated = {
-      'description': _controller.text,
+  void _onNextPressed() async {
+    if (!_form.currentState!.validate()) return;
+
+    final bioData = {
+      'bio': _bioController.text.trim(),
     };
 
-    ref.read(updateProfileProvider.notifier).updateUserData(updated);
+    await ref.read(profileSetupManagerProvider.notifier).saveStepData(
+          step: ProfileSetupStep.moreAboutYou,
+          stepData: bioData,
+          moveToNext: true,
+        );
 
-    Navigator.pushNamed(
-      context,
-      AppRoutes.connectionOptionsPage,
-    );
+    // Check if save was successful before navigating
+    final setupState = ref.read(profileSetupManagerProvider);
+    if (setupState.errorMessage == null && mounted) {
+      Navigator.pushNamed(
+        context,
+        AppRoutes.homeAddressPage,
+      );
+    }
   }
 }

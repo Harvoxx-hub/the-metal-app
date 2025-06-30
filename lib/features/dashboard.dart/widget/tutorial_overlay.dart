@@ -173,8 +173,7 @@ class TutorialStep extends StatelessWidget {
     Offset contentPosition;
     if (spaceBelow >= contentHeight) {
       // Position below
-      contentPosition = Offset(
-          (adjustedRect.left + adjustedRect.right - contentWidth) / 2,
+      contentPosition = Offset((adjustedRect.left + adjustedRect.right) / 2,
           adjustedRect.bottom + 10);
     } else if (spaceAbove >= contentHeight) {
       // Position above

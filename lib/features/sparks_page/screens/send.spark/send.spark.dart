@@ -41,7 +41,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
   final TextEditingController _transferFeeController = TextEditingController();
 
   final TextEditingController _totalSparkController = TextEditingController();
-  static final GlobalKey<FormState> _form = GlobalKey<FormState>();
+  final GlobalKey<FormState> _form = GlobalKey<FormState>();
   @override
   void initState() {
     // TODO: implement initState

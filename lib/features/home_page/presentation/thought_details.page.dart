@@ -12,6 +12,7 @@ import 'package:metal/features/home_page/domain/entries/thought.model.dart'
 import 'package:metal/features/home_page/presentation/comment_bottom_sheet.dart';
 
 import 'package:metal/features/home_page/provider/get.thought.by.id.dart';
+import 'package:metal/features/home_page/provider/comment.provider.dart';
 
 import 'package:metal/features/home_page/widget/reaction_section.dart';
 
@@ -94,6 +95,8 @@ class _ThoughtDetailsPageState extends ConsumerState<ThoughtDetailsPage> {
 
           // We have the thought data, display it
           final thoughtModel = thoughtState.data!;
+          final commentsState = ref.watch(commentProvider(thoughtModel.id));
+          final commentCount = commentsState.data?.length ?? 0;
 
           return Stack(
             children: [
@@ -131,24 +134,34 @@ class _ThoughtDetailsPageState extends ConsumerState<ThoughtDetailsPage> {
                               width: 24,
                             ),
                           ),
-                          IconButton(
-                            icon: SvgPicture.asset(
-                              Assets.icons.thoughComment.path,
-                              height: 24,
-                              width: 24,
-                            ),
-                            onPressed: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                builder: (context) =>
-                                    CommentBottomSheet(thought: thoughtModel),
-                              );
-                            },
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: SvgPicture.asset(
+                                  Assets.icons.thoughComment.path,
+                                  height: 24,
+                                  width: 24,
+                                ),
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
+                                    builder: (context) => CommentBottomSheet(
+                                        thought: thoughtModel),
+                                  );
+                                },
+                              ),
+                              TextView(
+                                text: commentCount.toString(),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ],
                           ),
                           ReactionSection(
                             thoughtId: thoughtModel.id,
+                  
                           ),
                         ],
                       ),

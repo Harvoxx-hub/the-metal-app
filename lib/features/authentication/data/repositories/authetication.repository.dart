@@ -66,13 +66,18 @@ class AuthenticationRepository implements IAuthenticationRepository {
         );
       }
 
-      String? token = await FCMClient.instance.init();
+      String? token;
+      try {
+        token = await FCMClient.instance.init();
+      } catch (e) {
+        print('FCM initialization failed during login: $e');
+        // Continue with login even if FCM fails
+        token = null;
+      }
 
       if (token == null) {
-        return Responses(
-          success: false,
-          message: "Failed to retrieve FCM token.",
-        );
+        // Don't fail login if FCM token is null, just log it
+        print('FCM token is null, continuing with login');
       }
 
       Responses response = await updateUser({"fcmToken": token});
@@ -106,7 +111,16 @@ class AuthenticationRepository implements IAuthenticationRepository {
   }) async {
     try {
       final fcmClient = FCMClient.instance;
-      final token = await fcmClient.init();
+      String? token;
+
+      try {
+        token = await fcmClient.init();
+      } catch (e) {
+        print('FCM initialization failed: $e');
+        // Continue with signup even if FCM fails
+        token = null;
+      }
+
       var rng = new Random();
       var code = rng.nextInt(900000) + 100000;
       UserCredential userCredential =

@@ -20,15 +20,15 @@ import 'package:metal/features/dashboard.dart/widget/tutorial_overlay.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   final GlobalKey? newPostFabKey;
-  static final GlobalKey exploreTabKey = GlobalKey();
-  static final GlobalKey forYouTabKey = GlobalKey();
-  static final GlobalKey sparksTabKey = GlobalKey();
-  static final GlobalKey chatTabKey = GlobalKey();
+  final GlobalKey exploreTabKey = GlobalKey();
+  final GlobalKey forYouTabKey = GlobalKey();
+  final GlobalKey sparksTabKey = GlobalKey();
+  final GlobalKey chatTabKey = GlobalKey();
   final GlobalKey profileKey;
   final GlobalKey commentKey;
   final GlobalKey reactionKey;
 
-  const HomePage({
+  HomePage({
     super.key,
     this.newPostFabKey,
     required this.profileKey,
@@ -36,13 +36,14 @@ class HomePage extends ConsumerStatefulWidget {
     required this.reactionKey,
   });
 
-  static List<TutorialStep> getTutorialSteps(
+  List<TutorialStep> getTutorialSteps(
     GlobalKey? fabKey,
     GlobalKey profileKey,
     GlobalKey commentKey,
     GlobalKey reactionKey,
   ) {
     return [
+      // 1. Explore
       TutorialStep(
         targetKey: exploreTabKey,
         content: const Column(
@@ -56,7 +57,7 @@ class HomePage extends ConsumerStatefulWidget {
             SizedBox(height: 10),
             TextView(
               text:
-                  "The *Explore* section highlight popular posts, new members, or trending conversations to keep users engaged with fresh content.",
+                  "The *Explore* section highlights popular posts, new members, and trending conversations to keep you engaged with fresh content.",
               fontSize: 16,
               fontWeight: FontWeight.w400,
               color: Colors.white,
@@ -66,12 +67,13 @@ class HomePage extends ConsumerStatefulWidget {
         ),
         onNext: () {},
       ),
+      // 2. For You
       TutorialStep(
         targetKey: forYouTabKey,
         content: const Column(
           children: [
             TextView(
-              text: "Personalized Thoughts",
+              text: "For You",
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -79,7 +81,7 @@ class HomePage extends ConsumerStatefulWidget {
             SizedBox(height: 10),
             TextView(
               text:
-                  "The *For You* section helps you discover new connections, conversations, and content tailored to your personality, preferences, and past behaviors on the app.",
+                  "Discover personalized content and conversations tailored to your interests and preferences.",
               fontSize: 16,
               fontWeight: FontWeight.w400,
               color: Colors.white,
@@ -89,65 +91,21 @@ class HomePage extends ConsumerStatefulWidget {
         ),
         onNext: () {},
       ),
-      TutorialStep(
-        targetKey: sparksTabKey,
-        content: const Column(
-          children: [
-            TextView(
-              text: "About Sparks!",
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-            SizedBox(height: 10),
-            TextView(
-              text:
-                  "Our point payment in-app system. 1 Dollar = 10 Sparks. You can refer friends and earn more sparks. You can also send and buy Sparks.",
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: Colors.white,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        onNext: () {},
-      ),
-      TutorialStep(
-        targetKey: chatTabKey,
-        content: const Column(
-          children: [
-            TextView(
-              text: "About Chats!",
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-            SizedBox(height: 10),
-            TextView(
-              text:
-                  "Send and receive messages to build real connections with metals for the next 15days without showing your pictures. Play games to deepen conversations and sparks to ignite connections",
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: Colors.white,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        onNext: () {},
-      ),
+      // 3. View Metal Profile
       TutorialStep(
         targetKey: profileKey,
         content: const Column(
           children: [
             TextView(
-              text: "View Metal",
+              text: "View Metal Profile",
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
+            SizedBox(height: 10),
             TextView(
               text:
-                  "Go to the user profile to chat with Metal and to see other thoughts from this Metal",
+                  "Visit user profiles to learn more about them, see their thoughts, and start meaningful conversations.",
               fontSize: 16,
               color: Colors.white,
               textAlign: TextAlign.center,
@@ -156,19 +114,21 @@ class HomePage extends ConsumerStatefulWidget {
         ),
         onNext: () {},
       ),
+      // 4. Comment
       TutorialStep(
         targetKey: commentKey,
         content: const Column(
           children: [
             TextView(
-              text: "Comment to Connect",
+              text: "Comment & Connect",
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
+            SizedBox(height: 10),
             TextView(
               text:
-                  " Drop a thoughtful comment on a profile to spark meaningful conversation and stand out from the crowd. It’s a great way to show genuine interest before a melt happens!",
+                  "Share your thoughts and engage with others through comments. Start meaningful conversations before melting!",
               fontSize: 16,
               color: Colors.white,
               textAlign: TextAlign.center,
@@ -177,19 +137,21 @@ class HomePage extends ConsumerStatefulWidget {
         ),
         onNext: () {},
       ),
+      // 5. Reaction
       TutorialStep(
         targetKey: reactionKey,
         content: const Column(
           children: [
             TextView(
-              text: "Tap to Like or React",
+              text: "React & Express",
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
+            SizedBox(height: 10),
             TextView(
               text:
-                  "Show appreciation by liking or reacting to each other’s thoughts.",
+                  "Show appreciation and express your feelings by reacting to thoughts with different emojis.",
               fontSize: 16,
               color: Colors.white,
               textAlign: TextAlign.center,
@@ -198,13 +160,14 @@ class HomePage extends ConsumerStatefulWidget {
         ),
         onNext: () {},
       ),
+      // 6. Post Thought
       if (fabKey != null)
         TutorialStep(
           targetKey: fabKey,
           content: const Column(
             children: [
               TextView(
-                text: "Post Your Thoughts Anonymously",
+                text: "Share Your Thoughts",
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -212,7 +175,7 @@ class HomePage extends ConsumerStatefulWidget {
               SizedBox(height: 10),
               TextView(
                 text:
-                    "A simple and intuitive posting tool that allows you to share your thoughts, feelings, or introduce yourself to the community.",
+                    "Express yourself anonymously and share your thoughts with the community. Start conversations and connect with like-minded people.",
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
                 color: Colors.white,
@@ -222,6 +185,54 @@ class HomePage extends ConsumerStatefulWidget {
           ),
           onNext: () {},
         ),
+      // 7. Sparks
+      TutorialStep(
+        targetKey: sparksTabKey,
+        content: const Column(
+          children: [
+            TextView(
+              text: "Sparks",
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+            SizedBox(height: 10),
+            TextView(
+              text:
+                  "Our in-app currency where 1 Dollar = 10 Sparks. Earn sparks by referring friends, or buy them to send to others and unlock special features.",
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: Colors.white,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onNext: () {},
+      ),
+      // 8. Chat
+      TutorialStep(
+        targetKey: chatTabKey,
+        content: const Column(
+          children: [
+            TextView(
+              text: "Chat & Connect",
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+            SizedBox(height: 10),
+            TextView(
+              text:
+                  "Build genuine connections through anonymous chats for 15 days. Play games and use sparks to deepen your connections before revealing photos.",
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: Colors.white,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onNext: () {},
+      ),
     ];
   }
 
@@ -244,7 +255,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     showTutorial(
       context,
-      HomePage.getTutorialSteps(
+      widget.getTutorialSteps(
         widget.newPostFabKey,
         widget.profileKey,
         widget.commentKey,
@@ -258,9 +269,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final getThoughtForYouState = ref.watch(getThoughtForYouProvider);
     final getThoughtExploreState = ref.watch(getThoughtExploreProvider);
-    final thoughts = tabIndex == 0
-        ? getThoughtExploreState.data ?? []
-        : getThoughtForYouState.data ?? [];
 
     return RefreshIndicator(
       onRefresh: _refreshData,
@@ -273,22 +281,9 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: _buildFeedTabs(),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: thoughts.length,
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return Container(
-                    child: ThoughtCard(
-                      thoughtModel: thoughts[index],
-                      toughtProfileKey: widget.profileKey,
-                      toughtCommentKey: widget.commentKey,
-                      reactionKey: widget.reactionKey,
-                    ),
-                  );
-                }
-                return ThoughtCard(thoughtModel: thoughts[index]);
-              },
-            ),
+            child: tabIndex == 0
+                ? _buildThoughtTab(getThoughtExploreState)
+                : _buildThoughtTab(getThoughtForYouState),
           ),
         ],
       ),
@@ -337,13 +332,13 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
         const Spacer(),
         Container(
-          key: HomePage.exploreTabKey,
+          key: widget.exploreTabKey,
           child: _buildFeedTabItem(
               "Explore", tabIndex == 0, () => _onTabChange(0)),
         ),
         const Gap(20),
         Container(
-          key: HomePage.forYouTabKey,
+          key: widget.forYouTabKey,
           child: _buildFeedTabItem(
               "For You", tabIndex == 1, () => _onTabChange(1)),
         ),
@@ -379,7 +374,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
-  Widget _forYouThoughtTab(BaseState<List<ThoughtModel>> thoughtState) {
+  Widget _buildThoughtTab(BaseState<List<ThoughtModel>> thoughtState) {
     switch (thoughtState.status) {
       case Status.loading:
         return CustomShimmerLoader(
@@ -392,8 +387,17 @@ class _HomePageState extends ConsumerState<HomePage> {
         } else {
           return ListView.builder(
             itemCount: thoughtState.data!.length,
-            physics: const AlwaysScrollableScrollPhysics(),
             itemBuilder: (context, index) {
+              if (index == 0) {
+                return Container(
+                  child: ThoughtCard(
+                    thoughtModel: thoughtState.data![index],
+                    toughtProfileKey: widget.profileKey,
+                    toughtCommentKey: widget.commentKey,
+                    reactionKey: widget.reactionKey,
+                  ),
+                );
+              }
               return ThoughtCard(thoughtModel: thoughtState.data![index]);
             },
           );

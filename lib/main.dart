@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/services/firebase.remote.config.service.dart';
@@ -14,6 +15,9 @@ import 'package:shorebird_code_push/shorebird_code_push.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:metal/fcm/fcm_client.dart';
+import 'package:metal/app_config.dart';
+import 'package:metal/core/services/firebase_test_service.dart';
 
 /// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
@@ -27,8 +31,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   // Ensure Firebase is initialized in the background isolate
-  await Firebase.initializeApp(
-      options: DefaultFirebaseOptionDev.currentPlatform);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   print("Handling a background message: ${message.messageId}");
   print('Message data: ${message.data}');
@@ -41,10 +44,35 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeFirebase(); // Ensure Firebase is initialized for the main isolate first
+
+  // Lock app to portrait orientation
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Initialize app configuration based on environment
+  // This should be set via build arguments or environment variables
+  const environment = String.fromEnvironment('FLAVOR', defaultValue: 'prod');
+  AppConfig.init(flavour: Flavour.valueOf(environment));
+
+  await initializeFirebase(
+      environment); // Pass environment to Firebase initialization
+
+  // Test Firebase connection
+  await FirebaseTestService.testFirebaseConnection();
+  FirebaseTestService.printEnvironmentInfo();
 
   // Set the background messaging handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Initialize FCM client early to avoid APNS token issues
+  try {
+    await FCMClient.instance.init();
+  } catch (e) {
+    print('FCM initialization in main failed: $e');
+    // Continue app startup even if FCM fails
+  }
 
 // // Initialize Shorebird
 //   final shorebirdCodePush = ShorebirdCodePush();
@@ -71,15 +99,16 @@ void main() async {
   }
 }
 
-/// Initializes Firebase and sets analytics
-Future<void> initializeFirebase() async {
+/// Initializes Firebase and sets analytics based on environment
+Future<void> initializeFirebase(String environment) async {
   try {
-    // TODO: Change to production
- 
-    // await Firebase.initializeApp(
-    //     options: DefaultFirebaseOptions.currentPlatform);
-    await Firebase.initializeApp(
-        options: DefaultFirebaseOptionDev.currentPlatform);
+    if (environment == 'dev') {
+      await Firebase.initializeApp(
+          options: DefaultFirebaseOptionDev.currentPlatform);
+    } else {
+      await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform);
+    }
     FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
     await FirebaseRemoteConfigService().initialize();
   } catch (e) {

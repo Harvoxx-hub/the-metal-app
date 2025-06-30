@@ -23,8 +23,6 @@ class MakePayment extends ConsumerStatefulWidget {
   final PaymentType paymentType;
   final double price;
 
-  static final GlobalKey<FormState> _form = GlobalKey<FormState>();
-
   @override
   ConsumerState<MakePayment> createState() => _MakePaymentState();
 }
@@ -39,6 +37,8 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
   final TextEditingController _nameOnCardController = TextEditingController();
 
   final bool _autoValidate = false;
+
+  final GlobalKey<FormState> _form = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,7 @@ class _MakePaymentState extends ConsumerState<MakePayment> {
             ),
             const Gap(40),
             Form(
-                key: MakePayment._form,
+                key: _form,
                 child: Column(
                   children: [
                     EditFormField(

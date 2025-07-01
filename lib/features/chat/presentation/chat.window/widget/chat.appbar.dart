@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/core/utils/constant/constants.dart';
 import 'package:metal/core/utils/constant/enums.dart';
 
 import 'package:metal/core/utils/date.formart.dart';
@@ -22,8 +23,6 @@ import 'package:metal/features/chat/provider/send.message.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
 import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
-
-import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -140,7 +139,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                 name: widget.meltUserModel.username!,
               ),
             ],
-            resourceID: 'metal_call',
+            resourceID: resourceID,
             iconSize: const Size(30, 30),
             buttonSize: const Size(40, 40),
             icon: ButtonIcon(

@@ -6,8 +6,10 @@ const baseUrl = "http://ec2-54-237-199-205.compute-1.amazonaws.com:9000";
 const kCountriesJsonFileName = 'countries.json';
 
 const appSignKey =
-    "a593a3eacbd96523d72730d336acaf02574848a9fda4f4fdb3110cb18b3c23f0";
-const appIDKey = 918677174;
+    "4cc22b7da37ea92abd74fe90b0a6d87fd897d4f33696169242eddd05b160680a";
+const appIDKey = 873617975;
+
+const resourceID = "metal_call";
 
 // Development environment URLs
 const String devBaseUrl =

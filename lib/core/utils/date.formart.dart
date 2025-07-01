@@ -80,27 +80,7 @@ String getAccurateOnlineStatus({
   }
 }
 
-/// Quick check if user should be considered truly online
-bool isUserTrulyOnline({
-  required bool isOnline,
-  String? lastActive,
-  int maxOfflineMinutes = 5,
-}) {
-  if (!isOnline) return false;
-
-  if (lastActive == null || lastActive.isEmpty) return isOnline;
-
-  try {
-    final lastActiveTime = DateTime.parse(lastActive);
-    final now = DateTime.now();
-    final timeDifference = now.difference(lastActiveTime);
-
-    return timeDifference.inMinutes <= maxOfflineMinutes;
-  } catch (e) {
-    return isOnline;
-  }
-}
-
+ 
 int daysRemaining(String isoDateString, int durationInDays) {
   // Get the current date in local time
   DateTime now = DateTime.now();

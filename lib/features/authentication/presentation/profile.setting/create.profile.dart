@@ -85,26 +85,26 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
         final setupState = ref.watch(profileSetupManagerProvider);
         final userState = ref.watch(userStateProvider);
 
-        return BaseScreen(
-          bgImage: Assets.images.bg2.path,
-          appBarEnabled: false,
-          Header: 'Create Profile',
-          authFlow: true,
-          body: GestureDetector(
-            onTap: () {
-              FocusScope.of(context).unfocus();
-            },
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Gap(45),
-                  const CreateProfileHeader1(
-                    title1: '👋 Hello',
-                    title2: 'Lets set up your profile',
-                    title3: "It will only take 3 minutes",
-                  ),
-                  const Gap(24),
+    return BaseScreen(
+      bgImage: Assets.images.bg2.path,
+      appBarEnabled: false,
+      Header: 'Create Profile',
+      authFlow: true,
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Gap(45),
+              const CreateProfileHeader1(
+                title1: '👋 Hello',
+                title2: 'Lets set up your profile',
+                title3: "It will only take 3 minutes",
+              ),
+              const Gap(24),
 
                   // Show error message if any
                   if (setupState.errorMessage != null)
@@ -134,112 +134,112 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                       ),
                     ),
 
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        EditFormField(
-                          floatingLabel: 'First Name and Last Name',
-                          label: 'First Name and Last Name',
-                          controller: _nameController,
-                          keyboardType: TextInputType.name,
-                          prefixWidget: Assets.icons.user3.svg(
-                            width: 24,
-                            height: 24,
-                          ),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please enter your name';
-                            }
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    EditFormField(
+                      floatingLabel: 'First Name and Last Name',
+                      label: 'First Name and Last Name',
+                      controller: _nameController,
+                      keyboardType: TextInputType.name,
+                      prefixWidget: Assets.icons.user3.svg(
+                        width: 24,
+                        height: 24,
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter your name';
+                        }
 
-                            List<String> parts = value.split(' ');
+                        List<String> parts = value.split(' ');
 
-                            if (parts.length < 2) {
-                              return 'Please enter both first name and last name';
-                            }
+                        if (parts.length < 2) {
+                          return 'Please enter both first name and last name';
+                        }
 
-                            return null;
-                          },
-                          autoValidate: true,
-                        ),
-                        const Gap(16),
-                        EditFormField(
-                          floatingLabel: 'User name',
-                          label: 'User name',
-                          controller: _userNameController,
-                          keyboardType: TextInputType.name,
-                          bottomLabel:
-                              "Type a name unique to you that will be displayed to other users",
-                          prefixWidget: Assets.icons.user3.svg(
-                            width: 24,
-                            height: 24,
-                          ),
-                          validator: Validators.validateString(),
-                          autoValidate: true,
-                        ),
-                        const Gap(16),
-                        MentalDropdown(
-                          items: const [
-                            "Male",
-                            "Female",
-                            "Prefer not to say",
-                            "Others",
-                          ],
-                          value: _gender,
-                          onChanged: (newValue) {
-                            setState(() {
-                              _gender = newValue;
-                            });
-                          },
-                          floatingLabel: "Gender",
-                          hint: "Select Gender",
-                          prefixIcon: Assets.icons.user2.svg(height: 24),
-                        ),
-                        const Gap(16),
-                        GestureDetector(
-                          onTap: _showDatePicker,
-                          child: EditFormField(
-                            floatingLabel: 'Please Select your Date Of Birth',
-                            label: 'Select Date Of Birth',
-                            enabled: false,
-                            controller: _dobController,
-                            keyboardType: TextInputType.name,
+                        return null;
+                      },
+                      autoValidate: true,
+                    ),
+                    const Gap(16),
+                    EditFormField(
+                      floatingLabel: 'User name',
+                      label: 'User name',
+                      controller: _userNameController,
+                      keyboardType: TextInputType.name,
+                      bottomLabel:
+                          "Type a name unique to you that will be displayed to other users",
+                      prefixWidget: Assets.icons.user3.svg(
+                        width: 24,
+                        height: 24,
+                      ),
+                      validator: Validators.validateString(),
+                      autoValidate: true,
+                    ),
+                    const Gap(16),
+                    MentalDropdown(
+                      items: const [
+                        "Male",
+                        "Female",
+                        "Prefer not to say",
+                        "Others",
+                      ],
+                      value: _gender,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _gender = newValue;
+                        });
+                      },
+                      floatingLabel: "Gender",
+                      hint: "Select Gender",
+                      prefixIcon: Assets.icons.user2.svg(height: 24),
+                    ),
+                    const Gap(16),
+                    GestureDetector(
+                      onTap: _showDatePicker,
+                      child: EditFormField(
+                        floatingLabel: 'Please Select your Date Of Birth',
+                        label: 'Select Date Of Birth',
+                        enabled: false,
+                        controller: _dobController,
+                        keyboardType: TextInputType.name,
                             prefixWidget:
                                 Assets.icons.calendarBlank.svg(width: 24),
-                            suffixWidget: Assets.icons.srClose.svg(width: 17),
-                            bottomLabel: "Age cannot be changed",
-                          ),
-                        ),
-                        const Gap(16),
-                        MentalDropdownMutipleSelection(
-                          items: const [
-                            "Male",
-                            "Female",
-                            "Others",
-                          ],
-                          value: _whatImLookingFor,
-                          onChanged: (newValue) {
-                            setState(() {
-                              _whatImLookingFor = newValue;
-                            });
-                          },
-                          floatingLabel: "I am looking to connect with",
-                          hint: "Please Select",
-                          prefixIcon: Assets.icons.user2.svg(width: 24),
-                        ),
-                        const Gap(64),
-                      ],
+                        suffixWidget: Assets.icons.srClose.svg(width: 17),
+                        bottomLabel: "Age cannot be changed",
+                      ),
                     ),
-                  ),
-                  BaseButton(
+                    const Gap(16),
+                    MentalDropdownMutipleSelection(
+                      items: const [
+                        "Male",
+                        "Female",
+                        "Others",
+                      ],
+                      value: _whatImLookingFor,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _whatImLookingFor = newValue;
+                        });
+                      },
+                      floatingLabel: "I am looking to connect with",
+                      hint: "Please Select",
+                      prefixIcon: Assets.icons.user2.svg(width: 24),
+                    ),
+                    const Gap(64),
+                  ],
+                ),
+              ),
+              BaseButton(
                     buttonText: setupState.isLoading ? "Saving..." : "Next",
                     onPressed: setupState.isLoading ? null : _onNextPressed,
-                  ),
-                ],
               ),
-            ),
+            ],
           ),
+        ),
+      ),
         );
       },
     );
@@ -300,11 +300,11 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
         if (setupState.errorMessage == null) {
           // Navigate to next screen
           if (mounted) {
-            Navigator.pushNamed(
-              context,
-              AppRoutes.chooseYourMetalPage,
-            );
-          }
+      Navigator.pushNamed(
+        context,
+        AppRoutes.chooseYourMetalPage,
+      );
+    }
         }
       } catch (e) {
         if (mounted) {

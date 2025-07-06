@@ -5,8 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
-
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
@@ -30,7 +29,7 @@ class SettingPage extends ConsumerStatefulWidget {
 class _SettingPageState extends ConsumerState<SettingPage> {
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authProvider).data;
+    final user = ref.watch(userStateProvider).data;
     final blocked = ref.watch(getBlockUserProvider).data;
     return BaseScreen(
       Header: AppStrings.settingsTitle,

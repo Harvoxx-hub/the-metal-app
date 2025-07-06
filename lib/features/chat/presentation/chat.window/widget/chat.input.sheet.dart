@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:just_the_tooltip/just_the_tooltip.dart';
+ 
 import 'package:gap/gap.dart';
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
+ 
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/widget/bubble/wave.bubble.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
@@ -74,7 +75,7 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
   var currentUserData;
   @override
   Widget build(BuildContext context) {
-    currentUserData = ref.watch(authProvider).data;
+    currentUserData = ref.watch(userStateProvider).data;
     return Padding(
       padding: EdgeInsets.only(left: 18, right: 18, bottom: 18),
       child: Column(

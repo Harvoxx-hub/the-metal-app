@@ -2,25 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/core/utils/input/validators/validators.dart';
+ 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/home_page/domain/entries/thought.model.dart'
     hide ReactionModel;
 import 'package:metal/features/home_page/provider/comment.provider.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
-import 'package:metal/features/settings/provider/block.user.notifier.dart';
-import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/res/res.dart';
+ 
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/build_user_info.dart';
-import 'package:metal/widgets/button/base_button.dart';
-import 'package:metal/widgets/dialog/custom.dialog.dart';
-import 'package:metal/widgets/profile.photo.dart';
-import 'package:metal/widgets/text.field/edit.from.field.dart';
+ 
 import 'package:metal/widgets/text_views.dart';
-import 'package:metal/features/settings/presentation/widget/block_user_helper.dart';
+ 
 
 import 'package:metal/features/home_page/presentation/comment_bottom_sheet.dart';
 import 'package:metal/features/home_page/widget/reaction_section.dart';
@@ -66,7 +62,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
   }
 
   Widget _buildThoughtCard(BuildContext context) {
-    final userdata = ref.watch(authProvider).data;
+    final userdata = ref.watch(userStateProvider).data;
     final commentsState = ref.watch(commentProvider(thoughtModel.id));
     final commentCount = commentsState.data?.length ?? 0;
 
@@ -145,9 +141,11 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
                   ),
                 ],
               ),
-              ReactionSection(
-                thoughtId: thoughtModel.id,
-                reactionKey: widget.reactionKey,
+              Expanded(
+                child: ReactionSection(
+                  thoughtId: thoughtModel.id,
+                  reactionKey: widget.reactionKey,
+                ),
               ),
             ],
           ),

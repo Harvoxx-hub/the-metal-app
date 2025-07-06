@@ -83,8 +83,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
     return Consumer(
       builder: (context, ref, child) {
         final setupState = ref.watch(profileSetupManagerProvider);
-        final userState = ref.watch(userStateProvider);
-
+      
     return BaseScreen(
       bgImage: Assets.images.bg2.path,
       appBarEnabled: false,

@@ -9,11 +9,6 @@ abstract class IHomeRepository {
 
   Future<Responses> meltUser(MeltRequestModel melt);
   Future<Responses> sendThought(ThoughtModel thought);
-  Future<Responses> reactThought({
-    required String thoughtId,
-    required String userId,
-    required String emoji,
-  });
   Future markUserOnline(String userId);
 
   Future<Responses> getThoughtForYou();

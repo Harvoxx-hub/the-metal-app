@@ -85,9 +85,13 @@ class NotificationModel {
 enum NotificationType {
   new_connection,
   new_message,
+  unmetal_request,
   thought_created,
   reaction_added,
-  sparks_transaction
+  sparks_transaction,
+  thought_reminder,
+  comment,
+  comment_reaction
 }
 
 class NotificationAndroidNotification {

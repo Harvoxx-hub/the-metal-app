@@ -1,16 +1,4 @@
-// {
-//   "connectionId": "unique_connection_id",   // Document ID
-//   "pairId": "user1Id_user2Id",             // Concatenated user IDs for efficient querying
-//   "user1Id": "user1_id",                   // First user
-//   "user2Id": "user2_id",                   // Second user
-//   "connectedOn": "2024-12-01T21:00:00Z",   // Timestamp when connection was established
-//   "status": "active",                      // Status of the connection
-//   "metadata": {                            // Optional metadata for chat
-//     "isAnonymous": false,                  // Whether the connection is anonymous
-//     "dailyConversations": [],             // List of dates when conversations occurred
-//     "lastConversationDate": null          // Last date when a conversation occurred
-//   }
-// }
+ 
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';

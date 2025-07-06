@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
-import 'package:metal/features/authentication/provider/user_state_notifier.dart';
+import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 
 import 'package:metal/gen/assets.gen.dart';
@@ -24,62 +24,63 @@ class _NotificationEnablePageState
     extends ConsumerState<NotificationEnablePage> {
   @override
   Widget build(BuildContext context) {
-    final userState = ref.watch(userStateProvider);
+    final setupState = ref.watch(profileSetupManagerProvider);
 
+     
     return BaseScreen(
-        bgImage: Assets.images.bg2.path,
-        appBarEnabled: false,
-        Header: 'Notifications',
-        authFlow: true,
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              CreateProfileHeader2(
-                  path: Assets.images.notification.path,
-                  title: "Stay connected with notifications",
-                  subtitle: "Get notified about new matches and messages"),
-              const Gap(26),
-              BaseButton(
-                loading: userState.isLoading,
-                buttonText: "Enable Notifications",
-                onPressed: () async {
-                  await _requestNotificationPermission();
-                },
-              ),
-              const Gap(16),
-              BaseButton(
-                outlined: true,
-                buttonText: "Skip for now",
-                onPressed: () {
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, AppRoutes.dashboardPage, (route) => false);
-                },
-              ),
-              const Gap(80),
-              _buildNotificationFeatures(),
-            ],
+      bgImage: Assets.images.bg2.path,
+      appBarEnabled: false,
+      Header: 'Notifications',
+      authFlow: true,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CreateProfileHeader2(
+              path: Assets.images.notification.path,
+              title: "Keep me informed!",
+              subtitle:
+                  "Quickly find out when you have a Metal Match or message"),
+          const Gap(100),
+          BaseButton(
+            loading: setupState.isLoading,
+            buttonText: "Enable Notifications",
+            onPressed: () async {
+              await _requestNotificationPermission();
+            },
           ),
-        ));
+        ],
+      ),
+    );
   }
 
   Future<void> _requestNotificationPermission() async {
     try {
-      // Update user notification permission status
-      await ref.read(userStateProvider.notifier).updateUserField(
-            field: 'notificationPermissionGranted',
-            value: true,
+      // Save notification preferences and complete profile
+      final notificationData = {
+        'notificationPermissionGranted': true,
+      };
+
+      // Save notification step data
+      await ref.read(profileSetupManagerProvider.notifier).saveStepData(
+            step: ProfileSetupStep.notifications,
+            stepData: notificationData,
+            moveToNext: false,
           );
 
-      // Complete profile setup
-      await ref.read(userStateProvider.notifier).updateUserField(
-            field: 'profileUpdated',
-            value: true,
-          );
-
-      if (mounted) {
+      // Complete the entire profile setup
+      await ref
+          .read(profileSetupManagerProvider.notifier)
+          .completeProfileSetup();
+    final setupState = ref.watch(profileSetupManagerProvider);
+    if(mounted && setupState.errorMessage == null){
+     // Navigate to dashboard after profile completion
         Navigator.pushNamedAndRemoveUntil(
-            context, AppRoutes.dashboardPage, (route) => false);
-      }
+          context,
+          AppRoutes.dashboardPage,
+          (route) => false,
+        );
+    }     
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,54 +91,5 @@ class _NotificationEnablePageState
         );
       }
     }
-  }
-
-  Widget _buildNotificationFeatures() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.metalWhite.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Notifications help you:',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.metalWhite,
-            ),
-          ),
-          const Gap(12),
-          _buildFeatureItem('💕', 'Get notified about new matches'),
-          _buildFeatureItem('💬', 'Receive message alerts'),
-          _buildFeatureItem('⚡', 'See when someone likes you'),
-          _buildFeatureItem('🎉', 'Stay updated on app features'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFeatureItem(String icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Text(icon, style: const TextStyle(fontSize: 16)),
-          const Gap(8),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.metalWhite,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

@@ -13,6 +13,7 @@ import 'package:metal/core/utils/image_picker_util.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/widget/profile.image.dart';
@@ -329,13 +330,13 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   Widget unmetalDialog(BuildContext context, int remaining) {
     final connectionModel =
         ref.watch(getConnectionProvider(widget.connectionModel.connectionId));
-    final currentUser = ref.watch(authProvider).data;
+    final currentUser = ref.watch(userStateProvider).data;
     final daysRequired = ref.watch(numberDaysProvider);
     final uniqueDailyConversations =
         connectionModel.data?.uniqueDailyConversationsCount ?? 0;
 
     // Force refresh user data to get the latest profile photo
-    ref.read(authProvider.notifier).getUpdatedUser();
+    ref.read(userStateProvider.notifier).refreshUser();
 
     // Improved check for profile photo existence
     final hasProfilePhoto = currentUser?.profilePhoto != null &&
@@ -543,7 +544,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
 
   void sendUnmelt() {
     final message = MessageModel(
-      senderId: ref.watch(authProvider).data!.id!,
+      senderId: ref.watch(userStateProvider).data!.id!,
       type: MessageType.un_melt,
       timestamp: DateTime.now().toIso8601String(),
       isRead: false,
@@ -568,7 +569,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   void sendCall(String callType) {
     final message = MessageModel(
       content: callType,
-      senderId: ref.watch(authProvider).data!.id!,
+      senderId: ref.watch(userStateProvider).data!.id!,
       type: MessageType.calls,
       timestamp: DateTime.now().toIso8601String(),
       isRead: false,

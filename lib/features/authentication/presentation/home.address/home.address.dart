@@ -11,7 +11,7 @@ import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 
 import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
- 
+
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
@@ -74,13 +74,6 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
     getCountries();
 
     final setupState = ref.watch(profileSetupManagerProvider);
-
-    ref.listen(profileSetupManagerProvider, (prev, current) {
-      if (current.errorMessage == null && !current.isLoading) {
-        // Navigate to location page as next step in profile completion
-        Navigator.pushNamed(context, AppRoutes.locationEnablePage);
-      }
-    });
 
     return BaseScreen(
         bgImage: Assets.images.bg2.path,
@@ -246,14 +239,14 @@ class _HomeAddressPageState extends ConsumerState<HomeAddressPage> {
       'address': address.toJson(),
     };
 
-    // Save address data and complete profile
+    // Save address data and move to location page
     await ref.read(profileSetupManagerProvider.notifier).saveStepData(
           step: ProfileSetupStep.address,
           stepData: addressData,
-          moveToNext: false,
+          moveToNext: true, // Allow moving to next step
         );
-
-    // Complete the entire profile setup
-    await ref.read(profileSetupManagerProvider.notifier).completeProfileSetup();
+    if (mounted) {
+      Navigator.pushNamed(context, AppRoutes.locationEnablePage);
+    }
   }
 }

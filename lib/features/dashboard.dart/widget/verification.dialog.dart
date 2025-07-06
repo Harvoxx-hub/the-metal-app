@@ -41,6 +41,7 @@ class _VerificationDialogState extends ConsumerState<VerificationDialog> {
     ref.listen<VerificationState>(verficationVideoProvider, (prev, current) {
       if (current.isSuccess) {
         Navigator.pop(context);
+        Navigator.pop(context);
       }
     });
     return Column(

@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/sparks_page/data/repositories/spark.repository.dart';
 
 class ReconcileSparkNotifier extends StateNotifier<ReconcileSparkState> {
@@ -24,7 +25,7 @@ class ReconcileSparkNotifier extends StateNotifier<ReconcileSparkState> {
 
       if (response.success == true) {
         // Update user data to reflect the new balance
-        ref.read(authProvider.notifier).getUpdatedUser();
+          ref.read(userStateProvider.notifier).refreshUser();
         state = ReconcileSparkState.success(response.data ?? {});
       } else {
         state = ReconcileSparkState.error(

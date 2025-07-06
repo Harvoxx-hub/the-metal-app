@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/sparks_page/data/repositories/spark.repository.dart';
 
 class BuySparkNotifier extends StateNotifier<BuysparkState> {
@@ -23,7 +24,7 @@ class BuySparkNotifier extends StateNotifier<BuysparkState> {
         amount: amount,
         numberOfSpark: numberOfSpark,
       );
-      ref.read(authProvider.notifier).getUpdatedUser();
+        ref.read(userStateProvider.notifier).refreshUser();
       state = BuysparkState.success(response.data);
     } catch (e, s) {
       state = BuysparkState.error(e.toString(), stackTrace: s);

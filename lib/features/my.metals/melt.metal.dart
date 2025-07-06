@@ -4,11 +4,10 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
-
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
+ 
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
-import 'package:metal/features/home_page/provider/get.user.notifier.dart';
+ 
 
 import 'package:metal/gen/assets.gen.dart';
 
@@ -38,8 +37,8 @@ class _MeltMetalState extends ConsumerState<MeltMetal> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authProvider);
-
+    final user = ref.watch(userStateProvider);
+  
     ref.listen<GetMeltUsersState>(getMeltUserProvider, (prev, current) {
       if (current.isSuccess) {
         meltUserData = ref

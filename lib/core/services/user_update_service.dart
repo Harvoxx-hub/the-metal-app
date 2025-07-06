@@ -185,8 +185,8 @@ class UserUpdateService {
         );
       }
 
-      // Add section completion flag
-      data['${section.name}Updated'] = true;
+      // // Add section completion flag
+      // data['${section.name}Updated'] = true;
 
       return await updateUser(
         updates: data,
@@ -206,14 +206,14 @@ class UserUpdateService {
   }) async {
     try {
       // Ensure all required fields are present
-      final requiredFields = _getRequiredFieldsForCompletion();
+   //   final requiredFields = _getRequiredFieldsForCompletion();
       final missingFields = <String>[];
 
-      for (final field in requiredFields) {
-        if (!finalData.containsKey(field) || finalData[field] == null) {
-          missingFields.add(field);
-        }
-      }
+      // for (final field in requiredFields) {
+      //   if (!finalData.containsKey(field) || finalData[field] == null) {
+      //     missingFields.add(field);
+      //   }
+      // }
 
       if (missingFields.isNotEmpty) {
         return Responses(
@@ -279,19 +279,19 @@ class UserUpdateService {
     }
 
     // DOB validation
-    if (data['dob'] != null) {
-      try {
-        // Assuming DOB format is stored as ISO string or parseable date
-        final dobStr = data['dob'] as String;
-        final dob = DateTime.parse(dobStr);
-        final age = DateTime.now().difference(dob).inDays / 365;
-        if (age < 18) {
-          errors.add('User must be at least 18 years old');
-        }
-      } catch (e) {
-        errors.add('Invalid date of birth format');
-      }
-    }
+    // if (data['dob'] != null) {
+    //   try {
+    //     // Assuming DOB format is stored as ISO string or parseable date
+    //     final dobStr = data['dob'] as String;
+    //     final dob = DateTime.parse(dobStr);
+    //     final age = DateTime.now().difference(dob).inDays / 365;
+    //     if (age < 18) {
+    //       errors.add('User must be at least 18 years old');
+    //     }
+    //   } catch (e) {
+    //     errors.add('Invalid date of birth format');
+    //   }
+    // }
 
     return ValidationResult(errors.isEmpty, errors);
   }

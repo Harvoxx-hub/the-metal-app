@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gap/gap.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
-
+  import 'package:gap/gap.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/spark.card.item.dart';
 import 'package:metal/gen/assets.gen.dart';
 
@@ -15,7 +14,7 @@ class SparkHeaderCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userData = ref.watch(authProvider);
+    final userData = ref.watch(userStateProvider);
     return Container(
       height: 229,
       width: double.infinity,

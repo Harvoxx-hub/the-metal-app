@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
 class ProfileImageNotifier extends StateNotifier<ProfileImageState> {
   ProfileImageNotifier(
@@ -36,7 +37,7 @@ class ProfileImageNotifier extends StateNotifier<ProfileImageState> {
           gravity: ToastGravity.BOTTOM,
         );
       } else {
-        ref.read(authProvider.notifier).getUpdatedUser();
+        ref.read(userStateProvider.notifier).refreshUser();
         state = ProfileImageState.success("");
         // Show success toast
         Fluttertoast.showToast(

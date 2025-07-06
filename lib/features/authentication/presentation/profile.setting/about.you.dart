@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
-import 'package:metal/core/utils/input/validators/validators.dart';
-import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
+  import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
@@ -14,7 +13,7 @@ import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
-import 'package:metal/widgets/text.field/edit.from.field.dart';
+ 
 
 import '../../../../widgets/dropdown/metal.dropdown.dart';
 

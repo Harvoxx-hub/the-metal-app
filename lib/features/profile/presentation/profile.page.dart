@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
  
+ 
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/profile/presentation/tab.screen/discovery.tab.dart';
 
 import 'package:metal/features/profile/presentation/tab.screen/personal.tab.dart';
@@ -23,7 +24,7 @@ class ProfilePage extends ConsumerStatefulWidget {
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authProvider).data!;
+    final user = ref.watch(userStateProvider).data!;
 
     return SingleChildScrollView(
       child: ProfileHeader(

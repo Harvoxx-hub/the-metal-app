@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:metal/features/home_page/widget/thought_card.dart';
-import 'package:metal/res/colors/cr_colors.dart';
+ 
 import 'package:metal/widgets/build_user_info.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/home_page/provider/comment.provider.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
-import 'package:metal/core/utils/date.formart.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
+ 
 import 'package:metal/gen/assets.gen.dart';
-import 'package:gap/gap.dart';
+ 
 import 'package:metal/features/home_page/widget/comment_reaction_section.dart';
 
 class CommentBottomSheet extends ConsumerStatefulWidget {
@@ -38,7 +38,7 @@ class _CommentBottomSheetState extends ConsumerState<CommentBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final commentsState = ref.watch(commentProvider(widget.thought.id));
-    final currentUser = ref.watch(authProvider).data;
+    final currentUser = ref.watch(userStateProvider).data;
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
     return Padding(
@@ -86,81 +86,89 @@ class _CommentBottomSheetState extends ConsumerState<CommentBottomSheet> {
 
             // Comments list
             Expanded(
-              child: commentsState.isLoading
-                  ? const Center(child: CircularProgressIndicator.adaptive())
-                  : commentsState.isError
-                      ? Center(
-                          child: TextView(
-                              text: commentsState.errorMessage ??
-                                  "Error loading comments"))
-                      : commentsState.data == null ||
-                              commentsState.data!.isEmpty
-                          ? const Center(
-                              child: TextView(text: "No comments yet"))
-                          : ListView.builder(
-                              padding: const EdgeInsets.all(16),
-                              itemCount: commentsState.data!.length,
-                              itemBuilder: (context, index) {
-                                final comment = commentsState.data![index];
-                                return Consumer(
-                                  builder: (context, ref, child) {
-                                    final userState = ref
-                                        .watch(getUserProvider(comment.userId));
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await ref
+                      .read(commentProvider(widget.thought.id).notifier)
+                      .getComments();
+                },
+                child: commentsState.isLoading
+                    ? const Center(child: CircularProgressIndicator.adaptive())
+                    : commentsState.isError
+                        ? Center(
+                            child: TextView(
+                                text: commentsState.errorMessage ??
+                                    "Error loading comments"))
+                        : commentsState.data == null ||
+                                commentsState.data!.isEmpty
+                            ? const Center(
+                                child: TextView(text: "No comments yet"))
+                            : ListView.builder(
+                                padding: const EdgeInsets.all(16),
+                                itemCount: commentsState.data!.length,
+                                itemBuilder: (context, index) {
+                                  final comment = commentsState.data![index];
+                                  return Consumer(
+                                    builder: (context, ref, child) {
+                                      final userState = ref.watch(
+                                          getUserProvider(comment.userId));
 
-                                    if (userState.isLoading) {
-                                      return const Center(child: SizedBox());
-                                    }
+                                      if (userState.isLoading) {
+                                        return const Center(child: SizedBox());
+                                      }
 
-                                    if (userState.isError) {
-                                      return TextView(
-                                          text: userState.errorMessage ??
-                                              "Error loading user");
-                                    }
+                                      if (userState.isError) {
+                                        return TextView(
+                                            text: userState.errorMessage ??
+                                                "Error loading user");
+                                      }
 
-                                    final user = userState.data;
-                                    if (user == null) {
-                                      return const SizedBox();
-                                    }
+                                      final user = userState.data;
+                                      if (user == null) {
+                                        return const SizedBox();
+                                      }
 
-                                    return Container(
-                                      margin: const EdgeInsets.only(bottom: 16),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          BuildUserInfo(
-                                              userId: comment.userId,
-                                              thought: widget.thought,
-                                              date: comment.createdAt,
-                                              commentId: comment.id,
-                                              onDeleteComment: (commentId) {
-                                                ref
-                                                    .read(commentProvider(
-                                                            widget.thought.id)
-                                                        .notifier)
-                                                    .deleteComment(commentId);
-                                              }),
-                                          TextView(
-                                            text: comment.content,
-                                            fontSize: 14,
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              CommentReactionSection(
-                                                thoughtId: widget.thought.id,
+                                      return Container(
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            BuildUserInfo(
+                                                userId: comment.userId,
+                                                thought: widget.thought,
+                                                date: comment.createdAt,
                                                 commentId: comment.id,
-                                                reactions: comment.reactions,
-                                              ),
+                                                onDeleteComment: (commentId) {
+                                                  ref
+                                                      .read(commentProvider(
+                                                              widget.thought.id)
+                                                          .notifier)
+                                                      .deleteComment(commentId);
+                                                }),
+                                            TextView(
+                                              text: comment.content,
+                                              fontSize: 14,
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Row(
+                                              children: [
+                                                CommentReactionSection(
+                                                  thoughtId: widget.thought.id,
+                                                  commentId: comment.id,
+                                                  reactions: comment.reactions,
+                                                ),
+                                              ],
+                                            ),
                                           ],
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                            ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+              ),
             ),
 
             // Comment input

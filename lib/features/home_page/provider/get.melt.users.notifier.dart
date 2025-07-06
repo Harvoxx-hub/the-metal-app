@@ -2,12 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/home_page/provider/get.user.notifier.dart';
-
+ 
 class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
   GetMeltUsersNotifier(
     super.state,
@@ -23,7 +22,7 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
       //  state = GetMeltUsersState.loading();
 
       final homeRepository = ref.watch(homeRepositoryProvider);
-      final authState = ref.watch(authProvider).data;
+      final authState = ref.watch(userStateProvider).data;
       if (authState == null) {
         state = GetMeltUsersState.error("User not authenticated");
         return;

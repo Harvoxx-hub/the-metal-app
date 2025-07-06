@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 
 class DiscoveryTab extends ConsumerStatefulWidget {
@@ -24,7 +24,7 @@ class _DiscoveryTabState extends ConsumerState<DiscoveryTab> {
 
   @override
   Widget build(BuildContext context) {
-    final userState = ref.watch(authProvider).data;
+    final userState = ref.watch(userStateProvider).data;
 
     return Column(
       children: [

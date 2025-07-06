@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/verification/data/repositories/verification.repository.dart';
-import 'package:video_compress/video_compress.dart';
+
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
 class VerificationNotifier extends StateNotifier<VerificationState> {
   VerificationNotifier(
@@ -17,13 +14,15 @@ class VerificationNotifier extends StateNotifier<VerificationState> {
   void verificationMe() async {
     state = VerificationState.loading();
     try {
-      final verificationRepository = ref.watch(verificationRepositoryProvider);
- 
- 
-      final response = await verificationRepository.verification();
-      await ref.read(authProvider.notifier).getUpdatedUser();
+      await Future.delayed(const Duration(seconds: 3));
 
-      state = VerificationState.success(response.message!);
+      // update the user
+      await ref.read(userStateProvider.notifier).updateUserField(
+            field: 'isVerified',
+            value: true,
+          );
+
+      state = VerificationState.success('Verification successful');
     } catch (e, s) {
       state = VerificationState.error(e.toString(), stackTrace: s);
     }

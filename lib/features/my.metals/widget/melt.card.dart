@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/settings/presentation/widget/block_user_helper.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
-import 'package:metal/widgets/dialog/custom.dialog.dart';
-import 'package:metal/widgets/button/base_button.dart';
+ 
 
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/card.with.shadow.dart';
@@ -22,7 +22,7 @@ class MeltCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(authProvider).data;
+    final currentUser = ref.watch(userStateProvider).data;
     final blockedUsers = ref.watch(getBlockUserProvider).data ?? [];
 
     final metalId = user.users.firstWhere(

@@ -6,8 +6,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/fcm/local_notifications.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/fcm/notification_dispatcher.dart';
+ 
+import 'package:metal/core/services/notification_handler.dart';
 import 'package:synchronized/synchronized.dart';
 
 import 'models/notification_payload_model.dart';
@@ -205,8 +205,8 @@ class FCMClient {
   /// For handle tap when the app is terminated/killed, use [initialMessage].
   Future<void> _onTapNotification(NotificationPayloadModel payload) async {
     print('Handling notification tap with payload: $payload');
-    await NotificationDispatcher.instance
-        .dispatchNotification(payload, removeUntil: true);
+    await NotificationHandlerService.instance
+        .handleFCMNotification(payload, removeUntil: true);
   }
 
   void _log(RemoteMessage? message, {String? name}) {

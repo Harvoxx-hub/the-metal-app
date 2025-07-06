@@ -129,7 +129,7 @@ Firestore Root
 
 ---
 
-## 3. 💭 THOUGHTS Collection
+## 3. 🗨️ THOUGHTS Collection
 **Path:** `/thoughts/{thoughtId}`
 
 ```json
@@ -138,7 +138,33 @@ Firestore Root
   "userId": "string",
   "content": "string",
   "createdAt": "string",
-  "connectionOnly": "boolean",
+  "connectionOnly": "boolean"
+}
+```
+
+### ➡️ Reactions Subcollection
+**Path:** `/thoughts/{thoughtId}/reactions/{reactionId}`
+
+```json
+{
+  "id": "string",
+  "userId": "string",
+  "thoughtId": "string",
+  "emoji": "string",
+  "createdAt": "string"
+}
+```
+
+### ➡️ Comments Subcollection
+**Path:** `/thoughts/{thoughtId}/comments/{commentId}`
+
+```json
+{
+  "id": "string",
+  "userId": "string",
+  "thoughtId": "string",
+  "content": "string",
+  "createdAt": "string",
   "reactions": [
     { "userId": "string", "emoji": "string" }
   ]

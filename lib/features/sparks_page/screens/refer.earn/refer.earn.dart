@@ -6,7 +6,8 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/sparks_page/provider/redeem.referral.notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
 
@@ -41,7 +42,7 @@ class _ReferEarnSparkState extends ConsumerState<ReferEarnSpark> {
 
   @override
   Widget build(BuildContext context) {
-    final userdata = ref.watch(authProvider).data;
+    final userdata = ref.watch(userStateProvider).data;
     final redeemState = ref.watch(redeemReferralProvider);
 
     // Listen for redemption state changes
@@ -51,7 +52,7 @@ class _ReferEarnSparkState extends ConsumerState<ReferEarnSpark> {
           const SnackBar(content: Text('Referral code redeemed successfully!')),
         );
         // Refresh user data to show updated spark balance
-        ref.read(authProvider.notifier).getUpdatedUser();
+        ref.read(userStateProvider.notifier).refreshUser();
         setState(() {
           _showRedeemForm = false;
           _referralCodeController.clear();

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
+ 
 import 'package:metal/features/sparks_page/provider/get.spark.notifier.dart';
 import 'package:metal/features/sparks_page/provider/reconcile.sparks.notifier.dart';
 
@@ -22,7 +23,7 @@ class SparksPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sparks = ref.watch(getSparkProvider);
-    final userData = ref.watch(authProvider).data;
+    final userData = ref.watch(userStateProvider).data;
     final reconcileState = ref.watch(reconcileSparkProvider);
 
     ref.listen(reconcileSparkProvider, (previous, next) {

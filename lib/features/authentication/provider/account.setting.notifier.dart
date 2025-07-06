@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
+ 
 
 class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
   AccountSettingNotifier(
@@ -28,7 +29,7 @@ class AccountSettingNotifier extends StateNotifier<AccountSettingState> {
           phoneNumber: phoneNumber,
           referal: referal);
       if (response.success ?? false) {
-        ref.read(authProvider.notifier).getCurrentUser();
+        ref.read(userStateProvider.notifier).refreshUser();
         state = AccountSettingState.success(response.data);
       } else {
         state = AccountSettingState.error(response.message!);

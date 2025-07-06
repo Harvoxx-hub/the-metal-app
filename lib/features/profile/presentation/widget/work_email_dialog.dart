@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
-import 'package:metal/widgets/text.field/base.text.field.dart';
-import 'package:metal/widgets/text.field/edit.from.field.dart';
+ 
 import 'package:metal/widgets/text_views.dart';
 
 class WorkEmailDialog extends ConsumerStatefulWidget {

@@ -5,8 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
-
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/sparks_page/provider/buy.spark.notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';
 
@@ -130,7 +129,7 @@ class BuySpark extends ConsumerWidget {
 
   Widget confirmationDialog(BuildContext context,
       {String? ammount, WidgetRef? ref}) {
-    final userData = ref!.watch(authProvider).data;
+    final userData = ref!.watch(userStateProvider).data;
     return Column(
       children: [
         const Gap(38),

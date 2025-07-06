@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
 class LoginNotifier extends StateNotifier<LoginStates> {
   LoginNotifier(
@@ -28,10 +29,9 @@ class LoginNotifier extends StateNotifier<LoginStates> {
       );
 
       if (response.success!) {
-        final Map<String, dynamic> data = response.data;
-        ref
-            .read(authProvider.notifier)
-            .updateUserData(UserModel.fromJson(data));
+         
+        /// init user state notifier not auth notifier
+        ref.read(userStateProvider.notifier).refreshUser();
         final userData = UserModel.fromJson(response.data);
         state = LoginStates.success(userData);
 

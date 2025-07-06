@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 import 'package:metal/core/utils/date.formart.dart';
-import 'package:metal/core/utils/metal.helper.dart';
 import 'package:metal/features/notification/base.item.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class MeltNotificationItem extends BaseNotificationItem {
@@ -104,44 +102,8 @@ class MeltNotificationItem extends BaseNotificationItem {
     );
   }
 
-  // This method is kept for reference but no longer used directly by this widget
-  // The parent widget now handles navigation
-  static void handleNotificationTap(
-      BuildContext context, NotificationModel notificationModel) {
-    switch (notificationModel.type) {
-      case NotificationType.new_connection:
-        // Use either connection ID or user ID, whichever is available
-        final connectionId = notificationModel.data["connectionId"];
-        final metalId = connectionId != null
-            ? notificationModel
-                .data["otherUserId"] // Use other user ID from data
-            : MetalHelper.getOtherUserId(
-                notificationModel.recipientIds); // Fallback to old method
-
-        _navigateTo(context, AppRoutes.meltMetal, metalId);
-        break;
-      case NotificationType.new_message:
-        final metalId = notificationModel.data["senderId"];
-        _navigateTo(context, AppRoutes.chatWindowsPage, metalId);
-        break;
-      case NotificationType.reaction_added:
-        // Handle reaction notification
-        break;
-      case NotificationType.thought_created:
-        _navigateTo(context, AppRoutes.myMeltedUser, {
-          "metalId": notificationModel.data["userId"],
-          "toughtId": notificationModel.data["thoughtId"]
-        });
-        break;
-      default:
-        // Handle other notification types
-        break;
-    }
-  }
-
-  static void _navigateTo(BuildContext context, String route, var userId) {
-    Navigator.pushNamed(context, route, arguments: userId);
-  }
+  // Navigation is now handled by the parent widget using NotificationHandlerService
+  // This widget is now purely for display purposes
 
   Widget _buildIcon() {
     String iconPath;
@@ -153,14 +115,30 @@ class MeltNotificationItem extends BaseNotificationItem {
       case NotificationType.new_message:
         iconPath = Assets.images.activeMessage.path;
         break;
-      case NotificationType.reaction_added:
-        iconPath = Assets.images.profileNotification.path;
+      case NotificationType.unmetal_request:
+        iconPath = Assets
+            .images.meltNotifcation.path; // Use melt icon for unmetal requests
         break;
       case NotificationType.thought_created:
         iconPath = Assets.images.activeMessage.path;
         break;
+      case NotificationType.reaction_added:
+        iconPath = Assets.images.profileNotification.path;
+        break;
       case NotificationType.sparks_transaction:
         iconPath = Assets.images.sparkNotification.path;
+        break;
+      case NotificationType.thought_reminder:
+        iconPath = Assets.images.activeMessage
+            .path; // Use message icon for thought reminders
+        break;
+      case NotificationType.comment:
+        iconPath =
+            Assets.images.activeMessage.path; // Use message icon for comments
+        break;
+      case NotificationType.comment_reaction:
+        iconPath = Assets.images.profileNotification
+            .path; // Use reaction icon for comment reactions
         break;
       default:
         iconPath = Assets.images.notification.path;

@@ -7,6 +7,8 @@ import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 
 import 'package:metal/features/home_page/provider/get.thoughts.explore.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.for.you.dart';
+import 'package:metal/features/home_page/provider/reaction.provider.dart';
+import 'package:metal/features/home_page/provider/comment.provider.dart';
 
 import 'package:metal/features/home_page/widget/thought_card.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -293,6 +295,16 @@ class _HomePageState extends ConsumerState<HomePage> {
   Future<void> _refreshData() async {
     ref.refresh(getThoughtForYouProvider);
     ref.refresh(getThoughtExploreProvider);
+
+    // Refresh all reaction and comment providers for currently visible thoughts
+    final thoughts = tabIndex == 0
+        ? ref.read(getThoughtExploreProvider).data ?? []
+        : ref.read(getThoughtForYouProvider).data ?? [];
+
+    for (final thought in thoughts) {
+      ref.invalidate(reactionProvider(thought.id));
+      ref.invalidate(commentProvider(thought.id));
+    }
   }
 
   Widget _buildHeader() {

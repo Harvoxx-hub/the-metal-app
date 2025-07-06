@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 
@@ -20,7 +20,7 @@ import 'package:metal/features/chat/provider/game.conversation.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
-import 'package:metal/features/home_page/provider/get.user.notifier.dart';
+ 
 
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
@@ -59,7 +59,7 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
 
   @override
   Widget build(BuildContext context) {
-    currentUserData = ref.watch(authProvider).data;
+    currentUserData = ref.watch(userStateProvider).data;
 
     return BaseScreen(
       appBarEnabled: false,

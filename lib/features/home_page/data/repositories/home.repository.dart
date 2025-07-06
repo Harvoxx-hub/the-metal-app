@@ -330,9 +330,12 @@ class HomeRepository implements IHomeRepository {
       );
       final blockedUserIds = blockedUsers.map((doc) => doc['id']).toList();
 
-      // Fetch thoughts
-      final thoughts = await _firebaseService.readCollection(
+      // Fetch thoughts ordered by createdAt descending (newest first)
+      final thoughts = await _firebaseService.queryBuilderCollection(
         collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
+        queryBuilder: (query) {
+          return query.orderBy('createdAt', descending: true);
+        },
       );
 
       // Filter thoughts to exclude connected users and blocked users
@@ -378,20 +381,24 @@ class HomeRepository implements IHomeRepository {
       );
       final blockedUserIds = blockedUsers.map((doc) => doc['id']).toList();
 
-      // Fetch thoughts
-      final thoughts = await _firebaseService.readCollection(
+      // Fetch thoughts ordered by createdAt descending (newest first)
+      final thoughts = await _firebaseService.queryBuilderCollection(
         collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
+        queryBuilder: (query) {
+          return query.orderBy('createdAt', descending: true);
+        },
       );
 
-      // Filter thoughts to include only connected users and exclude blocked users
-      final filteredThoughts = thoughts
-          .where((thought) {
-            final thoughtUserId = thought['userId'];
-            return otherUsersId.contains(thoughtUserId) &&
-                !blockedUserIds.contains(thoughtUserId);
-          })
-          .take(20)
-          .toList();
+      // Filter thoughts to include only connected users, exclude blocked users, and check connectionOnly
+      final filteredThoughts = thoughts.where((thought) {
+        final thoughtUserId = thought['userId'];
+        final connectionOnly = thought['connectionOnly'] ?? false;
+
+        return otherUsersId.contains(thoughtUserId) &&
+            !blockedUserIds.contains(thoughtUserId) &&
+            connectionOnly ==
+                true; // Only show thoughts marked as connectionOnly
+      }).toList();
 
       return Responses(
         success: true,
@@ -409,11 +416,14 @@ class HomeRepository implements IHomeRepository {
   @override
   Future<Responses> getThoughtsByUserId(String userId) async {
     try {
-      // Query Firestore to fetch all thoughts posted by the user
-      final thoughtsData = await _firebaseService.queryCollection(
+      // Query Firestore to fetch all thoughts posted by the user, ordered by newest first
+      final thoughtsData = await _firebaseService.queryBuilderCollection(
         collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
-        field: "userId",
-        value: userId,
+        queryBuilder: (query) {
+          return query
+              .where("userId", isEqualTo: userId)
+              .orderBy('createdAt', descending: true);
+        },
       );
 
       if (thoughtsData.isNotEmpty) {
@@ -454,60 +464,6 @@ class HomeRepository implements IHomeRepository {
       return Responses(
         success: false,
         message: "Failed to create thought: ${e.toString()}",
-      );
-    }
-  }
-
-  @override
-  Future<Responses> reactThought({
-    required String thoughtId,
-    required String userId,
-    required String emoji,
-  }) async {
-    try {
-      // Fetch the current thought document
-      final thoughtDoc = await _firebaseService.readDocument(
-        collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
-        documentId: thoughtId,
-      );
-
-      if (thoughtDoc == null) {
-        return Responses(
-          success: false,
-          message: "Thought not found.",
-        );
-      }
-
-      // Get the current reactions list
-      final reactions = (thoughtDoc['reactions'] ?? []) as List<dynamic>;
-
-      // Check if the user already reacted
-      final existingReactionIndex =
-          reactions.indexWhere((reaction) => reaction['userId'] == userId);
-
-      if (existingReactionIndex != -1) {
-        // Update the emoji for the existing reaction
-        reactions[existingReactionIndex]['emoji'] = emoji;
-      } else {
-        // Add a new reaction
-        reactions.add({'userId': userId, 'emoji': emoji});
-      }
-
-      // Update the thought document with the modified reactions
-      await _firebaseService.updateDocument(
-        collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
-        documentId: thoughtId,
-        data: {'reactions': reactions},
-      );
-
-      return Responses(
-        success: true,
-        message: "Reaction added successfully.",
-      );
-    } catch (e) {
-      return Responses(
-        success: false,
-        message: "Failed to add reaction: ${e.toString()}",
       );
     }
   }

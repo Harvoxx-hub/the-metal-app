@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
+
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
 import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
 
@@ -92,7 +92,7 @@ class _MoreAboutYouPageState extends ConsumerState<MoreAboutYouPage> {
     if (setupState.errorMessage == null && mounted) {
       Navigator.pushNamed(
         context,
-        AppRoutes.homeAddressPage,
+        AppRoutes.connectionOptionsPage,
       );
     }
   }

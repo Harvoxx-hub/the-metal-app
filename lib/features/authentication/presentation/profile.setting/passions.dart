@@ -5,7 +5,7 @@ import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/authentication/domain/entries/metal.properties.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header2.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 
 import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
 import 'package:metal/gen/assets.gen.dart';

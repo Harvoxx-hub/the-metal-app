@@ -1,32 +1,37 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'thought.model.freezed.dart';
-part 'thought.model.g.dart';
+class ThoughtModel {
+  final String id;
+  final String userId;
+  final String content;
+  final String createdAt;
+  final bool connectionOnly;
 
-@freezed
-class ThoughtModel with _$ThoughtModel {
-  factory ThoughtModel({
-    required String id, // Unique ID for the thought
-    required String userId, // The user who posted the thought
-    required String content, // The text content of the thought
-    required String createdAt, // Timestamp of when the thought was created
-    @Default(false)
-    bool connectionOnly, // Whether the thought is visible only to connections
-    @Default([])
-    List<ReactionModel> reactions, // List of reactions on the thought
-  }) = _ThoughtModel;
+  ThoughtModel({
+    required this.id,
+    required this.userId,
+    required this.content,
+    required this.createdAt,
+    this.connectionOnly = false,
+  });
 
-  factory ThoughtModel.fromJson(Map<String, dynamic> json) =>
-      _$ThoughtModelFromJson(json);
-}
+  factory ThoughtModel.fromJson(Map<String, dynamic> json) {
+    return ThoughtModel(
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      content: json['content'] as String,
+      createdAt: json['createdAt'] as String,
+      connectionOnly: json['connectionOnly'] as bool? ?? false,
+    );
+  }
 
-@freezed
-class ReactionModel with _$ReactionModel {
-  factory ReactionModel({
-    required String userId, // ID of the user reacting
-    required String emoji, // Emoji used for the reaction
-  }) = _ReactionModel;
-
-  factory ReactionModel.fromJson(Map<String, dynamic> json) =>
-      _$ReactionModelFromJson(json);
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'content': content,
+      'createdAt': createdAt,
+      'connectionOnly': connectionOnly,
+    };
+  }
 }

@@ -4,7 +4,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
+  
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/home_page/provider/delete.thoughts.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
@@ -43,7 +44,7 @@ class _BuildUserInfoState extends ConsumerState<BuildUserInfo> {
   }
 
   Widget buildUserInfo(BuildContext context) {
-    final userdata = ref.watch(authProvider).data;
+  final userdata = ref.watch(userStateProvider).data;
     final creatorUserdata =
         ref.watch(getUserProvider(widget.userId ?? "")).data;
 
@@ -116,7 +117,7 @@ class _BuildUserInfoState extends ConsumerState<BuildUserInfo> {
   Widget _buildOptionsBottomSheet(BuildContext context,
       UserModel creatorUserdata, Function(String)? onDeleteComment) {
     // Capture user ID in a local variable to avoid ref access in async context
-    final currentUserId = ref.read(authProvider).data?.id;
+    final currentUserId = ref.read(userStateProvider).data?.id;
     final thoughtId = widget.thought?.id;
 
     return SafeArea(

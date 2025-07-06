@@ -2,8 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/core/utils/constant/enums.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
-
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 import 'package:metal/features/home_page/domain/entries/melt.request.model.dart';
 import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
@@ -20,9 +19,8 @@ class MeltUsersNotifier extends StateNotifier<MeltUsersState> {
     try {
       state = MeltUsersState.loading();
       final homeRepository = ref.watch(homeRepositoryProvider);
-      print("IT WAS CALLED HERE");
-
-      final userData = ref.watch(authProvider).data;
+    
+      final userData = ref.watch(userStateProvider).data;
 
       final meltRequest = MeltRequestModel(
         requesterId: userData!.id!,

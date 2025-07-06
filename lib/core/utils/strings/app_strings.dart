@@ -110,7 +110,7 @@ class AppStrings {
   static const String enableLocationTitle =
       "You'll need to enable location in order to use Metal";
   static const String enableLocationDesc =
-      "Your location would be used to show you potential metals near you";
+      "You’ll need to enable location in order to use Metal";
   static const String enableLocation = "Enable Location";
   static const String locationDisabled =
       "Location services are disabled. Please enable the services";

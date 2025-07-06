@@ -21,6 +21,25 @@ class ReactionRepository implements IReactionRepository {
     }
   }
 
+  /// Get real-time reactions stream for a thought
+  Stream<List<ReactionModel>> getReactionsStream(String thoughtId) {
+    try {
+      return _firebaseService
+          .listenToCollection(
+        collectionPath:
+            '${FirebaseFirestoreCollectionKeys.thoughts}/$thoughtId/reactions',
+      )
+          .map((reactionMaps) {
+        return reactionMaps
+            .map((reactionMap) => ReactionModel.fromJson(reactionMap))
+            .toList();
+      });
+    } catch (e) {
+      print('Error getting reactions stream: $e');
+      return Stream.value([]);
+    }
+  }
+
   @override
   Future<Responses> addReaction(String thoughtId, String emoji) async {
     try {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/home_page/provider/send.thoughts.dart';
 import 'package:metal/features/home_page/provider/edit.thoughts.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -45,7 +45,7 @@ class _PostThoughtState extends ConsumerState<PostThought> {
   Widget build(BuildContext context) {
     final sendThoughtState = ref.watch(sendThoughtProvider);
     final editThoughtState = ref.watch(editThoughtProvider);
-    final userModel = ref.watch(authProvider).data!;
+    final userModel = ref.watch(userStateProvider).data!;
 
     ref.listen<SendThoughtState>(sendThoughtProvider, (prev, current) {
       if (current.isSuccess) {

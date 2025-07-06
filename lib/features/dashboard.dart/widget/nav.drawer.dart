@@ -4,8 +4,9 @@ import 'package:gap/gap.dart';
 import 'package:flutter_svg/svg.dart';
 
 import 'package:metal/core/services/firebase.service.db.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
@@ -17,7 +18,7 @@ class NavDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider).data;
+    final authState = ref.watch(userStateProvider).data;
     final metalProperties = ref.watch(metalPropertiesProvider).data;
 
     final metal = metalProperties!.metals!.firstWhere(

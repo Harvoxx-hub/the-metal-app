@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 import 'package:metal/features/upgrade/domain/entries/subscribed.plan.model.dart';
@@ -23,7 +24,7 @@ class MetalPlanTab extends ConsumerStatefulWidget {
 class _MetalPlanTabState extends ConsumerState<MetalPlanTab> {
   @override
   Widget build(BuildContext context) {
-    final userData = ref.watch(authProvider);
+    final userData = ref.watch(userStateProvider);
     final metalPlans = ref.watch(metalPlansProvider);
 
     return userData.data?.subscription == null

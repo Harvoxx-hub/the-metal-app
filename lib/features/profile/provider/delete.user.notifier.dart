@@ -20,13 +20,7 @@ class DeleteUsersNotifier extends StateNotifier<BaseState<String>> {
         await repo.sendFeedback(feedback);
       }
 
-      // Sign out the Firebase Auth user first to prevent lifecycle issues
-      try {
-        await FirebaseAuth.instance.signOut();
-      } catch (e) {
-        print('Error signing out during deletion: $e');
-        // Continue with deletion even if sign out fails
-      }
+     
 
       final response = await repo.deleteUser();
 

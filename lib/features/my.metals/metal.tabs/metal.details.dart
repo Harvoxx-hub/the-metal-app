@@ -6,15 +6,16 @@ import 'package:gap/gap.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
-import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+ 
 import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
 import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
-import 'package:metal/features/settings/provider/block.user.notifier.dart';
+ 
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
@@ -146,13 +147,13 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
   Widget unmetalDialog(BuildContext context, int remaining) {
     final connectionModel =
         ref.watch(getConnectionProvider(widget.connectionModel));
-    final currentUser = ref.watch(authProvider).data;
+    final currentUser = ref.watch(userStateProvider).data;
     final daysRequired = ref.watch(numberDaysProvider);
     final uniqueDailyConversations =
         connectionModel.data?.uniqueDailyConversationsCount ?? 0;
 
     // Force refresh user data to get the latest profile photo
-    ref.read(authProvider.notifier).getUpdatedUser();
+      ref.read(userStateProvider.notifier).refreshUser();
 
     // Improved check for profile photo existence
     final hasProfilePhoto = currentUser?.profilePhoto != null &&
@@ -331,7 +332,7 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
 
   void sendUnmelt() {
     final message = MessageModel(
-      senderId: ref.watch(authProvider).data!.id!,
+      senderId: ref.watch(userStateProvider).data!.id!,
       type: MessageType.un_melt,
       timestamp: DateTime.now().toIso8601String(),
       isRead: false,
@@ -432,8 +433,11 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
               ref
                   .read(demeltUserProvider.notifier)
                   .deMeltUser(widget.connectionModel, widget.userModel.id!);
-              Navigator.pop(context);
-              Navigator.pop(context);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                AppRoutes.dashboardPage,
+                (route) => false,
+              );
             }),
         const Gap(23),
         TextView(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
@@ -18,7 +18,7 @@ class EditProfile extends ConsumerStatefulWidget {
 class _EditProfileState extends ConsumerState<EditProfile> {
   @override
   Widget build(BuildContext context) {
-    final userState = ref.watch(authProvider).data;
+    final userState = ref.watch(userStateProvider).data;
     final metalProperties = ref.watch(metalPropertiesProvider).data;
 
     final metal = metalProperties!.metals!.firstWhere(

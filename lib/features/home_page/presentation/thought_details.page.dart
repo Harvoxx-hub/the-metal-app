@@ -4,8 +4,9 @@ import 'package:flutter_svg/svg.dart';
 
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/home_page/domain/entries/thought.model.dart'
     hide ReactionModel;
 
@@ -37,7 +38,7 @@ class ThoughtDetailsPage extends ConsumerStatefulWidget {
 }
 
 class _ThoughtDetailsPageState extends ConsumerState<ThoughtDetailsPage> {
-  bool _showReactions = false;
+ 
   late String thoughtId;
 
   @override
@@ -70,7 +71,7 @@ class _ThoughtDetailsPageState extends ConsumerState<ThoughtDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final thoughtState = ref.watch(getThoughtByIdProvider);
-    final userdata = ref.watch(authProvider).data;
+    final userdata = ref.watch(userStateProvider).data;
 
     return BaseScreen(
       bgImage: Assets.images.bg2.path,

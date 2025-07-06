@@ -3,14 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
-import 'package:metal/core/utils/metal.helper.dart';
+import 'package:metal/core/services/notification_handler.dart';
+import 'package:metal/core/services/notification_state_service.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
-import 'package:metal/features/notification/provider/notification.notifier.dart';
- 
 import 'package:metal/features/notification/widget/melt.notification.item.dart';
-import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
- 
 
 class NotificationPage extends ConsumerStatefulWidget {
   const NotificationPage({super.key});
@@ -22,36 +19,27 @@ class NotificationPage extends ConsumerStatefulWidget {
 }
 
 class _NotificationPageState extends ConsumerState<NotificationPage> {
-  // Store notification IDs for marking as read on exit
-
-  @override
-  void initState() {
-    super.initState();
-    // Fetch notifications when page loads
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final notifications = ref.watch(notificationProvider);
-    final unreadCount = ref.watch(unreadNotificationCountProvider);
+    final notificationsAsync = ref.watch(filteredNotificationsStreamProvider);
+    final unreadCountAsync = ref.watch(unreadNotificationCountStreamProvider);
 
     return BaseScreen(
       appBarState: AppBarState.BackWithHeader,
       Header: "Notifications",
-      floatingActionButton: unreadCount > 0
-          ? FloatingActionButton(
-              onPressed: () {
-                ref.read(notificationProvider.notifier).markAllAsRead();
-              },
-              tooltip: 'Mark all as read',
-              child: const Icon(Icons.done_all),
-            )
-          : null,
+      floatingActionButton: unreadCountAsync.when(
+        data: (count) => count > 0
+            ? FloatingActionButton(
+                onPressed: () async {
+                  await NotificationStateService.instance.markAllAsRead();
+                },
+                tooltip: 'Mark all as read',
+                child: const Icon(Icons.done_all),
+              )
+            : null,
+        loading: () => null,
+        error: (_, __) => null,
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -70,7 +58,21 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                 )),
           ),
           Expanded(
-            child: _buildNotificationsList(notifications),
+            child: notificationsAsync.when(
+              data: (notifications) => RefreshIndicator(
+                onRefresh: () async {
+                  ref.refresh(filteredNotificationsStreamProvider);
+                  // Wait a short moment to allow the stream to update
+                  await Future.delayed(const Duration(milliseconds: 500));
+                },
+                child: _buildNotificationsList(notifications),
+              ),
+              loading: () =>
+                  const Center(child: CircularProgressIndicator.adaptive()),
+              error: (error, stack) => Center(
+                child: Text('Error loading notifications: $error'),
+              ),
+            ),
           ),
         ],
       ),
@@ -79,118 +81,48 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
 
   Widget _buildNotificationsList(List<NotificationModel> notifications) {
     if (notifications.isEmpty) {
-      return const EmptyState(text: "You have no notifications yet");
+      return const EmptyState(
+        text: "You have no notifications",
+      );
     }
 
-    // Group notifications by type
-    final Map<String, List<NotificationModel>> groupedNotifications = {};
+    return ListView.builder(
+      itemCount: notifications.length,
+      itemBuilder: (BuildContext context, int index) {
+        final notification = notifications[index];
+        return Dismissible(
+          key: Key(notification.id ?? 'notification-$index'),
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: 16),
+            child: const Icon(Icons.delete, color: Colors.white),
+          ),
+          direction: DismissDirection.endToStart,
+          onDismissed: (_) async {
+            await NotificationStateService.instance.deleteNotification(
+              notification.id ?? '',
+            );
+          },
+          child: InkWell(
+            onTap: () async {
+              // Mark as read if not already read
+              if (!notification.isRead) {
+                await NotificationStateService.instance.markAsRead(
+                  notification.id ?? '',
+                );
+              }
 
-    for (final notification in notifications) {
-      final String type =
-          notification.type != null ? notification.type.toString() : 'other';
-      if (!groupedNotifications.containsKey(type)) {
-        groupedNotifications[type] = [];
-      }
-      groupedNotifications[type]!.add(notification);
-    }
-
-    return RefreshIndicator(
-      onRefresh: () async {
-        await ref.read(notificationProvider.notifier).fetchNotifications();
-      },
-      child: ListView.builder(
-        padding: const EdgeInsets.only(top: 8),
-        itemCount: notifications.length,
-        itemBuilder: (BuildContext context, int index) {
-          final notification = notifications[index];
-          return Dismissible(
-            key: Key(notification.id ?? 'notification-$index'),
-            background: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 16),
-              child: const Icon(Icons.delete, color: Colors.white),
-            ),
-            direction: DismissDirection.endToStart,
-            onDismissed: (_) {
-              ref.read(notificationProvider.notifier).deleteNotification(
-                    notification.id ?? '',
-                  );
+              // Handle navigation using centralized handler
+              await NotificationHandlerService.instance
+                  .handleInAppNotification(notification);
             },
-            child: InkWell(
-              onTap: () {
-                if (!notification.isRead) {
-                  ref.read(notificationProvider.notifier).markAsRead(
-                        notification.id ?? '',
-                      );
-                }
-
-                // Handle navigation based on notification type
-                _handleNotificationNavigation(context, notification);
-              },
-              child: MeltNotificationItem(
-                notificationModel: notification,
-              ),
+            child: MeltNotificationItem(
+              notificationModel: notification,
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
-  }
-
-  void _handleNotificationNavigation(
-      BuildContext context, NotificationModel notification) {
-    switch (notification.type) {
-      case NotificationType.new_connection:
-        final metalId = MetalHelper.getOtherUserId(notification.recipientIds);
-        if (metalId != null && metalId.isNotEmpty) {
-          Navigator.pushNamed(context, AppRoutes.meltMetal, arguments: metalId);
-        }
-        break;
-
-      case NotificationType.new_message:
-        final senderId = notification.data["senderId"];
-        if (senderId != null) {
-          Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
-              arguments: senderId);
-        } else {
-          // Navigate to messages tab if no specific chat
-          AppRoutes.navigateToMessages(context);
-        }
-        break;
-
-      case NotificationType.reaction_added:
-        // Navigate to the thought that received a reaction
-        final thoughtId = notification.data["thoughtId"];
-        if (thoughtId != null) {
-          Navigator.pushNamed(context, AppRoutes.thoughtDetails,
-              arguments: thoughtId);
-        } else {
-          // Navigate to home tab if no specific thought
-          AppRoutes.navigateToHome(context);
-        }
-        break;
-
-      case NotificationType.thought_created:
-        final userId = notification.data["userId"];
-        final thoughtId = notification.data["thoughtId"];
-        if (userId != null && thoughtId != null) {
-          Navigator.pushNamed(context, AppRoutes.thoughtDetails,
-              arguments: thoughtId);
-        } else {
-          // Navigate to home tab if no specific thought
-          AppRoutes.navigateToHome(context);
-        }
-        break;
-
-      case NotificationType.sparks_transaction:
-        // Navigate to sparks tab for transactions
-        AppRoutes.navigateToSparks(context);
-        break;
-
-      default:
-        // For unknown types, just stay on notification page
-        break;
-    }
   }
 }

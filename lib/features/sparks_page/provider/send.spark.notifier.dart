@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/sparks_page/data/repositories/spark.repository.dart';
 
 class SendSparkNotifier extends StateNotifier<SendsparkState> {
@@ -19,14 +20,14 @@ class SendSparkNotifier extends StateNotifier<SendsparkState> {
     state = SendsparkState.loading();
     try {
       final sparkRepository = ref.watch(sparkRepositoryProvider);
-      final userDetails = ref.watch(authProvider).data;
+      final userDetails = ref.watch(userStateProvider).data;
       final response = await sparkRepository.shareSpark(
           numberOfSparks: numberOfSparks,
           receiverID: receiverId,
           receiverName: receiverName,
           senderName: userDetails!.username!);
 
-      ref.read(authProvider.notifier).getUpdatedUser();
+   ref.read(userStateProvider.notifier).refreshUser();
       response.success == false
           ? state = SendsparkState.error(response.message!)
           : state = SendsparkState.success({"data": "data"});

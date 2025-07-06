@@ -1,14 +1,4 @@
-// {
-//   "requestId": "unique_request_id",  // Unique ID for the request
-//   "senderId": "user1_id",           // ID of the user who sent the request
-//   "receiverId": "user2_id",         // ID of the user to whom the request was sent
-//   "createdAt": "2024-12-01T20:30:00Z", // Timestamp of the request
-//   "status": "pending",              // Status: "pending", "accepted", or "cancelled"
-//   "isAnonymous": true,              // Whether the request is anonymous
-//   "metadata": {                     // Optional metadata for additional context
-//     "message": "Let's connect!"
-//   }
-// }
+ 
 
 import 'package:json_annotation/json_annotation.dart';
 

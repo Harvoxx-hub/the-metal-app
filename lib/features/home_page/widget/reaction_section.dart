@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/home_page/domain/entries/reaction.model.dart';
 import 'package:metal/features/home_page/provider/reaction.provider.dart';
 import 'package:metal/features/home_page/widget/reaction.listtile.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/res/res.dart';
 
@@ -33,13 +34,12 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
   @override
   Widget build(BuildContext context) {
     final reactions = ref.watch(reactionProvider(widget.thoughtId)).data ?? [];
-    final userdata = ref.watch(authProvider).data;
+    final userdata = ref.watch(userStateProvider).data;
 
     return Stack(
       children: [
         SizedBox(
           height: _showReactions ? 100 : 60,
-          width: 180,
           child: Row(
             children: [
               GestureDetector(
@@ -85,7 +85,7 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
               userReaction.emoji,
-              style: const TextStyle(fontSize: 20),
+              style: const TextStyle(fontSize: 14),
             ),
           )
         else

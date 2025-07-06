@@ -308,9 +308,11 @@ class AuthenticationRepository implements IAuthenticationRepository {
   @override
   Future<Responses> deleteUser() async {
     try {
-      final functions = FirebaseFunctions.instance;
-      final callable = functions.httpsCallable('deleteUserAccount');
-      await callable.call();
+      //delete user from firebase auth
+      await _firebaseService.auth.currentUser?.delete();
+
+      // sign out the user
+      await _firebaseService.auth.signOut();
 
       return Responses(success: true, message: "User deleted successfully.");
     } catch (e) {

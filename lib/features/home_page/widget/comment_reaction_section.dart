@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/home_page/domain/entries/comment.model.dart';
 import 'package:metal/features/home_page/provider/comment.provider.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/res/res.dart';
@@ -38,7 +39,7 @@ class _CommentReactionSectionState
 
   @override
   Widget build(BuildContext context) {
-    final userdata = ref.watch(authProvider).data;
+    final userdata = ref.watch(userStateProvider).data;
 
     return Stack(
       children: [

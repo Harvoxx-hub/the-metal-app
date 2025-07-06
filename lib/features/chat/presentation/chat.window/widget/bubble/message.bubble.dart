@@ -1,26 +1,26 @@
-import 'dart:io';
+ 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:image_picker/image_picker.dart';
+ 
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/image_picker_util.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/widget/bubble/wave.bubble.dart';
 import 'package:metal/features/chat/provider/manage.message.notifier.dart';
  
-import 'package:metal/features/chat/provider/send.message.notifier.dart';
+ 
 import 'package:metal/features/chat/provider/unmelt.notifier.dart';
-import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
-import 'package:metal/features/profile/provider/upload.profile.image.notifier.dart';
+ 
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
  
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:metal/route/routes.dart';
+ 
 
 class MessageBubble extends ConsumerWidget {
   final MessageModel message;
@@ -34,7 +34,7 @@ class MessageBubble extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userData = ref.watch(authProvider).data;
+    final userData = ref.watch(userStateProvider).data;
 
     if (userData == null) {
       return const SizedBox.shrink();
@@ -241,7 +241,7 @@ class MessageBubble extends ConsumerWidget {
                                     onPressed: () {
                                       // Check if the current user has a profile photo
                                       final currentUser =
-                                          ref.read(authProvider).data;
+                                          ref.read(userStateProvider).data;
                                       final hasProfilePhoto =
                                           currentUser?.profilePhoto != null &&
                                               currentUser!

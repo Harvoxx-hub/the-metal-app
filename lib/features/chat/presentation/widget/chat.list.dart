@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
-import 'package:metal/gen/assets.gen.dart';
+ 
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -63,7 +64,7 @@ class _ChatListWidgetState extends ConsumerState<ChatListWidget> {
       // For each connection, check if it matches the search query
       for (var connection in myMelt) {
         // Get the other user's details to match against the query
-        final currentUser = ref.read(authProvider).data;
+        final currentUser = ref.read(userStateProvider).data;
         final metalId = connection.users.firstWhere(
           (user) => user != currentUser!.id,
           orElse: () => "",
@@ -177,7 +178,7 @@ class chatListItem extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final currentUser = ref.watch(authProvider).data;
+    final currentUser = ref.watch(userStateProvider).data;
     final metalId = conversationsModel.users.firstWhere(
       (user) => user != currentUser!.id,
       orElse: () =>

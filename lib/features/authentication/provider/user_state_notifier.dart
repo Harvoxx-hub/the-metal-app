@@ -4,7 +4,7 @@ import 'package:metal/core/services/user_update_service.dart';
 import 'package:metal/core/services/user_migration_service.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
-
+ 
 /// Comprehensive user state management with improved architecture
 class UserStateNotifier extends StateNotifier<UserState> {
   final Ref ref;
@@ -67,6 +67,9 @@ class UserStateNotifier extends StateNotifier<UserState> {
     required dynamic value,
     bool validateRequired = false,
   }) async {
+    /// add a delay of 1 second before updating the user
+    await Future.delayed(const Duration(seconds: 3));
+
     if (state.data == null) {
       state = UserState.error('No user data available');
       return;
@@ -81,8 +84,10 @@ class UserStateNotifier extends StateNotifier<UserState> {
       );
 
       if (response.success!) {
-        final updatedUser = UserModel.fromJson(response.data);
+        final updatedUser =  response.data;
         state = UserState.success(updatedUser);
+      
+     
       } else {
         state = UserState.error(response.message ?? 'Update failed');
       }

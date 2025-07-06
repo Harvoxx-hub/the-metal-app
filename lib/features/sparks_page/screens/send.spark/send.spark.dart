@@ -7,7 +7,7 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/home_page/provider/get.users.by.query.notifier.dart';
 
 import 'package:metal/features/sparks_page/provider/send.spark.notifier.dart';
@@ -75,7 +75,7 @@ class _SendSparkState extends ConsumerState<SendSpark> {
   Widget build(BuildContext context) {
     final users = ref.watch(getUserByNameProvider);
     final sendSpark = ref.watch(sendSparkProvider);
-    final currentUser = ref.watch(authProvider).data;
+    final currentUser = ref.watch(userStateProvider).data;
     ref.listen<SendsparkState>(sendSparkProvider, (prev, current) {
       if (current.isSuccess) {
         confirm(context);

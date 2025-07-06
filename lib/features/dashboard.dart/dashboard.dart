@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart' as geo;
 import 'package:geocoding/geocoding.dart' as geo_coding;
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
+import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/dashboard.dart/widget/new_update_dialog.dart';
 import 'package:metal/features/dashboard.dart/widget/tutorial_dialog.dart';
 import 'package:metal/features/dashboard.dart/widget/tutorial_overlay.dart';
@@ -16,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
@@ -102,7 +103,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     if (_initialized) return;
     _initialized = true;
 
-    final userdata = ref.read(authProvider).data;
+    final userdata = ref.read(userStateProvider).data;
     if (userdata != null && mounted) {
       await _checkOnboardingAndUserStatus(userdata);
       await _updateUserLocation();
@@ -166,12 +167,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 if (!mounted) return;
 
                 // After that's done, check user status
-                //   await _checkUserStatus(userData);
+                await _checkUserStatus(userData);
               },
               onSkipTutorial: () async {
                 // Mark that user has seen onboarding when they skip
                 await prefs.setBool('hasSeenOnboarding', true);
-                await _checkUserStatus(userData);
+              await _checkUserStatus(userData);
               },
             ),
           );
@@ -188,7 +189,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         },
       );
     } else {
-      await _checkUserStatus(userData);
+    await _checkUserStatus(userData);
 
       // Show thought reminder for new users who haven't seen it
       if (isWithin7Days && !hasSeenThoughtReminder) {
@@ -222,7 +223,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final prefs = await SharedPreferences.getInstance();
     final hasCompletedProfile = prefs.getBool('hasCompletedProfile') ?? false;
 
-    if (!(userData.completedProfile ?? false) && !hasCompletedProfile) {
+    if (false) {
       await showDialog(
         context: context,
         barrierDismissible: false,
@@ -323,6 +324,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           address: address,
         );
 
+       
         // Update user location silently
         await ref.read(userStateProvider.notifier).updateUserField(
               field: 'location',
@@ -343,7 +345,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       const ChatPage(),
       const ProfilePage(),
     ];
-    final user = ref.watch(authProvider);
+    final user = ref.watch(userStateProvider);
     ref.watch(getMeltUserProvider);
     ref.watch(metalPropertiesProvider);
 

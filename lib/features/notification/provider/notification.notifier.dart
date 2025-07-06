@@ -2,12 +2,15 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/services/notification_state_service.dart';
 import 'package:metal/core/utils/constant/firebase.firestore.collection.key.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
 import 'package:metal/features/notification/services/notification_service.dart';
 
 class NotificationNotifier extends StateNotifier<List<NotificationModel>> {
   final NotificationService _notificationService;
+  final NotificationStateService _stateService =
+      NotificationStateService.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   StreamSubscription<QuerySnapshot>? _notificationSubscription;
 
@@ -91,29 +94,35 @@ class NotificationNotifier extends StateNotifier<List<NotificationModel>> {
   // Get unread count
   int get unreadCount => unreadNotifications.length;
 
-  // Mark notification as read
+  // Mark notification as read - now uses centralized service
   Future<void> markAsRead(String notificationId) async {
-    await _notificationService.markAsRead(notificationId);
-    state = state.map((notification) {
-      if (notification.id == notificationId) {
-        return notification.markAsRead();
-      }
-      return notification;
-    }).toList();
+    final success = await _stateService.markAsRead(notificationId);
+    if (success) {
+      state = state.map((notification) {
+        if (notification.id == notificationId) {
+          return notification.markAsRead();
+        }
+        return notification;
+      }).toList();
+    }
   }
 
-  // Mark all notifications as read
+  // Mark all notifications as read - now uses centralized service
   Future<void> markAllAsRead() async {
-    await _notificationService.markAllAsRead();
-    state = state.map((notification) => notification.markAsRead()).toList();
+    final success = await _stateService.markAllAsRead();
+    if (success) {
+      state = state.map((notification) => notification.markAsRead()).toList();
+    }
   }
 
-  // Delete notification
+  // Delete notification - now uses centralized service
   Future<void> deleteNotification(String notificationId) async {
-    await _notificationService.deleteNotification(notificationId);
-    state = state
-        .where((notification) => notification.id != notificationId)
-        .toList();
+    final success = await _stateService.deleteNotification(notificationId);
+    if (success) {
+      state = state
+          .where((notification) => notification.id != notificationId)
+          .toList();
+    }
   }
 
   // Handle user sign-in/sign-out

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ 
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/upgrade/data/repositories/subscription.repository.dart';
 import 'package:metal/features/upgrade/domain/entries/subscribed.plan.model.dart';
 
@@ -19,7 +20,7 @@ class SubscribeMetalNotifier extends StateNotifier<SubscribeMetalState> {
     try {
       final subscriptionRepository = ref.watch(subscriptionRepositoryProvider);
       final response = await subscriptionRepository.subscribeMetalPlan(Id);
-      ref.read(authProvider.notifier).getUpdatedUser();
+      ref.read(userStateProvider.notifier).refreshUser();
       state = SubscribeMetalState.success(
           SubscribedPlanModel.fromJson(response.data));
     } catch (e, s) {

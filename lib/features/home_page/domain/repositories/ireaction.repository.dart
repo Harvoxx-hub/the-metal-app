@@ -3,6 +3,7 @@ import 'package:metal/features/home_page/domain/entries/reaction.model.dart';
 
 abstract class IReactionRepository {
   Future<Responses> getReactions(String thoughtId);
+  Stream<List<ReactionModel>> getReactionsStream(String thoughtId);
   Future<Responses> addReaction(String thoughtId, String emoji);
   Future<Responses> updateReaction(
       String thoughtId, String reactionId, String emoji);

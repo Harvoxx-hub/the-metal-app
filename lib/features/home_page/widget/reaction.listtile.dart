@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gap/gap.dart';
-import 'package:metal/features/authentication/provider/auth.notifier.dart';
+ import 'package:gap/gap.dart';
+
 import 'package:metal/features/home_page/domain/entries/reaction.model.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/widgets/profile.photo.dart';

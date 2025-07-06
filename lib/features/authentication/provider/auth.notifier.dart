@@ -45,23 +45,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future getUpdatedUser() async {
-    try {
-      final authenticationRepository =
-          ref.watch(authenticationRepositoryProvider);
-      final response = await authenticationRepository.getCurrentUser();
-      final userData = UserModel.fromJson(response.data);
-      state = AuthState.success(userData);
-    } catch (e) {
-      print(e.toString());
-    }
-  }
+  
 
-  //update state with new user data
-  Future<void> updateUserData(UserModel userData) async {
-    state = AuthState.success(userData);
-    //  initZIMKIt();
-  }
+  
 
   Future<void> initZIMKIt() async {
     if (state.data != null) {

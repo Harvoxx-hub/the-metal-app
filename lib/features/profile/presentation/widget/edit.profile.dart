@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
- 
+
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
@@ -75,7 +75,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           ],
           editType: EditType.dropdown,
           onSubLabel: (value) {
-            updateUser({'gender': value});
+            updateUser('gender', value);
           },
         ),
         const Gap(20),
@@ -93,7 +93,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
               var selectedMetal = metalProperties.metals!.firstWhere(
                 (metal) => metal.title == value,
               );
-              updateUser({'metal': selectedMetal.id});
+              updateUser('metal', selectedMetal.id!);
             }
           },
         ),
@@ -107,9 +107,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
               .toList(),
           editType: EditType.dropdown,
           onSubLabel: (p0) {
-            updateUser({
-              'passion': [p0!]
-            });
+            updateUser('passion', [p0!]);
           },
         ),
         const Gap(20),
@@ -121,12 +119,11 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           editType: EditType.dropdown,
           onSubLabel: (p0) {
             final updated = {
-              'extraData': {
-                ...userState!.extraData!.toJson(),
-                'maritalStatus': p0,
-              }
+              ...userState!.extraData!.toJson(),
+              'maritalStatus': p0,
             };
-            updateUser(updated);
+
+            updateUser('extraData', updated);
           },
         ),
         const Gap(20),
@@ -138,17 +135,16 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           editType: EditType.dropdown,
           onSubLabel: (p0) {
             final updated = {
-              'extraData': {
-                ...userState!.extraData!.toJson(),
-                'religion': p0,
-              }
+              ...userState!.extraData!.toJson(),
+              'religion': p0,
             };
-            updateUser(updated);
+            updateUser('extraData', updated);
           },
         ),
         const Gap(20),
         EditField(
-          text: userState!.address.toString(),
+          text:
+              userState!.address?.getDisplayAddress() ?? "Home address details",
           floatingLabel: "Home address details",
           subLabel: "Edit",
           editType: EditType.text,
@@ -156,7 +152,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           isAddressField: true,
           onSubLabel: (newAddress) {
             if (newAddress is Address) {
-              updateUser({'address': newAddress.toJson()});
+              updateUser('address', newAddress.toJson());
             }
           },
         ),
@@ -169,12 +165,11 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           editType: EditType.dropdown,
           onSubLabel: (p0) {
             final updated = {
-              'extraData': {
-                ...userState.extraData!.toJson(),
-                'profession': p0,
-              }
+              ...userState.extraData!.toJson(),
+              'profession': p0,
             };
-            updateUser(updated);
+
+            updateUser('extraData', updated);
           },
         ),
         const Gap(20),
@@ -184,7 +179,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
           subLabel: "Edit",
           editType: EditType.text,
           onSubLabel: (p0) {
-            updateUser({'description': p0});
+            updateUser('description', p0);
           },
         ),
         const Gap(20),
@@ -192,12 +187,12 @@ class _EditProfileState extends ConsumerState<EditProfile> {
     );
   }
 
-  void updateUser(Map<String, dynamic> updates) async {
+  void updateUser(String field, dynamic value) async {
     try {
       // Use the new UserStateNotifier for batch updates
-      await ref.read(userStateProvider.notifier).updateUserFields(
-            updates: updates,
-            validateRequired: false,
+      await ref.read(userStateProvider.notifier).updateUserField(
+            field: field,
+            value: value,
           );
     } catch (e) {
       // Handle error - could show snackbar or toast

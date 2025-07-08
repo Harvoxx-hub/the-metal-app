@@ -78,7 +78,7 @@ class ConnectionModel {
   bool isInitiator(String currentUserId) {
     return initiatorId == currentUserId;
   }
-
+ 
   ConnectionModel copyWith({
     String? connectionId,
     List<String>? users,

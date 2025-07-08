@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart' as geo;
@@ -17,13 +16,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
- 
+
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
-import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/chat/presentation/chat.page.dart';
-import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
+
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/profile/presentation/profile.page.dart';
@@ -36,7 +34,6 @@ import 'package:metal/features/chat/provider/unread.count.notifier.dart';
 
 import '../home_page/home_page.dart';
 import 'package:metal/features/dashboard.dart/widget/thought_reminder_dialog.dart';
-import 'package:metal/widgets/text_views.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   final int? initialPageIndex;
@@ -74,6 +71,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     } catch (e) {
       // Log error but don't crash the app
       debugPrint('Error initializing ZegoUIKit: $e');
+      // Show a snackbar to inform the user
+      if (mounted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Call service initialization failed. Please try again later.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
@@ -172,7 +179,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               onSkipTutorial: () async {
                 // Mark that user has seen onboarding when they skip
                 await prefs.setBool('hasSeenOnboarding', true);
-              await _checkUserStatus(userData);
+                await _checkUserStatus(userData);
               },
             ),
           );
@@ -189,7 +196,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         },
       );
     } else {
-    await _checkUserStatus(userData);
+      await _checkUserStatus(userData);
 
       // Show thought reminder for new users who haven't seen it
       if (isWithin7Days && !hasSeenThoughtReminder) {
@@ -220,40 +227,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   Future<void> _checkUserStatus(UserModel userData) async {
-    final prefs = await SharedPreferences.getInstance();
-    final hasCompletedProfile = prefs.getBool('hasCompletedProfile') ?? false;
+    if (!mounted) return;
 
-    if (false) {
+    if (userData.workEmailVerified == false) {
       await showDialog(
         context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return CustomDialog(
-            content: ComplecteProfileDialog(
-              onProfileComplete: () async {
-                // Store that profile has been completed
-                await prefs.setBool('hasCompletedProfile', true);
-                // Update the user data to reflect completion
-                final updatedUser = userData.copyWith(completedProfile: true);
-                await ref
-                    .read(authenticationRepositoryProvider)
-                    .updateUser(updatedUser.toJson());
-                if (mounted) {
-                  Navigator.pop(context);
-                }
-              },
-            ),
-          );
-        },
-      );
-    } else if (!(userData.isVerified ?? false)) {
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return const CustomDialog(
-            content: VerificationDialog(),
-          );
-        },
+        builder: (dialogContext) => const CustomDialog(
+          content: VerificationDialog(),
+        ),
       );
     }
   }
@@ -324,7 +305,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           address: address,
         );
 
-       
         // Update user location silently
         await ref.read(userStateProvider.notifier).updateUserField(
               field: 'location',

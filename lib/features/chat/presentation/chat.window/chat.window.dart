@@ -18,9 +18,9 @@ import 'package:metal/features/chat/presentation/chat.window/widget/message.list
 import 'package:metal/features/chat/provider/game.conversation.notifier.dart';
 
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
 
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
- 
 
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
@@ -41,18 +41,17 @@ class ChatWindowsPage extends ConsumerStatefulWidget {
 class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
   GameModel? game;
 
- 
   ConnectionModel? _connectionModdel;
   @override
   void initState() {
-    getMeltMetal();
+    getConnection();
     super.initState();
   }
 
-  getMeltMetal() {
+  getConnection() {
     _connectionModdel =
         ref.read(getMeltUserProvider.notifier).getMeltUserById(widget.metalId)!;
-  
+    print("CONNECTION MODEL:${_connectionModdel?.isAnonymous}");
   }
 
   UserModel? currentUserData;
@@ -82,7 +81,12 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
               GameTile(
                 conversationsModel: _connectionModdel!,
               ),
-              MessageList(_connectionModdel!.connectionId),
+              MessageList(_connectionModdel!.connectionId, onApproved: () {
+                ref
+                    .read(getConnectionProvider(_connectionModdel!.connectionId)
+                        .notifier)
+                    .getConnection();
+              }),
               ChatBottomSheet(
                 meltUserModel: _connectionModdel!.otherUser!,
                 connectionModel: _connectionModdel!,

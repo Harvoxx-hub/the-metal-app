@@ -5,9 +5,10 @@ import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class MessageList extends ConsumerStatefulWidget {
-  const MessageList(this.conversationId, {super.key});
+  const MessageList(this.conversationId, {super.key, this.onApproved});
 
   final String? conversationId;
+  final Function()? onApproved;
 
   @override
   ConsumerState<MessageList> createState() => _MessageListState();
@@ -62,6 +63,9 @@ class _MessageListState extends ConsumerState<MessageList> {
                       return MessageBubble(
                         message: message,
                         connectionId: widget.conversationId!,
+                        onApproved: () {
+                          widget.onApproved?.call();
+                        },
                       );
                     },
                   ),

@@ -1,35 +1,34 @@
- 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
- 
+
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/image_picker_util.dart';
- 
+
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/widget/bubble/wave.bubble.dart';
 import 'package:metal/features/chat/provider/manage.message.notifier.dart';
- 
- 
 import 'package:metal/features/chat/provider/unmelt.notifier.dart';
- 
+import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
+import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
- 
+
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
- 
 
 class MessageBubble extends ConsumerWidget {
   final MessageModel message;
   final String connectionId;
+  final Function()? onApproved;
 
   const MessageBubble({
     super.key,
     required this.message,
     required this.connectionId,
+    this.onApproved,
   });
 
   @override
@@ -304,7 +303,9 @@ class MessageBubble extends ConsumerWidget {
                                           connectionId,
                                           message.id,
                                           {"message": "approved"},
-                                        );
+                                        ).then((_) {
+                                          onApproved?.call();
+                                        });
                                       }
                                     },
                                   ),

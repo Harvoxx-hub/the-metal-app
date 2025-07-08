@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
@@ -111,7 +112,7 @@ class _FaceVerificationScreenState
   Timer? _detectionDebounceTimer; // Debounce face detection
 
   int _consecutiveCenteredFrames = 0; // Count consecutive good frames
-
+  CameraDescription? _cameraDescription;
   @override
   void initState() {
     super.initState();
@@ -269,21 +270,22 @@ class _FaceVerificationScreenState
 
     try {
       final cameras = await availableCameras();
-      final frontCamera = cameras.firstWhere(
+      _cameraDescription = cameras.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.front,
         orElse: () => cameras.first,
       );
-
       _cameraController = CameraController(
-        frontCamera,
-        ResolutionPreset.high,
+        _cameraDescription!,
+        ResolutionPreset.medium, // Lower resolution for better performance
         enableAudio: false,
         imageFormatGroup: Platform.isAndroid
             ? ImageFormatGroup.yuv420
             : ImageFormatGroup.bgra8888,
       );
-
+      // Set preferred camera settings
       await _cameraController!.initialize();
+      await _cameraController!.setFocusMode(FocusMode.auto);
+      await _cameraController!.setExposureMode(ExposureMode.auto);
 
       // Lock the orientation to portrait
       await SystemChrome.setPreferredOrientations([
@@ -304,6 +306,27 @@ class _FaceVerificationScreenState
     }
   }
 
+  Uint8List _yuv420ToNV21(CameraImage image) {
+    var nv21 = Uint8List(image.planes[0].bytes.length +
+        image.planes[1].bytes.length +
+        image.planes[2].bytes.length);
+
+    var yBuffer = image.planes[0].bytes;
+    var uBuffer = image.planes[1].bytes;
+    var vBuffer = image.planes[2].bytes;
+
+    nv21.setRange(0, yBuffer.length, yBuffer);
+
+    int i = 0;
+    while (i < uBuffer.length) {
+      nv21[yBuffer.length + i] = vBuffer[i];
+      nv21[yBuffer.length + i + 1] = uBuffer[i];
+      i += 2;
+    }
+
+    return nv21;
+  }
+
   void _startFaceDetection() {
     if (_cameraController == null || !_cameraController!.value.isInitialized)
       return;
@@ -313,7 +336,41 @@ class _FaceVerificationScreenState
       _isDetecting = true;
 
       try {
-        final inputImage = await _processImageForDetection(image);
+        final WriteBuffer allBytes = WriteBuffer();
+        for (Plane plane in image.planes) {
+          allBytes.putUint8List(plane.bytes);
+        }
+        final bytes = allBytes.done().buffer.asUint8List();
+
+        // Get image metadata
+        final Size imageSize =
+            Size(image.width.toDouble(), image.height.toDouble());
+
+        // Rotation for InputImage
+        final rotation = _computeRotation(_cameraDescription!);
+
+        // Convert image format based on platform
+        final Uint8List imageBytes;
+        final InputImageFormat format;
+
+        if (Platform.isAndroid) {
+          imageBytes = _yuv420ToNV21(image);
+          format = InputImageFormat.nv21;
+        } else {
+          imageBytes = bytes;
+          format = InputImageFormat.bgra8888;
+        }
+
+        // Create InputImage for ML Kit
+        final inputImage = InputImage.fromBytes(
+          bytes: imageBytes,
+          metadata: InputImageMetadata(
+            size: imageSize,
+            rotation: rotation,
+            format: format,
+            bytesPerRow: image.planes[0].bytesPerRow,
+          ),
+        );
         if (inputImage != null) {
           final faces = await _faceDetector.processImage(inputImage);
           if (mounted) {
@@ -328,70 +385,21 @@ class _FaceVerificationScreenState
     });
   }
 
-  Future<InputImage?> _processImageForDetection(CameraImage image) async {
-    try {
-      // Get the camera rotation based on the device orientation
-      final deviceOrientation = MediaQuery.of(context).orientation;
-      late final InputImageRotation imageRotation;
-
-      if (Platform.isAndroid) {
-        switch (deviceOrientation) {
-          case Orientation.portrait:
-            imageRotation = InputImageRotation.rotation90deg;
-            break;
-          case Orientation.landscape:
-            imageRotation = InputImageRotation.rotation0deg;
-            break;
-          default:
-            imageRotation = InputImageRotation.rotation90deg;
-            break;
-        }
-      } else {
-        imageRotation = InputImageRotation.rotation0deg;
-      }
-
-      if (Platform.isAndroid) {
-        // Handle YUV420 format for Android
-        final WriteBuffer allBytes = WriteBuffer();
-        for (var plane in image.planes) {
-          allBytes.putUint8List(plane.bytes);
-        }
-        final bytes = allBytes.done().buffer.asUint8List();
-
-        final imageSize = Size(image.width.toDouble(), image.height.toDouble());
-
-        final inputImageData = InputImageMetadata(
-          size: imageSize,
-          rotation: imageRotation,
-          format: InputImageFormat.yuv420,
-          bytesPerRow: image.planes[0].bytesPerRow,
-        );
-
-        return InputImage.fromBytes(
-          bytes: bytes,
-          metadata: inputImageData,
-        );
-      } else {
-        // Handle BGRA8888 format for iOS
-        final WriteBuffer allBytes = WriteBuffer();
-        for (var plane in image.planes) {
-          allBytes.putUint8List(plane.bytes);
-        }
-        final bytes = allBytes.done().buffer.asUint8List();
-
-        return InputImage.fromBytes(
-          bytes: bytes,
-          metadata: InputImageMetadata(
-            size: Size(image.width.toDouble(), image.height.toDouble()),
-            rotation: imageRotation,
-            format: InputImageFormat.bgra8888,
-            bytesPerRow: image.planes[0].bytesPerRow,
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint("Error processing image: $e");
-      return null;
+  // Helper function to compute rotation based on sensor orientation
+  InputImageRotation _computeRotation(CameraDescription cameraDescription) {
+    final sensorOrientation = cameraDescription.sensorOrientation;
+    // Convert the sensor orientation (0, 90, 180, 270) to ML Kit's InputImageRotation
+    switch (sensorOrientation) {
+      case 90:
+        return InputImageRotation.rotation90deg;
+      case 180:
+        return InputImageRotation.rotation180deg;
+      case 270:
+        // Most common for front cameras on Android/iOS
+        return InputImageRotation.rotation270deg;
+      case 0:
+      default:
+        return InputImageRotation.rotation0deg;
     }
   }
 

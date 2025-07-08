@@ -28,7 +28,8 @@ enum RouteFrom {
   AccountSetting,
   UpdatePhoneNumber,
   UpdateEmail,
-  ForgetPassword
+  ForgetPassword,
+  WorkEmail
 }
 
 class VerificationPage extends ConsumerStatefulWidget {
@@ -92,6 +93,10 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
         if (widget.argument.type == RouteFrom.ForgetPassword) {
           Navigator.pushReplacementNamed(context, AppRoutes.createNewPassword,
               arguments: widget.argument.uuid);
+        }
+        if (widget.argument.type == RouteFrom.WorkEmail) {
+          /// navigator to dashboard
+          Navigator.pushReplacementNamed(context, AppRoutes.dashboardPage);
         }
       }
     });
@@ -235,6 +240,7 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
   void checkCode(String value, context) {
     ref
         .read(verficationProvider.notifier)
-        .verifyCode(widget.argument.email!, value);
+        .verifyCode(widget.argument.email!, value,
+            from: widget.argument.type.name);
   }
 }

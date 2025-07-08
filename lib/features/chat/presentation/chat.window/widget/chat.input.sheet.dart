@@ -4,12 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
- 
 import 'package:gap/gap.dart';
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
- 
+
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/widget/bubble/wave.bubble.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
@@ -149,7 +148,7 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
                               children: [
                                 SizedBox(
                                   width:
-                                      MediaQuery.of(context).size.width / 1.4,
+                                      MediaQuery.of(context).size.width / 1.45,
                                   child: EditFormField(
                                     onChange: (va) {
                                       isChatControllerEmpty();

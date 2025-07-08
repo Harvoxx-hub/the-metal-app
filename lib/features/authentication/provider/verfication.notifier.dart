@@ -2,6 +2,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
 class VerficationNotifier extends StateNotifier<VerficationState> {
   VerficationNotifier(
@@ -34,8 +35,9 @@ class VerficationNotifier extends StateNotifier<VerficationState> {
 
   Future<void> verifyCode(
     String email,
-    String code,
-  ) async {
+    String code, {
+    String? from,
+  }) async {
     state = VerficationState.loading();
     try {
       final callable = FirebaseFunctions.instance.httpsCallable('verifyCode');
@@ -43,7 +45,18 @@ class VerficationNotifier extends StateNotifier<VerficationState> {
           await callable.call({'email': email, 'code': int.parse(code)});
 
       if (response.data['success']) {
-        activateAccount();
+        if (from == "WorkEmail") {
+          final authenticationRepository =
+              ref.watch(authenticationRepositoryProvider);
+          await authenticationRepository.updateUser({
+            "workEmail": email,
+            "workEmailVerified": true,
+          });
+        } else {
+          activateAccount();
+        }
+        // refresh the user date
+        await ref.read(userStateProvider.notifier).refreshUser();
         state = VerficationState.success("");
       } else {
         state = VerficationState.error(response.data['message']);

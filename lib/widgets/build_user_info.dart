@@ -5,7 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
-  
+
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/home_page/provider/delete.thoughts.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
@@ -44,7 +44,7 @@ class _BuildUserInfoState extends ConsumerState<BuildUserInfo> {
   }
 
   Widget buildUserInfo(BuildContext context) {
-  final userdata = ref.watch(userStateProvider).data;
+    final userdata = ref.watch(userStateProvider).data;
     final creatorUserdata =
         ref.watch(getUserProvider(widget.userId ?? "")).data;
 
@@ -85,7 +85,7 @@ class _BuildUserInfoState extends ConsumerState<BuildUserInfo> {
           children: [
             TextView(fontSize: 13.5, text: "${user.username}"),
             const Gap(5),
-            if (user.isVerified ?? false)
+            if (user.workEmailVerified ?? false)
               Assets.icons.checkVerified.svg(height: 16),
           ],
         ),

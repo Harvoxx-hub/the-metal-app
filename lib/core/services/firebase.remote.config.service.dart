@@ -37,6 +37,7 @@ class FirebaseRemoteConfigService {
           FirebaseRemoteConfigKeys.metalProperties: '',
           FirebaseRemoteConfigKeys.daysRequiredToUnMelt: 0,
           FirebaseRemoteConfigKeys.latest_version: "",
+          FirebaseRemoteConfigKeys.rules: "",
         },
       );
 
@@ -59,4 +60,5 @@ class FirebaseRemoteConfigService {
       {};
   int getDaysRequiredToUnMelt() =>
       getInt(FirebaseRemoteConfigKeys.daysRequiredToUnMelt);
+  String getRules() => getString(FirebaseRemoteConfigKeys.rules);
 }

@@ -6,7 +6,6 @@ import 'package:metal/features/authentication/provider/user_state_notifier.dart'
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
- 
 class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
   GetMeltUsersNotifier(
     super.state,

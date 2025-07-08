@@ -6,7 +6,6 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
- 
 import 'package:metal/features/home_page/domain/entries/thought.model.dart'
     hide ReactionModel;
 
@@ -38,7 +37,6 @@ class ThoughtDetailsPage extends ConsumerStatefulWidget {
 }
 
 class _ThoughtDetailsPageState extends ConsumerState<ThoughtDetailsPage> {
- 
   late String thoughtId;
 
   @override
@@ -118,6 +116,8 @@ class _ThoughtDetailsPageState extends ConsumerState<ThoughtDetailsPage> {
                         fontWeight: FontWeight.w400,
                       ),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           IconButton(
                             onPressed: () {
@@ -160,9 +160,10 @@ class _ThoughtDetailsPageState extends ConsumerState<ThoughtDetailsPage> {
                               ),
                             ],
                           ),
-                          ReactionSection(
-                            thoughtId: thoughtModel.id,
-                  
+                          Expanded(
+                            child: ReactionSection(
+                              thoughtId: thoughtModel.id,
+                            ),
                           ),
                         ],
                       ),

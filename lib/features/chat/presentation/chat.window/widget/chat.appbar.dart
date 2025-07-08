@@ -6,7 +6,6 @@ import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/constant/constants.dart';
-import 'package:metal/core/utils/constant/enums.dart';
 
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/image_picker_util.dart';
@@ -22,7 +21,7 @@ import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
 
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
-import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
+
 import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
@@ -35,7 +34,7 @@ import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 import 'dart:io';
 import 'package:metal/core/utils/permission_helper.dart';
 
@@ -46,7 +45,7 @@ class ChatWindowsAppBar extends ConsumerStatefulWidget {
     required this.connectionModel,
   });
   final UserModel meltUserModel;
-  final ConnectionModel connectionModel;
+  final connectionModel;
   @override
   ConsumerState<ChatWindowsAppBar> createState() => _ChatWindowsAppBarState();
 }
@@ -54,10 +53,12 @@ class ChatWindowsAppBar extends ConsumerStatefulWidget {
 class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   final tooltipController = JustTheController();
   final tooltipController2 = JustTheController();
+  ConnectionModel? _connectionModel;
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {});
+    _connectionModel = widget.connectionModel;
     super.initState();
   }
 
@@ -67,16 +68,10 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         FirebaseRemoteConfigService().getDaysRequiredToUnMelt());
     print("CHECK FOR ACTIVE USER:${widget.meltUserModel.isOnline}");
 
-    final checkMeltState =
-        ref.watch(checkMeltProvider(widget.meltUserModel.id!));
-
-    /// Determines if the user is allowed to call
-    bool isCallAllowed = checkMeltState.data == MeltRequestState.connected;
-
     /// Function to check call eligibility
     Future<bool> handleCallPress(
         JustTheController tooltip, String callType) async {
-      if (widget.connectionModel.isAnonymous) {
+      if (_connectionModel?.isAnonymous ?? true) {
         tooltip.showTooltip();
         return false;
       }
@@ -101,16 +96,28 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         if (connectionState != ZegoSignalingPluginConnectionState.connected) {
           debugPrint(
               'ZegoCloud service not connected. State: $connectionState');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content:
+                  Text('Unable to connect to call service. Please try again.'),
+            ),
+          );
           return false;
         }
 
+        // Only send the call message if all checks pass
         sendCall(callType);
+        return true;
       } catch (e) {
         debugPrint('Error checking ZegoCloud connection state: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text('An error occurred while trying to initiate the call.'),
+          ),
+        );
         return false;
       }
-
-      return true;
     }
 
     /// Function to create call button with tooltip
@@ -120,6 +127,10 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
       required String tooltipText,
       required String iconPath,
     }) {
+      final isAnonymous = _connectionModel?.isAnonymous ?? true;
+      final isCallAllowed =
+          !isAnonymous && widget.meltUserModel.profilePhoto != null;
+
       return JustTheTooltip(
         controller: tooltip,
         content: SizedBox(
@@ -151,12 +162,24 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                 color: isCallAllowed ? Colors.black : Colors.grey,
               ),
             ),
+        //    iconVisible: false,
             onWillPressed: () => handleCallPress(
                 tooltip, isVideoCall ? "Video call" : "Voice call"),
           ),
         ),
       );
     }
+
+    // Watch the connection to update UI when isAnonymous changes
+    bool isAnonymous = _connectionModel?.isAnonymous ?? true;
+
+    ref.listen(getConnectionProvider(widget.connectionModel.connectionId),
+        (previous, next) {
+      if (next.isSuccess) {
+        _connectionModel = next.data;
+        setState(() {});
+      }
+    });
 
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),
@@ -172,12 +195,11 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
           ),
           const Gap(3),
           ProfileImage(
-              width: 42,
-              height: 42,
-              metalID: widget.meltUserModel.metal ?? "",
-              url: widget.connectionModel.isAnonymous == false
-                  ? widget.meltUserModel.profilePhoto
-                  : null),
+            width: 42,
+            height: 42,
+            metalID: widget.meltUserModel.metal ?? "",
+            url: isAnonymous ? null : widget.meltUserModel.profilePhoto,
+          ),
           const Gap(3),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,7 +301,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (widget.connectionModel.isAnonymous)
+              if (_connectionModel?.isAnonymous ?? true)
                 const PopupMenuItem(
                   value: "Unmetal",
                   child: TextView(
@@ -476,6 +498,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
             : BaseButton(
                 buttonText: "Unmetal",
                 onPressed: () {
+                  Navigator.pop(context);
                   sendUnmelt();
                 },
               ),
@@ -543,17 +566,33 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
   }
 
   void sendUnmelt() {
+    // Get user ID before sending message to avoid state modification during build
+    final currentUser = ref.read(userStateProvider).data;
+
+    if (currentUser?.id == null) {
+      // Handle error case
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not authenticated')),
+      );
+      return;
+    }
+
     final message = MessageModel(
-      senderId: ref.watch(userStateProvider).data!.id!,
+      senderId: currentUser!
+          .id!, // We can safely use ! here since we checked for null above
       type: MessageType.un_melt,
       timestamp: DateTime.now().toIso8601String(),
       isRead: false,
       message: "Un-melt Request",
     );
 
+    // Use read instead of watch for state modifications
     ref
         .read(sendMessageProvider.notifier)
         .sendMessage(message, widget.connectionModel.connectionId);
+
+    // Check if widget is still mounted before showing dialog
+    if (!mounted) return;
 
     // Show the sent confirmation dialog
     showDialog(

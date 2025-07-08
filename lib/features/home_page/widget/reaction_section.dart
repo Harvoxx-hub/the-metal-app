@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
- 
+
 import 'package:metal/features/home_page/domain/entries/reaction.model.dart';
 import 'package:metal/features/home_page/provider/reaction.provider.dart';
 import 'package:metal/features/home_page/widget/reaction.listtile.dart';
@@ -97,10 +97,20 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
           onTap: () {
             if (reactions.isNotEmpty) {
               showModalBottomSheet(
-                backgroundColor: Colors.white,
                 context: context,
-                builder: (BuildContext context) =>
-                    _buildReactionList(reactions),
+                isScrollControlled: true,
+                backgroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (BuildContext context) => DraggableScrollableSheet(
+                  initialChildSize: 0.4,
+                  minChildSize: 0.2,
+                  maxChildSize: 0.75,
+                  expand: false,
+                  builder: (context, scrollController) =>
+                      _buildReactionList(reactions, scrollController),
+                ),
               );
             }
           },
@@ -112,12 +122,6 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
                 fontWeight: FontWeight.w500,
               ),
               const Gap(4),
-              // TextView(
-              //   text: "reactions",
-              //   fontSize: 12,
-              //   fontWeight: FontWeight.w400,
-              //   color: AppColors.metalBlack50,
-              // ),
             ],
           ),
         ),
@@ -125,11 +129,24 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
     );
   }
 
-  Widget _buildReactionList(List<ReactionModel> reactions) {
-    return SafeArea(
+  Widget _buildReactionList(
+      List<ReactionModel> reactions, ScrollController scrollController) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Row(
@@ -141,17 +158,19 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
                   fontWeight: FontWeight.w600,
                 ),
                 const Gap(4),
-                // TextView(
-                //   text: 'Reactions',
-                //   fontSize: 16,
-                //   fontWeight: FontWeight.w600,
-                // ),
+                TextView(
+                  text: 'Reactions',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ],
             ),
           ),
           Expanded(
             child: ListView.builder(
+              controller: scrollController,
               itemCount: reactions.length,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               itemBuilder: (context, index) => ReactionListTile(
                 reactionModel: reactions[index],
               ),

@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 
 class CustomDialog extends StatelessWidget {
   final Widget content;
+  final bool isScrollable;
+  final double? maxHeight;
 
-  const CustomDialog({super.key, required this.content});
+  const CustomDialog({
+    super.key,
+    required this.content,
+    this.isScrollable = false,
+    this.maxHeight,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +24,7 @@ class CustomDialog extends StatelessWidget {
     );
   }
 
-  contentBox(context) {
+  Widget contentBox(context) {
     return Stack(
       children: [
         Container(
@@ -40,11 +47,23 @@ class CustomDialog extends StatelessWidget {
               ),
             ],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              content,
-            ],
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: maxHeight ?? MediaQuery.of(context).size.height * 0.7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isScrollable)
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: content,
+                    ),
+                  )
+                else
+                  content,
+              ],
+            ),
           ),
         ),
       ],

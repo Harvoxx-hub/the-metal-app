@@ -15,18 +15,25 @@ class SendThoughtNotifier extends StateNotifier<SendThoughtState> {
   );
   final Ref ref;
 
-  
   void sendThought(String content) async {
     try {
       state = SendThoughtState.loading();
       final homeRepository = ref.watch(homeRepositoryProvider);
       final userData = ref.watch(userStateProvider).data;
+
+      // Create author metadata from current user data for denormalization
+      AuthorMetadata? authorMetadata;
+      if (userData != null) {
+        authorMetadata = AuthorMetadata.fromUserModel(userData);
+      }
+
       final thought = ThoughtModel(
         id: UUIDCenter.uuid,
         userId: userData?.id ?? "",
         content: content,
         createdAt: DateTime.now().toIso8601String(),
         connectionOnly: true, // Only visible to connections
+        authorMetadata: authorMetadata,
       );
       final response = await homeRepository.sendThought(thought);
       ref.read(getThoughtForYouProvider.notifier).getThoughtUpdate();

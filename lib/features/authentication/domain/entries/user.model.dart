@@ -41,6 +41,7 @@ class UserModel {
   String? lastActive;
   String? createdAt;
   String? updatedAt;
+ 
 
   UserModel({
     this.profileUpdated,
@@ -85,6 +86,7 @@ class UserModel {
     this.lastActive,
     this.createdAt,
     this.updatedAt,
+ 
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -103,7 +105,7 @@ class UserModel {
           : null,
       fullname: json['fullname'] as String?,
       gender: json['gender'] as String?,
-      isVerified: json['isVerified'] as bool?,
+      isVerified: json['isVerified']  as bool?,
       isActivated: json['isActivated'] as bool?,
       location:
           json['location'] != null ? Location.fromJson(json['location']) : null,
@@ -138,6 +140,7 @@ class UserModel {
       lastActive: json['lastActive'] as String?,
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
+ 
     );
   }
 
@@ -185,6 +188,7 @@ class UserModel {
       'lastActive': lastActive,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+ 
     };
   }
 
@@ -231,6 +235,7 @@ class UserModel {
     String? lastActive,
     String? createdAt,
     String? updatedAt,
+    bool? isWorkEmailVerified,
   }) {
     return UserModel(
       profileUpdated: profileUpdated ?? this.profileUpdated,
@@ -275,7 +280,8 @@ class UserModel {
       lastActive: lastActive ?? this.lastActive,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-    );
+ 
+      );
   }
 }
 
@@ -316,6 +322,11 @@ class Address {
       'state': state,
       'country': country,
     };
+  }
+
+  /// methos to display the address
+  String getDisplayAddress() {
+    return '$apartmentNumber $houseNumber $streetName $postalCode $state $country';
   }
 }
 

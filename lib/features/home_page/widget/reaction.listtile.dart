@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
- import 'package:gap/gap.dart';
+import 'package:gap/gap.dart';
 
 import 'package:metal/features/home_page/domain/entries/reaction.model.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
@@ -20,25 +20,53 @@ class ReactionListTile extends ConsumerWidget {
     final userState = ref.watch(getUserProvider(reactionModel.userId));
 
     if (userState.isLoading || userState.data == null) {
-      return const SizedBox.shrink();
+      return const SizedBox(
+        height: 60,
+        child: Center(
+          child: CircularProgressIndicator.adaptive(),
+        ),
+      );
     }
 
     final user = userState.data!;
+    final metalId = user.metal ?? "";
 
-    return ListTile(
-      leading: ProfilePhoto(
-        verfly: false,
-        size: 40,
-        meltId: user.metal ?? "",
-      ),
-      title: Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
         children: [
-          TextView(text: user.username ?? ""),
-          const Gap(5),
-          TextView(
-            text: reactionModel.emoji,
-            fontSize: 16,
+          const SizedBox(width: 16),
+          SizedBox(
+            width: 40,
+            height: 40,
+            child: ProfilePhoto(
+              verfly: false,
+              size: 40,
+              meltId: metalId,
+            ),
           ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Row(
+              children: [
+                Flexible(
+                  child: TextView(
+                    text: user.username ?? "Unknown User",
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    maxLines: 1,
+                    textOverflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Gap(8),
+                TextView(
+                  text: reactionModel.emoji,
+                  fontSize: 16,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
         ],
       ),
     );

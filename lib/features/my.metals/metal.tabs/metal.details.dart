@@ -6,16 +6,16 @@ import 'package:gap/gap.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
- 
+
 import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
- 
+
 import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
 import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
- 
+
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
@@ -30,11 +30,13 @@ class MetalDetailsTab extends ConsumerStatefulWidget {
     required this.userModel,
     required this.connectionModel,
     required this.connectedOn,
+    this.isUnmelted = false,
   });
   final UserModel userModel;
   final bool melted;
   final String connectionModel;
   final String connectedOn;
+  final bool isUnmelted;
   @override
   ConsumerState<MetalDetailsTab> createState() => _MetalDetailsTabState();
 }
@@ -95,26 +97,29 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
                       },
                     ),
                     const Gap(20),
-                    EditField(
-                      text:
-                          "Un-melt ${widget.userModel.username}  from your metal list",
-                      floatingLabel: "Un-metals",
-                      suffixIcon: SvgPicture.asset(
-                        Assets.icons.meltedMetalsTrash01.path,
-                        height: 21,
-                        width: 21,
+
+                    /// check if user have un-metal
+                    if (!widget.isUnmelted)
+                      EditField(
+                        text:
+                            "Un-melt ${widget.userModel.username}  from your metal list",
+                        floatingLabel: "Un-metals",
+                        suffixIcon: SvgPicture.asset(
+                          Assets.icons.meltedMetalsTrash01.path,
+                          height: 21,
+                          width: 21,
+                        ),
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return CustomDialog(
+                                content: unmetalDialog(context, dayRemaining),
+                              );
+                            },
+                          );
+                        },
                       ),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return CustomDialog(
-                              content: unmetalDialog(context, dayRemaining),
-                            );
-                          },
-                        );
-                      },
-                    ),
                   ],
                 ),
               const Gap(20),
@@ -153,7 +158,7 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
         connectionModel.data?.uniqueDailyConversationsCount ?? 0;
 
     // Force refresh user data to get the latest profile photo
-      ref.read(userStateProvider.notifier).refreshUser();
+    ref.read(userStateProvider.notifier).refreshUser();
 
     // Improved check for profile photo existence
     final hasProfilePhoto = currentUser?.profilePhoto != null &&
@@ -331,27 +336,41 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
   }
 
   void sendUnmelt() {
+    // Get user ID before sending message to avoid state modification during build
+    final currentUserId = ref.read(userStateProvider).data?.id;
+
+    if (currentUserId == null) {
+      // Handle error case
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not authenticated')),
+      );
+      return;
+    }
+
     final message = MessageModel(
-      senderId: ref.watch(userStateProvider).data!.id!,
+      senderId: currentUserId,
       type: MessageType.un_melt,
       timestamp: DateTime.now().toIso8601String(),
       isRead: false,
       message: "Un-melt Request",
     );
 
+    // Use read instead of watch for state modifications
     ref
         .read(sendMessageProvider.notifier)
         .sendMessage(message, widget.connectionModel);
 
     // Show the sent confirmation dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CustomDialog(
-          content: unmetalRequestSentDialog(context),
-        );
-      },
-    );
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CustomDialog(
+            content: unmetalRequestSentDialog(context),
+          );
+        },
+      );
+    }
   }
 
   Widget _blockDialog(BuildContext context, UserModel data, WidgetRef ref) {

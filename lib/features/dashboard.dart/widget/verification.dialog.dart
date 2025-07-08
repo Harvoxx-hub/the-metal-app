@@ -32,8 +32,6 @@ class _VerificationDialogState extends ConsumerState<VerificationDialog> {
     //  _initialize();
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     final verificationState = ref.watch(verficationVideoProvider);
@@ -68,10 +66,7 @@ class _VerificationDialogState extends ConsumerState<VerificationDialog> {
           loading: verificationState.isLoading,
           onPressed: () async {
             Navigator.pop(context);
-            Navigator.pushNamed(
-              context,
-              AppRoutes.faceVerification,
-            );
+            Navigator.pushNamed(context, AppRoutes.workEmail);
           },
         ),
         const Gap(23),

@@ -178,6 +178,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                   melted: checkMeltState.data ==
                                       MeltRequestState.connected,
                                   userModel: myMelt.data ?? UserModel(),
+                                  isUnmelted: connection?.isAnonymous == false,
                                 ),
                                 title: 'Metal Details ',
                               ),

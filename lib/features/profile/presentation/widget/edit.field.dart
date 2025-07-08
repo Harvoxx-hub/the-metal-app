@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
- 
+
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.address.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -79,12 +79,13 @@ class _EditFieldState extends ConsumerState<EditField> {
               underline: true,
               onTap: widget.outboundWidget && widget.isAddressField
                   ? () {
-                            final currentAddress =
-                                ref.read(userStateProvider).data?.address;
+                      final currentAddress =
+                          ref.read(userStateProvider).data?.address;
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return CustomDialog(
+                            isScrollable: true,
                             content: EditAddress(
                               initialAddress: currentAddress,
                               onPress: (newAddress) {

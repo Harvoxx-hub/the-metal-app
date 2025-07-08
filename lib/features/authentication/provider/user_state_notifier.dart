@@ -4,7 +4,7 @@ import 'package:metal/core/services/user_update_service.dart';
 import 'package:metal/core/services/user_migration_service.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
- 
+
 /// Comprehensive user state management with improved architecture
 class UserStateNotifier extends StateNotifier<UserState> {
   final Ref ref;
@@ -67,16 +67,13 @@ class UserStateNotifier extends StateNotifier<UserState> {
     required dynamic value,
     bool validateRequired = false,
   }) async {
-    /// add a delay of 1 second before updating the user
-    await Future.delayed(const Duration(seconds: 3));
-
     if (state.data == null) {
       state = UserState.error('No user data available');
       return;
     }
 
     try {
-      state = UserState.loading();
+      //  state = UserState.loading();
 
       final response = await _userUpdateService.updateUser(
         updates: {field: value},
@@ -84,10 +81,8 @@ class UserStateNotifier extends StateNotifier<UserState> {
       );
 
       if (response.success!) {
-        final updatedUser =  response.data;
+        final updatedUser = response.data;
         state = UserState.success(updatedUser);
-      
-     
       } else {
         state = UserState.error(response.message ?? 'Update failed');
       }
@@ -231,7 +226,22 @@ class UserStateNotifier extends StateNotifier<UserState> {
 
   /// Refresh user data from server
   Future<void> refreshUser() async {
-    await _initializeUser();
+    try {
+      final response = await _authRepository.getCurrentUser();
+
+      if (response.success! && response.data != null) {
+        final user = UserModel.fromJson(response.data);
+        // Update state only if the widget is still mounted and data is different
+        if (mounted && state.data != user) {
+          state = UserState.success(user);
+        }
+      }
+    } catch (e) {
+      // Only update error state if mounted
+      if (mounted) {
+        state = UserState.error(e.toString());
+      }
+    }
   }
 
   /// Check if profile is complete

@@ -20,7 +20,7 @@ class UserUpdateService {
       if (userId == null) {
         return Responses(
           success: false,
-          message: "User not authenticated",
+          message: "",
         );
       }
 
@@ -100,7 +100,7 @@ class UserUpdateService {
       if (userId == null) {
         return Responses(
           success: false,
-          message: "User not authenticated",
+          message: "",
         );
       }
 

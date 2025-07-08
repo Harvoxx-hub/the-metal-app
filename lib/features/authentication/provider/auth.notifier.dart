@@ -17,7 +17,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier(
     super.state,
     this.ref,
-  ) {}
+  ) {
+    getCurrentUser();
+  }
 
   final Ref ref;
 
@@ -45,152 +47,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  
-
-  
-
-  Future<void> initZIMKIt() async {
-    if (state.data != null) {
-      // Use the new permission helper for better permission handling
-      // Note: We need a BuildContext for the permission helper
-      // You might want to pass this context from where initZIMKIt is called
-      // For now, we'll use the existing logic but with better error handling
-
-      if (Platform.isAndroid) {
-        final status = await Permission.systemAlertWindow.status;
-        if (status.isDenied) {
-          await Permission.systemAlertWindow.request();
-        }
-      } else if (Platform.isIOS) {
-        // Check existing permissions first
-        final cameraStatus = await Permission.camera.status;
-        final microphoneStatus = await Permission.microphone.status;
-        final notificationStatus = await Permission.notification.status;
-
-        // Only request permissions that are not already granted
-        final permissionsToRequest = <Permission>[];
-
-        if (cameraStatus.isDenied) {
-          permissionsToRequest.add(Permission.camera);
-        }
-        if (microphoneStatus.isDenied) {
-          permissionsToRequest.add(Permission.microphone);
-        }
-        if (notificationStatus.isDenied) {
-          permissionsToRequest.add(Permission.notification);
-        }
-
-        // Only request if there are permissions to request
-        if (permissionsToRequest.isNotEmpty) {
-          final results = await permissionsToRequest.request();
-
-          // Check if any critical permissions were permanently denied
-          bool hasCriticalPermissionDenied = false;
-          for (final permission in permissionsToRequest) {
-            final status = await permission.status;
-            if (status.isPermanentlyDenied) {
-              hasCriticalPermissionDenied = true;
-              break;
-            }
-          }
-
-          // If critical permissions are permanently denied, show a dialog
-          if (hasCriticalPermissionDenied) {
-            // You can show a custom dialog here explaining why permissions are needed
-            // For now, we'll just log it and continue without forcing settings
-            print(
-                'Some permissions are permanently denied. Call features may be limited.');
-          }
-        }
-      }
-
-      // Initialize ZegoUIKit regardless of permission status
-      // The SDK will handle permission requests internally when needed
-      ZegoUIKitPrebuiltCallInvitationService().init(
-        appID: appIDKey,
-        appSign: appSignKey,
-        userID: state.data!.id!,
-        userName: state.data!.username!,
-        plugins: [ZegoUIKitSignalingPlugin()],
-        notificationConfig: ZegoCallInvitationNotificationConfig(
-          androidNotificationConfig: ZegoCallAndroidNotificationConfig(
-            showFullScreen: true,
-            fullScreenBackgroundAssetURL: 'assets/image/call.png',
-            callChannel: ZegoCallAndroidNotificationChannelConfig(
-              channelID: "ZegoUIKit",
-              channelName: "Call Notifications",
-              sound: "call",
-              icon: "call",
-            ),
-            missedCallChannel: ZegoCallAndroidNotificationChannelConfig(
-              channelID: "MissedCall",
-              channelName: "Missed Call",
-              sound: "missed_call",
-              icon: "missed_call",
-              vibrate: false,
-            ),
-          ),
-          iOSNotificationConfig: ZegoCallIOSNotificationConfig(
-            systemCallingIconName: 'CallKitIcon',
-          ),
-        ),
-        requireConfig: (ZegoCallInvitationData data) {
-          final config = (data.invitees.length > 1)
-              ? ZegoCallInvitationType.videoCall == data.type
-                  ? ZegoUIKitPrebuiltCallConfig.groupVideoCall()
-                  : ZegoUIKitPrebuiltCallConfig.groupVoiceCall()
-              : ZegoCallInvitationType.videoCall == data.type
-                  ? ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall()
-                  : ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall();
-
-          config.topMenuBar.isVisible = true;
-          config.avatarBuilder = customAvatarBuilder;
-          config.topMenuBar.buttons
-              .insert(0, ZegoCallMenuBarButtonName.minimizingButton);
-          config.topMenuBar.buttons
-              .insert(1, ZegoCallMenuBarButtonName.soundEffectButton);
-
-          return config;
-        },
-      );
-    }
-  }
-
   // Add a new method that can be called with context for better permission handling
   Future<void> initZIMKItWithContext(BuildContext context) async {
-    if (state.data != null) {
-      // // Check if permissions are already granted first
-      // final hasPermissions = await PermissionHelper.checkCallPermissions();
-
-      // if (hasPermissions) {
-      //   // Permissions are already granted, initialize directly without showing dialogs
-      //   _initializeZegoUIKit();
-      //   return;
-      // }
-
-      // // Only show permission explanation dialog if permissions are not granted
-      // final shouldRequestPermissions =
-      //     await PermissionHelper.showPermissionExplanationDialogIfNeeded(
-      //         context);
-
-      // if (shouldRequestPermissions) {
-      //   // Use the permission helper for better permission handling
-      //   final permissionsGranted =
-      //       await PermissionHelper.requestCallPermissionsIfNeeded(context);
-
-      //   if (!permissionsGranted) {
-      //     // Show limited functionality dialog
-      //     await PermissionHelper.showLimitedFunctionalityDialog(context);
-      //   }
-      // } else {
-      //   // User chose "Not Now", show limited functionality dialog
-      //   await PermissionHelper.showLimitedFunctionalityDialog(context);
-      // }
-
-      // // Initialize ZegoUIKit regardless of permission status
-      // // The SDK will handle permission requests internally when needed
-      _initializeZegoUIKit();
-    }
+    /// add 3 seconds delay
+    await Future.delayed(const Duration(seconds: 5));
+    _initializeZegoUIKit();
   }
 
   // Private method to initialize ZegoUIKit without permission dialogs

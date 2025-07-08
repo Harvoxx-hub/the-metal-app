@@ -70,7 +70,7 @@ import 'package:metal/features/verification/verification.video.dart';
 import 'package:metal/features/verification/video.preview.dart';
 
 import 'package:metal/features/home_page/presentation/thought_details.page.dart';
- 
+import 'package:metal/features/profile/presentation/pages/work_email_page.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -130,6 +130,7 @@ class AppRoutes {
   static const String delete = '/deletePage';
   static const String postThought = '/postThought';
   static const String thoughtDetails = '/thoughtDetails';
+  static const String workEmail = '/work-email';
   // Dashboard tab indices
   static const int homeTab = 0;
   static const int sparksTab = 1;
@@ -332,6 +333,10 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => ThoughtDetailsPage(),
           settings: settings,
+        );
+      case workEmail:
+        return MaterialPageRoute(
+          builder: (_) => const WorkEmailPage(),
         );
       default:
         return MaterialPageRoute(

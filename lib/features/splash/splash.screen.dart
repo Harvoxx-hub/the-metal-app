@@ -6,7 +6,6 @@ import 'package:metal/core/services/firebase.service.db.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
 import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
 
- 
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
@@ -33,7 +32,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       if (user == null) {
         Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
       } else {
-        ref.read(userStateProvider.notifier).refreshUser();
+        ref.read(userStateProvider.notifier);
       }
     });
   }

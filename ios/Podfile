@@ -34,7 +34,7 @@ target 'Runner' do
   # Use pre-compiled Firebase Firestore for faster builds
   pod 'FirebaseFirestore',
     :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git',
-    :tag => '11.10.0'
+    :tag => '11.15.0'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
@@ -46,6 +46,11 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
     
+
+       # Force all pods to use minimum iOS 15.5
+       target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.5'
+      end
     # Start of the permission_handler configuration
     target.build_configurations.each do |config|
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [

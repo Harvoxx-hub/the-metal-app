@@ -5,7 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
- 
+
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
@@ -138,6 +138,21 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             underline: true,
                             onTap: () {
                               Navigator.pushNamed(context, AppRoutes.editPage);
+                            }),
+                      ),
+                      const Gap(20),
+                      EditField(
+                        text: AppStrings.editPreferences,
+                        floatingLabel: AppStrings.editPreferences,
+                        prefixIcon: TextView(
+                            text: AppStrings.edit,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.blueAccent,
+                            underline: true,
+                            onTap: () {
+                              Navigator.pushNamed(
+                                  context, AppRoutes.editPreferences);
                             }),
                       ),
                       const Gap(20),

@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/error/error.handle.dart';
 import 'package:metal/core/model/responces.dart';
- 
+
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class ApiService {
@@ -44,7 +44,6 @@ class ApiService {
     ]);
   }
 
- 
   Future<dynamic> get(String endpoint) async {
     try {
       final response = await _dio.get('$baseUrl/$endpoint');

@@ -85,7 +85,7 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
               userReaction.emoji,
-              style: const TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: 24),
             ),
           )
         else

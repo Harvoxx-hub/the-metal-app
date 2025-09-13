@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/core/state/base.state.dart';
 
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
+import 'package:metal/features/home_page/domain/entries/explore_feed_model.dart';
 
 import 'package:metal/features/home_page/provider/get.thoughts.explore.dart';
 import 'package:metal/features/home_page/provider/get.thoughts.for.you.dart';
@@ -11,6 +12,7 @@ import 'package:metal/features/home_page/provider/reaction.provider.dart';
 import 'package:metal/features/home_page/provider/comment.provider.dart';
 
 import 'package:metal/features/home_page/widget/thought_card.dart';
+import 'package:metal/features/home_page/widget/feed_divider_card.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/shimmer/custom_shimmer_loader.dart';
 import 'package:metal/widgets/shimmer/feed_shimmer_widget.dart';
@@ -75,7 +77,7 @@ class HomePage extends ConsumerStatefulWidget {
         content: const Column(
           children: [
             TextView(
-              text: "For You",
+              text: "For You Feed",
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -83,7 +85,7 @@ class HomePage extends ConsumerStatefulWidget {
             SizedBox(height: 10),
             TextView(
               text:
-                  "Discover personalized content and conversations tailored to your interests and preferences.",
+                  "The *For You* section contains personalized content based on your connections and interests, creating a curated experience just for you.",
               fontSize: 16,
               fontWeight: FontWeight.w400,
               color: Colors.white,
@@ -93,13 +95,13 @@ class HomePage extends ConsumerStatefulWidget {
         ),
         onNext: () {},
       ),
-      // 3. View Metal Profile
+      // 3. Profile
       TutorialStep(
         targetKey: profileKey,
         content: const Column(
           children: [
             TextView(
-              text: "View Metal Profile",
+              text: "View User Profile",
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -107,8 +109,9 @@ class HomePage extends ConsumerStatefulWidget {
             SizedBox(height: 10),
             TextView(
               text:
-                  "Visit user profiles to learn more about them, see their thoughts, and start meaningful conversations.",
+                  "Tap the profile icon to learn more about the person and see if you'd like to connect with them.",
               fontSize: 16,
+              fontWeight: FontWeight.w400,
               color: Colors.white,
               textAlign: TextAlign.center,
             ),
@@ -122,7 +125,7 @@ class HomePage extends ConsumerStatefulWidget {
         content: const Column(
           children: [
             TextView(
-              text: "Comment & Connect",
+              text: "Comment on Thoughts",
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -130,8 +133,9 @@ class HomePage extends ConsumerStatefulWidget {
             SizedBox(height: 10),
             TextView(
               text:
-                  "Share your thoughts and engage with others through comments. Start meaningful conversations before melting!",
+                  "Share your perspective by commenting on thoughts that resonate with you. Start meaningful conversations.",
               fontSize: 16,
+              fontWeight: FontWeight.w400,
               color: Colors.white,
               textAlign: TextAlign.center,
             ),
@@ -145,7 +149,7 @@ class HomePage extends ConsumerStatefulWidget {
         content: const Column(
           children: [
             TextView(
-              text: "React & Express",
+              text: "React to Thoughts",
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -153,8 +157,9 @@ class HomePage extends ConsumerStatefulWidget {
             SizedBox(height: 10),
             TextView(
               text:
-                  "Show appreciation and express your feelings by reacting to thoughts with different emojis.",
+                  "Express your feelings quickly with emoji reactions. Show support, appreciation, or empathy.",
               fontSize: 16,
+              fontWeight: FontWeight.w400,
               color: Colors.white,
               textAlign: TextAlign.center,
             ),
@@ -162,7 +167,7 @@ class HomePage extends ConsumerStatefulWidget {
         ),
         onNext: () {},
       ),
-      // 6. Post Thought
+      // 6. New Post FAB
       if (fabKey != null)
         TutorialStep(
           targetKey: fabKey,
@@ -217,7 +222,7 @@ class HomePage extends ConsumerStatefulWidget {
         content: const Column(
           children: [
             TextView(
-              text: "Chat & Connect",
+              text: "Private Conversations",
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -225,7 +230,7 @@ class HomePage extends ConsumerStatefulWidget {
             SizedBox(height: 10),
             TextView(
               text:
-                  "Build genuine connections through anonymous chats for 15 days. Play games and use sparks to deepen your connections before revealing photos.",
+                  "Connect privately with people who share your interests. Build meaningful relationships through one-on-one conversations.",
               fontSize: 16,
               fontWeight: FontWeight.w400,
               color: Colors.white,
@@ -251,22 +256,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.initState();
   }
 
-  void _showTutorialIfNeeded() {
-    if (_tutorialShown) return;
-    _tutorialShown = true;
-
-    showTutorial(
-      context,
-      widget.getTutorialSteps(
-        widget.newPostFabKey,
-        widget.profileKey,
-        widget.commentKey,
-        widget.reactionKey,
-      ),
-      'home_tutorial_key',
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final getThoughtForYouState = ref.watch(getThoughtForYouProvider);
@@ -284,8 +273,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           Expanded(
             child: tabIndex == 0
-                ? _buildThoughtTab(getThoughtExploreState)
-                : _buildThoughtTab(getThoughtForYouState),
+                ? _buildExploreFeedTab(getThoughtExploreState)
+                : _buildForYouTab(getThoughtForYouState),
           ),
         ],
       ),
@@ -297,13 +286,24 @@ class _HomePageState extends ConsumerState<HomePage> {
     ref.refresh(getThoughtExploreProvider);
 
     // Refresh all reaction and comment providers for currently visible thoughts
-    final thoughts = tabIndex == 0
-        ? ref.read(getThoughtExploreProvider).data ?? []
-        : ref.read(getThoughtForYouProvider).data ?? [];
-
-    for (final thought in thoughts) {
-      ref.invalidate(reactionProvider(thought.id));
-      ref.invalidate(commentProvider(thought.id));
+    if (tabIndex == 0) {
+      final exploreFeed = ref.read(getThoughtExploreProvider).data;
+      if (exploreFeed != null) {
+        final allThoughts = [
+          ...exploreFeed.featuredThoughts,
+          ...exploreFeed.unfeaturedThoughts,
+        ];
+        for (final thought in allThoughts) {
+          ref.invalidate(reactionProvider(thought.id));
+          ref.invalidate(commentProvider(thought.id));
+        }
+      }
+    } else {
+      final thoughts = ref.read(getThoughtForYouProvider).data ?? [];
+      for (final thought in thoughts) {
+        ref.invalidate(reactionProvider(thought.id));
+        ref.invalidate(commentProvider(thought.id));
+      }
     }
   }
 
@@ -386,7 +386,59 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
-  Widget _buildThoughtTab(BaseState<List<ThoughtModel>> thoughtState) {
+  Widget _buildExploreFeedTab(BaseState<ExploreFeedModel> exploreState) {
+    switch (exploreState.status) {
+      case Status.loading:
+        return CustomShimmerLoader(
+          itemType: ShimmerItemType.list,
+          loaderWidget: PostCardShimmer(),
+        );
+      case Status.success:
+        final exploreFeed = exploreState.data!;
+        if (exploreFeed.isEmpty) {
+          return const EmptyState(text: "No thoughts were found");
+        } else {
+          return ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: exploreFeed.totalItemCount,
+            itemBuilder: (context, index) {
+              // Check if this is the divider position
+              if (exploreFeed.isDividerIndex(index)) {
+                return FeedDividerCard(
+                  message: exploreFeed.featuredThoughts.isEmpty
+                      ? "No thoughts were found, that match your preferences. Please update your preferences in Metal to get more personalized content."
+                      : "🎯 You've reached the end of matched thoughts.\nHere are some suggested thoughts from the community.",
+                  isButton: true,
+                );
+              }
+
+              // Get the thought at this index
+              final thought = exploreFeed.getThoughtAtIndex(index);
+              if (thought == null) return const SizedBox.shrink();
+
+              // Add keys for tutorial on the first thought
+              if (index == 0) {
+                return ThoughtCard(
+                  thoughtModel: thought,
+                  toughtProfileKey: widget.profileKey,
+                  toughtCommentKey: widget.commentKey,
+                  reactionKey: widget.reactionKey,
+                );
+              }
+              return ThoughtCard(thoughtModel: thought);
+            },
+          );
+        }
+      case Status.error:
+        return ErrorState(
+          retry: () => _refreshData(),
+        );
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildForYouTab(BaseState<List<ThoughtModel>> thoughtState) {
     switch (thoughtState.status) {
       case Status.loading:
         return CustomShimmerLoader(
@@ -398,16 +450,15 @@ class _HomePageState extends ConsumerState<HomePage> {
           return const EmptyState(text: "No thoughts were found");
         } else {
           return ListView.builder(
+            padding: EdgeInsets.zero,
             itemCount: thoughtState.data!.length,
             itemBuilder: (context, index) {
               if (index == 0) {
-                return Container(
-                  child: ThoughtCard(
-                    thoughtModel: thoughtState.data![index],
-                    toughtProfileKey: widget.profileKey,
-                    toughtCommentKey: widget.commentKey,
-                    reactionKey: widget.reactionKey,
-                  ),
+                return ThoughtCard(
+                  thoughtModel: thoughtState.data![index],
+                  toughtProfileKey: widget.profileKey,
+                  toughtCommentKey: widget.commentKey,
+                  reactionKey: widget.reactionKey,
                 );
               }
               return ThoughtCard(thoughtModel: thoughtState.data![index]);

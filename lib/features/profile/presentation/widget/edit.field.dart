@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
-import 'package:metal/features/profile/presentation/widget/edit.address.dart';
+ 
+import 'package:metal/features/profile/presentation/widget/edit.connection.option.dart';
+import 'package:metal/features/profile/presentation/widget/edit.prefrence.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/dropdown/metal.dropdown.dart';
@@ -25,7 +27,9 @@ class EditField extends ConsumerStatefulWidget {
       this.editType = EditType.text,
       this.onTap,
       this.outboundWidget = false,
-      this.isAddressField = false});
+      this.isAddressField = false,
+      this.isConnectionOption = false,
+      this.isEditPreferences = false});
 
   final String text;
   final String? floatingLabel;
@@ -38,6 +42,8 @@ class EditField extends ConsumerStatefulWidget {
   final Function()? onTap;
   final bool outboundWidget;
   final bool isAddressField;
+  final bool isConnectionOption;
+  final bool isEditPreferences;
 
   @override
   ConsumerState<EditField> createState() => _EditFieldState();
@@ -77,26 +83,49 @@ class _EditFieldState extends ConsumerState<EditField> {
               fontWeight: FontWeight.w400,
               color: Colors.blueAccent,
               underline: true,
-              onTap: widget.outboundWidget && widget.isAddressField
-                  ? () {
-                      final currentAddress =
-                          ref.read(userStateProvider).data?.address;
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return CustomDialog(
-                            isScrollable: true,
-                            content: EditAddress(
-                              initialAddress: currentAddress,
-                              onPress: (newAddress) {
-                                widget.onSubLabel?.call(newAddress);
-                              },
-                            ),
+              onTap: (widget.isConnectionOption && widget.outboundWidget)
+                      ? () {
+                          final currentConnectionOption = ref
+                              .read(userStateProvider)
+                              .data
+                              ?.connectionOption;
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return CustomDialog(
+                                isScrollable: true,
+                                content: EditConnectionOption(
+                                  initialConnectionOption:
+                                      currentConnectionOption,
+                                  onPress: (newConnectionOption) {
+                                    widget.onSubLabel
+                                        ?.call(newConnectionOption);
+                                  },
+                                ),
+                              );
+                            },
                           );
-                        },
-                      );
-                    }
-                  : _toggleEdit,
+                        }
+                      : (widget.isEditPreferences && widget.outboundWidget)
+                          ? () {
+                              final currentPreferences =
+                                  ref.read(userStateProvider).data?.preferences;
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return CustomDialog(
+                                    isScrollable: true,
+                                    content: EditPreferences(
+                                      initialPreferences: currentPreferences,
+                                      onPress: (newPreferences) {
+                                        widget.onSubLabel?.call(newPreferences);
+                                      },
+                                    ),
+                                  );
+                                },
+                              );
+                            }
+                          : _toggleEdit,
             ),
           ],
         ),

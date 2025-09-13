@@ -22,8 +22,7 @@ import 'package:metal/widgets/text_views.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 import 'package:metal/widgets/button/base_button.dart';
-import 'package:metal/widgets/dialog/custom.dialog.dart';
-
+ 
 enum RouteFrom {
   AccountSetting,
   UpdatePhoneNumber,

@@ -3,6 +3,7 @@ import 'package:metal/features/home_page/domain/entries/comment.model.dart';
 
 abstract class ICommentRepository {
   Future<Responses> getComments(String thoughtId);
+  Stream<List<CommentModel>> getCommentsStream(String thoughtId);
   Future<Responses> addComment(String thoughtId, String content);
   Future<Responses> deleteComment(String thoughtId, String commentId);
   Future<Responses> reactToComment(

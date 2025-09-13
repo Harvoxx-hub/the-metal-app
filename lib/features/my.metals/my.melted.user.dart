@@ -7,7 +7,7 @@ import 'package:metal/core/state/base.state.dart';
 import 'package:metal/core/utils/connection_helper.dart';
 import 'package:metal/core/utils/constant/enums.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
- 
+
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
@@ -17,6 +17,8 @@ import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
 import 'package:metal/features/my.metals/metal.tabs/metal.details.dart';
+import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
+import 'package:metal/features/settings/provider/block.user.notifier.dart';
 
 import 'package:metal/features/profile/presentation/tab.screen/thought.tab.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
@@ -41,6 +43,7 @@ class MyMeltedUser extends ConsumerStatefulWidget {
 
 class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
   UserModel? userData;
+  bool _hasShownBlockedDialog = false;
 
   @override
   void initState() {
@@ -61,11 +64,22 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
     final myMelt = ref.watch(getUserProvider(widget.metalDetials["metalId"]));
     final meltState = ref.watch(meltUserProvider);
 
-    ref.listen<CheckMeltState>(
-        checkMeltProvider(widget.metalDetials["metalId"]),
-        (prev, current) async {
-      if (current.isSuccess) {
-        //check from connection helper if the users are connected or mutual
+    // Check if the user is blocked
+    final blockedUsers = ref.watch(getBlockUserProvider).data ?? [];
+    final isUserBlocked = blockedUsers.any(
+        (blockedUser) => blockedUser['id'] == widget.metalDetials["metalId"]);
+
+    // Show non-dismissible blocked user dialog if user is blocked
+    if (isUserBlocked && myMelt.data != null && !_hasShownBlockedDialog) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showNonDismissibleBlockedDialog(context, myMelt.data!);
+      });
+    }
+
+    // Listen for successful melt action to navigate to meltMetal route
+    ref.listen<MeltUsersState>(meltUserProvider, (prev, current) async {
+      if (current.isSuccess && prev?.isLoading == true) {
+        // Only navigate if melt was just completed (loading -> success)
         final connectionStatus = await ConnectionHelper(
           ref.read(homeRepositoryProvider),
         ).getConnectionStatus(userData!.id!, widget.metalDetials["metalId"]);
@@ -368,6 +382,88 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
         ),
         const Gap(21),
       ],
+    );
+  }
+
+  void _showNonDismissibleBlockedDialog(
+      BuildContext context, UserModel blockedUser) {
+    if (_hasShownBlockedDialog) return;
+    _hasShownBlockedDialog = true;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Make it non-dismissible
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false, // Prevent back button dismissal
+        child: CustomDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Gap(20),
+              SvgPicture.asset(
+                Assets.icons.meltedMetalsSmileyXEyes.path,
+                height: 45,
+                width: 45,
+              ),
+              const Gap(15),
+              const TextView(
+                text: "User Blocked",
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                textAlign: TextAlign.center,
+              ),
+              const Gap(16),
+              TextView(
+                text:
+                    "You have blocked @${blockedUser.username ?? 'this user'}",
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                textAlign: TextAlign.center,
+              ),
+              const Gap(8),
+              const TextView(
+                text:
+                    "You will not see their content and they cannot interact with you. You need to unblock this user to view their profile or interact with them.",
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: Colors.grey,
+                textAlign: TextAlign.center,
+              ),
+              const Gap(24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutilineButton(
+                      buttonText: "Go Back",
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, AppRoutes.dashboardPage, (route) => false);
+                      },
+                    ),
+                  ),
+                  const Gap(10),
+                  Expanded(
+                    child: BaseButton(
+                      buttonText: "Unblock User",
+                      onPressed: () {
+                        ref.read(blockUserProvider.notifier).unBlockUser(
+                              widget.metalDetials["metalId"],
+                            );
+                        Navigator.of(context).pop();
+                        setState(() {
+                          _hasShownBlockedDialog = false;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const Gap(20),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

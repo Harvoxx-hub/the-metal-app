@@ -5,12 +5,13 @@ class UserModel {
   Address? address;
   String? connectWith;
   List<String>? connectionOption;
-  String? description;
+  String? bio;
   ExtraData? extraData;
   String? fullname;
   String? gender;
   bool? isVerified;
   bool? isActivated;
+  bool isDeleted;
   Location? location;
   String? metal;
   List<String>? passion;
@@ -41,7 +42,6 @@ class UserModel {
   String? lastActive;
   String? createdAt;
   String? updatedAt;
- 
 
   UserModel({
     this.profileUpdated,
@@ -50,12 +50,13 @@ class UserModel {
     this.address,
     this.connectWith,
     this.connectionOption,
-    this.description,
+    this.bio,
     this.extraData,
     this.fullname,
     this.gender,
     this.isVerified,
     this.isActivated,
+    this.isDeleted = false,
     this.location,
     this.metal,
     this.passion,
@@ -63,7 +64,7 @@ class UserModel {
     this.email,
     this.emailVerified,
     this.workEmail,
-    this.workEmailVerified,
+    this.workEmailVerified = false,
     this.preferences,
     this.username,
     this.refreshToken,
@@ -86,7 +87,6 @@ class UserModel {
     this.lastActive,
     this.createdAt,
     this.updatedAt,
- 
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -99,14 +99,15 @@ class UserModel {
       connectWith: json['connectWith'] as String?,
       connectionOption:
           (json['connectionOption'] as List?)?.map((e) => e as String).toList(),
-      description: json['description'] as String?,
+      bio: json['bio'] as String?,
       extraData: json['extraData'] != null
           ? ExtraData.fromJson(json['extraData'])
           : null,
       fullname: json['fullname'] as String?,
       gender: json['gender'] as String?,
-      isVerified: json['isVerified']  as bool?,
+      isVerified: json['isVerified'] as bool?,
       isActivated: json['isActivated'] as bool?,
+      isDeleted: json['isDeleted'] as bool? ?? false,
       location:
           json['location'] != null ? Location.fromJson(json['location']) : null,
       metal: json['metal'] as String?,
@@ -115,7 +116,7 @@ class UserModel {
       email: json['email'] as String?,
       emailVerified: json['emailVerified'] as bool?,
       workEmail: json['workEmail'] as String?,
-      workEmailVerified: json['workEmailVerified'] as bool?,
+      workEmailVerified: json['workEmailVerified'] as bool? ?? false,
       preferences: json['preferences'] != null
           ? Preferences.fromJson(json['preferences'])
           : null,
@@ -140,7 +141,6 @@ class UserModel {
       lastActive: json['lastActive'] as String?,
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
- 
     );
   }
 
@@ -152,12 +152,13 @@ class UserModel {
       'address': address?.toJson(),
       'connectWith': connectWith,
       'connectionOption': connectionOption,
-      'description': description,
+      'bio': bio,
       'extraData': extraData?.toJson(),
       'fullname': fullname,
       'gender': gender,
       'isVerified': isVerified,
       'isActivated': isActivated,
+      'isDeleted': isDeleted,
       'location': location?.toJson(),
       'metal': metal,
       'passion': passion,
@@ -188,7 +189,6 @@ class UserModel {
       'lastActive': lastActive,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
- 
     };
   }
 
@@ -199,12 +199,13 @@ class UserModel {
     Address? address,
     String? connectWith,
     List<String>? connectionOption,
-    String? description,
+    String? bio,
     ExtraData? extraData,
     String? fullname,
     String? gender,
     bool? isVerified,
     bool? isActivated,
+    bool? isDeleted,
     Location? location,
     String? metal,
     List<String>? passion,
@@ -244,12 +245,13 @@ class UserModel {
       address: address ?? this.address,
       connectWith: connectWith ?? this.connectWith,
       connectionOption: connectionOption ?? this.connectionOption,
-      description: description ?? this.description,
+      bio: bio ?? this.bio,
       extraData: extraData ?? this.extraData,
       fullname: fullname ?? this.fullname,
       gender: gender ?? this.gender,
       isVerified: isVerified ?? this.isVerified,
       isActivated: isActivated ?? this.isActivated,
+      isDeleted: isDeleted ?? this.isDeleted,
       location: location ?? this.location,
       metal: metal ?? this.metal,
       passion: passion ?? this.passion,
@@ -280,8 +282,7 @@ class UserModel {
       lastActive: lastActive ?? this.lastActive,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
- 
-      );
+    );
   }
 }
 

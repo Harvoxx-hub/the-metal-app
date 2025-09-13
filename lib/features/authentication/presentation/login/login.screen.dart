@@ -67,7 +67,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     uuid: current.data?.id ?? "",
                     email: current.data!.email!),
               )
-            : Navigator.pushNamed(
+            : Navigator.pushReplacementNamed(
                 context,
                 current.data?.profileUpdated ?? false
                     ? AppRoutes.dashboardPage

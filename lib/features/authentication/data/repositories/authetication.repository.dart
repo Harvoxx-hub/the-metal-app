@@ -308,13 +308,26 @@ class AuthenticationRepository implements IAuthenticationRepository {
   @override
   Future<Responses> deleteUser() async {
     try {
-      //delete user from firebase auth
-      await _firebaseService.auth.currentUser?.delete();
+      String? userId = _firebaseService.userId;
+      if (userId == null) {
+        return Responses(
+          success: false,
+          message: "User not logged in.",
+        );
+      }
 
-      // sign out the user
+      // Update user document with isDeleted flag
+      await _firebaseService.updateDocument(
+        collectionPath: FirebaseFirestoreCollectionKeys.users,
+        documentId: userId,
+        data: {'isDeleted': true},
+      );
+
+      // Sign out the user
       await _firebaseService.auth.signOut();
 
-      return Responses(success: true, message: "User deleted successfully.");
+      return Responses(
+          success: true, message: "Account deletion initiated successfully.");
     } catch (e) {
       String errorMessage = FirebaseErrorHandler.handleFirebaseError(e);
       return Responses(

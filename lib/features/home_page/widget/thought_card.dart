@@ -2,21 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
- 
+
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
- 
+
 import 'package:metal/features/home_page/domain/entries/thought.model.dart'
     hide ReactionModel;
 import 'package:metal/features/home_page/provider/comment.provider.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
- 
+
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/build_user_info.dart';
- 
+
 import 'package:metal/widgets/text_views.dart';
- 
 
 import 'package:metal/features/home_page/presentation/comment_bottom_sheet.dart';
 import 'package:metal/features/home_page/widget/reaction_section.dart';
@@ -42,7 +41,6 @@ class ThoughtCard extends ConsumerStatefulWidget {
 
 class _ThoughtCardState extends ConsumerState<ThoughtCard> {
   late ThoughtModel thoughtModel;
-  UserModel? creatorUserdata;
 
   @override
   void initState() {
@@ -52,13 +50,9 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
 
   @override
   Widget build(BuildContext context) {
-    creatorUserdata = ref.watch(getUserProvider(thoughtModel.userId)).data;
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: creatorUserdata == null
-          ? const SizedBox.shrink()
-          : _buildThoughtCard(context),
-    );
+    return thoughtModel.authorMetadata == null
+        ? const SizedBox.shrink()
+        : _buildThoughtCard(context);
   }
 
   Widget _buildThoughtCard(BuildContext context) {
@@ -67,6 +61,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     final commentCount = commentsState.data?.length ?? 0;
 
     return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: Colors.grey.shade100.withOpacity(0.7),

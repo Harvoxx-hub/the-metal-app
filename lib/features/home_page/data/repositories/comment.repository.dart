@@ -21,6 +21,26 @@ class CommentRepository implements ICommentRepository {
     }
   }
 
+  /// Get real-time comments stream for a thought
+  @override
+  Stream<List<CommentModel>> getCommentsStream(String thoughtId) {
+    try {
+      return _firebaseService
+          .listenToCollection(
+        collectionPath:
+            '${FirebaseFirestoreCollectionKeys.thoughts}/$thoughtId/comments',
+      )
+          .map((commentMaps) {
+        return commentMaps
+            .map((commentMap) => CommentModel.fromJson(commentMap))
+            .toList();
+      });
+    } catch (e) {
+      print('Error getting comments stream: $e');
+      return Stream.value([]);
+    }
+  }
+
   @override
   Future<Responses> addComment(String thoughtId, String content) async {
     try {

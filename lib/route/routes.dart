@@ -5,6 +5,7 @@ import 'package:metal/features/authentication/presentation/forget.password/forgo
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
+import 'package:metal/features/settings/presentation/edit.preferences.dart';
 import 'package:metal/features/verification/face_verification_screen.dart';
 
 import 'package:metal/features/home_page/post_thought.dart';
@@ -18,11 +19,7 @@ import 'package:metal/features/splash/splash.screen.dart';
 import 'package:camera/camera.dart';
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-
-import 'package:metal/features/authentication/presentation/home.address/home.address.dart';
-import 'package:metal/features/authentication/presentation/home.address/location.dart';
-import 'package:metal/features/authentication/presentation/home.address/notification.dart';
-
+ 
 import 'package:metal/features/authentication/presentation/profile.setting/about.you.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/choose.your.metal.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/connection.option.dart';
@@ -127,6 +124,7 @@ class AppRoutes {
   static const String newPhoneNumberPage = '/newPhoneNumberPage';
   static const String newEmailPage = '/newEmailPage';
   static const String editPage = '/editPage';
+  static const String editPreferences = '/editPreferences';
   static const String delete = '/deletePage';
   static const String postThought = '/postThought';
   static const String thoughtDetails = '/thoughtDetails';
@@ -214,13 +212,8 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const ChooseYourMetalPage());
       case aboutYouPage:
         return MaterialPageRoute(builder: (_) => const AboutYouPage());
-      case notificationEnablePage:
-        return MaterialPageRoute(
-            builder: (_) => const NotificationEnablePage());
-      case locationEnablePage:
-        return MaterialPageRoute(builder: (_) => const LocationEnablePage());
-      case homeAddressPage:
-        return MaterialPageRoute(builder: (_) => const HomeAddressPage());
+      
+         
       case dashboardPage:
         // Check if arguments contain a tab index
         final args = settings.arguments;
@@ -244,6 +237,8 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const EyeSelectMedia());
       case editPage:
         return MaterialPageRoute(builder: (_) => const EditPage());
+      case editPreferences:
+        return MaterialPageRoute(builder: (_) => const EditPreferences());
       case eyePreviewMedia:
         return MaterialPageRoute(
             builder: (_) =>

@@ -22,6 +22,8 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
 
       final homeRepository = ref.watch(homeRepositoryProvider);
       final authState = ref.watch(userStateProvider).data;
+      final authenticationRepository =
+          ref.watch(authenticationRepositoryProvider);
       if (authState == null) {
         state = GetMeltUsersState.error("User not authenticated");
         return;
@@ -41,15 +43,19 @@ class GetMeltUsersNotifier extends StateNotifier<GetMeltUsersState> {
                 .firstWhere((id) => id != authState.id, orElse: () => '');
 
             if (otherUserId.isNotEmpty) {
-              ///TODO: handle deleted users from showing in the list
-              final response = await ref
-                  .watch(authenticationRepositoryProvider)
-                  .getUserByID(id: otherUserId);
-              connection = connection.copyWith(
-                  otherUser: UserModel.fromJson(response.data));
+              final response =
+                  await authenticationRepository.getUserByID(id: otherUserId);
+
+              // Only add the connection if the user exists
+              if (response.success!) {
+                connection = connection.copyWith(
+                    otherUser: UserModel.fromJson(response.data));
+                users.add(connection);
+              }
             }
 
-            users.add(connection);
+            // Remove this line since we now add the connection conditionally above
+            // users.add(connection);
           }
 
           // Sort the users by lastUpdatedAt in descending order

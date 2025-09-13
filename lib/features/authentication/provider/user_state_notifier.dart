@@ -30,7 +30,7 @@ class UserStateNotifier extends StateNotifier<UserState> {
 
       if (response.success! && response.data != null) {
         // Check if user needs migration
-        final userId = response.data['uid'] as String?;
+        final userId = response.data['id'] as String?;
         if (userId != null) {
           final needsMigration = await _migrationService.needsMigration(userId);
 

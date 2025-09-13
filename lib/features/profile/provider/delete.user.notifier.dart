@@ -20,8 +20,6 @@ class DeleteUsersNotifier extends StateNotifier<BaseState<String>> {
         await repo.sendFeedback(feedback);
       }
 
-     
-
       final response = await repo.deleteUser();
 
       if (mounted) {

@@ -258,25 +258,25 @@ class UserUpdateService {
       }
     }
 
-    // Phone validation
-    if (data['phone'] != null) {
-      final phone = data['phone'] as String;
-      if (!RegExp(r'^\+?[\d\s\-\(\)]+$').hasMatch(phone)) {
-        errors.add('Invalid phone format');
-      }
-    }
+    // // Phone validation
+    // if (data['phone'] != null) {
+    //   final phone = data['phone'] as String;
+    //   if (!RegExp(r'^\+?[\d\s\-\(\)]+$').hasMatch(phone)) {
+    //     errors.add('Invalid phone format');
+    //   }
+    // }
 
-    // Username validation
-    if (data['username'] != null) {
-      final username = data['username'] as String;
-      if (username.length < 3 || username.length > 30) {
-        errors.add('Username must be between 3 and 30 characters');
-      }
-      if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(username)) {
-        errors
-            .add('Username can only contain letters, numbers, and underscores');
-      }
-    }
+    // // Username validation
+    // if (data['username'] != null) {
+    //   final username = data['username'] as String;
+    //   if (username.length < 3 || username.length > 30) {
+    //     errors.add('Username must be between 3 and 30 characters');
+    //   }
+    //   if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(username)) {
+    //     errors
+    //         .add('Username can only contain letters, numbers, and underscores');
+    //   }
+    // }
 
     // DOB validation
     // if (data['dob'] != null) {

@@ -126,6 +126,7 @@ class AppStrings {
   static const String profileVisibility = "Profile visibility";
   static const String showProfile = "Show my profile to other metals";
   static const String editProfile = "Make changes to my profile";
+  static const String editPreferences = "Edit Preferences";
   static const String edit = "Edit";
   static const String editAddress = "Edit Address";
 

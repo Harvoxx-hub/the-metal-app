@@ -143,29 +143,14 @@ class _EditProfileState extends ConsumerState<EditProfile> {
         ),
         const Gap(20),
         EditField(
-          text:
-              userState!.address?.getDisplayAddress() ?? "Home address details",
-          floatingLabel: "Home address details",
-          subLabel: "Edit",
-          editType: EditType.text,
-          outboundWidget: true,
-          isAddressField: true,
-          onSubLabel: (newAddress) {
-            if (newAddress is Address) {
-              updateUser('address', newAddress.toJson());
-            }
-          },
-        ),
-        const Gap(20),
-        EditField(
-          text: userState.extraData?.profession ?? "Proffession",
+          text: userState?.extraData?.profession ?? "Proffession",
           floatingLabel: "Profession",
           subLabel: "Edit",
           dropDownItems: metalProperties.profession,
           editType: EditType.dropdown,
           onSubLabel: (p0) {
             final updated = {
-              ...userState.extraData!.toJson(),
+              ...userState!.extraData!.toJson(),
               'profession': p0,
             };
 
@@ -174,12 +159,12 @@ class _EditProfileState extends ConsumerState<EditProfile> {
         ),
         const Gap(20),
         EditField(
-          text: userState.description ?? "Little Bio about me",
+          text: userState?.bio ?? "Little Bio about me",
           floatingLabel: "Little Bio about me",
           subLabel: "Edit",
           editType: EditType.text,
           onSubLabel: (p0) {
-            updateUser('description', p0);
+            updateUser('bio', p0);
           },
         ),
         const Gap(20),

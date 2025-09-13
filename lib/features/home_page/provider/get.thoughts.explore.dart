@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/core/utils/metal.helper.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/helpers/feed_filter_helper.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/home_page/data/repositories/home.repository.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
+import 'package:metal/features/home_page/domain/entries/explore_feed_model.dart';
 
 class GetThoughtExploreNotifier extends StateNotifier<GetThoughtExploreState> {
   GetThoughtExploreNotifier(
@@ -19,7 +21,7 @@ class GetThoughtExploreNotifier extends StateNotifier<GetThoughtExploreState> {
   }
   final Ref ref;
 
-  // Get thoughts with filtering applied
+  // Get thoughts with featured/unfeatured filtering applied
   void getThought() async {
     try {
       state = GetThoughtExploreState.loading();
@@ -29,46 +31,66 @@ class GetThoughtExploreNotifier extends StateNotifier<GetThoughtExploreState> {
       final response = await homeRepository.getThoughtExplore();
 
       // Convert to ThoughtModel list
-      final List<ThoughtModel> thoughts = [];
+      final List<ThoughtModel> allThoughts = [];
       for (var thought in response.data) {
-        thoughts.add(ThoughtModel.fromJson(thought));
+        allThoughts.add(ThoughtModel.fromJson(thought));
       }
 
       // Sort thoughts by date first
-      final sortedThoughts = MetalHelper.sortThoughtsByDate(thoughts);
+      final sortedThoughts = MetalHelper.sortThoughtsByDate(allThoughts);
 
-      // Apply filtering if user is authenticated
-      List<ThoughtModel> finalThoughts = sortedThoughts;
+      // Initialize with default values
+      List<ThoughtModel> featuredThoughts = [];
+      List<ThoughtModel> unfeaturedThoughts = sortedThoughts;
+      bool showDivider = false;
 
       try {
-        final authState = ref.read(authProvider);
-        if (authState.isSuccess && authState.data != null) {
-          final currentUser = authState.data!;
+        final userState = ref.read(userStateProvider);
+        if (userState.isSuccess && userState.data != null) {
+          final currentUser = ref.read(userStateProvider).data!;
 
           // Get filter rules from Firebase Remote Config
           final remoteConfigService = FirebaseRemoteConfigService();
           final rulesJson = remoteConfigService.getRules();
           final filterRules = FeedFilterHelper.parseRules(rulesJson);
 
-          // Apply filters if enabled - using optimized synchronous filtering
-          // with embedded AuthorMetadata for better performance
+          // Apply filters if enabled to get featured thoughts
           if (filterRules.isNotEmpty) {
-            finalThoughts = FeedFilterHelper.applyFilters<ThoughtModel>(
+            featuredThoughts = FeedFilterHelper.applyFilters<ThoughtModel>(
               data: sortedThoughts,
               currentUser: currentUser,
               rulesJson: filterRules,
               getUserById: _getUserById, // Fallback for legacy data
             );
+
+            // Get unfeatured thoughts (all thoughts minus featured ones)
+            final featuredIds = featuredThoughts.map((t) => t.id).toSet();
+            unfeaturedThoughts = sortedThoughts
+                .where((thought) => !featuredIds.contains(thought.id))
+                .toList();
+
+            // Show divider only if we have both featured and unfeatured thoughts
+            showDivider =
+                featuredThoughts.isNotEmpty || unfeaturedThoughts.isNotEmpty;
           }
         }
       } catch (filterError) {
-        // If filtering fails, continue with unfiltered thoughts
+        // If filtering fails, treat all thoughts as unfeatured
         print('Feed filtering failed: $filterError');
-        finalThoughts = sortedThoughts;
+        featuredThoughts = [];
+        unfeaturedThoughts = sortedThoughts;
+        showDivider = false;
       }
 
+      // Create the explore feed model
+      final exploreFeed = ExploreFeedModel(
+        featuredThoughts: featuredThoughts,
+        unfeaturedThoughts: unfeaturedThoughts,
+        showDivider: showDivider,
+      );
+
       if (mounted) {
-        state = GetThoughtExploreState.success(finalThoughts);
+        state = GetThoughtExploreState.success(exploreFeed);
       }
     } catch (e, s) {
       state = GetThoughtExploreState.error(e.toString(), stackTrace: s);
@@ -100,46 +122,66 @@ class GetThoughtExploreNotifier extends StateNotifier<GetThoughtExploreState> {
       final response = await homeRepository.getThoughtExplore();
 
       // Convert to ThoughtModel list
-      final List<ThoughtModel> thoughts = [];
+      final List<ThoughtModel> allThoughts = [];
       for (var thought in response.data) {
-        thoughts.add(ThoughtModel.fromJson(thought));
+        allThoughts.add(ThoughtModel.fromJson(thought));
       }
 
       // Sort thoughts by date first
-      final sortedThoughts = MetalHelper.sortThoughtsByDate(thoughts);
+      final sortedThoughts = MetalHelper.sortThoughtsByDate(allThoughts);
 
-      // Apply filtering if user is authenticated
-      List<ThoughtModel> finalThoughts = sortedThoughts;
+      // Initialize with default values
+      List<ThoughtModel> featuredThoughts = [];
+      List<ThoughtModel> unfeaturedThoughts = sortedThoughts;
+      bool showDivider = false;
 
       try {
-        final authState = ref.read(authProvider);
-        if (authState.isSuccess && authState.data != null) {
-          final currentUser = authState.data!;
+        final userState = ref.read(userStateProvider);
+        if (userState.isSuccess && userState.data != null) {
+          final currentUser = userState.data!;
 
           // Get filter rules from Firebase Remote Config
           final remoteConfigService = FirebaseRemoteConfigService();
           final rulesJson = remoteConfigService.getRules();
           final filterRules = FeedFilterHelper.parseRules(rulesJson);
 
-          // Apply filters if enabled - using optimized synchronous filtering
-          // with embedded AuthorMetadata for better performance
+          // Apply filters if enabled to get featured thoughts
           if (filterRules.isNotEmpty) {
-            finalThoughts = FeedFilterHelper.applyFilters<ThoughtModel>(
+            featuredThoughts = FeedFilterHelper.applyFilters<ThoughtModel>(
               data: sortedThoughts,
               currentUser: currentUser,
               rulesJson: filterRules,
               getUserById: _getUserById, // Fallback for legacy data
             );
+
+            // Get unfeatured thoughts (all thoughts minus featured ones)
+            final featuredIds = featuredThoughts.map((t) => t.id).toSet();
+            unfeaturedThoughts = sortedThoughts
+                .where((thought) => !featuredIds.contains(thought.id))
+                .toList();
+
+            // Show divider only if we have both featured and unfeatured thoughts
+            showDivider =
+                featuredThoughts.isNotEmpty && unfeaturedThoughts.isNotEmpty;
           }
         }
       } catch (filterError) {
-        // If filtering fails, continue with unfiltered thoughts
+        // If filtering fails, treat all thoughts as unfeatured
         print('Feed filtering failed: $filterError');
-        finalThoughts = sortedThoughts;
+        featuredThoughts = [];
+        unfeaturedThoughts = sortedThoughts;
+        showDivider = false;
       }
 
+      // Create the explore feed model
+      final exploreFeed = ExploreFeedModel(
+        featuredThoughts: featuredThoughts,
+        unfeaturedThoughts: unfeaturedThoughts,
+        showDivider: showDivider,
+      );
+
       if (mounted) {
-        state = GetThoughtExploreState.success(finalThoughts);
+        state = GetThoughtExploreState.success(exploreFeed);
       }
     } catch (e, s) {
       state = GetThoughtExploreState.error(e.toString(), stackTrace: s);
@@ -148,7 +190,7 @@ class GetThoughtExploreNotifier extends StateNotifier<GetThoughtExploreState> {
 }
 
 // Define a type alias
-typedef GetThoughtExploreState = BaseState<List<ThoughtModel>>;
+typedef GetThoughtExploreState = BaseState<ExploreFeedModel>;
 
 final getThoughtExploreProvider = StateNotifierProvider.autoDispose<
     GetThoughtExploreNotifier, GetThoughtExploreState>(

@@ -9,6 +9,7 @@ import 'package:metal/features/authentication/data/repositories/authetication.re
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:zego_uikit/zego_uikit.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 import '../../../core/utils/permission_helper.dart';
@@ -55,6 +56,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   // Private method to initialize ZegoUIKit without permission dialogs
+// Private method to initialize ZegoUIKit without permission dialogs
   void _initializeZegoUIKit() {
     ZegoUIKitPrebuiltCallInvitationService().init(
       appID: appIDKey,
@@ -65,7 +67,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       notificationConfig: ZegoCallInvitationNotificationConfig(
         androidNotificationConfig: ZegoCallAndroidNotificationConfig(
           showFullScreen: true,
-          fullScreenBackgroundAssetURL: 'assets/image/call.png',
+          fullScreenBackgroundAssetURL: 'assets/images/voice_bg.png',
           callChannel: ZegoCallAndroidNotificationChannelConfig(
             channelID: "ZegoUIKit",
             channelName: "Call Notifications",
@@ -93,8 +95,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
                 ? ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall()
                 : ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall();
 
+        // Show top menu
         config.topMenuBar.isVisible = true;
-        config.avatarBuilder = customAvatarBuilder;
+
+        // Optional: customize buttons
         config.topMenuBar.buttons
             .insert(0, ZegoCallMenuBarButtonName.minimizingButton);
         config.topMenuBar.buttons

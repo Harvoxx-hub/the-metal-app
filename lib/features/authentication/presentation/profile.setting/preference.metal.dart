@@ -249,15 +249,19 @@ class _PreferenceMetalPageState extends ConsumerState<PreferenceMetalPage> {
     await ref.read(profileSetupManagerProvider.notifier).saveStepData(
           step: ProfileSetupStep.preferences,
           stepData: preferencesData,
-          moveToNext: true,
+          moveToNext: false,
         );
+
+    // Complete the entire profile setup
+    await ref.read(profileSetupManagerProvider.notifier).completeProfileSetup();
 
     // Check if save was successful before navigating
     final setupState = ref.read(profileSetupManagerProvider);
     if (setupState.errorMessage == null && mounted) {
-      Navigator.pushNamed(
+      Navigator.pushNamedAndRemoveUntil(
         context,
-        AppRoutes.homeAddressPage,
+        AppRoutes.dashboardPage,
+        (route) => false,
       );
     }
   }

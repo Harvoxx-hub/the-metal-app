@@ -87,7 +87,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   @override
   void initState() {
     super.initState();
-
+    print('Dashboard initState');
     // Initialize HomePage instance
     homePage = HomePage(
       newPostFabKey: newPostFabKey,
@@ -107,18 +107,21 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   Future<void> _initializeData() async {
+    print('Calling _initializeData. _initialized:  [32m$_initialized [0m');
     if (_initialized) return;
     _initialized = true;
+    print('Initializing dashboard data...');
 
     final userdata = ref.read(userStateProvider).data;
     if (userdata != null && mounted) {
-      await _checkOnboardingAndUserStatus(userdata);
       await _updateUserLocation();
+      await _checkOnboardingAndUserStatus(userdata);
     }
   }
 
   @override
   void dispose() {
+    print('Dashboard dispose');
     _initialized = false;
     super.dispose();
   }
@@ -295,24 +298,38 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         position.longitude,
       );
 
+      String address = "No address available";
       if (placemarks.isNotEmpty && mounted) {
         geo_coding.Placemark place = placemarks[0];
-        String address = "${place.locality}, ${place.country}";
+        if (place.locality != null && place.country != null) {
+          address = "${place.locality}, ${place.country}";
+        } else if (place.country != null) {
+          address = place.country!;
+        } else {
+          debugPrint(
+              'Placemark fields are null for coordinates: ${position.latitude}, ${position.longitude}');
+        }
+      } else {
+        debugPrint(
+            'No placemarks found for coordinates: ${position.latitude}, ${position.longitude}');
+      }
 
-        Location location = Location(
-          lat: position.latitude,
-          lng: position.longitude,
-          address: address,
-        );
+      Location location = Location(
+        lat: position.latitude,
+        lng: position.longitude,
+        address: address,
+      );
 
-        // Update user location silently
+      // CRITICAL: Check mounted right before using ref
+      if (mounted) {
         await ref.read(userStateProvider.notifier).updateUserField(
               field: 'location',
               value: location.toJson(),
             );
+      } else {
+        debugPrint('Not mounted, skipping ref update');
       }
     } catch (e) {
-      // Silently handle location update errors
       debugPrint('Location update failed: $e');
     }
   }

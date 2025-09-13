@@ -203,6 +203,8 @@ class DeleteScreen extends ConsumerWidget {
           onPressed: isLoading
               ? null
               : () {
+                  Navigator.pop(context);
+
                   ref.read(deleteUserProvider.notifier).deleteUser(
                         context,
                         feedback: _feedbackController.text.trim(),

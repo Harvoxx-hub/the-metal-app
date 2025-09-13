@@ -10,6 +10,7 @@ import 'package:metal/firebase_options_dev.dart';
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
+import 'package:zego_uikit/zego_uikit.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 

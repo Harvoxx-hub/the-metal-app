@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/home_page/domain/entries/comment.model.dart';
@@ -5,16 +6,45 @@ import 'package:metal/features/home_page/data/repositories/comment.repository.da
 
 class CommentNotifier extends StateNotifier<CommentState> {
   CommentNotifier(this.ref, this.thoughtId) : super(CommentState.initial()) {
-    getComments();
+    _startListening();
   }
 
   final Ref ref;
   final String thoughtId;
+  StreamSubscription<List<CommentModel>>? _commentSubscription;
 
-  Future<void> getComments() async {
+  @override
+  void dispose() {
+    _commentSubscription?.cancel();
+    super.dispose();
+  }
+
+  /// Start listening to real-time comment updates
+  void _startListening() {
     try {
       state = CommentState.loading();
 
+      final repository = ref.read(commentRepositoryProvider);
+      _commentSubscription = repository.getCommentsStream(thoughtId).listen(
+        (comments) {
+          if (mounted) {
+            state = CommentState.success(comments);
+          }
+        },
+        onError: (error) {
+          if (mounted) {
+            state = CommentState.error('Failed to load comments: $error');
+          }
+        },
+      );
+    } catch (e) {
+      state = CommentState.error('Failed to initialize comments: $e');
+    }
+  }
+
+  /// Manually refresh comments (for pull-to-refresh)
+  Future<void> getComments() async {
+    try {
       final repository = ref.read(commentRepositoryProvider);
       final response = await repository.getComments(thoughtId);
 
@@ -48,7 +78,7 @@ class CommentNotifier extends StateNotifier<CommentState> {
         return;
       }
 
-      await getComments(); // Refresh comments list
+      // No need to manually refresh - the stream will automatically update
     } catch (e) {
       state = CommentState.error('Failed to add comment: $e');
     }
@@ -65,7 +95,7 @@ class CommentNotifier extends StateNotifier<CommentState> {
         return;
       }
 
-      await getComments(); // Refresh comments list
+      // No need to manually refresh - the stream will automatically update
     } catch (e) {
       state = CommentState.error('Failed to delete comment: $e');
     }
@@ -83,10 +113,16 @@ class CommentNotifier extends StateNotifier<CommentState> {
         return;
       }
 
-      await getComments(); // Refresh comments list
+      // No need to manually refresh - the stream will automatically update
     } catch (e) {
       state = CommentState.error('Failed to add reaction: $e');
     }
+  }
+
+  /// Restart the stream listener (useful for pull-to-refresh)
+  void refreshStream() {
+    _commentSubscription?.cancel();
+    _startListening();
   }
 }
 

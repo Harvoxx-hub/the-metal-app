@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/chat/provider/game.conversation.notifier.dart';
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -14,19 +15,19 @@ class GameTile extends ConsumerWidget {
   });
 
   final ConnectionModel conversationsModel;
-  GameModel? game;
 
-  void setGame() {
-    for (var a in gameData) {
-      if (a.title == conversationsModel.game) {
-        game = a;
+  GameModel? _getGame() {
+    for (var game in gameData) {
+      if (game.title == conversationsModel.game) {
+        return game;
       }
     }
+    return null;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    setGame();
+    final game = _getGame();
     if (game == null) {
       return const SizedBox();
     }
@@ -46,7 +47,7 @@ class GameTile extends ConsumerWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Image.asset(game!.emojiPart),
+              Image.asset(game.emojiPart),
               const SizedBox(width: 20),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,22 +55,26 @@ class GameTile extends ConsumerWidget {
                 children: [
                   const TextView(text: "Active Game:"),
                   TextView(
-                    text: game!.title,
+                    text: game.title,
                     fontWeight: FontWeight.bold,
                   ),
                 ],
               ),
               const Spacer(),
               GestureDetector(
-                onTap: () {
-                  ref
+                onTap: () async {
+                  await ref
                       .read(gameConversationProvider.notifier)
                       .updateGameConversation(
                           conversatioId: conversationsModel.connectionId,
-                          gameTitle: ""
-                          //
-                          // "",
-                          );
+                          gameTitle: "");
+
+                  // Refresh connection to hide game tile immediately
+                  ref
+                      .read(
+                          getConnectionProvider(conversationsModel.connectionId)
+                              .notifier)
+                      .getConnection();
                 },
                 child: Container(
                   height: 39,

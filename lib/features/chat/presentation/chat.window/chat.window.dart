@@ -6,8 +6,8 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
-import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/chat/domain/entries/message.model.dart';
+import 'package:metal/features/chat/domain/entries/game.model.dart';
 
 import 'package:metal/features/chat/presentation/chat.window/widget/chat.input.sheet.dart';
 
@@ -19,46 +19,46 @@ import 'package:metal/features/chat/provider/game.conversation.notifier.dart';
 
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
-
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
 
 import 'package:metal/widgets/text_views.dart';
+import 'package:metal/widgets/state.handler/loading.state.dart';
+import 'package:metal/widgets/state.handler/error.state.dart';
+import 'package:metal/widgets/state.handler/empty.state.dart';
 
 class ChatWindowsPage extends ConsumerStatefulWidget {
-  const ChatWindowsPage({super.key, required this.metalId});
+  const ChatWindowsPage({super.key, required this.connectionId});
   static const name = 'chatWindowsPage';
   static const route = name;
 
-  final String metalId;
+  final String connectionId;
 
   @override
   ConsumerState<ChatWindowsPage> createState() => _ChatWindowsPageState();
 }
 
 class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
-  GameModel? game;
-
-  ConnectionModel? _connectionModdel;
-  @override
-  void initState() {
-    getConnection();
-    super.initState();
-  }
-
-  getConnection() {
-    _connectionModdel =
-        ref.read(getMeltUserProvider.notifier).getMeltUserById(widget.metalId)!;
-    print("CONNECTION MODEL:${_connectionModdel?.isAnonymous}");
-  }
-
   UserModel? currentUserData;
 
   @override
   Widget build(BuildContext context) {
     currentUserData = ref.watch(userStateProvider).data;
+
+    // Get connection from existing data instead of fetching again
+    final connectionsState = ref.watch(getMeltUserProvider);
+    ConnectionModel? connection;
+    if (connectionsState.data != null) {
+      try {
+        connection = connectionsState.data!.firstWhere(
+          (conn) => conn.connectionId == widget.connectionId,
+        );
+      } catch (e) {
+        connection = null;
+      }
+    }
 
     return BaseScreen(
       appBarEnabled: false,
@@ -70,56 +70,88 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
               borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(13), topRight: Radius.circular(13)),
               color: AppColors.metalWhite),
-          child: Column(
-            children: [
-              const Gap(20),
-              ChatWindowsAppBar(
-                key: widget.key,
-                meltUserModel: _connectionModdel!.otherUser!,
-                connectionModel: _connectionModdel!,
-              ),
-              GameTile(
-                conversationsModel: _connectionModdel!,
-              ),
-              MessageList(_connectionModdel!.connectionId, onApproved: () {
-                ref
-                    .read(getConnectionProvider(_connectionModdel!.connectionId)
-                        .notifier)
-                    .getConnection();
-              }),
-              ChatBottomSheet(
-                meltUserModel: _connectionModdel!.otherUser!,
-                connectionModel: _connectionModdel!,
-                onGameClick: () async {
-                  final gameModel = await Navigator.pushNamed(
-                    context,
-                    AppRoutes.gamePage,
-                  );
-                  setState(() {
-                    game = gameModel as GameModel?;
-                  });
-                  if (game != null) {
-                    final message = MessageModel(
-                      senderId: currentUserData!.id!,
-                      type: MessageType.text,
-                      timestamp: DateTime.now().toIso8601String(),
-                      isRead: false,
-                      message: game!.title,
-                    );
-                    ref
-                        .read(gameConversationProvider.notifier)
-                        .updateGameConversation(
-                            conversatioId: _connectionModdel!.connectionId,
-                            gameTitle: game!.title,
-                            message: message);
-                  }
-                },
-              )
-            ],
+          child: Builder(
+            builder: (context) {
+              if (connectionsState.isLoading) {
+                return const LoadingState();
+              } else if (connectionsState.isError) {
+                return Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: ErrorState(
+                      retry: () {
+                        ref.read(getMeltUserProvider.notifier).getMeltUsers();
+                      },
+                      text: connectionsState.errorMessage ??
+                          "Failed to load connections",
+                    ));
+              } else if (connection == null) {
+                return const EmptyState(text: "Connection not found");
+              }
+
+              // We have the connection data, display the chat interface
+
+              // Check if otherUser exists
+              if (connection.otherUser == null) {
+                return const EmptyState(text: "User information not available");
+              }
+
+              // At this point, connection is guaranteed to be non-null
+              final nonNullConnection = connection;
+
+              return Column(
+                children: [
+                  const Gap(20),
+                  ChatWindowsAppBar(
+                    key: widget.key,
+                    meltUserModel: nonNullConnection.otherUser!,
+                    connectionModel: nonNullConnection,
+                  ),
+                  GameTile(
+                    conversationsModel: nonNullConnection,
+                  ),
+                  MessageList(nonNullConnection.connectionId, onApproved: () {
+                    ref.read(getMeltUserProvider.notifier).getMeltUsers();
+                  }),
+                  ChatBottomSheet(
+                    meltUserModel: nonNullConnection.otherUser!,
+                    connectionModel: nonNullConnection,
+                    onGameClick: () => _handleGameSelection(nonNullConnection),
+                  )
+                ],
+              );
+            },
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _handleGameSelection(ConnectionModel connection) async {
+    final gameModel = await Navigator.pushNamed(
+      context,
+      AppRoutes.gamePage,
+    ) as GameModel?;
+
+    if (gameModel != null) {
+      final message = MessageModel(
+        senderId: currentUserData!.id!,
+        type: MessageType.text,
+        timestamp: DateTime.now().toIso8601String(),
+        isRead: false,
+        message: gameModel.title,
+      );
+
+      await ref.read(gameConversationProvider.notifier).updateGameConversation(
+            conversatioId: connection.connectionId,
+            gameTitle: gameModel.title,
+            message: message,
+          );
+
+      // Refresh connection to show game tile immediately
+      ref
+          .read(getConnectionProvider(connection.connectionId).notifier)
+          .getConnection();
+    }
   }
 }
 

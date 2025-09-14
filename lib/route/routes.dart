@@ -6,7 +6,7 @@ import 'package:metal/features/authentication/presentation/login/login.screen.da
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/settings/presentation/edit.preferences.dart';
- 
+
 import 'package:metal/features/home_page/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
 
@@ -18,7 +18,7 @@ import 'package:metal/features/splash/splash.screen.dart';
 import 'package:camera/camera.dart';
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
- 
+
 import 'package:metal/features/authentication/presentation/profile.setting/about.you.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/choose.your.metal.dart';
 import 'package:metal/features/authentication/presentation/profile.setting/connection.option.dart';
@@ -62,7 +62,6 @@ import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 
 import 'package:metal/features/upgrade/make.payment.dart';
 
- 
 import 'package:metal/features/home_page/presentation/thought_details.page.dart';
 import 'package:metal/features/profile/presentation/pages/work_email_page.dart';
 
@@ -96,7 +95,7 @@ class AppRoutes {
   static const String eyeSelectMedia = '/eyeSelectMedia';
   static const String eyePreviewMedia = '/eyePreviewMedia';
   static const String settingPage = '/settingPage';
- 
+
   static const String meltMetal = '/meltMetal';
   static const String pushMetal = '/pushMetal';
   static const String feedBackPage = '/feedBackPage';
@@ -207,8 +206,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const ChooseYourMetalPage());
       case aboutYouPage:
         return MaterialPageRoute(builder: (_) => const AboutYouPage());
-      
-         
+
       case dashboardPage:
         // Check if arguments contain a tab index
         final args = settings.arguments;
@@ -240,8 +238,7 @@ class AppRoutes {
                 EyePreviewMedia(media: settings.arguments as XFile));
       case settingPage:
         return MaterialPageRoute(builder: (_) => const SettingPage());
-    
- 
+
       case feedBackPage:
         return MaterialPageRoute(builder: (_) => FeedBackPage());
       case blockedUser:
@@ -291,7 +288,7 @@ class AppRoutes {
       case chatWindowsPage:
         return MaterialPageRoute(
             builder: (_) => ChatWindowsPage(
-                  metalId: settings.arguments as String,
+                  connectionId: settings.arguments as String,
                 ));
       case gamePage:
         return MaterialPageRoute(builder: (_) => const GamePage());

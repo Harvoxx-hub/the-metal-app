@@ -103,7 +103,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                   padding: const EdgeInsets.all(40.0),
                   child: _buildErrorSection(myMelt.errorMessage.toString(), () {
                     // Retry the request by refreshing the notifier
-                    ref.refresh(
+                    ref.invalidate(
                         getUserProvider(widget.metalDetials["metalId"]));
                   }),
                 )
@@ -267,8 +267,13 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
           Expanded(
             child: OutilineButton(
               onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
-                    arguments: widget.metalDetials["metalId"]);
+                final connection = ref
+                    .read(getMeltUserProvider.notifier)
+                    .getMeltUserById(widget.metalDetials["metalId"]);
+                if (connection != null) {
+                  Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
+                      arguments: connection.connectionId);
+                }
               },
               fontSize: 15,
               buttonText: "Message",

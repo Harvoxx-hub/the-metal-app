@@ -4,14 +4,12 @@ import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
- 
-
 import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
 import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/home_page/provider/get.user.notifier.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
- 
+
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -189,7 +187,7 @@ class chatListItem extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
-            arguments: getUser.data?.id);
+            arguments: conversationsModel.connectionId);
       },
       child: getUser.isLoading
           ? const Center(

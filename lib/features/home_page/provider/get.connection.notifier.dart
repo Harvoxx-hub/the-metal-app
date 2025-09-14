@@ -15,8 +15,14 @@ class GetConnectionNotifier extends StateNotifier<GetConnectionState> {
     try {
       state = GetConnectionState.loading();
       final homeRepository = ref.watch(homeRepositoryProvider);
-      final connection = await homeRepository.getConnection(connectionId);
-      state = GetConnectionState.success(connection.data);
+      final response = await homeRepository.getConnection(connectionId);
+
+      if (response.success == true && response.data != null) {
+        state = GetConnectionState.success(response.data as ConnectionModel);
+      } else {
+        state = GetConnectionState.error(
+            response.message ?? "Connection not found");
+      }
     } catch (e, s) {
       state = GetConnectionState.error(e.toString(), stackTrace: s);
     }

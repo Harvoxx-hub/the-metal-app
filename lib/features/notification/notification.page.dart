@@ -133,12 +133,12 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
     switch (notification.type) {
       case NotificationType.new_message:
         final chatId = data?['chatId'] as String?;
-        final senderId = data?['senderId'] as String?;
-        if (chatId != null || senderId != null) {
+        final connectionId = data?['connectionId'] as String?;
+        if (chatId != null || connectionId != null) {
           Navigator.pushNamed(
             context,
             AppRoutes.chatWindowsPage,
-            arguments: senderId ?? chatId,
+            arguments: connectionId ?? chatId,
           );
         }
         break;
@@ -160,12 +160,11 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
       case NotificationType.unmetal_request:
         final connectionId = data?['connectionId'] as String?;
         final chatId = data?['chatId'] as String?;
-        final senderId = data?['senderId'] as String?;
-        if (connectionId != null || chatId != null || senderId != null) {
+        if (connectionId != null || chatId != null) {
           Navigator.pushNamed(
             context,
             AppRoutes.chatWindowsPage,
-            arguments: senderId,
+            arguments: connectionId ?? chatId,
           );
         } else {
           AppRoutes.navigateToMessages(context);

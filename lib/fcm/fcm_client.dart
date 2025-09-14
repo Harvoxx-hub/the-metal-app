@@ -6,6 +6,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:metal/fcm/local_notifications.dart';
 import 'package:synchronized/synchronized.dart';
+import 'package:metal/core/services/notification_navigation_service.dart';
+import 'package:metal/main.dart';
 
 import 'models/notification_payload_model.dart';
 
@@ -204,9 +206,20 @@ class FCMClient {
   /// Handle notification navigation based on payload
   Future<void> _handleNotificationNavigation(
       NotificationPayloadModel payload) async {
-    // This will be handled by the main app's navigation system
-    // The payload will be processed when the app is fully loaded
-    print('Notification navigation handled for: ${payload.action?.value}');
+    final context = navKey.currentContext;
+    if (context == null) {
+      print(
+          'No navigation context available for notification: ${payload.action?.value}');
+      return;
+    }
+
+    try {
+      await NotificationNavigationService.instance
+          .navigateFromPayload(payload, context);
+      print('Notification navigation completed for: ${payload.action?.value}');
+    } catch (e) {
+      print('Error navigating from notification: $e');
+    }
   }
 
   /// Ensure APNS token is set for iOS

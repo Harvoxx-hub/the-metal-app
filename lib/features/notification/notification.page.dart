@@ -6,7 +6,7 @@ import 'package:metal/features/notification/domain/entries/notification.model.da
 import 'package:metal/features/notification/widget/notification.item.dart';
 import 'package:metal/features/notification/provider/notification_notifier.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
-import 'package:metal/route/routes.dart';
+import 'package:metal/core/services/notification_navigation_service.dart';
 
 class NotificationPage extends ConsumerStatefulWidget {
   const NotificationPage({super.key});
@@ -128,72 +128,13 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
       NotificationModel notification) async {
     if (!mounted) return;
 
-    final data = notification.data as Map<String, dynamic>?;
-
-    switch (notification.type) {
-      case NotificationType.new_message:
-        final chatId = data?['chatId'] as String?;
-        final connectionId = data?['connectionId'] as String?;
-        if (chatId != null || connectionId != null) {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.chatWindowsPage,
-            arguments: connectionId ?? chatId,
-          );
-        }
-        break;
-
-      case NotificationType.new_connection:
-        final metalId =
-            data?['metalId'] as String? ?? data?['otherUserId'] as String?;
-        if (metalId != null) {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.meltMetal,
-            arguments: metalId,
-          );
-        } else {
-          AppRoutes.navigateToHome(context);
-        }
-        break;
-
-      case NotificationType.unmetal_request:
-        final connectionId = data?['connectionId'] as String?;
-        final chatId = data?['chatId'] as String?;
-        if (connectionId != null || chatId != null) {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.chatWindowsPage,
-            arguments: connectionId ?? chatId,
-          );
-        } else {
-          AppRoutes.navigateToMessages(context);
-        }
-        break;
-
-      case NotificationType.thought_created:
-      case NotificationType.reaction_added:
-      case NotificationType.comment:
-      case NotificationType.comment_reaction:
-        final thoughtId = data?['thoughtId'] as String?;
-        if (thoughtId != null) {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.thoughtDetails,
-            arguments: thoughtId,
-          );
-        } else {
-          AppRoutes.navigateToHome(context);
-        }
-        break;
-
-      case NotificationType.sparks_transaction:
-        AppRoutes.navigateToSparks(context);
-        break;
-
-      case NotificationType.thought_reminder:
-        AppRoutes.navigateToHome(context);
-        break;
+    try {
+      await NotificationNavigationService.instance.navigateFromNotification(
+        notification,
+        context,
+      );
+    } catch (e) {
+      print('Error navigating from notification: $e');
     }
   }
 }

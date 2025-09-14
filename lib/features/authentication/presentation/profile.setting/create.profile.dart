@@ -4,8 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/date.formart.dart';
-import 'package:metal/core/utils/input/validators/validators.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/presentation/widget/create.profile.header1.dart';
 import 'package:metal/features/authentication/provider/profile_setup_manager.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
@@ -174,7 +172,16 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                             width: 24,
                             height: 24,
                           ),
-                          validator: Validators.validateString(),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a username';
+                            }
+                            if (value
+                                .contains(RegExp(r'[!@#$%^&*(),.?":{}|<> ]'))) {
+                              return 'Username cannot contain special characters or spaces';
+                            }
+                            return null;
+                          },
                           autoValidate: true,
                         ),
                         const Gap(16),
@@ -268,12 +275,13 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
         return;
       }
 
-      /// username should be unique and not contain any special characters
+      /// username should be unique and not contain any special characters or spaces
       if (_userNameController.text
-          .contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+          .contains(RegExp(r'[!@#$%^&*(),.?":{}|<> ]'))) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Username should not contain any special characters'),
+            content: Text(
+                'Username should not contain any special characters or spaces'),
             backgroundColor: Colors.red,
           ),
         );

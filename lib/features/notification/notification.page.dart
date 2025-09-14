@@ -1,13 +1,12 @@
- 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
-import 'package:metal/core/services/notification_handler.dart';
-import 'package:metal/core/services/notification_state_service.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
 import 'package:metal/features/notification/widget/notification.item.dart';
+import 'package:metal/features/notification/provider/notification_notifier.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
+import 'package:metal/route/routes.dart';
 
 class NotificationPage extends ConsumerStatefulWidget {
   const NotificationPage({super.key});
@@ -21,8 +20,8 @@ class NotificationPage extends ConsumerStatefulWidget {
 class _NotificationPageState extends ConsumerState<NotificationPage> {
   @override
   Widget build(BuildContext context) {
-    final notificationsAsync = ref.watch(filteredNotificationsStreamProvider);
-    final unreadCountAsync = ref.watch(unreadNotificationCountStreamProvider);
+    final notificationsAsync = ref.watch(notificationsStreamProvider);
+    final unreadCountAsync = ref.watch(unreadCountStreamProvider);
 
     return BaseScreen(
       appBarState: AppBarState.BackWithHeader,
@@ -30,8 +29,9 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
       floatingActionButton: unreadCountAsync.when(
         data: (count) => count > 0
             ? FloatingActionButton(
-                onPressed: () =>
-                    NotificationStateService.instance.markAllAsRead(),
+                onPressed: () => ref
+                    .read(notificationNotifierProvider.notifier)
+                    .markAllAsRead(),
                 tooltip: 'Mark all as read',
                 child: const Icon(Icons.done_all),
               )
@@ -46,7 +46,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
             child: notificationsAsync.when(
               data: (notifications) => RefreshIndicator(
                 onRefresh: () async {
-                  ref.invalidate(filteredNotificationsStreamProvider);
+                  ref.invalidate(notificationsStreamProvider);
                 },
                 child: _buildNotificationsList(notifications),
               ),
@@ -108,14 +108,93 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   }
 
   Future<void> _deleteNotification(NotificationModel notification) async {
-    await NotificationStateService.instance.deleteNotification(notification.id);
+    await ref
+        .read(notificationNotifierProvider.notifier)
+        .deleteNotification(notification.id);
   }
 
   Future<void> _handleNotificationTap(NotificationModel notification) async {
     if (!notification.isRead) {
-      await NotificationStateService.instance.markAsRead(notification.id);
+      await ref
+          .read(notificationNotifierProvider.notifier)
+          .markAsRead(notification.id);
     }
-    await NotificationHandlerService.instance
-        .handleInAppNotification(notification);
+
+    // Navigate based on notification type
+    await _navigateBasedOnNotificationType(notification);
+  }
+
+  Future<void> _navigateBasedOnNotificationType(
+      NotificationModel notification) async {
+    if (!mounted) return;
+
+    final data = notification.data as Map<String, dynamic>?;
+
+    switch (notification.type) {
+      case NotificationType.new_message:
+        final chatId = data?['chatId'] as String?;
+        final senderId = data?['senderId'] as String?;
+        if (chatId != null || senderId != null) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.chatWindowsPage,
+            arguments: senderId ?? chatId,
+          );
+        }
+        break;
+
+      case NotificationType.new_connection:
+        final metalId =
+            data?['metalId'] as String? ?? data?['otherUserId'] as String?;
+        if (metalId != null) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.meltMetal,
+            arguments: metalId,
+          );
+        } else {
+          AppRoutes.navigateToHome(context);
+        }
+        break;
+
+      case NotificationType.unmetal_request:
+        final connectionId = data?['connectionId'] as String?;
+        final chatId = data?['chatId'] as String?;
+        final senderId = data?['senderId'] as String?;
+        if (connectionId != null || chatId != null || senderId != null) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.chatWindowsPage,
+            arguments: senderId,
+          );
+        } else {
+          AppRoutes.navigateToMessages(context);
+        }
+        break;
+
+      case NotificationType.thought_created:
+      case NotificationType.reaction_added:
+      case NotificationType.comment:
+      case NotificationType.comment_reaction:
+        final thoughtId = data?['thoughtId'] as String?;
+        if (thoughtId != null) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.thoughtDetails,
+            arguments: thoughtId,
+          );
+        } else {
+          AppRoutes.navigateToHome(context);
+        }
+        break;
+
+      case NotificationType.sparks_transaction:
+        AppRoutes.navigateToSparks(context);
+        break;
+
+      case NotificationType.thought_reminder:
+        AppRoutes.navigateToHome(context);
+        break;
+    }
   }
 }

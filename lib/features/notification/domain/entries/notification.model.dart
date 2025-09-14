@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class NotificationModel {
   final List<String> recipientIds; // List of recipient IDs
   final String title; // Notification title
@@ -27,6 +25,33 @@ class NotificationModel {
     required this.id,
     this.isRead = false, // Default to unread
   });
+
+  // CopyWith method for updating notification properties
+  NotificationModel copyWith({
+    List<String>? recipientIds,
+    String? title,
+    String? subTitle,
+    NotificationType? type,
+    dynamic data,
+    NotificationAndroidNotification? androidNotification,
+    NotificationIosNotification? iosNotification,
+    DateTime? timestamp,
+    String? id,
+    bool? isRead,
+  }) {
+    return NotificationModel(
+      recipientIds: recipientIds ?? this.recipientIds,
+      title: title ?? this.title,
+      subTitle: subTitle ?? this.subTitle,
+      type: type ?? this.type,
+      data: data ?? this.data,
+      androidNotification: androidNotification ?? this.androidNotification,
+      iosNotification: iosNotification ?? this.iosNotification,
+      timestamp: timestamp ?? this.timestamp,
+      id: id ?? this.id,
+      isRead: isRead ?? this.isRead,
+    );
+  }
 
   // Convert a NotificationModel instance to a JSON map
   Map<String, dynamic> toJson() {

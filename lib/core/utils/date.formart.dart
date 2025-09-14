@@ -80,7 +80,6 @@ String getAccurateOnlineStatus({
   }
 }
 
- 
 int daysRemaining(String isoDateString, int durationInDays) {
   // Get the current date in local time
   DateTime now = DateTime.now();
@@ -88,14 +87,13 @@ int daysRemaining(String isoDateString, int durationInDays) {
   DateTime date =
       isoDateString == "" ? now : DateTime.parse(isoDateString).toLocal();
 
-  // Calculate the target date by adding the duration to the parsed date
-  DateTime targetDate = date.add(Duration(days: durationInDays));
+  // Calculate the difference in days since connection
+  int daysSinceConnection = now.difference(date).inDays;
 
-  // Calculate the difference in days
-  int remainingDays = targetDate.difference(now).inDays;
-
-  // If the duration has passed, return 0 (no days remaining)
-  return remainingDays > 0 ? remainingDays : 0;
+  // Return completed days, capped at the required duration
+  return daysSinceConnection > durationInDays
+      ? durationInDays
+      : daysSinceConnection;
 }
 
 bool hasDurationReached(String isoDateString, int durationInDays) {

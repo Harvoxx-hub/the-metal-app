@@ -4,14 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
-import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/features/unmetal/widgets/unmetal_dialog.dart';
 import 'package:metal/core/utils/constant/constants.dart';
 
 import 'package:metal/core/utils/date.formart.dart';
-import 'package:metal/core/utils/image_picker_util.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
 import 'package:metal/features/chat/domain/entries/message.model.dart';
@@ -65,8 +63,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    int dayRemaining = daysRemaining(widget.connectionModel.connectedOn,
-        FirebaseRemoteConfigService().getDaysRequiredToUnMelt());
     print("CHECK FOR ACTIVE USER:${widget.meltUserModel.isOnline}");
 
     /// Function to check call eligibility
@@ -163,7 +159,7 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
                 color: isCallAllowed ? Colors.black : Colors.grey,
               ),
             ),
-        //    iconVisible: false,
+            //    iconVisible: false,
             onWillPressed: () => handleCallPress(
                 tooltip, isVideoCall ? "Video call" : "Voice call"),
           ),
@@ -252,11 +248,10 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
               if (value == "Unmetal") {
                 showDialog(
                   context: context,
-                  builder: (BuildContext context) {
-                    return CustomDialog(
-                      content: unmetalDialog(context, dayRemaining),
-                    );
-                  },
+                  builder: (context) => UnmetalDialog(
+                    otherUser: widget.meltUserModel,
+                    connectionModel: widget.connectionModel,
+                  ),
                 );
               } else if (value == "Rejected") {
                 showDialog(
@@ -350,164 +345,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
     );
   }
 
-  Widget unmetalDialog(BuildContext context, int remaining) {
-    final connectionModel =
-        ref.watch(getConnectionProvider(widget.connectionModel.connectionId));
-    final currentUser = ref.watch(userStateProvider).data;
-    final daysRequired = ref.watch(numberDaysProvider);
-    final uniqueDailyConversations =
-        connectionModel.data?.uniqueDailyConversationsCount ?? 0;
-
-    // Force refresh user data to get the latest profile photo
-    ref.read(userStateProvider.notifier).refreshUser();
-
-    // Improved check for profile photo existence
-    final hasProfilePhoto = currentUser?.profilePhoto != null &&
-        currentUser!.profilePhoto!.isNotEmpty &&
-        currentUser.profilePhoto!.trim().isNotEmpty;
-    final otherUserHasPhoto = widget.meltUserModel.profilePhoto != null &&
-        widget.meltUserModel.profilePhoto!.isNotEmpty &&
-        widget.meltUserModel.profilePhoto!.trim().isNotEmpty;
-
-    final missingYourPhoto = !hasProfilePhoto;
-    final missingOtherPhoto = !otherUserHasPhoto;
-
-    // Only block proceeding if the current user is missing a photo
-    if (missingYourPhoto) {
-      return Column(
-        children: [
-          const Gap(38),
-          const TextView(
-            text: "Want to Unmetal?",
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
-          const Gap(15),
-          const TextView(
-            text:
-                "Wait a minute, we are missing your photo! To unmetal means that the two profiles can view each others photos",
-            fontSize: 16,
-            textAlign: TextAlign.center,
-            fontWeight: FontWeight.w400,
-          ),
-          const Gap(15),
-          const TextView(
-            text: "To continue",
-            fontSize: 16,
-            textAlign: TextAlign.center,
-            fontWeight: FontWeight.w400,
-          ),
-          const Gap(38),
-          BaseButton(
-            buttonText: "Upload your photo",
-            onPressed: () {
-              Navigator.pop(context);
-              ImagePickerUtil.pickImage(context, ref);
-            },
-          ),
-          const Gap(23),
-        ],
-      );
-    }
-
-    // Warn about the other user's missing photo but allow proceeding
-    if (missingOtherPhoto) {
-      return Column(
-        children: [
-          const Gap(38),
-          const TextView(
-            text: "Want to Unmetal?",
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
-          const Gap(15),
-          const TextView(
-            text:
-                "The other user doesn't have a profile photo yet. They will be asked to upload one when accepting your request.",
-            fontSize: 16,
-            textAlign: TextAlign.center,
-            fontWeight: FontWeight.w400,
-          ),
-          const Gap(15),
-          TextView(
-            text:
-                "Do you still want to send an unmetal request to @${widget.meltUserModel.username}?",
-            fontSize: 16,
-            textAlign: TextAlign.center,
-            fontWeight: FontWeight.w400,
-          ),
-          const Gap(38),
-          Row(
-            children: [
-              Expanded(
-                child: BaseButton(
-                  buttonText: "Cancel",
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              const Gap(10),
-              Expanded(
-                child: BaseButton(
-                  buttonText: "Send Request",
-                  onPressed: () {
-                    Navigator.pop(context);
-                    sendUnmelt();
-                  },
-                ),
-              ),
-            ],
-          ),
-          const Gap(23),
-        ],
-      );
-    }
-
-    return Column(
-      children: [
-        const Gap(38),
-        const TextView(
-          text: "Want to Unmetal?",
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-        ),
-        const Gap(15),
-        TextView(
-          text:
-              "To Unmetal, we require a minimum of $daysRequired days and 10 sessions of conversations between you and @${widget.meltUserModel.username}",
-          fontSize: 16,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
-        ),
-        const Gap(15),
-        TextView(
-          text:
-              "You have had $remaining days and $uniqueDailyConversations interactions",
-          fontSize: 16,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
-        ),
-        const Gap(38),
-        (remaining <= 0 && uniqueDailyConversations >= 10)
-            ? BaseButton(
-                buttonText: "Return to chat",
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              )
-            : BaseButton(
-                buttonText: "Unmetal",
-                onPressed: () {
-                  Navigator.pop(context);
-                  sendUnmelt();
-                },
-              ),
-        const Gap(23),
-      ],
-    );
-  }
-
   Widget unmetalRequestDialog(BuildContext context) {
     return Column(
       children: [
@@ -534,75 +371,6 @@ class _ChatWindowsAppBarState extends ConsumerState<ChatWindowsAppBar> {
         ),
         const Gap(23),
       ],
-    );
-  }
-
-  Widget unmetalRequestSentDialog(BuildContext context) {
-    return Column(
-      children: [
-        const Gap(38),
-        const TextView(
-          text: "Unmetal request",
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-        ),
-        const Gap(15),
-        TextView(
-          text:
-              "We have sent your request to @${widget.meltUserModel.username}. We will notify you when we get a response",
-          fontSize: 16,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
-        ),
-        const Gap(38),
-        BaseButton(
-          buttonText: "Return to chat",
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        const Gap(23),
-      ],
-    );
-  }
-
-  void sendUnmelt() {
-    // Get user ID before sending message to avoid state modification during build
-    final currentUser = ref.read(userStateProvider).data;
-
-    if (currentUser?.id == null) {
-      // Handle error case
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not authenticated')),
-      );
-      return;
-    }
-
-    final message = MessageModel(
-      senderId: currentUser!
-          .id!, // We can safely use ! here since we checked for null above
-      type: MessageType.un_melt,
-      timestamp: DateTime.now().toIso8601String(),
-      isRead: false,
-      message: "Un-melt Request",
-    );
-
-    // Use read instead of watch for state modifications
-    ref
-        .read(sendMessageProvider.notifier)
-        .sendMessage(message, widget.connectionModel.connectionId);
-
-    // Check if widget is still mounted before showing dialog
-    if (!mounted) return;
-
-    // Show the sent confirmation dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CustomDialog(
-          content: unmetalRequestSentDialog(context),
-        );
-      },
     );
   }
 

@@ -3,16 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/core/services/firebase.remote.config.service.dart';
-import 'package:metal/core/utils/date.formart.dart';
+import 'package:metal/features/unmetal/widgets/unmetal_dialog.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 
-import 'package:metal/features/authentication/provider/unmelt_days_notifier.dart';
-import 'package:metal/features/authentication/provider/user_state_notifier.dart';
-import 'package:metal/features/chat/domain/entries/message.model.dart';
-import 'package:metal/features/chat/provider/send.message.notifier.dart';
+import 'package:metal/features/home_page/domain/entries/connection.model.dart';
 
-import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
 import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 
@@ -42,15 +37,6 @@ class MetalDetailsTab extends ConsumerStatefulWidget {
 }
 
 class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
-  late int dayRemaining;
-
-  @override
-  void initState() {
-    super.initState();
-    dayRemaining = daysRemaining(widget.connectedOn,
-        FirebaseRemoteConfigService().getDaysRequiredToUnMelt());
-  }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -110,13 +96,19 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
                           width: 21,
                         ),
                         onTap: () {
+                          // Create a minimal ConnectionModel for the notifier
+                          final connectionModel = ConnectionModel(
+                            connectionId: widget.connectionModel,
+                            users: [widget.userModel.id ?? ''],
+                            connectedOn: widget.connectedOn,
+                          );
+
                           showDialog(
                             context: context,
-                            builder: (BuildContext context) {
-                              return CustomDialog(
-                                content: unmetalDialog(context, dayRemaining),
-                              );
-                            },
+                            builder: (context) => UnmetalDialog(
+                              otherUser: widget.userModel,
+                              connectionModel: connectionModel,
+                            ),
                           );
                         },
                       ),
@@ -147,230 +139,6 @@ class _MetalDetailsTabState extends ConsumerState<MetalDetailsTab> {
         ),
       ),
     );
-  }
-
-  Widget unmetalDialog(BuildContext context, int remaining) {
-    final connectionModel =
-        ref.watch(getConnectionProvider(widget.connectionModel));
-    final currentUser = ref.watch(userStateProvider).data;
-    final daysRequired = ref.watch(numberDaysProvider);
-    final uniqueDailyConversations =
-        connectionModel.data?.uniqueDailyConversationsCount ?? 0;
-
-    // Force refresh user data to get the latest profile photo
-    ref.read(userStateProvider.notifier).refreshUser();
-
-    // Improved check for profile photo existence
-    final hasProfilePhoto = currentUser?.profilePhoto != null &&
-        currentUser!.profilePhoto!.isNotEmpty &&
-        currentUser.profilePhoto!.trim().isNotEmpty;
-    final otherUserHasPhoto = widget.userModel.profilePhoto != null &&
-        widget.userModel.profilePhoto!.isNotEmpty &&
-        widget.userModel.profilePhoto!.trim().isNotEmpty;
-
-    final missingYourPhoto = !hasProfilePhoto;
-    final missingOtherPhoto = !otherUserHasPhoto;
-
-    // Only block proceeding if the current user is missing a photo
-    if (missingYourPhoto) {
-      return Column(
-        children: [
-          const Gap(38),
-          const TextView(
-            text: "Want to Unmetal?",
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
-          const Gap(15),
-          const TextView(
-            text:
-                "Wait a minute, we are missing your photo! To unmetal means that the two profiles can view each others photos",
-            fontSize: 16,
-            textAlign: TextAlign.center,
-            fontWeight: FontWeight.w400,
-          ),
-          const Gap(15),
-          const TextView(
-            text: "To continue",
-            fontSize: 16,
-            textAlign: TextAlign.center,
-            fontWeight: FontWeight.w400,
-          ),
-          const Gap(38),
-          BaseButton(
-            buttonText: "Upload your photo",
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, AppRoutes.createProfilePage);
-            },
-          ),
-          const Gap(23),
-        ],
-      );
-    }
-
-    // Warn about the other user's missing photo but allow proceeding
-    if (missingOtherPhoto) {
-      return Column(
-        children: [
-          const Gap(38),
-          const TextView(
-            text: "Want to Unmetal?",
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
-          const Gap(15),
-          const TextView(
-            text:
-                "The other user doesn't have a profile photo yet. They will be asked to upload one when accepting your request.",
-            fontSize: 16,
-            textAlign: TextAlign.center,
-            fontWeight: FontWeight.w400,
-          ),
-          const Gap(15),
-          TextView(
-            text:
-                "Do you still want to send an unmetal request to @${widget.userModel.username}?",
-            fontSize: 16,
-            textAlign: TextAlign.center,
-            fontWeight: FontWeight.w400,
-          ),
-          const Gap(38),
-          Row(
-            children: [
-              Expanded(
-                child: BaseButton(
-                  buttonText: "Cancel",
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              const Gap(10),
-              Expanded(
-                child: BaseButton(
-                  buttonText: "Send Request",
-                  onPressed: () {
-                    Navigator.pop(context);
-                    sendUnmelt();
-                  },
-                ),
-              ),
-            ],
-          ),
-          const Gap(23),
-        ],
-      );
-    }
-
-    return Column(
-      children: [
-        const Gap(38),
-        const TextView(
-          text: "Want to Unmetal?",
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-        ),
-        const Gap(15),
-        TextView(
-          text:
-              "To Unmetal, we require a minimum of $daysRequired days and 10 sessions of conversations between you and @${widget.userModel.username}",
-          fontSize: 16,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
-        ),
-        const Gap(15),
-        TextView(
-          text:
-              "You have had $remaining days and $uniqueDailyConversations interactions",
-          fontSize: 16,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
-        ),
-        const Gap(38),
-        (remaining <= 0 && uniqueDailyConversations >= 10)
-            ? BaseButton(
-                buttonText: "Return to chat",
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              )
-            : BaseButton(
-                buttonText: "Unmetal",
-                onPressed: () {
-                  sendUnmelt();
-                },
-              ),
-        const Gap(23),
-      ],
-    );
-  }
-
-  Widget unmetalRequestSentDialog(BuildContext context) {
-    return Column(
-      children: [
-        const Gap(38),
-        const TextView(
-          text: "Unmetal request",
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-        ),
-        const Gap(15),
-        TextView(
-          text:
-              "We have sent your request to @${widget.userModel.username}. We will notify you when we get a response",
-          fontSize: 16,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.w400,
-        ),
-        const Gap(38),
-        BaseButton(
-          buttonText: "Return to chat",
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        const Gap(23),
-      ],
-    );
-  }
-
-  void sendUnmelt() {
-    // Get user ID before sending message to avoid state modification during build
-    final currentUserId = ref.read(userStateProvider).data?.id;
-
-    if (currentUserId == null) {
-      // Handle error case
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not authenticated')),
-      );
-      return;
-    }
-
-    final message = MessageModel(
-      senderId: currentUserId,
-      type: MessageType.un_melt,
-      timestamp: DateTime.now().toIso8601String(),
-      isRead: false,
-      message: "Un-melt Request",
-    );
-
-    // Use read instead of watch for state modifications
-    ref
-        .read(sendMessageProvider.notifier)
-        .sendMessage(message, widget.connectionModel);
-
-    // Show the sent confirmation dialog
-    if (mounted) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CustomDialog(
-            content: unmetalRequestSentDialog(context),
-          );
-        },
-      );
-    }
   }
 
   Widget _blockDialog(BuildContext context, UserModel data, WidgetRef ref) {

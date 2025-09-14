@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart' as geo;
-import 'package:geocoding/geocoding.dart' as geo_coding;
 import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/core/managers/location_manager.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
 import 'package:metal/features/dashboard.dart/widget/new_update_dialog.dart';
@@ -50,7 +49,6 @@ class DashboardPage extends ConsumerStatefulWidget {
 class _DashboardPageState extends ConsumerState<DashboardPage> {
   late int currentIndex;
   bool _initialized = false;
-  PackageInfo? _packageInfo;
 
   // Add a key for the new post FAB to be referenced by the tutorial
   final GlobalKey newPostFabKey = GlobalKey();
@@ -107,21 +105,19 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   Future<void> _initializeData() async {
-    print('Calling _initializeData. _initialized:  [32m$_initialized [0m');
     if (_initialized) return;
     _initialized = true;
-    print('Initializing dashboard data...');
 
     final userdata = ref.read(userStateProvider).data;
     if (userdata != null && mounted) {
-      await _updateUserLocation();
+      // Update location on app startup using LocationManager
+      await LocationManager().updateLocationOnAppStart(ref);
       await _checkOnboardingAndUserStatus(userdata);
     }
   }
 
   @override
   void dispose() {
-    print('Dashboard dispose');
     _initialized = false;
     super.dispose();
   }
@@ -268,70 +264,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       // Show the tutorial - this will now bypass the hasSeenTutorial check
       showTutorial(context, steps, 'dashboard_tutorial_key');
     });
-  }
-
-  // Update user's current location
-  Future<void> _updateUserLocation() async {
-    try {
-      // Check if location services are enabled
-      bool serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) return;
-
-      // Check location permission
-      geo.LocationPermission permission =
-          await geo.Geolocator.checkPermission();
-      if (permission == geo.LocationPermission.denied ||
-          permission == geo.LocationPermission.deniedForever) {
-        return; // Don't request permission silently, just skip location update
-      }
-
-      // Get current position
-      geo.Position position = await geo.Geolocator.getCurrentPosition(
-        desiredAccuracy: geo.LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 10), // Timeout after 10 seconds
-      );
-
-      // Get address from coordinates
-      List<geo_coding.Placemark> placemarks =
-          await geo_coding.placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-
-      String address = "No address available";
-      if (placemarks.isNotEmpty && mounted) {
-        geo_coding.Placemark place = placemarks[0];
-        if (place.locality != null && place.country != null) {
-          address = "${place.locality}, ${place.country}";
-        } else if (place.country != null) {
-          address = place.country!;
-        } else {
-          debugPrint(
-              'Placemark fields are null for coordinates: ${position.latitude}, ${position.longitude}');
-        }
-      } else {
-        debugPrint(
-            'No placemarks found for coordinates: ${position.latitude}, ${position.longitude}');
-      }
-
-      Location location = Location(
-        lat: position.latitude,
-        lng: position.longitude,
-        address: address,
-      );
-
-      // CRITICAL: Check mounted right before using ref
-      if (mounted) {
-        await ref.read(userStateProvider.notifier).updateUserField(
-              field: 'location',
-              value: location.toJson(),
-            );
-      } else {
-        debugPrint('Not mounted, skipping ref update');
-      }
-    } catch (e) {
-      debugPrint('Location update failed: $e');
-    }
   }
 
   @override

@@ -202,10 +202,8 @@ class NavDrawer extends ConsumerWidget {
                       ),
                       title: const TextView(text: "Verify your account"),
                       onTap: () => {
-                        Navigator.pushNamed(
-                          context,
-                          AppRoutes.faceVerification,
-                        )
+                               
+            Navigator.pushNamed(context, AppRoutes.workEmail)
                       },
                     ),
                     const Gap(20),

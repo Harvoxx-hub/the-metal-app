@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+ 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/base/page/base_page_state.dart';
@@ -6,7 +6,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/services/notification_handler.dart';
 import 'package:metal/core/services/notification_state_service.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
-import 'package:metal/features/notification/widget/melt.notification.item.dart';
+import 'package:metal/features/notification/widget/notification.item.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 
 class NotificationPage extends ConsumerStatefulWidget {
@@ -30,9 +30,8 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
       floatingActionButton: unreadCountAsync.when(
         data: (count) => count > 0
             ? FloatingActionButton(
-                onPressed: () async {
-                  await NotificationStateService.instance.markAllAsRead();
-                },
+                onPressed: () =>
+                    NotificationStateService.instance.markAllAsRead(),
                 tooltip: 'Mark all as read',
                 child: const Icon(Icons.done_all),
               )
@@ -41,29 +40,13 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
         error: (_, __) => null,
       ),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            height: 53,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment(0.00, -1.00),
-                  end: Alignment(0, 1),
-                  colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(35),
-                  bottomRight: Radius.circular(35),
-                )),
-          ),
+          _buildHeader(),
           Expanded(
             child: notificationsAsync.when(
               data: (notifications) => RefreshIndicator(
                 onRefresh: () async {
-                  ref.refresh(filteredNotificationsStreamProvider);
-                  // Wait a short moment to allow the stream to update
-                  await Future.delayed(const Duration(milliseconds: 500));
+                  ref.invalidate(filteredNotificationsStreamProvider);
                 },
                 child: _buildNotificationsList(notifications),
               ),
@@ -79,19 +62,34 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
     );
   }
 
+  Widget _buildHeader() {
+    return Container(
+      height: 53,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment(0.00, -1.00),
+          end: Alignment(0, 1),
+          colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(35),
+          bottomRight: Radius.circular(35),
+        ),
+      ),
+    );
+  }
+
   Widget _buildNotificationsList(List<NotificationModel> notifications) {
     if (notifications.isEmpty) {
-      return const EmptyState(
-        text: "You have no notifications",
-      );
+      return const EmptyState(text: "You have no notifications");
     }
 
     return ListView.builder(
       itemCount: notifications.length,
-      itemBuilder: (BuildContext context, int index) {
+      itemBuilder: (context, index) {
         final notification = notifications[index];
         return Dismissible(
-          key: Key(notification.id ?? 'notification-$index'),
+          key: Key(notification.id),
           background: Container(
             color: Colors.red,
             alignment: Alignment.centerRight,
@@ -99,30 +97,25 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
             child: const Icon(Icons.delete, color: Colors.white),
           ),
           direction: DismissDirection.endToStart,
-          onDismissed: (_) async {
-            await NotificationStateService.instance.deleteNotification(
-              notification.id ?? '',
-            );
-          },
+          onDismissed: (_) => _deleteNotification(notification),
           child: InkWell(
-            onTap: () async {
-              // Mark as read if not already read
-              if (!notification.isRead) {
-                await NotificationStateService.instance.markAsRead(
-                  notification.id ?? '',
-                );
-              }
-
-              // Handle navigation using centralized handler
-              await NotificationHandlerService.instance
-                  .handleInAppNotification(notification);
-            },
-            child: MeltNotificationItem(
-              notificationModel: notification,
-            ),
+            onTap: () => _handleNotificationTap(notification),
+            child: NotificationItem(notification: notification),
           ),
         );
       },
     );
+  }
+
+  Future<void> _deleteNotification(NotificationModel notification) async {
+    await NotificationStateService.instance.deleteNotification(notification.id);
+  }
+
+  Future<void> _handleNotificationTap(NotificationModel notification) async {
+    if (!notification.isRead) {
+      await NotificationStateService.instance.markAsRead(notification.id);
+    }
+    await NotificationHandlerService.instance
+        .handleInAppNotification(notification);
   }
 }

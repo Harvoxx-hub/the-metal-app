@@ -6,8 +6,7 @@ import 'package:metal/features/authentication/presentation/login/login.screen.da
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/home_page/domain/entries/thought.model.dart';
 import 'package:metal/features/settings/presentation/edit.preferences.dart';
-import 'package:metal/features/verification/face_verification_screen.dart';
-
+ 
 import 'package:metal/features/home_page/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
 
@@ -63,9 +62,7 @@ import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 
 import 'package:metal/features/upgrade/make.payment.dart';
 
-import 'package:metal/features/verification/verification.video.dart';
-import 'package:metal/features/verification/video.preview.dart';
-
+ 
 import 'package:metal/features/home_page/presentation/thought_details.page.dart';
 import 'package:metal/features/profile/presentation/pages/work_email_page.dart';
 
@@ -99,9 +96,7 @@ class AppRoutes {
   static const String eyeSelectMedia = '/eyeSelectMedia';
   static const String eyePreviewMedia = '/eyePreviewMedia';
   static const String settingPage = '/settingPage';
-  static const String verificationVideo = '/verificationVideo';
-  static const String videoPreview = '/videoPreview';
-  static const String faceVerification = '/faceVerification';
+ 
   static const String meltMetal = '/meltMetal';
   static const String pushMetal = '/pushMetal';
   static const String feedBackPage = '/feedBackPage';
@@ -245,13 +240,8 @@ class AppRoutes {
                 EyePreviewMedia(media: settings.arguments as XFile));
       case settingPage:
         return MaterialPageRoute(builder: (_) => const SettingPage());
-      case verificationVideo:
-        return MaterialPageRoute(builder: (_) => const VerificationVideo());
-      case videoPreview:
-        return MaterialPageRoute(builder: (_) => const VideoPreview());
-      case faceVerification:
-        return MaterialPageRoute(
-            builder: (_) => const FaceVerificationScreen());
+    
+ 
       case feedBackPage:
         return MaterialPageRoute(builder: (_) => FeedBackPage());
       case blockedUser:

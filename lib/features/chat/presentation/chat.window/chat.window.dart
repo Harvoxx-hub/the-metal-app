@@ -17,9 +17,9 @@ import 'package:metal/features/chat/presentation/chat.window/widget/message.list
 
 import 'package:metal/features/chat/provider/game.conversation.notifier.dart';
 
-import 'package:metal/features/home_page/domain/entries/connection.model.dart';
-import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
-import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+import 'package:metal/features/thought/data/domain/entries/connection.model.dart';
+import 'package:metal/features/thought/provider/get.connection.notifier.dart';
+import 'package:metal/features/thought/provider/get.melt.users.notifier.dart';
 
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
@@ -42,6 +42,7 @@ class ChatWindowsPage extends ConsumerStatefulWidget {
 
 class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
   UserModel? currentUserData;
+  Function(MessageModel)? _onReplyCallback;
 
   @override
   Widget build(BuildContext context) {
@@ -109,13 +110,22 @@ class _ChatWindowsPageState extends ConsumerState<ChatWindowsPage> {
                   GameTile(
                     conversationsModel: nonNullConnection,
                   ),
-                  MessageList(nonNullConnection.connectionId, onApproved: () {
-                    ref.read(getMeltUserProvider.notifier).getMeltUsers();
-                  }),
+                  MessageList(
+                    nonNullConnection.connectionId,
+                    onApproved: () {
+                      ref.read(getMeltUserProvider.notifier).getMeltUsers();
+                    },
+                    onReply: (message) {
+                      _onReplyCallback?.call(message);
+                    },
+                  ),
                   ChatBottomSheet(
                     meltUserModel: nonNullConnection.otherUser!,
                     connectionModel: nonNullConnection,
                     onGameClick: () => _handleGameSelection(nonNullConnection),
+                    onReplyCallback: (callback) {
+                      _onReplyCallback = callback;
+                    },
                   )
                 ],
               );

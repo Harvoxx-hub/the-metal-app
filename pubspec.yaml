@@ -4,7 +4,7 @@ description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
  
-version: 1.0.23+71
+version: 1.0.25+80
 
 
 environment:
@@ -83,7 +83,10 @@ dependencies:
   floating: ^6.0.0
   video_compress: ^3.1.4
   flutter_flavor: ^3.1.4
- 
+  app_links: ^6.3.2
+
+
+
 
 
 dependency_overrides:

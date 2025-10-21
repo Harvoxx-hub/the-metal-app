@@ -150,7 +150,19 @@ class MessageRepository implements IMessageRepository {
       for (var doc in snapshot.docs) {
         await doc.reference.delete();
       }
-      print('Chat cleared successfully.');
+
+      // Also clear last conversation metadata on the connection
+      await _firestore
+          .collection(FirebaseFirestoreCollectionKeys.connections)
+          .doc(conversationId)
+          .update({
+        'lastMessage': null,
+        'lastUpdatedAt': null,
+        'lastSenderId': null,
+        'unreadCount': 0,
+      });
+
+      print('Chat and connection last message metadata cleared successfully.');
     } catch (e) {
       print('Error clearing chat: $e');
       rethrow;

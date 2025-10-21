@@ -8,7 +8,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
-import 'package:metal/features/home_page/provider/get.users.by.query.notifier.dart';
+import 'package:metal/features/thought/provider/get.users.by.query.notifier.dart';
 
 import 'package:metal/features/sparks_page/provider/send.spark.notifier.dart';
 import 'package:metal/features/sparks_page/screens/widget/single.spark.header.card.dart';

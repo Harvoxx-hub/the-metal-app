@@ -91,9 +91,9 @@ int daysRemaining(String isoDateString, int durationInDays) {
   int daysSinceConnection = now.difference(date).inDays;
 
   // Return completed days, capped at the required duration
-  return daysSinceConnection > durationInDays
+  return daysSinceConnection >= durationInDays
       ? durationInDays
-      : daysSinceConnection;
+      : durationInDays - daysSinceConnection;
 }
 
 bool hasDurationReached(String isoDateString, int durationInDays) {

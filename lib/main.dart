@@ -11,7 +11,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/firebase_options_dev.dart' show DefaultFirebaseOptionDev;
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:shorebird_code_push/shorebird_code_push.dart';
 import 'package:zego_uikit/zego_uikit.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
@@ -19,6 +18,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:metal/fcm/fcm_client.dart';
 import 'package:metal/app_config.dart';
 import 'package:metal/core/services/firebase_test_service.dart';
+import 'package:metal/core/services/deep_link_service.dart';
 
 /// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
@@ -75,10 +75,6 @@ void main() async {
     // Continue app startup even if FCM fails
   }
 
-// // Initialize Shorebird
-//   final shorebirdCodePush = ShorebirdCodePush();
-//   await shorebirdCodePush.downloadUpdateIfAvailable();
-
   // Set navigator key
   ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navKey);
 
@@ -98,6 +94,11 @@ void main() async {
   if (userId != null) {
     WidgetsBinding.instance.addObserver(AppLifecycleHandler(userId));
   }
+
+  // Initialize deep link service
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    DeepLinkService.instance.initialize(navKey.currentContext!);
+  });
 }
 
 /// Initializes Firebase and sets analytics based on environment
@@ -132,6 +133,14 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // ref.read(updateProfileProvider.notifier);
   }
 
+  /// Check if a route name is numeric (likely an ID from deep link)
+  bool _isNumericRoute(String routeName) {
+    // Remove leading slash and check if it's a numeric string
+    final cleanRoute =
+        routeName.startsWith('/') ? routeName.substring(1) : routeName;
+    return RegExp(r'^\d+$').hasMatch(cleanRoute);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -148,7 +157,26 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         );
       },
       initialRoute: '/',
-      onGenerateRoute: AppRoutes.generateRoute,
+      onGenerateRoute: (settings) {
+        print('settings.name: ${settings.name}');
+
+        // Block Flutter's automatic routing for deep link paths
+        // These paths should be handled by DeepLinkService instead
+        final routeName = settings.name;
+        if (routeName != null) {
+          // Block routes that match deep link patterns
+          // But allow /thoughtDetails when it comes from deep link service
+          if (routeName.startsWith('/thought/') ||
+              routeName.startsWith('/user/') ||
+              routeName.startsWith('/community/') ||
+              _isNumericRoute(routeName)) {
+            print('Blocking automatic route for deep link: $routeName');
+            return null; // Let DeepLinkService handle this
+          }
+        }
+
+        return AppRoutes.generateRoute(settings);
+      },
       debugShowCheckedModeBanner: false,
     );
   }

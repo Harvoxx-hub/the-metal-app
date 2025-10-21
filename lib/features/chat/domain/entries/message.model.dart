@@ -18,7 +18,13 @@ class MessageModel {
 
   final String timestamp;
   final bool isRead;
-  
+
+  // Reply functionality fields
+  String? replyToMessageId; // ID of the message being replied to
+  String? replyToMessageText; // Truncated preview text of the original message
+  String? replyToSenderId; // ID of the original message sender
+  String?
+      replyToMessageType; // Type of the original message (text, audio, etc.)
 
   MessageModel({
     required this.message,
@@ -28,6 +34,10 @@ class MessageModel {
     this.id,
     required this.timestamp,
     required this.isRead,
+    this.replyToMessageId,
+    this.replyToMessageText,
+    this.replyToSenderId,
+    this.replyToMessageType,
   });
   factory MessageModel.fromJson(Map<String, dynamic> json) =>
       _$MessageModelFromJson(json);
@@ -42,7 +52,11 @@ class MessageModel {
         content: data['content'],
         timestamp: data['timestamp'],
         isRead: data['isRead'],
-        id: snapshot.id);
+        id: snapshot.id,
+        replyToMessageId: data['replyToMessageId'],
+        replyToMessageText: data['replyToMessageText'],
+        replyToSenderId: data['replyToSenderId'],
+        replyToMessageType: data['replyToMessageType']);
   }
 
   static MessageType _convertStringToMessageType(String type) {
@@ -60,16 +74,35 @@ class MessageModel {
     }
   }
 
-  static MessageState _convertStringToMessageState(String state) {
-    switch (state) {
-      case 'sending':
-        return MessageState.sending;
-      case 'sent':
-        return MessageState.sent;
-      case 'read':
-        return MessageState.read;
+  /// Check if this message is a reply to another message
+  bool get isReply => replyToMessageId != null && replyToMessageId!.isNotEmpty;
+
+  /// Get truncated reply text for display
+  String get truncatedReplyText {
+    if (!isReply || replyToMessageText == null) return '';
+
+    const maxLength = 50; // Truncate to 50 characters
+    if (replyToMessageText!.length <= maxLength) {
+      return replyToMessageText!;
+    }
+    return '${replyToMessageText!.substring(0, maxLength)}...';
+  }
+
+  /// Get display text for reply preview based on message type
+  String get replyPreviewText {
+    if (!isReply) return '';
+
+    switch (replyToMessageType) {
+      case 'text':
+        return truncatedReplyText;
+      case 'audio':
+        return '🎵 Voice message';
+      case 'calls':
+        return '📞 Call';
+      case 'un_melt':
+        return '🔓 Unmelt request';
       default:
-        return MessageState.error;
+        return '📎 Message';
     }
   }
 }

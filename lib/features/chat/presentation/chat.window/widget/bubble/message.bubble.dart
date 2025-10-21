@@ -10,8 +10,6 @@ import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/widget/bubble/wave.bubble.dart';
 import 'package:metal/features/chat/provider/manage.message.notifier.dart';
 import 'package:metal/features/chat/provider/unmelt.notifier.dart';
-import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
-import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
@@ -23,12 +21,16 @@ class MessageBubble extends ConsumerWidget {
   final MessageModel message;
   final String connectionId;
   final Function()? onApproved;
+  final Function(MessageModel)? onReply;
+  final Function(String)? onScrollToMessage;
 
   const MessageBubble({
     super.key,
     required this.message,
     required this.connectionId,
     this.onApproved,
+    this.onReply,
+    this.onScrollToMessage,
   });
 
   @override
@@ -92,8 +94,71 @@ class MessageBubble extends ConsumerWidget {
             borderRadius: _getMessageBubbleBorderRadius(isSender, isAdmin),
           ),
           padding: isAdmin ? const EdgeInsets.all(5) : const EdgeInsets.all(16),
-          child: TextView(
-            text: message.message,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // WhatsApp-style reply preview (clickable)
+              if (message.isReply) ...[
+                GestureDetector(
+                  onTap: () {
+                    print(
+                        'MessageBubble: Reply preview tapped for message: ${message.id}');
+                    print(
+                        'MessageBubble: ReplyToMessageId: ${message.replyToMessageId}');
+                    if (message.replyToMessageId != null) {
+                      onScrollToMessage?.call(message.replyToMessageId!);
+                    } else {
+                      print('MessageBubble: No replyToMessageId found');
+                    }
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.metalBlack.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border(
+                        left: BorderSide(
+                          color: AppColors.metalPinkColour,
+                          width: 3,
+                        ),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final userData = ref.read(userStateProvider).data;
+                            return TextView(
+                              text: message.replyToSenderId == userData?.id
+                                  ? "You"
+                                  : "Message",
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.metalPinkColour,
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 2),
+                        TextView(
+                          text: _getOriginalMessageText(message),
+                          fontSize: 13,
+                          color: AppColors.metalBlack75,
+                          maxLines: 2,
+                          textOverflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+              // Main message content
+              TextView(
+                text: message.message,
+              ),
+            ],
           ),
         ),
         const Gap(10),
@@ -201,6 +266,17 @@ class MessageBubble extends ConsumerWidget {
         _buildReadReceipt(isSender),
       ],
     );
+  }
+
+  /// Get the original message text, not intermediate reply text
+  String _getOriginalMessageText(MessageModel message) {
+    // If this message is a reply, use the original message text
+    if (message.replyToMessageText != null &&
+        message.replyToMessageText!.isNotEmpty) {
+      return message.replyToMessageText!;
+    }
+    // Otherwise use the current message text
+    return message.message;
   }
 
   Widget _buildUnmeltContent(bool isSender, WidgetRef ref) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/features/home_page/provider/get.user.notifier.dart';
+import 'package:metal/features/thought/provider/get.user.notifier.dart';
 import 'package:metal/features/settings/presentation/widget/block_user_helper.dart';
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/widgets/card.with.shadow.dart';

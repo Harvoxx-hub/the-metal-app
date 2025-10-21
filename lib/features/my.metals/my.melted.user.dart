@@ -11,11 +11,11 @@ import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
-import 'package:metal/features/home_page/data/repositories/home.repository.dart';
-import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
-import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
-import 'package:metal/features/home_page/provider/get.user.notifier.dart';
-import 'package:metal/features/home_page/provider/melt.user.notifier.dart';
+import 'package:metal/features/thought/repositories/home.repository.dart';
+import 'package:metal/features/thought/provider/check.melt.status.notifier.dart';
+import 'package:metal/features/thought/provider/get.melt.users.notifier.dart';
+import 'package:metal/features/thought/provider/get.user.notifier.dart';
+import 'package:metal/features/thought/provider/melt.user.notifier.dart';
 import 'package:metal/features/my.metals/metal.tabs/metal.details.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
@@ -149,11 +149,8 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                               child: Column(
                                 children: [
                                   TextView(
-                                    text: connection != null
-                                        ? connection.isAnonymous
-                                            ? "@${myMelt.data!.username} "
-                                            : "@${myMelt.data!.fullname} "
-                                        : "@${myMelt.data!.username} ",
+                                    text:  
+                                         "@${myMelt.data!.username} ",
                                     fontWeight: FontWeight.bold,
                                   ),
                                   const Gap(5),
@@ -374,7 +371,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
         const Gap(8),
         const TextView(
           text:
-              "De-melt form previous connection to be able to connect to more metals", // Assuming `description` contains details about the metal
+              "De-melt from previous connection to be able to connect to more metals", // Assuming `description` contains details about the metal
           maxLines: 3,
           textAlign: TextAlign.center,
         ),

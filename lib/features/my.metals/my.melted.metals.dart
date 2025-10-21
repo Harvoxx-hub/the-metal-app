@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 
-import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+import 'package:metal/features/thought/provider/get.melt.users.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/features/my.metals/widget/melt.card.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';

@@ -74,6 +74,22 @@
 - **Icon:** Profile notification icon
 - **Fallback:** Home tab
 
+### 10. **community_post** ✨ *New*
+- **When:** Someone posts in a community you're a member of
+- **To:** All other community members
+- **Handler:** `CommunityPostNotificationHandler`
+- **Navigation:** → Community profile (`AppRoutes.communityProfile`) with communityId
+- **Icon:** Active message icon
+- **Fallback:** Home tab
+
+### 11. **community_join** ✨ *New*
+- **When:** Someone joins a community you're a member of
+- **To:** All existing community members (excluding the new member)
+- **Handler:** `CommunityJoinNotificationHandler`
+- **Navigation:** → Community profile (`AppRoutes.communityProfile`) with communityId
+- **Icon:** Profile notification icon
+- **Fallback:** Home tab
+
 ---
 
 ## 🛠️ Technical Implementation
@@ -88,6 +104,8 @@
 - `ThoughtReminderNotificationHandler` ✨
 - `CommentNotificationHandler` ✨
 - `CommentReactionNotificationHandler` ✨
+- `CommunityPostNotificationHandler` ✨
+- `CommunityJoinNotificationHandler` ✨
 - `DefaultNotificationHandler` (for unknown types)
 
 ### **Enums Updated:**
@@ -143,11 +161,34 @@
 {} // No specific data required
 ```
 
+#### **community_post:**
+```json
+{
+  "thoughtId": "string",
+  "communityId": "string",
+  "authorId": "string",
+  "content": "string",
+  "communityName": "string"
+}
+```
+
+#### **community_join:**
+```json
+{
+  "memberId": "string",
+  "communityId": "string",
+  "userId": "string",
+  "userName": "string",
+  "communityName": "string",
+  "role": "string"
+}
+```
+
 ---
 
 ## ✅ **Benefits of Complete Implementation:**
 
-1. **🎯 100% Coverage:** All 9 notification types properly handled
+1. **🎯 100% Coverage:** All 11 notification types properly handled
 2. **🔄 Consistent Navigation:** Unified routing logic for all types
 3. **🎨 Proper Icons:** Appropriate visual representation for each type
 4. **🛡️ Fallback Safety:** Safe fallbacks for missing data
@@ -167,6 +208,8 @@
 - [ ] thought_reminder notifications → Home tab
 - [ ] comment notifications → Thought details
 - [ ] comment_reaction notifications → Thought details
+- [ ] community_post notifications → Community profile
+- [ ] community_join notifications → Community profile
 - [ ] Unknown type notifications → Notification page
 - [ ] Missing data fallbacks work correctly
 - [ ] Icons display correctly for each type

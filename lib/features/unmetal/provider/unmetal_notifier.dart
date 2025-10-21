@@ -43,12 +43,9 @@ class UnmetalNotifier extends StateNotifier<UnmetalState> {
   bool canProceedWithUnmetal({
     required int completedDays,
     required int daysRequired,
-    required int uniqueDailyConversations,
     required bool hasProfilePhoto,
   }) {
-    return completedDays >= daysRequired &&
-        uniqueDailyConversations >= 10 &&
-        hasProfilePhoto;
+    return completedDays >= daysRequired && hasProfilePhoto;
   }
 
   /// Send unmetal request

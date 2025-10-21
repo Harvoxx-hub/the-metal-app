@@ -112,6 +112,11 @@ class NotificationItem extends StatelessWidget {
         return Assets.images.profileNotification.path;
       case NotificationType.sparks_transaction:
         return Assets.images.sparkNotification.path;
+        
+      case NotificationType.community_post:
+        return Assets.images.activeMessage.path;
+      case NotificationType.community_join:
+        return Assets.images.profileNotification.path;
     }
   }
 }

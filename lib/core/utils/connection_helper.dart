@@ -1,5 +1,5 @@
-import 'package:metal/features/home_page/data/repositories/home.repository.dart';
-import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+import 'package:metal/features/thought/repositories/home.repository.dart';
+import 'package:metal/features/thought/data/domain/entries/connection.model.dart';
 
 /// Helper class for connection-related utilities
 class ConnectionHelper {

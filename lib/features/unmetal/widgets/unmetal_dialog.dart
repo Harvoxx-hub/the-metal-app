@@ -5,7 +5,7 @@ import 'package:gap/gap.dart';
 import '../../../features/authentication/domain/entries/user.model.dart';
 import '../../../features/authentication/provider/unmelt_days_notifier.dart';
 import '../../../features/authentication/provider/user_state_notifier.dart';
-import '../../../features/home_page/domain/entries/connection.model.dart';
+import '../../thought/data/domain/entries/connection.model.dart';
 import '../../../features/unmetal/provider/unmetal_notifier.dart';
 import '../../../widgets/button/base_button.dart';
 import '../../../widgets/dialog/custom.dialog.dart';
@@ -29,8 +29,7 @@ class UnmetalDialog extends ConsumerWidget {
     final daysRequired = ref.watch(numberDaysProvider);
     final completedDays = unmetalNotifier.calculateCompletedDays(
         connectionModel.connectedOn, daysRequired);
-    final uniqueDailyConversations =
-        connectionModel.uniqueDailyConversationsCount;
+ 
     final currentUser = ref.watch(userStateProvider).data;
 
     final hasProfilePhoto = currentUser?.profilePhoto != null &&
@@ -40,7 +39,7 @@ class UnmetalDialog extends ConsumerWidget {
     return CustomDialog(
       content: hasProfilePhoto
           ? _buildUnmetalDialog(context, ref, unmetalNotifier, unmetalState,
-              completedDays, daysRequired, uniqueDailyConversations)
+              completedDays, daysRequired)
           : _buildMissingPhotoDialog(context),
     );
   }
@@ -78,12 +77,12 @@ class UnmetalDialog extends ConsumerWidget {
     UnmetalState unmetalState,
     int completedDays,
     int daysRequired,
-    int uniqueDailyConversations,
+ 
   ) {
     final canProceed = unmetalNotifier.canProceedWithUnmetal(
       completedDays: completedDays,
       daysRequired: daysRequired,
-      uniqueDailyConversations: uniqueDailyConversations,
+      
       hasProfilePhoto: true,
     );
 
@@ -98,16 +97,16 @@ class UnmetalDialog extends ConsumerWidget {
         const Gap(15),
         TextView(
           text:
-              "To Unmetal, we require a minimum of $daysRequired days and 10 sessions of conversations between you and @${otherUser.username}",
+              "To Unmetal, we require a minimum of $daysRequired days of conversations between you and @${otherUser.username}",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
         ),
         const Gap(15),
         TextView(
-          text: completedDays >= daysRequired
-              ? "You have completed all $daysRequired days required and have $uniqueDailyConversations interactions"
-              : "You have $completedDays days remaining out of $daysRequired days to unmetal and $uniqueDailyConversations interactions",
+          text: canProceed
+              ? "You have completed all $daysRequired days required"
+              : "You have $completedDays days remaining out of $daysRequired days to unmetal",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,
@@ -118,7 +117,7 @@ class UnmetalDialog extends ConsumerWidget {
         else if (unmetalState.isUnmetalRequestSent)
           _buildRequestSentDialog(context)
         else
-          canProceed
+          !canProceed
               ? BaseButton(
                   buttonText: "Return to chat",
                   onPressed: () => Navigator.pop(context),

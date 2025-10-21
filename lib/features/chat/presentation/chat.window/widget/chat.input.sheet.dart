@@ -11,8 +11,9 @@ import 'package:metal/features/authentication/provider/user_state_notifier.dart'
 
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/presentation/chat.window/widget/bubble/wave.bubble.dart';
+import 'package:metal/features/chat/presentation/chat.window/widget/reply_preview_widget.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
-import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+import 'package:metal/features/thought/data/domain/entries/connection.model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
@@ -27,11 +28,13 @@ class ChatBottomSheet extends ConsumerStatefulWidget {
     required this.onGameClick,
     required this.meltUserModel,
     required this.connectionModel,
+    this.onReplyCallback,
   });
 
   final Function() onGameClick;
   final UserModel meltUserModel;
   final ConnectionModel connectionModel;
+  final Function(Function(MessageModel))? onReplyCallback;
 
   @override
   ConsumerState<ChatBottomSheet> createState() => _ChatBottomSheetState();
@@ -49,11 +52,17 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
   bool isRecordingCompleted = false;
   bool isLoading = true;
 
+  // Reply functionality
+  MessageModel? _replyingToMessage;
+
   @override
   void initState() {
     super.initState();
 
     _initialiseControllers();
+
+    // Register the reply callback
+    widget.onReplyCallback?.call(setReplyingToMessage);
   }
 
   void _initialiseControllers() {
@@ -71,6 +80,20 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
     super.dispose();
   }
 
+  /// Set the message to reply to
+  void setReplyingToMessage(MessageModel message) {
+    setState(() {
+      _replyingToMessage = message;
+    });
+  }
+
+  /// Cancel the current reply
+  void cancelReply() {
+    setState(() {
+      _replyingToMessage = null;
+    });
+  }
+
   var currentUserData;
   @override
   Widget build(BuildContext context) {
@@ -79,6 +102,12 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
       padding: EdgeInsets.only(left: 18, right: 18, bottom: 18),
       child: Column(
         children: [
+          // WhatsApp-style reply preview widget
+          if (_replyingToMessage != null)
+            ReplyPreviewWidget(
+              replyToMessage: _replyingToMessage!,
+              onCancel: cancelReply,
+            ),
           isRecordingCompleted
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -269,6 +298,11 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
       isRead: false,
       content: path,
       message: "voice note",
+      // Add reply data if replying to a message - point to the direct message being replied to
+      replyToMessageId: _replyingToMessage?.id,
+      replyToMessageText: _replyingToMessage?.message,
+      replyToSenderId: _replyingToMessage?.senderId,
+      replyToMessageType: _replyingToMessage?.type.name,
     );
 
     ref
@@ -281,6 +315,7 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
     setState(() {
       isRecordingCompleted = false;
       path = null;
+      _replyingToMessage = null; // Clear reply after sending
     });
   }
 
@@ -306,6 +341,11 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
       timestamp: DateTime.now().toIso8601String(),
       isRead: false,
       message: _chatController.text.trim(),
+      // Add reply data if replying to a message - point to the direct message being replied to
+      replyToMessageId: _replyingToMessage?.id,
+      replyToMessageText: _replyingToMessage?.message,
+      replyToSenderId: _replyingToMessage?.senderId,
+      replyToMessageType: _replyingToMessage?.type.name,
     );
 
     ref
@@ -313,5 +353,10 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
         .sendMessage(message, widget.connectionModel.connectionId);
 
     _chatController.clear();
+
+    // Clear reply after sending
+    setState(() {
+      _replyingToMessage = null;
+    });
   }
 }

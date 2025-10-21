@@ -14,6 +14,10 @@ MessageModel _$MessageModelFromJson(Map<String, dynamic> json) => MessageModel(
       id: json['id'] as String?,
       timestamp: json['timestamp'] as String,
       isRead: json['isRead'] as bool,
+      replyToMessageId: json['replyToMessageId'] as String?,
+      replyToMessageText: json['replyToMessageText'] as String?,
+      replyToSenderId: json['replyToSenderId'] as String?,
+      replyToMessageType: json['replyToMessageType'] as String?,
     );
 
 Map<String, dynamic> _$MessageModelToJson(MessageModel instance) =>
@@ -25,6 +29,10 @@ Map<String, dynamic> _$MessageModelToJson(MessageModel instance) =>
       'id': instance.id,
       'timestamp': instance.timestamp,
       'isRead': instance.isRead,
+      'replyToMessageId': instance.replyToMessageId,
+      'replyToMessageText': instance.replyToMessageText,
+      'replyToSenderId': instance.replyToSenderId,
+      'replyToMessageType': instance.replyToMessageType,
     };
 
 const _$MessageTypeEnumMap = {

@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:metal/core/utils/metal.helper.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/home_page/domain/entries/thought.model.dart';
+import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
 
 /// Helper class for filtering feed data based on user preferences and remote config rules
 class FeedFilterHelper {

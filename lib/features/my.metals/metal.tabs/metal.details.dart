@@ -6,7 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/features/unmetal/widgets/unmetal_dialog.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 
-import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+import 'package:metal/features/thought/data/domain/entries/connection.model.dart';
 
 import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';

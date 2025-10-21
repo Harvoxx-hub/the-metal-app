@@ -1,0 +1,53 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:metal/core/state/base.state.dart';
+import 'package:metal/core/utils/metal.helper.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
+
+import 'package:metal/features/thought/repositories/home.repository.dart';
+import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
+
+class GetThoughtByUserNotifier extends StateNotifier<GetThoughtByUserState> {
+  GetThoughtByUserNotifier(
+    super.state,
+    this.ref,
+  );
+  final Ref ref;
+//185223
+  // melt user
+  void getThought({String? id}) async {
+    try {
+      state = GetThoughtByUserState.loading();
+      final homeRepository = ref.watch(homeRepositoryProvider);
+      final userData = ref.watch(userStateProvider).data;
+      id = id ?? userData!.id;
+      final response = await homeRepository.getThoughtsByUserId(id!);
+      if (response.success ?? false) {
+        final List<ThoughtModel> thoughts = [];
+        for (var thought in response.data) {
+          thoughts.add(ThoughtModel.fromJson(thought));
+        }
+        if (mounted) {
+          state = GetThoughtByUserState.success(
+              MetalHelper.sortThoughtsByDate(thoughts));
+        }
+      } else {
+        if (mounted) {
+          state = GetThoughtByUserState.success([]);
+        }
+      }
+    } catch (e, s) {
+      if (mounted) {
+        state = GetThoughtByUserState.error(e.toString(), stackTrace: s);
+      }
+    }
+  }
+}
+
+// Define a type alias
+typedef GetThoughtByUserState = BaseState<List<ThoughtModel>>;
+
+final getThoughtByUserProvider = StateNotifierProvider.autoDispose<
+    GetThoughtByUserNotifier, GetThoughtByUserState>(
+  (ref) => GetThoughtByUserNotifier(GetThoughtByUserState.initial(), ref),
+);

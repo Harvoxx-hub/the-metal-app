@@ -27,17 +27,21 @@ class SwipeCardState extends State<SwipeCard> {
         onPanStart: _onPanStart,
         onPanEnd: _onPanEnd,
         onPanUpdate: _onPanUpdate,
-        child: AnimatedPositioned(
-          duration: Duration(milliseconds: _duration),
-          top: _positionY,
-          left: _positionX,
-          child: Container(
-            constraints: BoxConstraints(
-              maxHeight: constraints.maxHeight,
-              maxWidth: constraints.maxWidth,
+        child: Stack(
+          children: [
+            AnimatedPositioned(
+              duration: Duration(milliseconds: _duration),
+              top: _positionY,
+              left: _positionX,
+              child: Container(
+                constraints: BoxConstraints(
+                  maxHeight: constraints.maxHeight,
+                  maxWidth: constraints.maxWidth,
+                ),
+                child: widget.child,
+              ),
             ),
-            child: widget.child,
-          ),
+          ],
         ),
       ),
     );

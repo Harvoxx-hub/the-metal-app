@@ -18,9 +18,9 @@ import 'package:metal/features/chat/presentation/widget/profile.image.dart';
 import 'package:metal/features/chat/provider/get.message.notifier.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
 
-import 'package:metal/features/home_page/domain/entries/connection.model.dart';
+import 'package:metal/features/thought/data/domain/entries/connection.model.dart';
 
-import 'package:metal/features/home_page/provider/get.connection.notifier.dart';
+import 'package:metal/features/thought/provider/get.connection.notifier.dart';
 
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';

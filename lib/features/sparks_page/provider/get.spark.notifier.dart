@@ -32,10 +32,14 @@ class GetSparkNotifier extends StateNotifier<GetsparkState> {
         final DateTime bTime = DateTime.parse(b.timestamp!);
         return bTime.compareTo(aTime); // Newest first
       });
+      if (mounted) {
 
       state = GetsparkState.success(spark);
+      }
     } catch (e, s) {
+      if (mounted) {
       state = GetsparkState.error(e.toString(), stackTrace: s);
+      }
     }
   }
 }

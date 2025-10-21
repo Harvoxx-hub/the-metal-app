@@ -3,11 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:metal/fcm/local_notifications.dart';
+import 'package:metal/fcm/models/push_type.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:metal/core/services/notification_navigation_service.dart';
 import 'package:metal/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models/notification_payload_model.dart';
 
@@ -63,6 +66,11 @@ class FCMClient {
           await _updateFCMToken(token);
           tokenRefreshStream.listen(_updateFCMToken);
         }
+
+        // Process any pending notifications after initialization
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          processPendingNotifications();
+        });
 
         _isInit = true;
         return token;
@@ -157,16 +165,30 @@ class FCMClient {
     _onMessageOpenedAppSub.cancel();
   }
 
+  /// Process pending notifications when app comes to foreground
+  Future<void> onAppResumed() async {
+    print('FCMClient: App resumed, processing pending notifications');
+    await processPendingNotifications();
+  }
+
   /// Handle push notification when the app in foreground state.
   Future<void> _onMessage(RemoteMessage message) async {
     print(
         'onMessage: title ${message.notification?.title}, body: ${message.notification?.body}');
     final payload = NotificationPayloadModel.fromRemoteMessage(message);
-    await _localNotifications.show(
-      title: message.notification?.title ?? '',
-      body: message.notification?.body ?? '',
-      payload: jsonEncode(payload.toJson()),
-    );
+    final pushType = PushType.valueOf(payload.data?["type"]);
+
+    // Handle melt notifications differently in foreground
+    if (pushType == PushType.new_connection) {
+      await _handleMeltNotificationInForeground(payload);
+    } else {
+      // Show local notification for other types
+      await _localNotifications.show(
+        title: message.notification?.title ?? '',
+        body: message.notification?.body ?? '',
+        payload: jsonEncode(payload.toJson()),
+      );
+    }
   }
 
   /// Handle tap on notification when the app is open from background state.
@@ -199,27 +221,150 @@ class FCMClient {
   ///
   /// For handle tap when the app is terminated/killed, use [initialMessage].
   Future<void> _onTapNotification(NotificationPayloadModel payload) async {
-    print('Handling notification tap with payload: $payload');
     await _handleNotificationNavigation(payload);
   }
 
   /// Handle notification navigation based on payload
   Future<void> _handleNotificationNavigation(
       NotificationPayloadModel payload) async {
-    final context = navKey.currentContext;
+    // Wait for context to be available with retry mechanism
+    final context = await _waitForNavigationContext();
     if (context == null) {
-      print(
-          'No navigation context available for notification: ${payload.action?.value}');
+      await _storePendingNotification(payload);
       return;
     }
 
     try {
       await NotificationNavigationService.instance
           .navigateFromPayload(payload, context);
-      print('Notification navigation completed for: ${payload.action?.value}');
     } catch (e) {
-      print('Error navigating from notification: $e');
+      await _storePendingNotification(payload);
     }
+  }
+
+  /// Wait for navigation context to be available with retry mechanism
+  Future<BuildContext?> _waitForNavigationContext() async {
+    const maxAttempts = 20; // Increased from 10 to 20
+    const delay =
+        Duration(milliseconds: 250); // Reduced delay for faster response
+
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      final context = navKey.currentContext;
+      if (context != null) {
+        return context;
+      }
+
+      await Future.delayed(delay);
+    }
+
+    return null;
+  }
+
+  /// Store pending notification for later processing
+  Future<void> _storePendingNotification(
+      NotificationPayloadModel payload) async {
+    try {
+      // Store in SharedPreferences for persistence across app restarts
+      final prefs = await SharedPreferences.getInstance();
+      final pendingNotifications =
+          prefs.getStringList('pending_notifications') ?? [];
+
+      final notificationData = {
+        'payload': payload.toJson(),
+        'timestamp': DateTime.now().toIso8601String(),
+        'attempts': 0,
+      };
+
+      pendingNotifications.add(jsonEncode(notificationData));
+      await prefs.setStringList('pending_notifications', pendingNotifications);
+    } catch (e) {
+      print('FCMClient: Error storing pending notification: $e');
+    }
+  }
+
+  /// Process any pending notifications when context becomes available
+  Future<void> processPendingNotifications() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final pendingNotifications =
+          prefs.getStringList('pending_notifications') ?? [];
+
+      if (pendingNotifications.isEmpty) {
+        return;
+      }
+
+      final context = navKey.currentContext;
+      if (context == null) {
+        return;
+      }
+
+      final List<String> processedNotifications = [];
+
+      for (final notificationJson in pendingNotifications) {
+        try {
+          final notificationData = jsonDecode(notificationJson);
+          final payload =
+              NotificationPayloadModel.fromJson(notificationData['payload']);
+          final attempts = (notificationData['attempts'] ?? 0) + 1;
+
+          // Limit retry attempts
+          if (attempts > 3) {
+            processedNotifications.add(notificationJson); // Mark as processed
+            continue;
+          }
+
+          await NotificationNavigationService.instance
+              .navigateFromPayload(payload, context);
+
+          processedNotifications.add(notificationJson); // Mark as processed
+        } catch (e) {
+          // Update attempt count and keep for retry
+          final notificationData = jsonDecode(notificationJson);
+          notificationData['attempts'] =
+              (notificationData['attempts'] ?? 0) + 1;
+          processedNotifications.add(jsonEncode(notificationData));
+        }
+      }
+
+      // Update stored notifications (remove processed ones)
+      await prefs.setStringList(
+          'pending_notifications',
+          pendingNotifications
+              .where((n) => !processedNotifications.contains(n))
+              .toList());
+    } catch (e) {}
+  }
+
+  /// Handle melt notification when app is in foreground
+  Future<void> _handleMeltNotificationInForeground(
+      NotificationPayloadModel payload) async {
+    print('FCMClient: Handling melt notification in foreground');
+
+    try {
+      final context = await _waitForNavigationContext();
+      if (context == null) {
+        print('FCMClient: Context not available, showing notification');
+        await _showFallbackNotification(payload);
+        return;
+      }
+
+      // Use navigation service to handle the melt notification
+      await NotificationNavigationService.instance
+          .navigateFromPayload(payload, context);
+    } catch (e) {
+      print('FCMClient: Error handling melt notification: $e');
+      await _showFallbackNotification(payload);
+    }
+  }
+
+  /// Show fallback notification when navigation fails
+  Future<void> _showFallbackNotification(
+      NotificationPayloadModel payload) async {
+    await _localNotifications.show(
+      title: payload.title ?? 'New Connection',
+      body: payload.body ?? 'Someone wants to melt metal with you!',
+      payload: jsonEncode(payload.toJson()),
+    );
   }
 
   /// Ensure APNS token is set for iOS

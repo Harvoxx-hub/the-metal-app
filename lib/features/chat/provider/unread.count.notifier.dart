@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
   
-import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+import 'package:metal/features/thought/provider/get.melt.users.notifier.dart';
 
 class UnreadCountNotifier extends StateNotifier<UnreadCountState> {
   UnreadCountNotifier(this.ref) : super(UnreadCountState.initial()) {

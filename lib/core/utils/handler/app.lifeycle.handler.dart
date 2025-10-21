@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:metal/features/home_page/data/repositories/home.repository.dart';
+import 'package:metal/features/thought/repositories/home.repository.dart';
+import 'package:metal/fcm/fcm_client.dart';
 
 class AppLifecycleHandler extends WidgetsBindingObserver {
   final String userId;
@@ -21,6 +22,11 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
         repo.markUserOnline(userId).catchError((error) {
           print(
               'Error marking user online (user may have been deleted): $error');
+        });
+
+        // Process any pending notifications when app resumes
+        FCMClient.instance.onAppResumed().catchError((error) {
+          print('Error processing pending notifications: $error');
         });
         break;
 

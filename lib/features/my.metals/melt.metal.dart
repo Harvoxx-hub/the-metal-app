@@ -6,7 +6,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
-import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+import 'package:metal/features/thought/provider/get.melt.users.notifier.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 
@@ -26,7 +26,7 @@ class MeltMetal extends ConsumerStatefulWidget {
 
 class _MeltMetalState extends ConsumerState<MeltMetal> {
   UserModel? meltUserData;
-  String? connectionId;
+ 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -42,10 +42,10 @@ class _MeltMetalState extends ConsumerState<MeltMetal> {
     ref.listen<GetMeltUsersState>(getMeltUserProvider, (prev, current) {
       if (current.isSuccess) {
         final connection =
-            ref.watch(getMeltUserProvider.notifier).getMeltUserById(widget.id);
+            ref.watch(getMeltUserProvider.notifier).getConnectionById(widget.id);
         if (connection != null) {
           meltUserData = connection.otherUser;
-          connectionId = connection.connectionId;
+           
           setState(() {});
         }
       }
@@ -121,9 +121,9 @@ class _MeltMetalState extends ConsumerState<MeltMetal> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   meltItem("Chat", Assets.images.meltChat.path, () {
-                    if (connectionId != null) {
+                    if (widget.id != null) {
                       Navigator.pushNamed(context, AppRoutes.chatWindowsPage,
-                          arguments: connectionId);
+                          arguments: widget.id);
                     }
                   }),
                   meltItem("Spark", Assets.images.meltSpark.path, () {

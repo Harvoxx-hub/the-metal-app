@@ -4,10 +4,10 @@ import 'package:metal/features/authentication/presentation/forget.password/forgo
 import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
 import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
-import 'package:metal/features/home_page/domain/entries/thought.model.dart';
+import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
 import 'package:metal/features/settings/presentation/edit.preferences.dart';
 
-import 'package:metal/features/home_page/post_thought.dart';
+import 'package:metal/features/thought/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
 
 import 'package:metal/features/onboarding/onboarding_page_view.dart';
@@ -62,8 +62,13 @@ import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 
 import 'package:metal/features/upgrade/make.payment.dart';
 
-import 'package:metal/features/home_page/presentation/thought_details.page.dart';
+import 'package:metal/features/thought/presentation/thought_details.page.dart';
 import 'package:metal/features/profile/presentation/pages/work_email_page.dart';
+import 'package:metal/features/community/presentation/screens/community_discovery_screen.dart';
+import 'package:metal/features/community/presentation/screens/community_profile_screen.dart';
+import 'package:metal/features/community/presentation/screens/create_community_screen.dart';
+import 'package:metal/features/community/data/domain/entries/community.model.dart';
+import 'package:metal/features/community/data/domain/entries/community_metadata.model.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -123,6 +128,9 @@ class AppRoutes {
   static const String postThought = '/postThought';
   static const String thoughtDetails = '/thoughtDetails';
   static const String workEmail = '/work-email';
+  static const String communityDiscovery = '/communityDiscovery';
+  static const String communityProfile = '/communityProfile';
+  static const String createCommunity = '/createCommunity';
   // Dashboard tab indices
   static const int homeTab = 0;
   static const int sparksTab = 1;
@@ -307,9 +315,24 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => DeleteScreen());
 
       case postThought:
+        final args = settings.arguments;
+        ThoughtModel? thoughtModel;
+        CommunityMetadata? communityMetadata;
+
+        if (args is Map<String, dynamic>) {
+          thoughtModel = args['thoughtModel'] as ThoughtModel?;
+          if (args['communityMetadata'] != null) {
+            communityMetadata =
+                CommunityMetadata.fromJson(args['communityMetadata']);
+          }
+        } else if (args is ThoughtModel) {
+          thoughtModel = args;
+        }
+
         return MaterialPageRoute(
             builder: (_) => PostThought(
-                  thoughtModel: settings.arguments as ThoughtModel?,
+                  thoughtModel: thoughtModel,
+                  communityMetadata: communityMetadata,
                 ));
       case thoughtDetails:
         return MaterialPageRoute(
@@ -319,6 +342,20 @@ class AppRoutes {
       case workEmail:
         return MaterialPageRoute(
           builder: (_) => const WorkEmailPage(),
+        );
+      case communityDiscovery:
+        return MaterialPageRoute(
+          builder: (_) => const CommunityDiscoveryScreen(),
+        );
+      case communityProfile:
+        return MaterialPageRoute(
+          builder: (_) => CommunityProfileScreen(
+            community: settings.arguments as CommunityModel,
+          ),
+        );
+      case createCommunity:
+        return MaterialPageRoute(
+          builder: (_) => const CreateCommunityScreen(),
         );
       default:
         return MaterialPageRoute(

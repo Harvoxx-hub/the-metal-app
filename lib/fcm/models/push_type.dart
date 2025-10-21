@@ -1,7 +1,7 @@
 import 'package:dartx/dartx.dart';
 
 enum PushType {
-  message('message'),
+  message('new_message'),
   new_connection('new_connection'),
   unmetal_request('unmetal_request'),
   thought_created('thought_created'),
@@ -10,6 +10,8 @@ enum PushType {
   thought_reminder('thought_reminder'),
   comment('comment'),
   comment_reaction('comment_reaction'),
+  community_post('community_post'),
+  community_join('community_join'),
   unknown('unknown'),
   follow('follow');
 

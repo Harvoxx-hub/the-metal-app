@@ -1,3 +1,5 @@
+// dart format width=80
+
 /// GENERATED CODE - DO NOT MODIFY BY HAND
 /// *****************************************************
 ///  FlutterGen
@@ -5,7 +7,7 @@
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
-// ignore_for_file: directives_ordering,unnecessary_import,implicit_dynamic_list_literal,deprecated_member_use
+// ignore_for_file: deprecated_member_use,directives_ordering,implicit_dynamic_list_literal,unnecessary_import
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -47,14 +49,8 @@ class $AssetsGifsGen {
       const AssetGenImage('assets/gifs/onboarding3.gif');
 
   /// List of all assets
-  List<AssetGenImage> get values => [
-    empty,
-    error,
-    logo,
-    onboarding,
-    onboarding2,
-    onboarding3,
-  ];
+  List<AssetGenImage> get values =>
+      [empty, error, logo, onboarding, onboarding2, onboarding3];
 }
 
 class $AssetsIconsGen {
@@ -164,8 +160,7 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/chats-windowactive-sr-menu-vertical-lite.svg
   SvgGenImage get chatsWindowactiveSrMenuVerticalLite => const SvgGenImage(
-    'assets/icons/chats-windowactive-sr-menu-vertical-lite.svg',
-  );
+      'assets/icons/chats-windowactive-sr-menu-vertical-lite.svg');
 
   /// File path: assets/icons/chats-windowactive-video-recorder.svg
   SvgGenImage get chatsWindowactiveVideoRecorder =>
@@ -360,6 +355,9 @@ class $AssetsIconsGen {
   SvgGenImage get thoughtProfile =>
       const SvgGenImage('assets/icons/thought_profile.svg');
 
+  /// File path: assets/icons/tought.svg
+  SvgGenImage get tought => const SvgGenImage('assets/icons/tought.svg');
+
   /// File path: assets/icons/unchecked.png
   AssetGenImage get unchecked =>
       const AssetGenImage('assets/icons/unchecked.png');
@@ -388,96 +386,97 @@ class $AssetsIconsGen {
 
   /// List of all assets
   List<dynamic> get values => [
-    calendarBlank,
-    caretLeft,
-    handshake,
-    newspaperClipping,
-    send,
-    tickSquare,
-    user2,
-    user3,
-    user,
-    videoCamera,
-    ageRange,
-    alertTriangle,
-    backBtn,
-    back,
-    bookOpen01,
-    brush01,
-    building07,
-    buySparks,
-    cameraPlus,
-    chalkboardTeacher,
-    chatsEmptyStateGamingPad01,
-    chatsEmptyStateMicrophone,
-    chatsSearch,
-    chatsWindowactiveCaretLeft,
-    chatsWindowactiveDoneAll,
-    chatsWindowactiveEmojis,
-    chatsWindowactiveFill,
-    chatsWindowactiveSend,
-    chatsWindowactiveSrMenuVerticalLite,
-    chatsWindowactiveVideoRecorder,
-    checkVerified,
-    checked,
-    chevronCircle,
-    christianity,
-    currencyDollar,
-    delete1,
-    delete2,
-    down,
-    edit04,
-    eye,
-    gamingPad01,
-    gear,
-    graduationHat01,
-    hambuger,
-    icon,
-    iconlyLightProfile,
-    intersectCircle,
-    logoText,
-    markerPin03,
-    meltNotification,
-    meltedMetalsArrowUpRight,
-    meltedMetalsChatsCircle,
-    meltedMetalsSmileyXEyes,
-    meltedMetalsTrash01,
-    menuNotification,
-    microphone01,
-    musicNote01,
-    notification,
-    passwordIcon,
-    password,
-    pencilLine,
-    profession,
-    profileIcon,
-    profileMail01,
-    profilePhone,
-    profileTrash,
-    push,
-    referred,
-    refresh,
-    rocketLaunch,
-    scales01,
-    sendSparks,
-    shoppingCart01,
-    signOut,
-    single,
-    sms,
-    srClose,
-    srCristianV2,
-    srMenuVerticalLite,
-    star05,
-    thoughComment,
-    thoughtProfile,
-    unchecked,
-    verificationCall,
-    verificationText,
-    videoSquare,
-    welcomeItem,
-    xClose,
-    x,
-  ];
+        calendarBlank,
+        caretLeft,
+        handshake,
+        newspaperClipping,
+        send,
+        tickSquare,
+        user2,
+        user3,
+        user,
+        videoCamera,
+        ageRange,
+        alertTriangle,
+        backBtn,
+        back,
+        bookOpen01,
+        brush01,
+        building07,
+        buySparks,
+        cameraPlus,
+        chalkboardTeacher,
+        chatsEmptyStateGamingPad01,
+        chatsEmptyStateMicrophone,
+        chatsSearch,
+        chatsWindowactiveCaretLeft,
+        chatsWindowactiveDoneAll,
+        chatsWindowactiveEmojis,
+        chatsWindowactiveFill,
+        chatsWindowactiveSend,
+        chatsWindowactiveSrMenuVerticalLite,
+        chatsWindowactiveVideoRecorder,
+        checkVerified,
+        checked,
+        chevronCircle,
+        christianity,
+        currencyDollar,
+        delete1,
+        delete2,
+        down,
+        edit04,
+        eye,
+        gamingPad01,
+        gear,
+        graduationHat01,
+        hambuger,
+        icon,
+        iconlyLightProfile,
+        intersectCircle,
+        logoText,
+        markerPin03,
+        meltNotification,
+        meltedMetalsArrowUpRight,
+        meltedMetalsChatsCircle,
+        meltedMetalsSmileyXEyes,
+        meltedMetalsTrash01,
+        menuNotification,
+        microphone01,
+        musicNote01,
+        notification,
+        passwordIcon,
+        password,
+        pencilLine,
+        profession,
+        profileIcon,
+        profileMail01,
+        profilePhone,
+        profileTrash,
+        push,
+        referred,
+        refresh,
+        rocketLaunch,
+        scales01,
+        sendSparks,
+        shoppingCart01,
+        signOut,
+        single,
+        sms,
+        srClose,
+        srCristianV2,
+        srMenuVerticalLite,
+        star05,
+        thoughComment,
+        thoughtProfile,
+        tought,
+        unchecked,
+        verificationCall,
+        verificationText,
+        videoSquare,
+        welcomeItem,
+        xClose,
+        x
+      ];
 }
 
 class $AssetsImagesGen {
@@ -571,8 +570,7 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/chat-star-struck-excited-happy-emoji-1.png
   AssetGenImage get chatStarStruckExcitedHappyEmoji1 => const AssetGenImage(
-    'assets/images/chat-star-struck-excited-happy-emoji-1.png',
-  );
+      'assets/images/chat-star-struck-excited-happy-emoji-1.png');
 
   /// File path: assets/images/chat-video-game-emoji-1.png
   AssetGenImage get chatVideoGameEmoji1 =>
@@ -855,119 +853,123 @@ class $AssetsImagesGen {
   /// File path: assets/images/verification-partpoppercelebrationemoji.png
   AssetGenImage get verificationPartpoppercelebrationemoji =>
       const AssetGenImage(
-        'assets/images/verification-partpoppercelebrationemoji.png',
-      );
+          'assets/images/verification-partpoppercelebrationemoji.png');
 
   /// File path: assets/images/video-camera.png
   AssetGenImage get videoCamera =>
       const AssetGenImage('assets/images/video-camera.png');
+
+  /// File path: assets/images/voice_bg.png
+  AssetGenImage get voiceBg =>
+      const AssetGenImage('assets/images/voice_bg.png');
 
   /// File path: assets/images/zinc.png
   AssetGenImage get zinc => const AssetGenImage('assets/images/zinc.png');
 
   /// List of all assets
   List<dynamic> get values => [
-    aboutYou,
-    activeHome,
-    activeMessage,
-    activeSpark,
-    activeStar,
-    activeUser,
-    address,
-    ads,
-    aluminium,
-    apple,
-    bg1,
-    bg2,
-    bottomChat,
-    bottomSpark,
-    buySpark,
-    calcium,
-    cardBackground,
-    chatAstonishedFaceEmoji1,
-    chatCircle,
-    chatEmojiWomanRaisingHand1,
-    chatFrame3049,
-    chatPersonSayingMoreEmoji1,
-    chatSmilingFaceEmoji1,
-    chatStarStruckExcitedHappyEmoji1,
-    chatVideoGameEmoji1,
-    chatBottomSheet,
-    chatsPhoto,
-    checkVerified,
-    chooseMetal,
-    emptyChat,
-    eyesEmoji,
-    eyesImage,
-    flame,
-    gameFrame,
-    google,
-    guideline,
-    hamburgerHeartLocks,
-    handshake,
-    heartLocks1,
-    homeAddress,
-    imagePlus,
-    inactiveHome,
-    inactiveMessage,
-    inactiveSpark,
-    inactiveStar,
-    inactiveUser,
-    iron,
-    itsIsMelt,
-    lead,
-    letsHearFromYouGroup,
-    likeClick,
-    likeNotification,
-    like,
-    location,
-    logo,
-    logo2,
-    magnesium,
-    meltChat,
-    meltClick,
-    meltDashboard,
-    meltNotifcation,
-    melt,
-    meltProfile,
-    meltSpark,
-    navBarProfile,
-    nonBottomSheet,
-    notification,
-    notificationProfile,
-    onboard1,
-    onboard2,
-    onboardOne,
-    onboardThree,
-    onboardThursday,
-    onboardTwo,
-    partpoppercelebrationemoji,
-    paymentCard,
-    potassium,
-    profileImage,
-    profileImage1,
-    profileNotification,
-    pushClick,
-    pushMelt,
-    pushMetal,
-    push,
-    pushMetalscreen,
-    pushed,
-    refer,
-    reminder,
-    rocketEmoji1,
-    sendSpark,
-    silver,
-    sparkNotification,
-    sparksBottomSheet,
-    squareLogo,
-    stripe,
-    unmeltIcon,
-    unnamed,
-    verificationPartpoppercelebrationemoji,
-    videoCamera,
-    zinc,
-  ];
+        aboutYou,
+        activeHome,
+        activeMessage,
+        activeSpark,
+        activeStar,
+        activeUser,
+        address,
+        ads,
+        aluminium,
+        apple,
+        bg1,
+        bg2,
+        bottomChat,
+        bottomSpark,
+        buySpark,
+        calcium,
+        cardBackground,
+        chatAstonishedFaceEmoji1,
+        chatCircle,
+        chatEmojiWomanRaisingHand1,
+        chatFrame3049,
+        chatPersonSayingMoreEmoji1,
+        chatSmilingFaceEmoji1,
+        chatStarStruckExcitedHappyEmoji1,
+        chatVideoGameEmoji1,
+        chatBottomSheet,
+        chatsPhoto,
+        checkVerified,
+        chooseMetal,
+        emptyChat,
+        eyesEmoji,
+        eyesImage,
+        flame,
+        gameFrame,
+        google,
+        guideline,
+        hamburgerHeartLocks,
+        handshake,
+        heartLocks1,
+        homeAddress,
+        imagePlus,
+        inactiveHome,
+        inactiveMessage,
+        inactiveSpark,
+        inactiveStar,
+        inactiveUser,
+        iron,
+        itsIsMelt,
+        lead,
+        letsHearFromYouGroup,
+        likeClick,
+        likeNotification,
+        like,
+        location,
+        logo,
+        logo2,
+        magnesium,
+        meltChat,
+        meltClick,
+        meltDashboard,
+        meltNotifcation,
+        melt,
+        meltProfile,
+        meltSpark,
+        navBarProfile,
+        nonBottomSheet,
+        notification,
+        notificationProfile,
+        onboard1,
+        onboard2,
+        onboardOne,
+        onboardThree,
+        onboardThursday,
+        onboardTwo,
+        partpoppercelebrationemoji,
+        paymentCard,
+        potassium,
+        profileImage,
+        profileImage1,
+        profileNotification,
+        pushClick,
+        pushMelt,
+        pushMetal,
+        push,
+        pushMetalscreen,
+        pushed,
+        refer,
+        reminder,
+        rocketEmoji1,
+        sendSpark,
+        silver,
+        sparkNotification,
+        sparksBottomSheet,
+        squareLogo,
+        stripe,
+        unmeltIcon,
+        unnamed,
+        verificationPartpoppercelebrationemoji,
+        videoCamera,
+        voiceBg,
+        zinc
+      ];
 }
 
 class $AssetsJsonGen {
@@ -995,12 +997,18 @@ class Assets {
 }
 
 class AssetGenImage {
-  const AssetGenImage(this._assetName, {this.size, this.flavors = const {}});
+  const AssetGenImage(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+    this.animation,
+  });
 
   final String _assetName;
 
   final Size? size;
   final Set<String> flavors;
+  final AssetGenImageAnimation? animation;
 
   Image image({
     Key? key,
@@ -1055,8 +1063,15 @@ class AssetGenImage {
     );
   }
 
-  ImageProvider provider({AssetBundle? bundle, String? package}) {
-    return AssetImage(_assetName, bundle: bundle, package: package);
+  ImageProvider provider({
+    AssetBundle? bundle,
+    String? package,
+  }) {
+    return AssetImage(
+      _assetName,
+      bundle: bundle,
+      package: package,
+    );
   }
 
   String get path => _assetName;
@@ -1064,12 +1079,30 @@ class AssetGenImage {
   String get keyName => _assetName;
 }
 
-class SvgGenImage {
-  const SvgGenImage(this._assetName, {this.size, this.flavors = const {}})
-    : _isVecFormat = false;
+class AssetGenImageAnimation {
+  const AssetGenImageAnimation({
+    required this.isAnimation,
+    required this.duration,
+    required this.frames,
+  });
 
-  const SvgGenImage.vec(this._assetName, {this.size, this.flavors = const {}})
-    : _isVecFormat = true;
+  final bool isAnimation;
+  final Duration duration;
+  final int frames;
+}
+
+class SvgGenImage {
+  const SvgGenImage(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+  }) : _isVecFormat = false;
+
+  const SvgGenImage.vec(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+  }) : _isVecFormat = true;
 
   final String _assetName;
   final Size? size;
@@ -1090,6 +1123,7 @@ class SvgGenImage {
     String? semanticsLabel,
     bool excludeFromSemantics = false,
     _svg.SvgTheme? theme,
+    _svg.ColorMapper? colorMapper,
     ColorFilter? colorFilter,
     Clip clipBehavior = Clip.hardEdge,
     @deprecated Color? color,
@@ -1109,6 +1143,7 @@ class SvgGenImage {
         assetBundle: bundle,
         packageName: package,
         theme: theme,
+        colorMapper: colorMapper,
       );
     }
     return _svg.SvgPicture(
@@ -1123,8 +1158,7 @@ class SvgGenImage {
       placeholderBuilder: placeholderBuilder,
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
-      colorFilter:
-          colorFilter ??
+      colorFilter: colorFilter ??
           (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
       clipBehavior: clipBehavior,
       cacheColorFilter: cacheColorFilter,

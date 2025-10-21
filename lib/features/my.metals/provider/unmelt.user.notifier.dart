@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/features/home_page/data/repositories/home.repository.dart';
-import 'package:metal/features/home_page/provider/check.melt.status.notifier.dart';
-import 'package:metal/features/home_page/provider/get.thoughts.explore.dart';
-import 'package:metal/features/home_page/provider/get.thoughts.for.you.dart';
+import 'package:metal/features/thought/repositories/home.repository.dart';
+import 'package:metal/features/thought/provider/check.melt.status.notifier.dart';
+import 'package:metal/features/thought/provider/get.thoughts.explore.dart';
+import 'package:metal/features/thought/provider/get.thoughts.for.you.dart';
 
 class DeMeltUserNotifier extends StateNotifier<DeMeltUserState> {
   DeMeltUserNotifier(

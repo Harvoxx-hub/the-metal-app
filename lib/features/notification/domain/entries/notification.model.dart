@@ -116,7 +116,9 @@ enum NotificationType {
   sparks_transaction,
   thought_reminder,
   comment,
-  comment_reaction
+  comment_reaction,
+  community_post,
+  community_join
 }
 
 class NotificationAndroidNotification {

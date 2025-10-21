@@ -6,9 +6,9 @@ import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 
-import 'package:metal/features/home_page/domain/entries/thought.model.dart';
-import 'package:metal/features/home_page/provider/delete.thoughts.dart';
-import 'package:metal/features/home_page/provider/get.user.notifier.dart';
+import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
+import 'package:metal/features/thought/provider/delete.thoughts.dart';
+import 'package:metal/features/thought/provider/get.user.notifier.dart';
 import 'package:metal/features/settings/presentation/widget/block_user_helper.dart';
 import 'package:metal/gen/assets.gen.dart';
 

@@ -29,9 +29,7 @@ class NotificationPayloadModel {
   }
 
   factory NotificationPayloadModel.fromJson(String json) {
-    final Map<String, dynamic> data = Map<String, dynamic>.from(
-      json as Map<String, dynamic>,
-    );
+    final Map<String, dynamic> data = jsonDecode(json);
     return NotificationPayloadModel(
       title: data['title'] as String?,
       body: data['body'] as String?,

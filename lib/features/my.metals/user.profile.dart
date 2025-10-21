@@ -5,9 +5,10 @@ import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/metal.helper.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
-import 'package:metal/features/home_page/provider/get.melt.users.notifier.dart';
+import 'package:metal/features/thought/provider/get.melt.users.notifier.dart';
 
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/features/profile/presentation/widget/profile.header.dart';
@@ -97,9 +98,16 @@ class UserProfilePage extends ConsumerWidget {
                       text: "@${user.username}",
                       floatingLabel: "Username",
                     ),
+
+                    /// gender
                     const Gap(20),
                     EditField(
-                      text: getAgeRange(user.dob!) + " years",
+                      text: user.gender ?? "",
+                      floatingLabel: "Gender",
+                    ),
+                    const Gap(20),
+                    EditField(
+                      text: MetalHelper.getAgeRange(user.dob!) + " years",
                       floatingLabel: "Age Range",
                     ),
                     const Gap(20),
@@ -141,47 +149,5 @@ class UserProfilePage extends ConsumerWidget {
     );
   }
 
-  String getAgeRange(String dateString) {
-    DateFormat dateFormat = DateFormat("dd/MM/yyyy");
-    DateTime birthDate = dateFormat.parse(dateString);
-    DateTime currentDate = DateTime.now();
-    int age = currentDate.year - birthDate.year;
 
-    // Check if the birthday has occurred this year
-    if (currentDate.month < birthDate.month ||
-        (currentDate.month == birthDate.month &&
-            currentDate.day < birthDate.day)) {
-      age--;
-    }
-
-    if (age >= 18 && age <= 23) {
-      return "18 - 23";
-    } else if (age >= 24 && age <= 29) {
-      return "24 - 29";
-    } else if (age >= 30 && age <= 35) {
-      return "30 - 35";
-    } else if (age >= 36 && age <= 41) {
-      return "36 - 41";
-    } else if (age >= 42 && age <= 47) {
-      return "42 - 47";
-    } else if (age >= 48 && age <= 53) {
-      return "48 - 53";
-    } else if (age >= 54 && age <= 59) {
-      return "54 - 59";
-    } else if (age >= 60 && age <= 65) {
-      return "60 - 65";
-    } else if (age >= 66 && age <= 71) {
-      return "66 - 71";
-    } else if (age >= 72 && age <= 77) {
-      return "72 - 77";
-    } else if (age >= 78 && age <= 83) {
-      return "78 - 83";
-    } else if (age >= 85 && age <= 90) {
-      return "85 - 90";
-    } else if (age >= 91 && age <= 100) {
-      return "91 - 100";
-    } else {
-      return "Age is not within any specified range";
-    }
-  }
 }

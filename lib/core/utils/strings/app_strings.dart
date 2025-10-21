@@ -39,7 +39,7 @@ class AppStrings {
   static const String sparks = "Sparks";
   static const String chat = "Chat";
   static const String profile = "Profile";
-
+  static const String tought = "Tought";
   // Authentication Strings
   static const String welcomeBack = "👋 Welcome Back";
   static const String loginDesc = "Let's log you in, you've been missed!";

@@ -86,21 +86,8 @@ class SwipeRepository implements ISwipeRepository {
           .where('showMyProfile', isEqualTo: true)
           .limit(fetchLimit);
 
-      // Apply gender preference filter if set
-      if (currentUserData.connectWith != null &&
-          currentUserData.connectWith!.isNotEmpty) {
-        // Handle multiple gender preferences (e.g., "Female,Others,Male")
-        final genderPreferences =
-            _parseGenderPreferences(currentUserData.connectWith!);
-
-        if (genderPreferences.length == 1) {
-          // Single gender preference - use exact match
-          query = query.where('gender', isEqualTo: genderPreferences.first);
-        } else if (genderPreferences.length > 1) {
-          // Multiple gender preferences - use 'in' operator
-          query = query.where('gender', whereIn: genderPreferences);
-        }
-      }
+      // Note: Gender preference filtering is now handled in client-side filtering
+      // to support bidirectional matching (both users must want each other's gender)
 
       // Apply age range filter if available
       if (currentUserData.preferences?.ageRange != null) {
@@ -114,15 +101,20 @@ class SwipeRepository implements ISwipeRepository {
       // Filter out blocked, swiped, and connected users
       // add that metal is not null
       // add that profile is completed
-      // a
+      // add bidirectional gender preference filtering
       final filteredUsers = allUsers.where((user) {
         final userId = user['id'] as String?;
-        return userId != null &&
-            !blockedUserIds.contains(userId) &&
-            !swipedUserIds.contains(userId) &&
-            !connectedUserIds.contains(userId) &&
-            user['metal'] != null &&
-            user['completedProfile'] == true;
+        if (userId == null ||
+            blockedUserIds.contains(userId) ||
+            swipedUserIds.contains(userId) ||
+            connectedUserIds.contains(userId) ||
+            user['metal'] == null ||
+            user['completedProfile'] != true) {
+          return false;
+        }
+
+        // Apply bidirectional gender preference filtering
+        return _isGenderPreferenceMatch(currentUserData, user);
       }).toList();
 
       // Sort by most recent lastActive only (descending)
@@ -225,15 +217,36 @@ class SwipeRepository implements ISwipeRepository {
       final querySnapshot = await query.get();
       final allUsers = querySnapshot.docs.map((doc) => doc.data()).toList();
 
+      // Get current user's data to apply bidirectional gender filtering
+      final currentUserResponse = await _firebaseService.readDocument(
+        collectionPath: FirebaseFirestoreCollectionKeys.users,
+        documentId: currentUserId,
+      );
+
+      if (currentUserResponse == null) {
+        return Responses(
+          success: false,
+          message: "Current user data not found",
+        );
+      }
+
+      final currentUserData = UserModel.fromJson(currentUserResponse);
+
       // Filter out blocked, swiped, and connected users
+      // add bidirectional gender preference filtering
       final filteredUsers = allUsers.where((user) {
         final userId = user['id'] as String?;
-        return userId != null &&
-            !blockedUserIds.contains(userId) &&
-            !swipedUserIds.contains(userId) &&
-            !connectedUserIds.contains(userId) &&
-            user['metal'] != null &&
-            user['completedProfile'] == true;
+        if (userId == null ||
+            blockedUserIds.contains(userId) ||
+            swipedUserIds.contains(userId) ||
+            connectedUserIds.contains(userId) ||
+            user['metal'] == null ||
+            user['completedProfile'] != true) {
+          return false;
+        }
+
+        // Apply bidirectional gender preference filtering
+        return _isGenderPreferenceMatch(currentUserData, user);
       }).toList();
 
       // Sort by most recent lastActive only (descending)
@@ -363,6 +376,43 @@ class SwipeRepository implements ISwipeRepository {
         .map((gender) => gender.trim())
         .where((gender) => gender.isNotEmpty)
         .toList();
+  }
+
+  /// Check if there's a bidirectional gender preference match
+  /// Both users must want to connect with each other's gender
+  bool _isGenderPreferenceMatch(
+      UserModel currentUser, Map<String, dynamic> targetUser) {
+    // Get current user's gender and preferences
+    final currentUserGender = currentUser.gender;
+    final currentUserConnectWith = currentUser.connectWith;
+
+    // Get target user's gender and preferences
+    final targetUserGender = targetUser['gender'] as String?;
+    final targetUserConnectWith = targetUser['connectWith'] as String?;
+
+    // If any required data is missing, don't match
+    if (currentUserGender == null ||
+        targetUserGender == null ||
+        currentUserConnectWith == null ||
+        targetUserConnectWith == null) {
+      return false;
+    }
+
+    // Parse preferences for both users
+    final currentUserPreferences =
+        _parseGenderPreferences(currentUserConnectWith);
+    final targetUserPreferences =
+        _parseGenderPreferences(targetUserConnectWith);
+
+    // Check bidirectional match:
+    // 1. Current user wants to connect with target user's gender
+    // 2. Target user wants to connect with current user's gender
+    final currentUserWantsTargetGender =
+        currentUserPreferences.contains(targetUserGender);
+    final targetUserWantsCurrentGender =
+        targetUserPreferences.contains(currentUserGender);
+
+    return currentUserWantsTargetGender && targetUserWantsCurrentGender;
   }
 }
 

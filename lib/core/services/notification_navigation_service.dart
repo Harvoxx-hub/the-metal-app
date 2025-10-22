@@ -191,12 +191,21 @@ class NotificationNavigationService {
       Map<String, dynamic>? data, BuildContext context) async {
     final metadata = _parseMetadata(data);
     final thoughtId = metadata?['thoughtId'] ?? data?['thoughtId'] as String?;
+    final commentId = metadata?['commentId'] ?? data?['commentId'] as String?;
 
     if (thoughtId != null && thoughtId.isNotEmpty) {
+      // Create navigation arguments that include comment info
+      final navigationArgs = {
+        'thoughtId': thoughtId,
+        'commentId': commentId,
+        'openComments':
+            commentId != null, // Open comments if there's a specific comment
+      };
+
       await _safeNavigate(
         context,
         AppRoutes.thoughtDetails,
-        thoughtId,
+        navigationArgs,
         _navigateToHome,
       );
     } else {

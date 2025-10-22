@@ -133,9 +133,10 @@ class AppRoutes {
   static const String createCommunity = '/createCommunity';
   // Dashboard tab indices
   static const int homeTab = 0;
-  static const int sparksTab = 1;
-  static const int messagesTab = 2;
-  static const int profileTab = 3;
+  static const int thoughtsTab = 1;
+  static const int sparksTab = 2;
+  static const int messagesTab = 3;
+  static const int profileTab = 4;
 
   // Helper methods to navigate to specific tabs
   static void navigateToHome(BuildContext context, {bool replace = false}) {

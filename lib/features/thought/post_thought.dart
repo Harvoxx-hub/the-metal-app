@@ -45,6 +45,9 @@ class _PostThoughtState extends ConsumerState<PostThought> {
   bool _isPreviewPlaying = false;
   final Stopwatch _recordStopwatch = Stopwatch();
 
+  // Audio recording constants
+  static const int _maxRecordingDurationSeconds = 120; // 2 minutes
+
   @override
   void initState() {
     super.initState();
@@ -253,21 +256,12 @@ class _PostThoughtState extends ConsumerState<PostThought> {
             children: [
               IconButton(
                 icon: Icon(_isRecording ? Icons.stop_circle : Icons.mic),
-                color: _isRecording ? Colors.red : Colors.black87,
+                color: _isRecording
+                    ? (_isApproachingLimit() ? Colors.orange : Colors.red)
+                    : Colors.black87,
                 onPressed: () async {
                   if (_isRecording) {
-                    final path = await _recorderController.stop(false);
-                    setState(() {
-                      _isRecording = false;
-                      _recordedFilePath = path;
-                    });
-                    _recordTimer?.cancel();
-                    _recordStopwatch.stop();
-                    final durMs = _recordStopwatch.elapsed.inMilliseconds;
-                    setState(() {
-                      _recordedDurationSec = (durMs / 1000).round();
-                      _currentRecordSeconds = _recordedDurationSec ?? 0;
-                    });
+                    await _stopRecording();
                   } else {
                     final mic = await Permission.microphone.request();
                     if (!mic.isGranted) return;
@@ -289,10 +283,15 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                     _recordTimer =
                         Timer.periodic(const Duration(seconds: 1), (timer) {
                       if (!mounted) return;
+                      final elapsedSeconds = _recordStopwatch.elapsed.inSeconds;
                       setState(() {
-                        _currentRecordSeconds =
-                            _recordStopwatch.elapsed.inSeconds;
+                        _currentRecordSeconds = elapsedSeconds;
                       });
+
+                      // Auto-stop recording when max duration is reached
+                      if (elapsedSeconds >= _maxRecordingDurationSeconds) {
+                        _stopRecording();
+                      }
                     });
                   }
                 },
@@ -315,12 +314,31 @@ class _PostThoughtState extends ConsumerState<PostThought> {
                 const Gap(8),
                 Text(
                   _formatDuration(_currentRecordSeconds),
-                  style: const TextStyle(color: Colors.black54),
+                  style: TextStyle(
+                    color:
+                        _isApproachingLimit() ? Colors.orange : Colors.black54,
+                    fontWeight: _isApproachingLimit()
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
                 ),
+                if (_isApproachingLimit()) ...[
+                  const Gap(4),
+                  Text(
+                    _isAtLimit()
+                        ? 'Maximum duration reached!'
+                        : 'Approaching 2-minute limit',
+                    style: TextStyle(
+                      color: Colors.orange,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ] else
                 Text(_recordedDurationSec != null
                     ? _formatDuration(_recordedDurationSec!)
-                    : 'Tap mic to record a voice thought'),
+                    : 'Tap mic to record a voice thought (max 2 min)'),
             ],
           ),
           if (_recordedFilePath != null) ...[
@@ -407,5 +425,33 @@ class _PostThoughtState extends ConsumerState<PostThought> {
     final m = (seconds ~/ 60).toString();
     final s = (seconds % 60).toString().padLeft(2, '0');
     return '$m:$s';
+  }
+
+  /// Stop recording and save the audio file
+  Future<void> _stopRecording() async {
+    if (!_isRecording) return;
+
+    final path = await _recorderController.stop(false);
+    setState(() {
+      _isRecording = false;
+      _recordedFilePath = path;
+    });
+    _recordTimer?.cancel();
+    _recordStopwatch.stop();
+    final durMs = _recordStopwatch.elapsed.inMilliseconds;
+    setState(() {
+      _recordedDurationSec = (durMs / 1000).round();
+      _currentRecordSeconds = _recordedDurationSec ?? 0;
+    });
+  }
+
+  /// Check if recording is approaching the time limit
+  bool _isApproachingLimit() {
+    return _currentRecordSeconds >= (_maxRecordingDurationSeconds - 10);
+  }
+
+  /// Check if recording is at the time limit
+  bool _isAtLimit() {
+    return _currentRecordSeconds >= _maxRecordingDurationSeconds;
   }
 }

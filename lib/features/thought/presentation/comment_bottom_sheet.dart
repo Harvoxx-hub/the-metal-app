@@ -11,10 +11,12 @@ import 'package:metal/features/thought/widget/comment_item_widget.dart';
 
 class CommentBottomSheet extends ConsumerStatefulWidget {
   final ThoughtModel thought;
+  final String? targetCommentId;
 
   const CommentBottomSheet({
     Key? key,
     required this.thought,
+    this.targetCommentId,
   }) : super(key: key);
 
   @override
@@ -23,12 +25,44 @@ class CommentBottomSheet extends ConsumerStatefulWidget {
 
 class _CommentBottomSheetState extends ConsumerState<CommentBottomSheet> {
   final TextEditingController _commentController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   CommentModel? _replyingToComment;
+  bool _hasScrolledToTarget = false;
 
   @override
   void dispose() {
     _commentController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  /// Scroll to a specific comment by its ID
+  void _scrollToComment(String commentId) {
+    if (!_scrollController.hasClients) return;
+
+    final commentsState = ref.read(commentProvider(widget.thought.id));
+    final comments = commentsState.data ?? [];
+
+    // Find the index of the comment
+    int targetIndex = -1;
+    for (int i = 0; i < comments.length; i++) {
+      if (comments[i].id == commentId) {
+        targetIndex = i;
+        break;
+      }
+    }
+
+    if (targetIndex == -1) return;
+
+    // Estimate comment height and scroll to position
+    const double estimatedCommentHeight = 100.0;
+    final double targetOffset = targetIndex * estimatedCommentHeight;
+
+    _scrollController.animateTo(
+      targetOffset,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOut,
+    );
   }
 
   void _handleReplyToComment(CommentModel comment) {
@@ -146,35 +180,55 @@ class _CommentBottomSheetState extends ConsumerState<CommentBottomSheet> {
                               commentsState.data!.isEmpty
                           ? const Center(
                               child: TextView(text: "No comments yet"))
-                          : ListView.builder(
-                              padding: const EdgeInsets.all(16),
-                              itemCount: commentsState.data!
-                                  .where((comment) => !comment.isReply)
-                                  .length,
-                              itemBuilder: (context, index) {
-                                // Get only top-level comments
-                                final topLevelComments = commentsState.data!
-                                    .where((comment) => !comment.isReply)
-                                    .toList();
-                                final comment = topLevelComments[index];
+                          : Builder(
+                              builder: (context) {
+                                // Scroll to target comment when comments are loaded (only once)
+                                if (widget.targetCommentId != null &&
+                                    commentsState.data != null &&
+                                    commentsState.data!.isNotEmpty &&
+                                    !_hasScrolledToTarget) {
+                                  print(
+                                      'Scrolling to comment: ${widget.targetCommentId}');
+                                  _hasScrolledToTarget = true;
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    _scrollToComment(widget.targetCommentId!);
+                                  });
+                                }
 
-                                // Get replies for this comment
-                                final replies = commentsState.data!
-                                    .where(
-                                        (c) => c.replyToCommentId == comment.id)
-                                    .toList();
+                                return ListView.builder(
+                                  controller: _scrollController,
+                                  padding: const EdgeInsets.all(16),
+                                  itemCount: commentsState.data!
+                                      .where((comment) => !comment.isReply)
+                                      .length,
+                                  itemBuilder: (context, index) {
+                                    // Get only top-level comments
+                                    final topLevelComments = commentsState.data!
+                                        .where((comment) => !comment.isReply)
+                                        .toList();
+                                    final comment = topLevelComments[index];
 
-                                return CommentItemWidget(
-                                  comment: comment,
-                                  thought: widget.thought,
-                                  replies: replies,
-                                  onDeleteComment: (commentId) {
-                                    ref
-                                        .read(commentProvider(widget.thought.id)
-                                            .notifier)
-                                        .deleteComment(commentId);
+                                    // Get replies for this comment
+                                    final replies = commentsState.data!
+                                        .where((c) =>
+                                            c.replyToCommentId == comment.id)
+                                        .toList();
+
+                                    return CommentItemWidget(
+                                      comment: comment,
+                                      thought: widget.thought,
+                                      replies: replies,
+                                      onDeleteComment: (commentId) {
+                                        ref
+                                            .read(commentProvider(
+                                                    widget.thought.id)
+                                                .notifier)
+                                            .deleteComment(commentId);
+                                      },
+                                      onReplyToComment: _handleReplyToComment,
+                                    );
                                   },
-                                  onReplyToComment: _handleReplyToComment,
                                 );
                               },
                             ),

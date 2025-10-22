@@ -103,6 +103,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Widget _buildEmptyState() {
     return Center(
+        child: Padding(
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -120,20 +122,38 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           const SizedBox(height: 8),
           TextView(
-            text:
-                "Check back later for new people! or change your preferences.",
+            text: "Check back later for new people! or explore thoughts.",
             fontSize: 14,
             color: Colors.grey[500],
           ),
-          const SizedBox(height: 24),
-          BaseButton(
-            buttonText: 'Change Preferences',
-            width: 200,
-            onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.editPreferences);
-            },
+          const SizedBox(height: 32),
+          // Navigation buttons
+
+          Row(
+            children: [
+              Expanded(
+                child: BaseButton(
+                  buttonText: 'Explore Thoughts',
+                  width: 200,
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.dashboardPage,
+                        arguments: {'tabIndex': AppRoutes.thoughtsTab});
+                  },
+                ),
+              ),
+              const Gap(16),
+              Expanded(
+                child: BaseButton(
+                  buttonText: 'Change Preferences',
+                  width: 200,
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.editPreferences);
+                  },
+                ),
+              ),
+            ],
           ),
-          const Gap(24),
+          const Gap(16),
           TextButton(
             onPressed: () {
               ref.read(swipeUsersProvider.notifier).refreshUsers();
@@ -147,7 +167,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildSwipeStack(List<UserModel> users, SwipeUsersNotifier notifier) {

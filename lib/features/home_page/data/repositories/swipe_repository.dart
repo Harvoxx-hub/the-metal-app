@@ -12,7 +12,7 @@ class SwipeRepository implements ISwipeRepository {
 
   @override
   Future<Responses> getSwipeUsers({
-    int limit = 30,
+    int limit = 100,
     String? lastUserId,
   }) async {
     try {
@@ -83,17 +83,10 @@ class SwipeRepository implements ISwipeRepository {
           .collection(FirebaseFirestoreCollectionKeys.users)
           .where('id', isNotEqualTo: currentUserId)
           .where('isDeleted', isEqualTo: false)
-          .where('showMyProfile', isEqualTo: true)
-          .limit(fetchLimit);
+          .where('showMyProfile', isEqualTo: true);
 
       // Note: Gender preference filtering is now handled in client-side filtering
       // to support bidirectional matching (both users must want each other's gender)
-
-      // Apply age range filter if available
-      if (currentUserData.preferences?.ageRange != null) {
-        // Note: This would need to be implemented based on your age calculation logic
-        // For now, we'll skip age filtering
-      }
 
       final querySnapshot = await query.get();
       final allUsers = querySnapshot.docs.map((doc) => doc.data()).toList();
@@ -102,6 +95,7 @@ class SwipeRepository implements ISwipeRepository {
       // add that metal is not null
       // add that profile is completed
       // add bidirectional gender preference filtering
+      // add age range filtering
       final filteredUsers = allUsers.where((user) {
         final userId = user['id'] as String?;
         if (userId == null ||
@@ -114,7 +108,16 @@ class SwipeRepository implements ISwipeRepository {
         }
 
         // Apply bidirectional gender preference filtering
-        return _isGenderPreferenceMatch(currentUserData, user);
+        if (!_isGenderPreferenceMatch(currentUserData, user)) {
+          return false;
+        }
+
+        // Apply age range filtering
+        if (!_isAgeInRange(currentUserData, user)) {
+          return false;
+        }
+
+        return true;
       }).toList();
 
       // Sort by most recent lastActive only (descending)
@@ -234,6 +237,7 @@ class SwipeRepository implements ISwipeRepository {
 
       // Filter out blocked, swiped, and connected users
       // add bidirectional gender preference filtering
+      // add age range filtering
       final filteredUsers = allUsers.where((user) {
         final userId = user['id'] as String?;
         if (userId == null ||
@@ -246,7 +250,16 @@ class SwipeRepository implements ISwipeRepository {
         }
 
         // Apply bidirectional gender preference filtering
-        return _isGenderPreferenceMatch(currentUserData, user);
+        if (!_isGenderPreferenceMatch(currentUserData, user)) {
+          return false;
+        }
+
+        // Apply age range filtering
+        if (!_isAgeInRange(currentUserData, user)) {
+          return false;
+        }
+
+        return true;
       }).toList();
 
       // Sort by most recent lastActive only (descending)
@@ -413,6 +426,113 @@ class SwipeRepository implements ISwipeRepository {
         targetUserPreferences.contains(currentUserGender);
 
     return currentUserWantsTargetGender && targetUserWantsCurrentGender;
+  }
+
+  /// Check if target user's age is within current user's age preference range
+  bool _isAgeInRange(UserModel currentUser, Map<String, dynamic> targetUser) {
+    // If no age preference is set, allow all ages
+    final ageRange = currentUser.preferences?.ageRange;
+    if (ageRange == null || ageRange.isEmpty) {
+      return true;
+    }
+
+    // Parse age range (e.g., "25 - 30 years", "26-35", "36-45", "46+")
+    final ageLimits = _parseAgeRange(ageRange);
+    if (ageLimits == null) {
+      print('Failed to parse age range: $ageRange');
+      return true; // If parsing fails, allow all ages
+    }
+
+    // Get target user's age
+    final targetUserAge = _calculateAge(targetUser['dob'] as String?);
+    if (targetUserAge == null) {
+      print(
+          'Could not calculate age for user: ${targetUser['id']} with DOB: ${targetUser['dob']}');
+      return true; // If age can't be calculated, allow
+    }
+
+    print(
+        'User ${targetUser['id']} DOB: ${targetUser['dob']} → Age: $targetUserAge');
+
+    // Check if age is within range
+    final isInRange = targetUserAge >= ageLimits['min']! &&
+        targetUserAge <= ageLimits['max']!;
+
+    if (!isInRange) {
+      print(
+          'Age filter: User ${targetUser['id']} age $targetUserAge not in range ${ageLimits['min']}-${ageLimits['max']}');
+    }
+
+    return isInRange;
+  }
+
+  /// Parse age range string into min and max values
+  Map<String, int>? _parseAgeRange(String ageRange) {
+    try {
+      // Clean the string - remove "years" and extra spaces
+      final cleanRange = ageRange.toLowerCase().replaceAll('years', '').trim();
+
+      if (cleanRange.contains('+')) {
+        // Handle "46+" format
+        final minAge = int.parse(cleanRange.replaceAll('+', ''));
+        return {'min': minAge, 'max': 100}; // Cap at 100 for practical purposes
+      } else if (cleanRange.contains('-')) {
+        // Handle "25 - 30" or "25-30" format
+        final parts = cleanRange.split('-');
+        if (parts.length == 2) {
+          final minAge = int.parse(parts[0].trim());
+          final maxAge = int.parse(parts[1].trim());
+          return {'min': minAge, 'max': maxAge};
+        }
+      } else {
+        // Handle single age (e.g., "25")
+        final age = int.parse(cleanRange.trim());
+        return {'min': age, 'max': age};
+      }
+    } catch (e) {
+      print('Error parsing age range: $ageRange, error: $e');
+    }
+    return null;
+  }
+
+  /// Calculate age from date of birth string
+  int? _calculateAge(String? dob) {
+    if (dob == null || dob.isEmpty) return null;
+
+    try {
+      DateTime birthDate;
+
+      // Handle different date formats
+      if (dob.contains('/')) {
+        // Handle DD/MM/YYYY format (e.g., "21/10/2003")
+        final parts = dob.split('/');
+        if (parts.length == 3) {
+          final day = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final year = int.parse(parts[2]);
+          birthDate = DateTime(year, month, day);
+        } else {
+          throw FormatException('Invalid date format: $dob');
+        }
+      } else {
+        // Handle ISO format (e.g., "2003-10-21")
+        birthDate = DateTime.parse(dob);
+      }
+
+      final now = DateTime.now();
+      int age = now.year - birthDate.year;
+
+      // Adjust if birthday hasn't occurred this year
+      if (now.month < birthDate.month ||
+          (now.month == birthDate.month && now.day < birthDate.day)) {
+        age--;
+      }
+
+      return age;
+    } catch (e) {
+      print('Error calculating age from DOB: $dob, error: $e');
+      return null;
+    }
   }
 }
 

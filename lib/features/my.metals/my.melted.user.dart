@@ -149,15 +149,14 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                               child: Column(
                                 children: [
                                   TextView(
-                                    text:  
-                                         "@${myMelt.data!.username} ",
+                                    text: "@${myMelt.data!.username} ",
                                     fontWeight: FontWeight.bold,
                                   ),
                                   const Gap(5),
                                   TextView(
                                     text: myMelt.data?.location != null
                                         ? myMelt.data!.location?.address ?? ""
-                                        : "No Address Found",
+                                        : "",
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ],

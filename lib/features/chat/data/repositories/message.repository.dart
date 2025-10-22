@@ -145,6 +145,16 @@ class MessageRepository implements IMessageRepository {
           .collection(FirebaseFirestoreCollectionKeys.connections)
           .doc(conversationId)
           .collection('messages');
+      // Also clear last conversation metadata on the connection
+      await _firestore
+          .collection(FirebaseFirestoreCollectionKeys.connections)
+          .doc(conversationId)
+          .update({
+        'lastMessage': null,
+        'lastUpdatedAt': null,
+        'lastSenderId': null,
+        'unreadCount': 0,
+      });
 
       final snapshot = await messagesRef.get();
       for (var doc in snapshot.docs) {

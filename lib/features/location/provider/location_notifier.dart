@@ -1,19 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../core/state/base.state.dart';
 import '../../../core/services/location_service.dart';
 import '../../../features/authentication/domain/entries/user.model.dart';
 import '../../../features/authentication/provider/user_state_notifier.dart';
 
+/// Simple location notifier
 class LocationNotifier extends StateNotifier<LocationState> {
   LocationNotifier(this.ref) : super(LocationState.initial());
 
   final Ref ref;
   final LocationService _locationService = LocationService();
 
-  /// Update user location and save to backend
+  /// Update user location and save to Firestore
   Future<void> updateUserLocation() async {
-    if (state.isLoading) return; // Prevent multiple simultaneous updates
+    if (state.isLoading) return;
 
     state = LocationState.loading();
 
@@ -26,7 +26,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
         return;
       }
 
-      // Update user location in backend
+      // Update user location in Firestore
       await ref.read(userStateProvider.notifier).updateUserField(
             field: 'location',
             value: location.toJson(),
@@ -34,28 +34,8 @@ class LocationNotifier extends StateNotifier<LocationState> {
 
       state = LocationState.success(location);
     } catch (e) {
-      state = LocationState.error('Failed to update location: ${e.toString()}');
+      state = LocationState.error('Failed to update location: $e');
     }
-  }
-
-  /// Check if location is available
-  Future<bool> isLocationAvailable() async {
-    return await _locationService.isLocationAvailable();
-  }
-
-  /// Get current location without updating backend
-  Future<Location?> getCurrentLocation() async {
-    return await _locationService.getCurrentLocation();
-  }
-
-  /// Clear error and reset to initial state
-  void clearError() {
-    state = LocationState.initial();
-  }
-
-  /// Reset state to initial
-  void reset() {
-    state = LocationState.initial();
   }
 }
 

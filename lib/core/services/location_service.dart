@@ -1,144 +1,34 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:geolocator/geolocator.dart' as geo;
-import 'package:geocoding/geocoding.dart' as geo_coding;
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart' hide Location;
 
 import '../../features/authentication/domain/entries/user.model.dart';
 
-/// Service for handling all location-related operations
+/// Simple and clean location service
 class LocationService {
   static final LocationService _instance = LocationService._internal();
   factory LocationService() => _instance;
   LocationService._internal();
 
-  /// Check if location services are enabled
-  Future<bool> isLocationServiceEnabled() async {
-    try {
-      return await geo.Geolocator.isLocationServiceEnabled();
-    } catch (e) {
-      debugPrint('Error checking location service: $e');
-      return false;
-    }
-  }
-
-  /// Check location permission status
-  Future<geo.LocationPermission> getLocationPermission() async {
-    try {
-      return await geo.Geolocator.checkPermission();
-    } catch (e) {
-      debugPrint('Error checking location permission: $e');
-      return geo.LocationPermission.denied;
-    }
-  }
-
-  /// Request location permission
-  Future<geo.LocationPermission> requestLocationPermission() async {
-    try {
-      return await geo.Geolocator.requestPermission();
-    } catch (e) {
-      debugPrint('Error requesting location permission: $e');
-      return geo.LocationPermission.denied;
-    }
-  }
-
-  /// Get current position with timeout
-  Future<geo.Position?> getCurrentPosition({
-    Duration timeout = const Duration(seconds: 15),
-  }) async {
-    try {
-      return await geo.Geolocator.getCurrentPosition(
-        desiredAccuracy: geo.LocationAccuracy.high,
-        timeLimit: timeout,
-      );
-    } catch (e) {
-      debugPrint('Error getting current position: $e');
-      return null;
-    }
-  }
-
-  /// Get address from coordinates with fallback strategy
-  Future<String> getAddressFromCoordinates({
-    required double latitude,
-    required double longitude,
-  }) async {
-    try {
-      final placemarks = await geo_coding.placemarkFromCoordinates(
-        latitude,
-        longitude,
-      );
-
-      if (placemarks.isEmpty) {
-        debugPrint(
-            'No placemarks found for coordinates: $latitude, $longitude');
-        return _getFallbackAddress();
-      }
-
-      final place = placemarks.first;
-
-      // Try different combinations for better address formatting
-      if (place.locality != null && place.country != null) {
-        return "${place.locality}, ${place.country}";
-      } else if (place.administrativeArea != null && place.country != null) {
-        return "${place.administrativeArea}, ${place.country}";
-      } else if (place.country != null) {
-        return place.country!;
-      } else if (place.locality != null) {
-        return place.locality!;
-      } else {
-        debugPrint(
-            'Placemark fields are null for coordinates: $latitude, $longitude');
-        return _getFallbackAddress();
-      }
-    } catch (e) {
-      debugPrint('Error getting address from coordinates: $e');
-      return _getFallbackAddress();
-    }
-  }
-
-  /// Get fallback address based on platform
-  String _getFallbackAddress() {
-    if (Platform.isAndroid) {
-      return "Location not available";
-    } else if (Platform.isIOS) {
-      return "Location not available";
-    } else {
-      return "Location not available";
-    }
-  }
-
-  /// Get complete location data (coordinates + address)
+  /// Get current location with address
   Future<Location?> getCurrentLocation() async {
     try {
-      // Check if location services are enabled
-      final serviceEnabled = await isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        debugPrint('Location services are disabled');
+      // Check permissions
+      if (!await _hasLocationPermission()) {
+        debugPrint('Location permission not granted');
         return null;
       }
 
-      // Check permission
-      var permission = await getLocationPermission();
-      if (permission == geo.LocationPermission.denied) {
-        permission = await requestLocationPermission();
-      }
-
-      if (permission == geo.LocationPermission.denied ||
-          permission == geo.LocationPermission.deniedForever) {
-        debugPrint('Location permission denied');
-        return null;
-      }
-
-      // Get current position
-      final position = await getCurrentPosition();
-      if (position == null) {
-        debugPrint('Failed to get current position');
-        return null;
-      }
+      // Get coordinates
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
+      );
 
       // Get address from coordinates
-      final address = await getAddressFromCoordinates(
-        latitude: position.latitude,
-        longitude: position.longitude,
+      final address = await _getAddressFromCoordinates(
+        position.latitude,
+        position.longitude,
       );
 
       return Location(
@@ -147,27 +37,57 @@ class LocationService {
         address: address,
       );
     } catch (e) {
-      debugPrint('Error getting current location: $e');
+      debugPrint('Error getting location: $e');
       return null;
     }
   }
 
   /// Check if location permission is granted
-  Future<bool> hasLocationPermission() async {
-    final permission = await getLocationPermission();
-   
-    if (permission == geo.LocationPermission.denied) {
-      await requestLocationPermission();
-      return false;
+  Future<bool> _hasLocationPermission() async {
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return false;
+
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
     }
-    return permission == geo.LocationPermission.whileInUse ||
-        permission == geo.LocationPermission.always;
+
+    return permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always;
   }
 
-  /// Check if location services are available and permission is granted
-  Future<bool> isLocationAvailable() async {
-    final serviceEnabled = await isLocationServiceEnabled();
-    final hasPermission = await hasLocationPermission();
-    return serviceEnabled && hasPermission;
+  /// Convert coordinates to address
+  Future<String> _getAddressFromCoordinates(double lat, double lng) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(lat, lng);
+
+      if (placemarks.isEmpty) {
+        return 'Location not available';
+      }
+
+      final place = placemarks.first;
+
+      // Build address from available fields
+      final parts = <String>[];
+
+      if (place.street != null && place.street!.isNotEmpty) {
+        parts.add(place.street!);
+      }
+      if (place.locality != null && place.locality!.isNotEmpty) {
+        parts.add(place.locality!);
+      }
+      if (place.administrativeArea != null &&
+          place.administrativeArea!.isNotEmpty) {
+        parts.add(place.administrativeArea!);
+      }
+      if (place.country != null && place.country!.isNotEmpty) {
+        parts.add(place.country!);
+      }
+
+      return parts.isEmpty ? 'Location not available' : parts.join(', ');
+    } catch (e) {
+      debugPrint('Error getting address: $e');
+      return 'Location not available';
+    }
   }
 }

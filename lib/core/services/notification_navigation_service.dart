@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:metal/fcm/models/notification_payload_model.dart';
 import 'package:metal/fcm/models/push_type.dart';
 import 'package:metal/features/notification/domain/entries/notification.model.dart';
-import 'package:metal/features/community/data/domain/entries/community.model.dart';
 import 'package:metal/route/routes.dart';
 
 /// Centralized service for handling notification navigation
@@ -246,19 +245,7 @@ class NotificationNavigationService {
       await _safeNavigate(
         context,
         AppRoutes.communityProfile,
-        CommunityModel(
-          id: communityId,
-          name: metadata?['communityName'] ??
-              data?['communityName'] ??
-              'Community',
-          description: '',
-          creatorId: '',
-          creatorName: '',
-          memberCount: 0,
-          isPublic: true,
-          tags: [],
-          createdAt: '',
-        ),
+        communityId,
         _navigateToHome,
       );
     } else if (thoughtId != null && thoughtId.isNotEmpty) {
@@ -281,19 +268,7 @@ class NotificationNavigationService {
       await _safeNavigate(
         context,
         AppRoutes.communityProfile,
-        CommunityModel(
-          id: communityId,
-          name: metadata?['communityName'] ??
-              data?['communityName'] ??
-              'Community',
-          description: '',
-          creatorId: '',
-          creatorName: '',
-          memberCount: 0,
-          isPublic: true,
-          tags: [],
-          createdAt: '',
-        ),
+        communityId,
         _navigateToHome,
       );
     } else {

@@ -322,10 +322,20 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
           return community;
         }).toList();
 
+        // Update selectedCommunity if it's the same community
+        CommunityModel? updatedSelectedCommunity = state.selectedCommunity;
+        if (updatedSelectedCommunity?.id == communityId) {
+          updatedSelectedCommunity = updatedSelectedCommunity!.copyWith(
+            isJoined: true,
+            memberCount: updatedSelectedCommunity.memberCount + 1,
+          );
+        }
+
         state = state.copyWith(
           isLoading: false,
           communities: updatedCommunities,
           allCommunities: updatedAll,
+          selectedCommunity: updatedSelectedCommunity,
           successMessage:
               response.message ?? 'Operation completed successfully',
         );
@@ -382,10 +392,20 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
           return community;
         }).toList();
 
+        // Update selectedCommunity if it's the same community
+        CommunityModel? updatedSelectedCommunity = state.selectedCommunity;
+        if (updatedSelectedCommunity?.id == communityId) {
+          updatedSelectedCommunity = updatedSelectedCommunity!.copyWith(
+            isJoined: false,
+            memberCount: updatedSelectedCommunity.memberCount - 1,
+          );
+        }
+
         state = state.copyWith(
           isLoading: false,
           communities: updatedCommunities,
           allCommunities: updatedAll,
+          selectedCommunity: updatedSelectedCommunity,
           successMessage:
               response.message ?? 'Operation completed successfully',
         );
@@ -517,4 +537,17 @@ final communityNotifierProvider =
     StateNotifierProvider<CommunityNotifier, CommunityState>((ref) {
   final repository = ref.watch(communityRepositoryProvider);
   return CommunityNotifier(repository);
+});
+
+// Family provider for individual communities
+final communityProvider =
+    Provider.family<CommunityModel?, String>((ref, communityId) {
+  final state = ref.watch(communityNotifierProvider);
+
+  // Return the community if it matches the requested ID
+  if (state.selectedCommunity?.id == communityId) {
+    return state.selectedCommunity;
+  }
+
+  return null;
 });

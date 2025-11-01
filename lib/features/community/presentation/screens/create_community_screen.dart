@@ -40,6 +40,15 @@ class _CreateCommunityScreenState extends ConsumerState<CreateCommunityScreen> {
     'Art',
     'Food',
     'Travel',
+    'Lifestyle',
+    'Health',
+    'Finance',
+    'Education',
+    'Entertainment',
+    'Science',
+    'Technology',
+    'Business',
+    'Other',
   ];
 
   @override

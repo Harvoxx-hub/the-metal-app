@@ -21,12 +21,12 @@ class SwipeUsersNotifier extends StateNotifier<SwipeUsersState> {
   bool get hasError => state.isError;
 
   /// Load initial users for swiping
-  Future<void> loadSwipeUsers({int limit = 6}) async {
+  Future<void> loadSwipeUsers( ) async {
     try {
       state = SwipeUsersState.loading();
       final swipeRepository = ref.watch(swipeRepositoryProvider);
 
-      final response = await swipeRepository.getSwipeUsers(limit: limit);
+      final response = await swipeRepository.getSwipeUsers( );
 
       if (mounted) {
         if (response.success == true && response.data is List) {
@@ -35,14 +35,11 @@ class SwipeUsersNotifier extends StateNotifier<SwipeUsersState> {
 
           _users = users;
           _lastUserId = users.isNotEmpty ? users.last.id : null;
-          _hasMoreUsers = users.length >= limit;
+     
 
           state = SwipeUsersState.success(_users);
 
-          // Auto-top-up if buffer is low
-          if (_users.length < 5 && _hasMoreUsers) {
-            await loadMoreUsers(limit: limit);
-          }
+         
         } else {
           print(response.message);
           state =
@@ -59,7 +56,7 @@ class SwipeUsersNotifier extends StateNotifier<SwipeUsersState> {
   }
 
   /// Load more users for swiping (pagination)
-  Future<void> loadMoreUsers({int limit = 6}) async {
+  Future<void> loadMoreUsers( ) async {
     if (!_hasMoreUsers || isLoading) return;
 
     try {
@@ -72,7 +69,7 @@ class SwipeUsersNotifier extends StateNotifier<SwipeUsersState> {
 
       final response = await swipeRepository.getMoreSwipeUsers(
         lastUserId: _lastUserId!,
-        limit: limit,
+   
       );
 
       if (mounted) {
@@ -82,8 +79,7 @@ class SwipeUsersNotifier extends StateNotifier<SwipeUsersState> {
 
           _users.addAll(newUsers);
           _lastUserId = newUsers.isNotEmpty ? newUsers.last.id : null;
-          _hasMoreUsers = newUsers.length >= limit;
-
+        
           state = SwipeUsersState.success(_users);
         } else {
           _hasMoreUsers = false;

@@ -300,6 +300,11 @@ class _ThoughtDetailsPageState extends ConsumerState<ThoughtDetailsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Show repost context if this is a repost
+                      if (thoughtModel.type == 'repost') ...[
+                        _buildRepostHeader(thoughtModel),
+                        const Gap(16),
+                      ],
                       BuildUserInfo(
                         userId: thoughtModel.userId,
                         thought: thoughtModel,
@@ -321,6 +326,14 @@ class _ThoughtDetailsPageState extends ConsumerState<ThoughtDetailsPage> {
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
                         ),
+                      ],
+                      // Show original thought if this is a repost
+                      if (thoughtModel.type == 'repost') ...[
+                        const Gap(20),
+                        if (thoughtModel.originalThought != null)
+                          _buildOriginalThought(thoughtModel.originalThought!)
+                        else
+                          _buildDeletedOriginalThought(),
                       ],
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -583,5 +596,270 @@ class _ThoughtDetailsPageState extends ConsumerState<ThoughtDetailsPage> {
     } else {
       return '0:${seconds.toString().padLeft(2, '0')}';
     }
+  }
+
+  /// Build repost header showing who reposted
+  Widget _buildRepostHeader(ThoughtModel repostThought) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.repeat,
+            size: 16,
+            color: Colors.grey.shade600,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: TextView(
+              text:
+                  'Reposted by ${repostThought.authorMetadata?.authorName ?? 'Unknown'}',
+              fontSize: 14,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build original thought display
+  Widget _buildOriginalThought(ThoughtModel originalThought) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Original thought header
+          Row(
+            children: [
+              Icon(
+                Icons.format_quote,
+                size: 16,
+                color: Colors.grey.shade600,
+              ),
+              const SizedBox(width: 8),
+              TextView(
+                text: 'Original Thought',
+                fontSize: 14,
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.w600,
+              ),
+            ],
+          ),
+          const Gap(12),
+          // Original author info
+          BuildUserInfo(
+            userId: originalThought.userId,
+            thought: originalThought,
+          ),
+          const Gap(12),
+          // Original thought content
+          if (originalThought.type == 'voice') ...[
+            _buildOriginalVoicePlayer(originalThought),
+            if (originalThought.content.isNotEmpty) ...[
+              const Gap(8),
+              TextView(
+                text: originalThought.content,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+              ),
+            ],
+          ] else ...[
+            TextView(
+              text: originalThought.content,
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Build voice player for original thought
+  Widget _buildOriginalVoicePlayer(ThoughtModel originalThought) {
+    final audioUrl = originalThought.audioUrl;
+    if (audioUrl == null || audioUrl.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: const Center(
+          child: TextView(
+            text: 'Audio not available',
+            fontSize: 12,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Row(
+        children: [
+          // Simple play button for original thought
+          GestureDetector(
+            onTap: () {
+              // Navigate to original thought details
+              Navigator.pushNamed(
+                context,
+                AppRoutes.thoughtDetails,
+                arguments: originalThought.id,
+              );
+            },
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade400,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.play_arrow,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+          ),
+          const Gap(12),
+          // Duration and tap to view text
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextView(
+                  text: originalThought.audioDuration != null
+                      ? _formatDurationFromSeconds(
+                          originalThought.audioDuration!)
+                      : 'Tap to view',
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+                TextView(
+                  text: 'Tap to view original',
+                  fontSize: 10,
+                  color: Colors.grey.shade500,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDurationFromSeconds(int seconds) {
+    if (seconds == 0) return '0:00';
+
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+
+    if (minutes > 0) {
+      return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
+    } else {
+      return '0:${remainingSeconds.toString().padLeft(2, '0')}';
+    }
+  }
+
+  /// Build UI for deleted original thought
+  Widget _buildDeletedOriginalThought() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Deleted original thought header
+          Row(
+            children: [
+              Icon(
+                Icons.delete_outline,
+                size: 16,
+                color: Colors.grey.shade600,
+              ),
+              const SizedBox(width: 8),
+              TextView(
+                text: 'Original Thought',
+                fontSize: 14,
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.w600,
+              ),
+            ],
+          ),
+          const Gap(12),
+          // Deleted message
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 20,
+                  color: Colors.grey.shade500,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextView(
+                        text: 'Original thought has been deleted',
+                        fontSize: 14,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      const SizedBox(height: 4),
+                      TextView(
+                        text: 'The author removed this content',
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

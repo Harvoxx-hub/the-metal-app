@@ -351,7 +351,7 @@ class AppRoutes {
       case communityProfile:
         return MaterialPageRoute(
           builder: (_) => CommunityProfileScreen(
-            community: settings.arguments as CommunityModel,
+            communityId: settings.arguments as String,
           ),
         );
       case createCommunity:

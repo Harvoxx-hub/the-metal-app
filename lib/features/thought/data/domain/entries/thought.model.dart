@@ -168,6 +168,7 @@ class ThoughtModel {
   final String? originalThoughtId;
   final String? originalUserId;
   final String? repostedAt;
+  final ThoughtModel? originalThought; // The actual original thought data
 
   ThoughtModel({
     required this.id,
@@ -183,6 +184,7 @@ class ThoughtModel {
     this.originalThoughtId,
     this.originalUserId,
     this.repostedAt,
+    this.originalThought,
   });
 
   factory ThoughtModel.fromJson(Map<String, dynamic> json) {
@@ -210,6 +212,10 @@ class ThoughtModel {
       originalThoughtId: json['originalThoughtId'] as String?,
       originalUserId: json['originalUserId'] as String?,
       repostedAt: json['repostedAt'] as String?,
+      originalThought: json['originalThought'] != null
+          ? ThoughtModel.fromJson(
+              json['originalThought'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -228,6 +234,7 @@ class ThoughtModel {
       'originalThoughtId': originalThoughtId,
       'originalUserId': originalUserId,
       'repostedAt': repostedAt,
+      'originalThought': originalThought?.toJson(),
     };
   }
 
@@ -248,6 +255,7 @@ class ThoughtModel {
       originalThoughtId: originalThoughtId,
       originalUserId: originalUserId,
       repostedAt: repostedAt,
+      originalThought: originalThought,
     );
   }
 

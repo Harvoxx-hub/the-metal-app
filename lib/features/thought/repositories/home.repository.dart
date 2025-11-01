@@ -250,6 +250,20 @@ class HomeRepository implements IHomeRepository {
       );
 
       if (thoughtData != null) {
+        // If this is a repost, fetch the original thought as well
+        if (thoughtData['type'] == 'repost' &&
+            thoughtData['originalThoughtId'] != null &&
+            thoughtData['originalThoughtId'].toString().isNotEmpty) {
+          final originalThoughtId = thoughtData['originalThoughtId'] as String;
+          final originalThoughtData = await _firebaseService.readDocument(
+            collectionPath: FirebaseFirestoreCollectionKeys.thoughts,
+            documentId: originalThoughtId,
+          );
+
+          // Add original thought data to the response
+          thoughtData['originalThought'] = originalThoughtData;
+        }
+
         return Responses(
           success: true,
           message: "Thought retrieved successfully.",

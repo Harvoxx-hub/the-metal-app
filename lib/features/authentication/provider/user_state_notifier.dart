@@ -4,6 +4,7 @@ import 'package:metal/core/services/user_update_service.dart';
 import 'package:metal/core/services/user_migration_service.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/data/repositories/authetication.repository.dart';
+import 'package:metal/features/home_page/provider/swipe_users.notifier.dart';
 
 /// Comprehensive user state management with improved architecture
 class UserStateNotifier extends StateNotifier<UserState> {
@@ -82,6 +83,9 @@ class UserStateNotifier extends StateNotifier<UserState> {
 
       if (response.success!) {
         final updatedUser = response.data;
+
+        /// reload swipeUsersProvider
+        ref.read(swipeUsersProvider.notifier).loadSwipeUsers();
         state = UserState.success(updatedUser);
       } else {
         state = UserState.error(response.message ?? 'Update failed');

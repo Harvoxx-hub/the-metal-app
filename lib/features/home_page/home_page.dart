@@ -50,7 +50,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       SwipeUsersState state, SwipeUsersNotifier notifier) {
     if (state.isLoading) {
       return const Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator.adaptive(),
       );
     }
 

@@ -17,11 +17,11 @@ import 'package:metal/features/community/provider/community_notifier.dart';
 import 'package:metal/core/services/firebase.service.db.dart';
 
 class CommunityProfileScreen extends ConsumerStatefulWidget {
-  final CommunityModel community;
+  final String communityId;
 
   const CommunityProfileScreen({
     super.key,
-    required this.community,
+    required this.communityId,
   });
 
   @override
@@ -31,25 +31,82 @@ class CommunityProfileScreen extends ConsumerStatefulWidget {
 
 class _CommunityProfileScreenState
     extends ConsumerState<CommunityProfileScreen> {
-  late CommunityModel _community;
-
   @override
   void initState() {
     super.initState();
-    _community = widget.community;
+    // Load the community using the provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(communityNotifierProvider.notifier)
+          .getCommunityById(widget.communityId);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final communityState = ref.watch(communityNotifierProvider);
+    final community = ref.watch(communityProvider(widget.communityId));
+
+    if (communityState.isLoading) {
+      return Scaffold(
+        body: BaseScreen(
+          appBarState: AppBarState.BackWithHeader,
+          Header: 'Loading...',
+          body: const Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
+
+    if (communityState.error != null || community == null) {
+      return Scaffold(
+        body: BaseScreen(
+          appBarState: AppBarState.BackWithHeader,
+          Header: 'Error',
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: Colors.grey.shade500,
+                ),
+                const Gap(16),
+                Text(
+                  communityState.error ?? 'Community not found',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey.shade700,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const Gap(24),
+                ElevatedButton(
+                  onPressed: () {
+                    ref
+                        .read(communityNotifierProvider.notifier)
+                        .getCommunityById(widget.communityId);
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: BaseScreen(
         appBarState: AppBarState.BackWithHeader,
-        Header: _community.name,
+        Header: community.name,
         body: SingleChildScrollView(
           child: Column(
             children: [
               // Community Header
-              _buildCommunityHeader(),
+              _buildCommunityHeader(community),
 
               const Gap(20),
 
@@ -59,15 +116,15 @@ class _CommunityProfileScreenState
                 child: BaseTab(
                   tabs: [
                     BaseTabModel(
-                      child: CommunityFeedScreen(community: _community),
+                      child: CommunityFeedScreen(community: community),
                       title: 'Feed',
                     ),
                     BaseTabModel(
-                      child: CommunityMembersScreen(community: _community),
+                      child: CommunityMembersScreen(community: community),
                       title: 'Members',
                     ),
                     BaseTabModel(
-                      child: CommunityAboutScreen(community: _community),
+                      child: CommunityAboutScreen(community: community),
                       title: 'About',
                     ),
                   ],
@@ -77,10 +134,10 @@ class _CommunityProfileScreenState
           ),
         ),
       ),
-      floatingActionButton: _community.isJoined
+      floatingActionButton: community.isJoined
           ? FloatingActionButton(
               onPressed: () {
-                _navigateToThoughtComposer();
+                _navigateToThoughtComposer(community);
               },
               backgroundColor: AppColors.metalPinkColour,
               child: const Icon(
@@ -92,18 +149,18 @@ class _CommunityProfileScreenState
     );
   }
 
-  void _navigateToThoughtComposer() async {
+  void _navigateToThoughtComposer(CommunityModel community) async {
     // Navigate to the existing thought composer with community context
     final result = await Navigator.pushNamed(
       context,
       AppRoutes.postThought,
       arguments: {
         'communityMetadata': {
-          'communityId': _community.id,
-          'communityName': _community.name,
-          'categories': _community.tags,
-          'communityImage': _community.bannerImage,
-          'isPublic': _community.isPublic,
+          'communityId': community.id,
+          'communityName': community.name,
+          'categories': community.tags,
+          'communityImage': community.bannerImage,
+          'isPublic': community.isPublic,
         }
       },
     );
@@ -111,32 +168,32 @@ class _CommunityProfileScreenState
     // Refresh community thoughts if a thought was posted
     if (result == true || result != null) {
       ref
-          .read(communityThoughtsProvider(_community.id).notifier)
-          .refreshCommunityThoughts(_community.id);
+          .read(communityThoughtsProvider(community.id).notifier)
+          .refreshCommunityThoughts(community.id);
     }
   }
 
-  Widget _buildCommunityHeader() {
+  Widget _buildCommunityHeader(CommunityModel community) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        image: _community.bannerImage != null
+        image: community.bannerImage != null
             ? DecorationImage(
-                image: NetworkImage(_community.bannerImage!),
+                image: NetworkImage(community.bannerImage!),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.4),
+                  Colors.black.withValues(alpha: 0.4),
                   BlendMode.darken,
                 ),
               )
             : null,
-        gradient: _community.bannerImage == null
+        gradient: community.bannerImage == null
             ? LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
                   AppColors.metalPinkColour,
-                  AppColors.metalPinkColour.withOpacity(0.8),
+                  AppColors.metalPinkColour.withValues(alpha: 0.8),
                 ],
               )
             : null,
@@ -148,13 +205,13 @@ class _CommunityProfileScreenState
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             // Community Icon and Name
-            Gap(100),
+            const Gap(100),
             // Description
             Text(
-              _community.description,
+              community.description,
               style: TextStyle(
                 fontSize: 14,
-                color: AppColors.metalWhite.withOpacity(0.9),
+                color: AppColors.metalWhite.withValues(alpha: 0.9),
                 height: 1.4,
               ),
             ),
@@ -166,21 +223,21 @@ class _CommunityProfileScreenState
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
-                children: _community.tags.map((tag) {
+                children: community.tags.map((tag) {
                   return Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: AppColors.metalWhite.withOpacity(0.2),
+                      color: AppColors.metalWhite.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: AppColors.metalWhite.withOpacity(0.3),
+                        color: AppColors.metalWhite.withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
                     child: Text(
                       tag,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.metalWhite,
                         fontWeight: FontWeight.w500,
@@ -189,12 +246,12 @@ class _CommunityProfileScreenState
                   );
                 }).toList(),
               ),
-              Spacer(),
-              if (_community.isJoined)
+              const Spacer(),
+              if (community.isJoined)
                 PlainButton(
                   buttonText: 'Leave',
                   onPressed: () {
-                    _showLeaveDialog();
+                    _showLeaveDialog(community);
                   },
                   width: 80,
                   height: 36,
@@ -204,7 +261,7 @@ class _CommunityProfileScreenState
                 PlainButton(
                   buttonText: 'Join',
                   onPressed: () {
-                    _showJoinDialog();
+                    _showJoinDialog(community);
                   },
                   width: 80,
                   height: 36,
@@ -217,7 +274,7 @@ class _CommunityProfileScreenState
     );
   }
 
-  void _showJoinDialog() {
+  void _showJoinDialog(CommunityModel community) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -225,7 +282,7 @@ class _CommunityProfileScreenState
           borderRadius: BorderRadius.circular(16),
         ),
         title: Text(
-          'Join ${_community.name}?',
+          'Join ${community.name}?',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -236,7 +293,7 @@ class _CommunityProfileScreenState
           'You\'ll be able to post, comment, and interact with other members.',
           style: TextStyle(
             fontSize: 14,
-            color: AppColors.metalBrownColourForText.withOpacity(0.7),
+            color: AppColors.metalBrownColourForText.withValues(alpha: 0.7),
           ),
         ),
         actions: [
@@ -245,7 +302,7 @@ class _CommunityProfileScreenState
             child: Text(
               'Cancel',
               style: TextStyle(
-                color: AppColors.metalBrownColourForText.withOpacity(0.6),
+                color: AppColors.metalBrownColourForText.withValues(alpha: 0.6),
               ),
             ),
           ),
@@ -253,7 +310,7 @@ class _CommunityProfileScreenState
             buttonText: 'Join',
             onPressed: () async {
               Navigator.pop(context);
-              await _joinCommunity();
+              await _joinCommunity(community);
             },
             width: 80,
             height: 40,
@@ -263,7 +320,7 @@ class _CommunityProfileScreenState
     );
   }
 
-  void _showLeaveDialog() {
+  void _showLeaveDialog(CommunityModel community) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -271,7 +328,7 @@ class _CommunityProfileScreenState
           borderRadius: BorderRadius.circular(16),
         ),
         title: Text(
-          'Leave ${_community.name}?',
+          'Leave ${community.name}?',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -282,7 +339,7 @@ class _CommunityProfileScreenState
           'You\'ll no longer be able to post or comment in this community.',
           style: TextStyle(
             fontSize: 14,
-            color: AppColors.metalBrownColourForText.withOpacity(0.7),
+            color: AppColors.metalBrownColourForText.withValues(alpha: 0.7),
           ),
         ),
         actions: [
@@ -291,7 +348,7 @@ class _CommunityProfileScreenState
             child: Text(
               'Cancel',
               style: TextStyle(
-                color: AppColors.metalBrownColourForText.withOpacity(0.6),
+                color: AppColors.metalBrownColourForText.withValues(alpha: 0.6),
               ),
             ),
           ),
@@ -299,7 +356,7 @@ class _CommunityProfileScreenState
             buttonText: 'Leave',
             onPressed: () async {
               Navigator.pop(context);
-              await _leaveCommunity();
+              await _leaveCommunity(community);
             },
             width: 80,
             height: 40,
@@ -310,7 +367,7 @@ class _CommunityProfileScreenState
     );
   }
 
-  Future<void> _joinCommunity() async {
+  Future<void> _joinCommunity(CommunityModel community) async {
     try {
       final currentUserId = FirebaseServiceDb.instance.userId;
       if (currentUserId == null) {
@@ -319,27 +376,24 @@ class _CommunityProfileScreenState
       }
 
       final communityNotifier = ref.read(communityNotifierProvider.notifier);
-      await communityNotifier.joinCommunity(_community.id);
+      await communityNotifier.joinCommunity(community.id);
 
       // Check if the operation was successful
       final state = ref.read(communityNotifierProvider);
       if (state.error != null) {
         _showErrorSnackBar(state.error!);
       } else {
-        // Update local state
-        setState(() {
-          _community = _community.copyWith(
-            isJoined: true,
-            memberCount: _community.memberCount + 1,
-          );
-        });
+        // Refresh the community data
+        ref
+            .read(communityNotifierProvider.notifier)
+            .getCommunityById(community.id);
       }
     } catch (e) {
       _showErrorSnackBar('Failed to join community: ${e.toString()}');
     }
   }
 
-  Future<void> _leaveCommunity() async {
+  Future<void> _leaveCommunity(CommunityModel community) async {
     try {
       final currentUserId = FirebaseServiceDb.instance.userId;
       if (currentUserId == null) {
@@ -348,21 +402,18 @@ class _CommunityProfileScreenState
       }
 
       final communityNotifier = ref.read(communityNotifierProvider.notifier);
-      await communityNotifier.leaveCommunity(_community.id);
+      await communityNotifier.leaveCommunity(community.id);
 
       // Check if the operation was successful
       final state = ref.read(communityNotifierProvider);
       if (state.error != null) {
         _showErrorSnackBar(state.error!);
       } else {
-        // Update local state
-        setState(() {
-          _community = _community.copyWith(
-            isJoined: false,
-            memberCount: _community.memberCount - 1,
-          );
-        });
-        _showSuccessSnackBar('Successfully left ${_community.name}');
+        // Refresh the community data
+        ref
+            .read(communityNotifierProvider.notifier)
+            .getCommunityById(community.id);
+        _showSuccessSnackBar('Successfully left ${community.name}');
       }
     } catch (e) {
       _showErrorSnackBar('Failed to leave community: ${e.toString()}');

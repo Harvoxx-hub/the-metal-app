@@ -230,6 +230,8 @@ class CommunityRepository implements ICommunityRepository {
   @override
   Future<Responses> getCommunityById(String communityId) async {
     try {
+      final user = _firebaseService.auth.currentUser;
+
       final docSnapshot = await _firebaseService.firestore
           .collection(FirebaseFirestoreCollectionKeys.communities)
           .doc(communityId)
@@ -242,7 +244,25 @@ class CommunityRepository implements ICommunityRepository {
         );
       }
 
-      final community = CommunityModel.fromJson(docSnapshot.data()!);
+      final communityData = docSnapshot.data()!;
+
+      // Check if current user is a member of this community
+      bool isJoined = false;
+      if (user != null) {
+        final memberDoc = await _firebaseService.firestore
+            .collection(FirebaseFirestoreCollectionKeys.communities)
+            .doc(communityId)
+            .collection(FirebaseFirestoreCollectionKeys.communityMembers)
+            .doc(user.uid)
+            .get();
+
+        isJoined = memberDoc.exists;
+      }
+
+      final community = CommunityModel.fromJson({
+        ...communityData,
+        'isJoined': isJoined,
+      });
 
       return Responses(
         success: true,

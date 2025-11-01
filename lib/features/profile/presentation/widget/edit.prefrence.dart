@@ -4,9 +4,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/base_button.dart';
+import 'package:metal/widgets/dropdown/metal.dropdown.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -115,7 +117,7 @@ class _EditPreferencesState extends ConsumerState<EditPreferences> {
             absorbing: noSpecialPreference,
             child: Opacity(
               opacity: noSpecialPreference ? 0.5 : 1.0,
-              child: MentalDropdownMutipleSelection(
+              child: MentalDropdown(
                 items: const [
                   "18 - 25 years",
                   "25 - 30 years",
@@ -127,12 +129,12 @@ class _EditPreferencesState extends ConsumerState<EditPreferences> {
                   "55 - 60 years",
                   "Above 60 years",
                 ],
-                value: selectedAgeRange,
                 onChanged: (newValue) {
                   setState(() {
-                    selectedAgeRange = newValue;
+                    selectedAgeRange = newValue?.split(",") ?? [];
                   });
                 },
+                value: _joinAndClean(selectedAgeRange),
                 floatingLabel: "Age range",
                 hint: "Please Select",
                 prefixIcon: SvgPicture.asset(

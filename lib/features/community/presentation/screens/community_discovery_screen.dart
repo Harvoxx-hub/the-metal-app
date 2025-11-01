@@ -287,7 +287,7 @@ class _CommunityDiscoveryScreenState
                         Navigator.pushNamed(
                           context,
                           AppRoutes.communityProfile,
-                          arguments: community,
+                          arguments: community.id,
                         );
                       },
                     ),

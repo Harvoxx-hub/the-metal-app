@@ -272,7 +272,18 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           const Gap(10),
           // Community tag if this is a community post
           if (thoughtModel.communityMetadata != null) ...[
-            Container(
+           /// get community from id from community provider
+ 
+       
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.communityProfile,
+                  arguments:  thoughtModel.communityMetadata!.communityId,
+                );
+              },
+              child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: AppColors.metalPinkColour.withOpacity(0.1),
@@ -301,7 +312,9 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
                 ],
               ),
             ),
+            ),
             const Gap(8),
+         
           ],
           if (thoughtModel.type == 'voice') ...[
             _buildVoicePlayer(context, thoughtModel),

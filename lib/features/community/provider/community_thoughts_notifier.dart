@@ -27,6 +27,7 @@ class CommunityThoughtsNotifier
             response.message ?? 'Failed to load community thoughts');
       }
     } catch (e, s) {
+      if (!mounted) return;
       state = BaseState.error(e.toString(), stackTrace: s);
     }
   }

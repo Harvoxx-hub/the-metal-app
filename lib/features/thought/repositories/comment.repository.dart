@@ -93,15 +93,23 @@ class CommentRepository implements ICommentRepository {
 
       final comment = CommentModel.fromJson(commentData);
 
-      // Add or update reaction
+      // Add, update, or remove reaction
       final existingReactionIndex =
           comment.reactions.indexWhere((r) => r.userId == userId);
       final reactions = List.of(comment.reactions);
 
       if (existingReactionIndex != -1) {
-        reactions[existingReactionIndex] =
-            ReactionModel(userId: userId, emoji: emoji);
+        final existingReaction = reactions[existingReactionIndex];
+        // If clicking the same emoji, remove the reaction (unreact)
+        if (existingReaction.emoji == emoji) {
+          reactions.removeAt(existingReactionIndex);
+        } else {
+          // Otherwise, update to the new emoji
+          reactions[existingReactionIndex] =
+              ReactionModel(userId: userId, emoji: emoji);
+        }
       } else {
+        // Add new reaction
         reactions.add(ReactionModel(userId: userId, emoji: emoji));
       }
 

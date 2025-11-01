@@ -81,11 +81,19 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
       key: widget.reactionKey,
       children: [
         if (userReaction != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
-              userReaction.emoji,
-              style: const TextStyle(fontSize: 24),
+          GestureDetector(
+            onTap: () async {
+              // Unreact when clicking on existing reaction
+              final reactionNotifier =
+                  ref.read(reactionProvider(widget.thoughtId).notifier);
+              await reactionNotifier.deleteReaction(userReaction.id);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                userReaction.emoji,
+                style: const TextStyle(fontSize: 24),
+              ),
             ),
           )
         else
@@ -201,20 +209,46 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
   }
 
   List<Widget> _buildReactionIcons() {
-    final reactions = ["😍", "👍", "😂", "😢", "😡"];
-    return reactions.map((emoji) {
+    final reactions = ref.watch(reactionProvider(widget.thoughtId)).data ?? [];
+    final userdata = ref.watch(userStateProvider).data;
+    final userReaction = userdata?.id != null
+        ? reactions
+            .where((reaction) => reaction.userId == userdata!.id)
+            .firstOrNull
+        : null;
+
+    final emojis = ["😍", "👍", "😂", "😢", "😡"];
+    return emojis.map((emoji) {
+      final isCurrentReaction = userReaction?.emoji == emoji;
       return GestureDetector(
         onTap: () async {
           final reactionNotifier =
               ref.read(reactionProvider(widget.thoughtId).notifier);
-          await reactionNotifier.addReaction(emoji);
+
+          if (isCurrentReaction && userReaction != null) {
+            // If clicking the same emoji, unreact (delete)
+            await reactionNotifier.deleteReaction(userReaction.id);
+          } else {
+            // Otherwise add/update reaction
+            await reactionNotifier.addReaction(emoji);
+          }
+
           setState(() {
             _showReactions = false;
           });
         },
-        child: TextView(
-          text: emoji,
-          fontSize: 24,
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: isCurrentReaction
+              ? BoxDecoration(
+                  color: AppColors.metalPinkColour.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                )
+              : null,
+          child: TextView(
+            text: emoji,
+            fontSize: 24,
+          ),
         ),
       );
     }).toList();

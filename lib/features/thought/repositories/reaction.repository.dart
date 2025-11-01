@@ -51,9 +51,14 @@ class ReactionRepository implements IReactionRepository {
       // Check if user already has a reaction
       final existingReaction = await getUserReaction(thoughtId, userId);
       if (existingReaction.success == true && existingReaction.data != null) {
-        // Update existing reaction
         final reaction = ReactionModel.fromJson(existingReaction.data);
-        return updateReaction(thoughtId, reaction.id, emoji);
+        // If clicking the same emoji, remove the reaction (unreact)
+        if (reaction.emoji == emoji) {
+          return deleteReaction(thoughtId, reaction.id);
+        } else {
+          // Otherwise, update to the new emoji
+          return updateReaction(thoughtId, reaction.id, emoji);
+        }
       }
 
       final reaction = ReactionModel(

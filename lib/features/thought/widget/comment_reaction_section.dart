@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
- 
+
 import 'package:metal/features/thought/data/domain/entries/comment.model.dart';
 import 'package:metal/features/thought/provider/comment.provider.dart';
 import 'package:metal/features/thought/provider/get.user.notifier.dart';
@@ -85,11 +85,21 @@ class _CommentReactionSectionState
     return Row(
       children: [
         if (userReaction != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
-              userReaction.emoji,
-              style: const TextStyle(fontSize: 20),
+          GestureDetector(
+            onTap: () async {
+              // Unreact when clicking on existing reaction
+              final commentNotifier =
+                  ref.read(commentProvider(widget.thoughtId).notifier);
+              // Click the same emoji to unreact
+              await commentNotifier.reactToComment(
+                  widget.commentId, userReaction.emoji);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                userReaction.emoji,
+                style: const TextStyle(fontSize: 20),
+              ),
             ),
           )
         else
@@ -212,20 +222,38 @@ class _CommentReactionSectionState
   }
 
   List<Widget> _buildReactionIcons() {
-    final reactions = ["😍", "👍", "😂", "😢", "😡"];
-    return reactions.map((emoji) {
+    final userdata = ref.watch(userStateProvider).data;
+    final userReaction = userdata?.id != null
+        ? widget.reactions
+            .where((reaction) => reaction.userId == userdata!.id)
+            .firstOrNull
+        : null;
+
+    final emojis = ["😍", "👍", "😂", "😢", "😡"];
+    return emojis.map((emoji) {
+      final isCurrentReaction = userReaction?.emoji == emoji;
       return GestureDetector(
         onTap: () async {
           final commentNotifier =
               ref.read(commentProvider(widget.thoughtId).notifier);
+          // If clicking the same emoji, it will unreact (handled in repository)
           await commentNotifier.reactToComment(widget.commentId, emoji);
           setState(() {
             _showReactions = false;
           });
         },
-        child: TextView(
-          text: emoji,
-          fontSize: 24,
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: isCurrentReaction
+              ? BoxDecoration(
+                  color: AppColors.metalPinkColour.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                )
+              : null,
+          child: TextView(
+            text: emoji,
+            fontSize: 24,
+          ),
         ),
       );
     }).toList();

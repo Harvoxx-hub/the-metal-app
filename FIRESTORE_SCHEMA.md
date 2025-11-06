@@ -100,6 +100,7 @@ Firestore Root
   "referralCode": "string?",
   "referredBy": "string?",
   "refreshToken": "string?",
+  "appVersion": "string?",
   "createdAt": "string",
   "updatedAt": "string"
 }

@@ -57,6 +57,7 @@ class LocationService {
   }
 
   /// Convert coordinates to address
+  /// Returns only city/state and country (not full address)
   Future<String> _getAddressFromCoordinates(double lat, double lng) async {
     try {
       final placemarks = await placemarkFromCoordinates(lat, lng);
@@ -67,19 +68,18 @@ class LocationService {
 
       final place = placemarks.first;
 
-      // Build address from available fields
+      // Build address with only city/state and country
       final parts = <String>[];
 
-      if (place.street != null && place.street!.isNotEmpty) {
-        parts.add(place.street!);
-      }
-      if (place.locality != null && place.locality!.isNotEmpty) {
-        parts.add(place.locality!);
-      }
+      // Use administrativeArea (state/province) if available, otherwise use locality (city)
       if (place.administrativeArea != null &&
           place.administrativeArea!.isNotEmpty) {
         parts.add(place.administrativeArea!);
+      } else if (place.locality != null && place.locality!.isNotEmpty) {
+        parts.add(place.locality!);
       }
+
+      // Always add country if available
       if (place.country != null && place.country!.isNotEmpty) {
         parts.add(place.country!);
       }

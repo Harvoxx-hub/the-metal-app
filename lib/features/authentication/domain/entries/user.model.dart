@@ -42,6 +42,7 @@ class UserModel {
   String? lastActive;
   String? createdAt;
   String? updatedAt;
+  String? appVersion;
 
   UserModel({
     this.profileUpdated,
@@ -87,6 +88,7 @@ class UserModel {
     this.lastActive,
     this.createdAt,
     this.updatedAt,
+    this.appVersion,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -141,6 +143,7 @@ class UserModel {
       lastActive: json['lastActive'] as String?,
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
+      appVersion: json['appVersion'] as String?,
     );
   }
 
@@ -189,6 +192,7 @@ class UserModel {
       'lastActive': lastActive,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'appVersion': appVersion,
     };
   }
 
@@ -237,6 +241,7 @@ class UserModel {
     String? createdAt,
     String? updatedAt,
     bool? isWorkEmailVerified,
+    String? appVersion,
   }) {
     return UserModel(
       profileUpdated: profileUpdated ?? this.profileUpdated,
@@ -282,6 +287,7 @@ class UserModel {
       lastActive: lastActive ?? this.lastActive,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      appVersion: appVersion ?? this.appVersion,
     );
   }
 }

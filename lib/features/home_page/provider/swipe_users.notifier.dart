@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/core/utils/distance_helper.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/home_page/data/domain/repositories/iswipe_repository.dart';
 import 'package:metal/features/home_page/data/repositories/swipe_repository.dart';
 
@@ -21,25 +23,31 @@ class SwipeUsersNotifier extends StateNotifier<SwipeUsersState> {
   bool get hasError => state.isError;
 
   /// Load initial users for swiping
-  Future<void> loadSwipeUsers( ) async {
+  Future<void> loadSwipeUsers() async {
     try {
       state = SwipeUsersState.loading();
       final swipeRepository = ref.watch(swipeRepositoryProvider);
 
-      final response = await swipeRepository.getSwipeUsers( );
+      final response = await swipeRepository.getSwipeUsers();
 
       if (mounted) {
         if (response.success == true && response.data is List) {
           // The repository already returns UserModel objects
           final users = (response.data as List<UserModel>);
 
-          _users = users;
-          _lastUserId = users.isNotEmpty ? users.last.id : null;
-     
+          // Get current user for distance sorting
+          final currentUser = ref.read(userStateProvider).data;
+
+          // Sort users by distance from current user (closest first)
+          final sortedUsers = DistanceHelper.sortUsersByDistance(
+            users,
+            currentUser,
+          );
+
+          _users = sortedUsers;
+          _lastUserId = sortedUsers.isNotEmpty ? sortedUsers.last.id : null;
 
           state = SwipeUsersState.success(_users);
-
-         
         } else {
           print(response.message);
           state =
@@ -56,7 +64,7 @@ class SwipeUsersNotifier extends StateNotifier<SwipeUsersState> {
   }
 
   /// Load more users for swiping (pagination)
-  Future<void> loadMoreUsers( ) async {
+  Future<void> loadMoreUsers() async {
     if (!_hasMoreUsers || isLoading) return;
 
     try {
@@ -69,7 +77,6 @@ class SwipeUsersNotifier extends StateNotifier<SwipeUsersState> {
 
       final response = await swipeRepository.getMoreSwipeUsers(
         lastUserId: _lastUserId!,
-   
       );
 
       if (mounted) {
@@ -77,9 +84,17 @@ class SwipeUsersNotifier extends StateNotifier<SwipeUsersState> {
           // The repository already returns UserModel objects
           final newUsers = (response.data as List<UserModel>);
 
+          // Get current user for distance sorting
+          final currentUser = ref.read(userStateProvider).data;
+
+          // Add new users to existing list
           _users.addAll(newUsers);
-          _lastUserId = newUsers.isNotEmpty ? newUsers.last.id : null;
-        
+
+          // Re-sort entire list by distance (maintains order)
+          _users = DistanceHelper.sortUsersByDistance(_users, currentUser);
+
+          _lastUserId = _users.isNotEmpty ? _users.last.id : null;
+
           state = SwipeUsersState.success(_users);
         } else {
           _hasMoreUsers = false;

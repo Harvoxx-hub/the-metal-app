@@ -202,11 +202,119 @@ class MessageRepository implements IMessageRepository {
   @override
   deleteMessage(String id, messageId) async {
     try {
+      // Get the current user ID
+      final currentUserId = _db.userId;
+      if (currentUserId == null) {
+        throw Exception("User not authenticated");
+      }
+
+      // Get the message being deleted to check if it's the last message
+      final messageDoc = await _firestore
+          .collection(FirebaseFirestoreCollectionKeys.connections)
+          .doc(id)
+          .collection(FirebaseFirestoreCollectionKeys.message)
+          .doc(messageId)
+          .get();
+
+      final conversationDoc = await _firestore
+          .collection(FirebaseFirestoreCollectionKeys.connections)
+          .doc(id)
+          .get();
+
+      if (!conversationDoc.exists) {
+        throw Exception("Conversation not found");
+      }
+
+      final conversationData = conversationDoc.data() as Map<String, dynamic>;
+      final lastUpdatedAt = conversationData['lastUpdatedAt'] as String?;
+      final messageData = messageDoc.data();
+      final messageTimestamp = messageData?['timestamp'] as String?;
+
+      // Check if the deleted message is the last message
+      final isLastMessage = lastUpdatedAt != null &&
+          messageTimestamp != null &&
+          lastUpdatedAt == messageTimestamp;
+
+      // Delete the message
       await _db.deleteDocument(
         collectionPath:
             '${FirebaseFirestoreCollectionKeys.connections}/$id/${FirebaseFirestoreCollectionKeys.message}',
         documentId: messageId,
       );
+
+      // If the deleted message was the last message, update the conversation
+      if (isLastMessage) {
+        // Get the most recent remaining message
+        final remainingMessages = await _firestore
+            .collection(FirebaseFirestoreCollectionKeys.connections)
+            .doc(id)
+            .collection(FirebaseFirestoreCollectionKeys.message)
+            .orderBy('timestamp', descending: true)
+            .limit(1)
+            .get();
+
+        if (remainingMessages.docs.isNotEmpty) {
+          // Update with the new last message
+          final lastMessage = remainingMessages.docs.first.data();
+          final newLastSenderId = lastMessage['senderId'] as String?;
+          final newLastTimestamp = lastMessage['timestamp'] as String?;
+          final isNewLastMessageRead = lastMessage['isRead'] as bool? ?? false;
+
+          // Determine the correct unreadCount based on standard chat logic:
+          // - If the new last message is from the current user, unreadCount = 0
+          // - If the new last message is from the other user and was read, unreadCount = 0
+          // - If the new last message is from the other user and was not read, count unread messages
+          int newUnreadCount = 0;
+
+          if (newLastSenderId != null && newLastSenderId != currentUserId) {
+            // Message is from the other user
+            if (!isNewLastMessageRead && newLastTimestamp != null) {
+              // Count all unread messages from the other user
+              // Note: We get all messages and filter in memory since Firestore
+              // doesn't support complex queries with isNotEqualTo and orderBy
+              final allMessages = await _firestore
+                  .collection(FirebaseFirestoreCollectionKeys.connections)
+                  .doc(id)
+                  .collection(FirebaseFirestoreCollectionKeys.message)
+                  .where('isRead', isEqualTo: false)
+                  .get();
+
+              // Filter to only count messages from the other user
+              newUnreadCount = allMessages.docs.where((doc) {
+                final msgData = doc.data();
+                return msgData['senderId'] != currentUserId;
+              }).length;
+            } else {
+              // Message was read, so unreadCount = 0
+              newUnreadCount = 0;
+            }
+          } else {
+            // Message is from the current user, so unreadCount = 0
+            newUnreadCount = 0;
+          }
+
+          await _firestore
+              .collection(FirebaseFirestoreCollectionKeys.connections)
+              .doc(id)
+              .update({
+            'lastMessage': lastMessage['message'] ?? '',
+            'lastUpdatedAt': newLastTimestamp,
+            'lastSenderId': newLastSenderId,
+            'unreadCount': newUnreadCount,
+          });
+        } else {
+          // No more messages, clear the last message fields and reset unreadCount
+          await _firestore
+              .collection(FirebaseFirestoreCollectionKeys.connections)
+              .doc(id)
+              .update({
+            'lastMessage': null,
+            'lastUpdatedAt': null,
+            'lastSenderId': null,
+            'unreadCount': 0,
+          });
+        }
+      }
 
       return Responses(success: true, message: "Deleted Successfully");
     } catch (e) {

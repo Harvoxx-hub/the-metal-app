@@ -59,7 +59,10 @@ Firestore Root
   "location": {
     "latitude": "number?",
     "longitude": "number?",
-    "address": "string?"
+    "address": "string?",
+    "city": "string?",
+    "state": "string?",
+    "country": "string?"
   },
   "distance": "string?",
   "preferences": {

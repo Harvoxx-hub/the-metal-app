@@ -119,7 +119,8 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
                           setState(() {
                             if (value) {
                               selectedItems = [...widget.items];
-                              isDropdownOpen = !isDropdownOpen;
+                            } else {
+                              selectedItems = [];
                             }
                             widget.onChanged(selectedItems);
                           });
@@ -140,8 +141,12 @@ class _MentalDropdownState extends State<MentalDropdownMutipleSelection> {
                           onChanged: (bool value) {
                             setState(() {
                               if (value) {
-                                selectedItems = [...selectedItems, item];
+                                // Only add if not already in the list
+                                if (!selectedItems.contains(item)) {
+                                  selectedItems = [...selectedItems, item];
+                                }
                               } else {
+                                // Simply remove the item from selection
                                 selectedItems = selectedItems
                                     .where((i) => i != item)
                                     .toList();

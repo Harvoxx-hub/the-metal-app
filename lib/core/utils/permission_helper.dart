@@ -622,4 +622,138 @@ class PermissionHelper {
     // Request permissions
     return await requestCallPermissions(context);
   }
+
+  /// Show location permission dialog
+  /// Returns true if user wants to grant permission, false otherwise
+  static Future<bool> showLocationPermissionDialog(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return EnhancedDialog(
+              title: 'Location Permission',
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextView(
+                    text:
+                        'Metal needs access to your location to provide you with better matches and location-based features.',
+                    fontSize: 14,
+                  ),
+                  const SizedBox(height: 12),
+                  TextView(
+                    text: 'This allows you to:',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildPermissionItem('Find nearby matches',
+                      'Connect with people in your area'),
+                  const SizedBox(height: 8),
+                  _buildPermissionItem('Location-based features',
+                      'Enhanced discovery experience'),
+                  const SizedBox(height: 8),
+                  _buildPermissionItem('Better recommendations',
+                      'Personalized for your location'),
+                ],
+              ),
+              primaryButtonText: 'Grant Permission',
+              onPrimaryButtonPressed: () => Navigator.of(context).pop(true),
+              secondaryButtonText: 'Not Now',
+              onSecondaryButtonPressed: () => Navigator.of(context).pop(false),
+            );
+          },
+        ) ??
+        false;
+  }
+
+  /// Show location permission settings dialog (for permanently denied)
+  /// Returns true if user wants to open settings, false otherwise
+  static Future<bool> showLocationSettingsDialog(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return EnhancedDialog(
+              title: 'Location Permission Required',
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextView(
+                    text:
+                        'Location permission is required to use Metal\'s location-based features. Please enable it in your device settings.',
+                    fontSize: 14,
+                  ),
+                  const SizedBox(height: 12),
+                  TextView(
+                    text: 'To enable location permission:',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildPermissionItem('Open Settings', 'Go to app settings'),
+                  const SizedBox(height: 8),
+                  _buildPermissionItem(
+                      'Enable Location', 'Turn on location permission'),
+                  const SizedBox(height: 8),
+                  _buildPermissionItem(
+                      'Return to App', 'Come back and try again'),
+                ],
+              ),
+              primaryButtonText: 'Open Settings',
+              onPrimaryButtonPressed: () => Navigator.of(context).pop(true),
+              secondaryButtonText: 'Cancel',
+              onSecondaryButtonPressed: () => Navigator.of(context).pop(false),
+            );
+          },
+        ) ??
+        false;
+  }
+
+  /// Show location service disabled dialog
+  static Future<void> showLocationServiceDisabledDialog(
+      BuildContext context) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return EnhancedDialog(
+          title: 'Location Services Disabled',
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextView(
+                text:
+                    'Location services are currently disabled on your device. Please enable them to use location-based features.',
+                fontSize: 14,
+              ),
+              const SizedBox(height: 12),
+              TextView(
+                text: 'To enable location services:',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              const SizedBox(height: 8),
+              _buildPermissionItem('Open Settings', 'Go to device settings'),
+              const SizedBox(height: 8),
+              _buildPermissionItem(
+                  'Enable Location Services', 'Turn on location services'),
+              const SizedBox(height: 8),
+              _buildPermissionItem('Return to App', 'Come back and try again'),
+            ],
+          ),
+          primaryButtonText: 'Open Settings',
+          onPrimaryButtonPressed: () {
+            Navigator.of(context).pop();
+            openAppSettings();
+          },
+          secondaryButtonText: 'Cancel',
+          onSecondaryButtonPressed: () => Navigator.of(context).pop(),
+        );
+      },
+    );
+  }
 }

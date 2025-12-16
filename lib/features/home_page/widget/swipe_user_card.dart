@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
 import 'package:metal/features/thought/repositories/home.repository.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/core/utils/metal.helper.dart';
+import 'package:metal/core/utils/distance_helper.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/route/routes.dart';
 import 'package:intl/intl.dart';
@@ -81,8 +83,37 @@ class _SwipeUserCardState extends ConsumerState<SwipeUserCard> {
     }
   }
 
+  String? _getDistanceText(WidgetRef ref) {
+    final currentUser = ref.watch(userStateProvider).data;
+    if (currentUser == null ||
+        currentUser.location?.lat == null ||
+        currentUser.location?.lng == null ||
+        widget.user.location?.lat == null ||
+        widget.user.location?.lng == null) {
+      return null;
+    }
+
+    final distance = DistanceHelper.getDistanceFromCurrentUser(
+      currentUser,
+      widget.user,
+    );
+
+    if (distance == double.infinity) {
+      return null;
+    }
+
+    // Format distance: show km with 1 decimal place if > 1km, otherwise show meters
+    if (distance >= 1.0) {
+      return '${distance.toStringAsFixed(1)} km';
+    } else {
+      return '${(distance * 1000).round()} m';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final distanceText = _getDistanceText(ref);
+
     return EnhancedSwipeCard(
       onSwipeLeft: widget.onPass,
       onSwipeRight: widget.onLike,
@@ -329,25 +360,57 @@ class _SwipeUserCardState extends ConsumerState<SwipeUserCard> {
                   ),
                 ),
 
-// location
-                if (widget.user.location?.address != null)
-                  Positioned(
-                    top: 16,
-                    left: 16,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.metalPinkColour.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: TextView(
-                        text:
-                            widget.user.location?.address ?? "No Address Found",
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
-                    ),
+// location and distance
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (widget.user.location?.address != null)
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.metalPinkColour.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: TextView(
+                            text: widget.user.location?.address ??
+                                "No Address Found",
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      if (distanceText != null) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.metalPinkColour.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.location_on,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 4),
+                              TextView(
+                                text: distanceText,
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
+                ),
 
                 // Online indicator
                 if (widget.user.isOnline)

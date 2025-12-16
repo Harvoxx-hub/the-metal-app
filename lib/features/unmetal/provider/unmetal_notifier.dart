@@ -36,7 +36,10 @@ class UnmetalNotifier extends StateNotifier<UnmetalState> {
 
   /// Calculate completed days for unmetal requirement
   int calculateCompletedDays(String connectedOn, int daysRequired) {
-    return daysRemaining(connectedOn, daysRequired);
+  
+   final days = daysRemaining(connectedOn, daysRequired);
+  print('days: $days');
+    return days;
   }
 
   /// Check if user can proceed with unmetal

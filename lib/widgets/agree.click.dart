@@ -32,6 +32,14 @@ class _CustomCheckWidgetState extends State<CustomCheckWidget> {
   }
 
   @override
+  void didUpdateWidget(CustomCheckWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialValue != widget.initialValue) {
+      isChecked = widget.initialValue;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return widget.boarder
         ? GestureDetector(

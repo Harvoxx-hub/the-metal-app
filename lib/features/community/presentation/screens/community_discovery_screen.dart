@@ -33,6 +33,15 @@ class _CommunityDiscoveryScreenState
     'Art',
     'Food',
     'Travel',
+    'LifeStyle',
+    'Health',
+    'Finance',
+    'Education',
+    'Entertainment',
+    'Science',
+    'Technology',
+    'Business',
+    'Other',
   ];
 
   @override

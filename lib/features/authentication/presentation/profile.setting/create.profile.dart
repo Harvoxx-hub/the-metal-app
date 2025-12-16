@@ -222,7 +222,7 @@ class _CreateProfilePageState extends ConsumerState<CreateProfilePage> {
                           items: const [
                             "Male",
                             "Female",
-                            "Others",
+                            "Everyone",
                           ],
                           value: _whatImLookingFor,
                           onChanged: (newValue) {

@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,7 +8,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:metal/firebase_options_dev.dart';
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:shorebird_code_push/shorebird_code_push.dart';
 import 'package:zego_uikit/zego_uikit.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
@@ -37,16 +35,16 @@ void main() async {
     );
   });
 
+  // Initialize the lifecycle handler (handles its own auth state changes)
+  final lifecycleHandler = AppLifecycleHandler();
+  WidgetsBinding.instance.addObserver(lifecycleHandler);
+  await lifecycleHandler.initialize();
+
   runApp(
     const ProviderScope(
       child: MyApp(),
     ),
   );
-  final userId = FirebaseAuth.instance.currentUser?.uid;
-
-  if (userId != null) {
-    WidgetsBinding.instance.addObserver(AppLifecycleHandler(userId));
-  }
 }
 
 /// Initializes Firebase and sets analytics

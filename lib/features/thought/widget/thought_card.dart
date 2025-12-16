@@ -20,6 +20,7 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/build_user_info.dart';
 
 import 'package:metal/widgets/text_views.dart';
+import 'package:metal/widgets/read_more_text.dart';
 
 import 'package:metal/features/thought/presentation/comment_bottom_sheet.dart';
 import 'package:metal/features/thought/widget/reaction_section.dart';
@@ -272,49 +273,47 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           const Gap(10),
           // Community tag if this is a community post
           if (thoughtModel.communityMetadata != null) ...[
-           /// get community from id from community provider
- 
-       
+            /// get community from id from community provider
+
             GestureDetector(
               onTap: () {
                 Navigator.pushNamed(
                   context,
                   AppRoutes.communityProfile,
-                  arguments:  thoughtModel.communityMetadata!.communityId,
+                  arguments: thoughtModel.communityMetadata!.communityId,
                 );
               },
               child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.metalPinkColour.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.metalPinkColour.withOpacity(0.3),
-                  width: 1,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.metalPinkColour.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.metalPinkColour.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.group,
+                      size: 14,
+                      color: AppColors.metalPinkColour,
+                    ),
+                    const Gap(4),
+                    TextView(
+                      text:
+                          'Posted in: ${thoughtModel.communityMetadata!.communityName}',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.metalPinkColour,
+                    ),
+                  ],
                 ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.group,
-                    size: 14,
-                    color: AppColors.metalPinkColour,
-                  ),
-                  const Gap(4),
-                  TextView(
-                    text:
-                        'Posted in: ${thoughtModel.communityMetadata!.communityName}',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.metalPinkColour,
-                  ),
-                ],
-              ),
-            ),
             ),
             const Gap(8),
-         
           ],
           if (thoughtModel.type == 'voice') ...[
             _buildVoicePlayer(context, thoughtModel),
@@ -324,7 +323,8 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
             ],
             const Gap(4),
           ] else ...[
-            GestureDetector(
+            ReadMoreText(
+              text: thoughtModel.content,
               onTap: () {
                 Navigator.pushNamed(
                   context,
@@ -332,11 +332,6 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
                   arguments: thoughtModel.id,
                 );
               },
-              child: TextView(
-                text: thoughtModel.content,
-                maxLines: 4,
-                textOverflow: TextOverflow.ellipsis,
-              ),
             ),
           ],
         ],
@@ -495,7 +490,8 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           ],
           const Gap(4),
         ] else ...[
-          GestureDetector(
+          ReadMoreText(
+            text: original.content,
             onTap: () {
               Navigator.pushNamed(
                 context,
@@ -503,11 +499,6 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
                 arguments: original.id,
               );
             },
-            child: TextView(
-              text: original.content,
-              maxLines: 4,
-              textOverflow: TextOverflow.ellipsis,
-            ),
           ),
         ],
       ],

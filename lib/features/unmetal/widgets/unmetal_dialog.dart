@@ -29,7 +29,7 @@ class UnmetalDialog extends ConsumerWidget {
     final daysRequired = ref.watch(numberDaysProvider);
     final completedDays = unmetalNotifier.calculateCompletedDays(
         connectionModel.connectedOn, daysRequired);
- 
+
     final currentUser = ref.watch(userStateProvider).data;
 
     final hasProfilePhoto = currentUser?.profilePhoto != null &&
@@ -77,12 +77,10 @@ class UnmetalDialog extends ConsumerWidget {
     UnmetalState unmetalState,
     int completedDays,
     int daysRequired,
- 
   ) {
     final canProceed = unmetalNotifier.canProceedWithUnmetal(
       completedDays: completedDays,
       daysRequired: daysRequired,
-      
       hasProfilePhoto: true,
     );
 
@@ -106,7 +104,7 @@ class UnmetalDialog extends ConsumerWidget {
         TextView(
           text: canProceed
               ? "You have completed all $daysRequired days required"
-              : "You have $completedDays days remaining out of $daysRequired days to unmetal",
+              : "You have ${(daysRequired - completedDays)} days remaining out of $daysRequired days to unmetal",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,

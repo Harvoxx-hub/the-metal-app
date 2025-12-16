@@ -247,26 +247,28 @@ class _CommunityProfileScreenState
                 }).toList(),
               ),
               const Spacer(),
-              if (community.isJoined)
-                PlainButton(
-                  buttonText: 'Leave',
-                  onPressed: () {
-                    _showLeaveDialog(community);
-                  },
-                  width: 80,
-                  height: 36,
-                  fontSize: 12,
-                )
-              else
-                PlainButton(
-                  buttonText: 'Join',
-                  onPressed: () {
-                    _showJoinDialog(community);
-                  },
-                  width: 80,
-                  height: 36,
-                  fontSize: 12,
-                ),
+              // Only show join/leave button if user is not the creator
+              if (FirebaseServiceDb.instance.userId != community.creatorId)
+                if (community.isJoined)
+                  PlainButton(
+                    buttonText: 'Leave',
+                    onPressed: () {
+                      _showLeaveDialog(community);
+                    },
+                    width: 80,
+                    height: 36,
+                    fontSize: 12,
+                  )
+                else
+                  PlainButton(
+                    buttonText: 'Join',
+                    onPressed: () {
+                      _showJoinDialog(community);
+                    },
+                    width: 80,
+                    height: 36,
+                    fontSize: 12,
+                  ),
             ]),
           ],
         ),

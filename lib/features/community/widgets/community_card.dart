@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/plain.button.dart';
 import 'package:metal/features/community/data/domain/entries/community.model.dart';
+import 'package:metal/core/services/firebase.service.db.dart';
 
 class CommunityCard extends StatelessWidget {
   final CommunityModel community;
@@ -85,23 +86,24 @@ class CommunityCard extends StatelessWidget {
                   ),
                 ),
 
-                // Join/Leave button
-                if (community.isJoined)
-                  PlainButton(
-                    buttonText: 'Leave',
-                    onPressed: onLeave,
-                    width: 70,
-                    height: 32,
-                    fontSize: 12,
-                  )
-                else
-                  PlainButton(
-                    buttonText: 'Join',
-                    onPressed: onJoin,
-                    width: 70,
-                    height: 32,
-                    fontSize: 12,
-                  ),
+                // Join/Leave button - only show if user is not the creator
+                if (FirebaseServiceDb.instance.userId != community.creatorId)
+                  if (community.isJoined)
+                    PlainButton(
+                      buttonText: 'Leave',
+                      onPressed: onLeave,
+                      width: 70,
+                      height: 32,
+                      fontSize: 12,
+                    )
+                  else
+                    PlainButton(
+                      buttonText: 'Join',
+                      onPressed: onJoin,
+                      width: 70,
+                      height: 32,
+                      fontSize: 12,
+                    ),
               ],
             ),
 

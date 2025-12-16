@@ -95,9 +95,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     _initialized = true;
 
     final userdata = ref.read(userStateProvider).data;
-    if (userdata != null && mounted) {
+    if (userdata != null && mounted && context.mounted) {
       // Update location on app startup using LocationManager
-      await LocationManager().updateLocationOnAppStart(ref);
+      await LocationManager().updateLocationOnAppStart(ref, context);
       await _checkOnboardingAndUserStatus(userdata);
     }
   }

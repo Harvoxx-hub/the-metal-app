@@ -91,9 +91,11 @@ int daysRemaining(String isoDateString, int durationInDays) {
   int daysSinceConnection = now.difference(date).inDays;
 
   // Return completed days, capped at the required duration
-  return daysSinceConnection >= durationInDays
+  final days = daysSinceConnection >= durationInDays
       ? durationInDays
-      : durationInDays - daysSinceConnection;
+      : daysSinceConnection;
+  print('days: $days');
+  return days;
 }
 
 bool hasDurationReached(String isoDateString, int durationInDays) {

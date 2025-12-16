@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 import 'package:metal/features/home_page/provider/swipe_users.notifier.dart';
 import 'package:metal/features/home_page/widget/swipe_user_card.dart';
 import 'package:metal/features/home_page/widget/swipe_card.dart';
-import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/features/home_page/widget/location_permission_screen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
@@ -22,13 +23,65 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
+  bool _hasCheckedLocation = false;
+
   @override
   void initState() {
     super.initState();
-    // Load initial swipe users when the page initializes
+    // Check location permission and load users
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(swipeUsersProvider.notifier).loadSwipeUsers();
+      _checkLocationAndLoadUsers();
     });
+  }
+
+  Future<void> _checkLocationAndLoadUsers() async {
+    if (_hasCheckedLocation) return;
+    _hasCheckedLocation = true;
+
+    final permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      // Request permission first
+      final requestedPermission = await Geolocator.requestPermission();
+      if (requestedPermission == LocationPermission.denied ||
+          requestedPermission == LocationPermission.deniedForever) {
+        if (mounted) {
+          _showLocationPermissionScreen(
+              requestedPermission == LocationPermission.deniedForever);
+        }
+        return;
+      }
+    } else if (permission == LocationPermission.deniedForever) {
+      if (mounted) {
+        _showLocationPermissionScreen(true);
+      }
+      return;
+    }
+
+    // Permission granted, load users
+    ref.read(swipeUsersProvider.notifier).loadSwipeUsers();
+  }
+
+  Future<void> _checkLocationAndShowScreen() async {
+    final permission = await Geolocator.checkPermission();
+    final isPermanentlyDenied = permission == LocationPermission.deniedForever;
+    if (mounted) {
+      _showLocationPermissionScreen(isPermanentlyDenied);
+    }
+  }
+
+  void _showLocationPermissionScreen(bool isPermanentlyDenied) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => LocationPermissionScreen(
+          isPermanentlyDenied: isPermanentlyDenied,
+          onLocationGranted: () {
+            // Reload users after permission is granted
+            ref.read(swipeUsersProvider.notifier).refreshUsers();
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -55,9 +108,24 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
 
     if (state.isError) {
+      // Check if error is related to location
+      final errorMessage = state.errorMessage ?? "";
+      if (errorMessage.contains("Location data required") ||
+          errorMessage.contains("location")) {
+        // Show location permission screen instead of error
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _checkLocationAndShowScreen();
+          }
+        });
+        return const Center(
+          child: CircularProgressIndicator.adaptive(),
+        );
+      }
+
       return ErrorState(
         retry: () => notifier.refreshUsers(),
-        text: state.errorMessage ?? "Failed to load users",
+        text: errorMessage,
       );
     }
 
@@ -153,18 +221,6 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
             ],
           ),
-          const Gap(16),
-          TextButton(
-            onPressed: () {
-              ref.read(swipeUsersProvider.notifier).refreshUsers();
-            },
-            child: TextView(
-              text: 'Refresh',
-              color: AppColors.metalPinkColour,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
         ],
       ),
     ));
@@ -208,23 +264,6 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
           );
         }).toList(),
-
-        // Load more indicator
-        if (notifier.hasMoreUsers && users.length < 10)
-          Positioned(
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: BaseButton(
-                buttonText: 'Load More',
-                width: double.infinity,
-                onPressed: () {
-                  notifier.loadMoreUsers();
-                },
-              ),
-            ),
-          ),
       ],
     );
   }

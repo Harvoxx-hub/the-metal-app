@@ -55,7 +55,7 @@ class _VerificationDialogState extends ConsumerState<VerificationDialog> {
         const Gap(15),
         const TextView(
           text:
-              "Verifying your identity means telling other metals that you are authentic, and your information is accurate which helps to increase your chances for real connections and we can vouch that we know you. It takes a little fee!",
+              "Verifying your identity means telling other metals that you are authentic, and your information is accurate which helps to increase your chances for real connections and we can vouch that we know you.",
           fontSize: 16,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w400,

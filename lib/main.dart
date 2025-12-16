@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,16 +83,16 @@ void main() async {
     );
   });
 
+  // Initialize the lifecycle handler (handles its own auth state changes)
+  final lifecycleHandler = AppLifecycleHandler();
+  WidgetsBinding.instance.addObserver(lifecycleHandler);
+  await lifecycleHandler.initialize();
+
   runApp(
     const ProviderScope(
       child: MyApp(),
     ),
   );
-  final userId = FirebaseAuth.instance.currentUser?.uid;
-
-  if (userId != null) {
-    WidgetsBinding.instance.addObserver(AppLifecycleHandler(userId));
-  }
 
   // Initialize deep link service
   WidgetsBinding.instance.addPostFrameCallback((_) {

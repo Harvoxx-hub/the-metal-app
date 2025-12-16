@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/model/responces.dart';
@@ -12,7 +13,6 @@ class SwipeRepository implements ISwipeRepository {
 
   @override
   Future<Responses> getSwipeUsers({
-    int limit = 100,
     String? lastUserId,
   }) async {
     try {
@@ -77,7 +77,6 @@ class SwipeRepository implements ISwipeRepository {
 
       // Build query to get users for swiping
       // Use a larger limit to account for filtering
-      int fetchLimit = limit * 3; // Fetch 3x more to account for filtering
 
       var query = _firebaseService.firestore
           .collection(FirebaseFirestoreCollectionKeys.users)
@@ -94,6 +93,7 @@ class SwipeRepository implements ISwipeRepository {
       // Filter out blocked, swiped, and connected users
       // add that metal is not null
       // add that profile is completed
+      // add location requirement (must have location data)
       // add bidirectional gender preference filtering
       // add age range filtering
       final filteredUsers = allUsers.where((user) {
@@ -107,6 +107,14 @@ class SwipeRepository implements ISwipeRepository {
           return false;
         }
 
+        // Require location data - filter out users without location
+        final userLocation = user['location'] as Map<String, dynamic>?;
+        if (userLocation == null ||
+            userLocation['lat'] == null ||
+            userLocation['lng'] == null) {
+          return false; // Skip users without location data
+        }
+
         // Apply bidirectional gender preference filtering
         if (!_isGenderPreferenceMatch(currentUserData, user)) {
           return false;
@@ -114,6 +122,16 @@ class SwipeRepository implements ISwipeRepository {
 
         // Apply age range filtering
         if (!_isAgeInRange(currentUserData, user)) {
+          return false;
+        }
+
+        // Apply demographic filtering
+        if (!_isDemographyMatch(currentUserData, user)) {
+          return false;
+        }
+
+        // Apply distance filtering
+        if (!_isWithinDistanceRange(currentUserData, user)) {
           return false;
         }
 
@@ -136,9 +154,9 @@ class SwipeRepository implements ISwipeRepository {
           filteredUsers.map((user) => UserModel.fromJson(user)).toList();
 
       // If we still have no users after filtering, try to get more
-      if (swipeUsers.isEmpty && fetchLimit < 50) {
+      if (swipeUsers.isEmpty) {
         // Try with a larger batch
-        return await getSwipeUsers(limit: 50);
+        //    return await getSwipeUsers( );
       }
 
       return Responses(
@@ -236,6 +254,7 @@ class SwipeRepository implements ISwipeRepository {
       final currentUserData = UserModel.fromJson(currentUserResponse);
 
       // Filter out blocked, swiped, and connected users
+      // add location requirement (must have location data)
       // add bidirectional gender preference filtering
       // add age range filtering
       final filteredUsers = allUsers.where((user) {
@@ -249,6 +268,14 @@ class SwipeRepository implements ISwipeRepository {
           return false;
         }
 
+        // Require location data - filter out users without location
+        final userLocation = user['location'] as Map<String, dynamic>?;
+        if (userLocation == null ||
+            userLocation['lat'] == null ||
+            userLocation['lng'] == null) {
+          return false; // Skip users without location data
+        }
+
         // Apply bidirectional gender preference filtering
         if (!_isGenderPreferenceMatch(currentUserData, user)) {
           return false;
@@ -256,6 +283,16 @@ class SwipeRepository implements ISwipeRepository {
 
         // Apply age range filtering
         if (!_isAgeInRange(currentUserData, user)) {
+          return false;
+        }
+
+        // Apply demographic filtering
+        if (!_isDemographyMatch(currentUserData, user)) {
+          return false;
+        }
+
+        // Apply distance filtering
+        if (!_isWithinDistanceRange(currentUserData, user)) {
           return false;
         }
 
@@ -446,13 +483,8 @@ class SwipeRepository implements ISwipeRepository {
     // Get target user's age
     final targetUserAge = _calculateAge(targetUser['dob'] as String?);
     if (targetUserAge == null) {
-      print(
-          'Could not calculate age for user: ${targetUser['id']} with DOB: ${targetUser['dob']}');
       return true; // If age can't be calculated, allow
     }
-
-    print(
-        'User ${targetUser['id']} DOB: ${targetUser['dob']} → Age: $targetUserAge');
 
     // Check if age is within range
     final isInRange = targetUserAge >= ageLimits['min']! &&
@@ -533,6 +565,151 @@ class SwipeRepository implements ISwipeRepository {
       print('Error calculating age from DOB: $dob, error: $e');
       return null;
     }
+  }
+
+  /// Check if target user is within current user's maximum distance preference
+  bool _isWithinDistanceRange(
+      UserModel currentUser, Map<String, dynamic> targetUser) {
+    // If distance filtering is disabled, allow all distances
+    if (currentUser.enableDistanceFilter == false) {
+      return true;
+    }
+
+    // If no distance preference is set, allow all distances
+    final distancePreference = currentUser.distance;
+    if (distancePreference == null || distancePreference.isEmpty) {
+      return true;
+    }
+
+    // Parse maximum distance (e.g., "50 km" or "50")
+    double? maxDistanceKm;
+    try {
+      final distanceStr = distancePreference.replaceAll(RegExp(r'[^0-9.]'), '');
+      maxDistanceKm = double.tryParse(distanceStr);
+    } catch (e) {
+      print(
+          'Error parsing distance preference: $distancePreference, error: $e');
+      return true; // If parsing fails, allow all distances
+    }
+
+    if (maxDistanceKm == null) {
+      return true; // If no valid distance found, allow all
+    }
+
+    // Get locations
+    final currentUserLocation = currentUser.location;
+    final targetUserLocation = targetUser['location'] as Map<String, dynamic>?;
+
+    // If either user has no location data, allow (can't filter by distance)
+    if (currentUserLocation?.lat == null ||
+        currentUserLocation?.lng == null ||
+        targetUserLocation == null ||
+        targetUserLocation['lat'] == null ||
+        targetUserLocation['lng'] == null) {
+      return true; // Allow users without location data
+    }
+
+    // Calculate distance
+    final distance = _calculateDistance(
+      currentUserLocation!.lat!,
+      currentUserLocation.lng!,
+      (targetUserLocation['lat'] as num).toDouble(),
+      (targetUserLocation['lng'] as num).toDouble(),
+    );
+
+    print('Distance: $distance');
+    print('Max Distance: $maxDistanceKm');
+    // Check if within range
+    return distance <= maxDistanceKm;
+  }
+
+  /// Calculate distance between two coordinates using Haversine formula
+  /// Returns distance in kilometers
+  double _calculateDistance(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2,
+  ) {
+    const double earthRadiusKm = 6371.0;
+
+    final dLat = _degreesToRadians(lat2 - lat1);
+    final dLon = _degreesToRadians(lon2 - lon1);
+
+    final a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_degreesToRadians(lat1)) *
+            cos(_degreesToRadians(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+
+    final c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return earthRadiusKm * c;
+  }
+
+  /// Convert degrees to radians
+  double _degreesToRadians(double degrees) {
+    return degrees * (pi / 180);
+  }
+
+  /// Check if target user's location matches current user's demographic preference
+  bool _isDemographyMatch(
+      UserModel currentUser, Map<String, dynamic> targetUser) {
+    // Get current user's demographic preference
+    final demographyPreference = currentUser.preferences?.demography;
+
+    // If no demographic preference is set, allow all
+    if (demographyPreference == null || demographyPreference.isEmpty) {
+      return true;
+    }
+
+    // If preference is "Anywhere in the world", allow all
+    if (demographyPreference.toLowerCase() == 'anywhere in the world') {
+      return true;
+    }
+
+    // Get target user's location
+    final targetUserLocation = targetUser['location'] as Map<String, dynamic>?;
+
+    // If target user has no location data, allow (can't filter by demography)
+    if (targetUserLocation == null ||
+        targetUserLocation['lat'] == null ||
+        targetUserLocation['lng'] == null) {
+      return true;
+    }
+
+    // Get continent from target user's location
+    final targetLat = (targetUserLocation['lat'] as num).toDouble();
+    final targetLng = (targetUserLocation['lng'] as num).toDouble();
+    final targetContinent = _getContinentFromLatLng(targetLat, targetLng);
+
+    // If we can't determine continent, allow
+    if (targetContinent == null) {
+      return true;
+    }
+
+    // Check if continent matches demographic preference
+    return _isContinentMatch(targetContinent, demographyPreference);
+  }
+
+  /// Returns the continent name for a given lat/lng, or null if unknown
+  String? _getContinentFromLatLng(double lat, double lng) {
+    // Simple bounding box approach for major continents
+    if (lat >= -35 && lat <= 37 && lng >= -20 && lng <= 52) return 'Africa';
+    if (lat >= 1 && lat <= 77 && lng >= 26 && lng <= 180) return 'Asia';
+    if (lat >= 7 && lat <= 83 && lng >= -168 && lng <= -52)
+      return 'North America';
+    if (lat >= -56 && lat <= 13 && lng >= -81 && lng <= -34)
+      return 'South America';
+    if (lat >= 34 && lat <= 72 && lng >= -25 && lng <= 60) return 'Europe';
+    if (lat >= -50 && lat <= -10 && lng >= 110 && lng <= 180)
+      return 'Australia';
+    if (lat <= -60) return 'Antarctica';
+    return null;
+  }
+
+  /// Returns true if the continent matches the demographic preference
+  bool _isContinentMatch(String continent, String demographyPreference) {
+    return continent.toLowerCase() == demographyPreference.toLowerCase();
   }
 }
 

@@ -156,50 +156,50 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             }),
                       ),
                       const Gap(20),
-                      EditField(
-                        text: "Activate voice notes",
-                        floatingLabel: "Call Preferences",
-                        prefixIcon: CustomToggle(
-                          initialValue: user.activateVoiceNote,
-                          onChanged: (value) async {
-                            await ref
-                                .read(userStateProvider.notifier)
-                                .updateUserField(
-                                  field: 'activateVoiceNote',
-                                  value: value,
-                                );
-                          },
-                        ),
-                      ),
-                      EditField(
-                        text: "Activate video call",
-                        prefixIcon: CustomToggle(
-                          initialValue: user.activateVideoCall,
-                          onChanged: (value) async {
-                            await ref
-                                .read(userStateProvider.notifier)
-                                .updateUserField(
-                                  field: 'activateVideoCall',
-                                  value: value,
-                                );
-                          },
-                        ),
-                      ),
-                      EditField(
-                        text: "Activate voice call",
-                        prefixIcon: CustomToggle(
-                          initialValue: user.activateVoiceCall,
-                          onChanged: (value) async {
-                            await ref
-                                .read(userStateProvider.notifier)
-                                .updateUserField(
-                                  field: 'activateVoiceCall',
-                                  value: value,
-                                );
-                          },
-                        ),
-                      ),
-                      const Gap(20),
+                      // EditField(
+                      //   text: "Activate voice notes",
+                      //   floatingLabel: "Call Preferences",
+                      //   prefixIcon: CustomToggle(
+                      //     initialValue: user.activateVoiceNote,
+                      //     onChanged: (value) async {
+                      //       await ref
+                      //           .read(userStateProvider.notifier)
+                      //           .updateUserField(
+                      //             field: 'activateVoiceNote',
+                      //             value: value,
+                      //           );
+                      //     },
+                      //   ),
+                      // ),
+                      // EditField(
+                      //   text: "Activate video call",
+                      //   prefixIcon: CustomToggle(
+                      //     initialValue: user.activateVideoCall,
+                      //     onChanged: (value) async {
+                      //       await ref
+                      //           .read(userStateProvider.notifier)
+                      //           .updateUserField(
+                      //             field: 'activateVideoCall',
+                      //             value: value,
+                      //           );
+                      //     },
+                      //   ),
+                      // ),
+                      // EditField(
+                      //   text: "Activate voice call",
+                      //   prefixIcon: CustomToggle(
+                      //     initialValue: user.activateVoiceCall,
+                      //     onChanged: (value) async {
+                      //       await ref
+                      //           .read(userStateProvider.notifier)
+                      //           .updateUserField(
+                      //             field: 'activateVoiceCall',
+                      //             value: value,
+                      //           );
+                      //     },
+                      //   ),
+                      // ),
+                      // const Gap(20),
                       EditField(
                         text: blocked?.length.toString() ?? "0",
                         floatingLabel: "*Blocked Contacts*",

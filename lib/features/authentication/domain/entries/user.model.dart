@@ -26,6 +26,7 @@ class UserModel {
   dynamic subscription;
   double sparkBalance;
   String? distance;
+  bool? enableDistanceFilter;
   String? id;
   String? referralCode;
   String? referredBy;
@@ -72,6 +73,7 @@ class UserModel {
     this.subscription,
     this.sparkBalance = 0,
     this.distance,
+    this.enableDistanceFilter,
     this.id,
     this.referralCode,
     this.referredBy,
@@ -127,6 +129,7 @@ class UserModel {
       subscription: json['subscription'],
       sparkBalance: (json['sparkBalance'] as num?)?.toDouble() ?? 0,
       distance: json['distance'] as String?,
+      enableDistanceFilter: json['enableDistanceFilter'] as bool?,
       id: json['id'] as String?,
       referralCode: json['referralCode'] as String?,
       referredBy: json['referredBy'] as String?,
@@ -176,6 +179,7 @@ class UserModel {
       'subscription': subscription,
       'sparkBalance': sparkBalance,
       'distance': distance,
+      'enableDistanceFilter': enableDistanceFilter,
       'id': id,
       'referralCode': referralCode,
       'referredBy': referredBy,
@@ -224,6 +228,7 @@ class UserModel {
     dynamic subscription,
     double? sparkBalance,
     String? distance,
+    bool? enableDistanceFilter,
     String? id,
     String? referralCode,
     String? referredBy,
@@ -271,6 +276,7 @@ class UserModel {
       subscription: subscription ?? this.subscription,
       sparkBalance: sparkBalance ?? this.sparkBalance,
       distance: distance ?? this.distance,
+      enableDistanceFilter: enableDistanceFilter ?? this.enableDistanceFilter,
       id: id ?? this.id,
       referralCode: referralCode ?? this.referralCode,
       referredBy: referredBy ?? this.referredBy,
@@ -421,11 +427,17 @@ class Location {
   double? lat;
   double? lng;
   String? address;
+  String? city;
+  String? state;
+  String? country;
 
   Location({
     this.lat,
     this.lng,
     this.address,
+    this.city,
+    this.state,
+    this.country,
   });
 
   factory Location.fromJson(Map<String, dynamic> json) {
@@ -433,6 +445,9 @@ class Location {
       lat: (json['lat'] as num?)?.toDouble(),
       lng: (json['lng'] as num?)?.toDouble(),
       address: json['address'] as String?,
+      city: json['city'] as String?,
+      state: json['state'] as String?,
+      country: json['country'] as String?,
     );
   }
 
@@ -441,6 +456,9 @@ class Location {
       'lat': lat,
       'lng': lng,
       'address': address,
+      'city': city,
+      'state': state,
+      'country': country,
     };
   }
 }

@@ -6,6 +6,8 @@ import 'package:metal/core/utils/constant/firebase.firestore.collection.key.dart
 
 import 'package:metal/features/chat/domain/entries/message.model.dart';
 import 'package:metal/features/chat/domain/reprositries/imessage_repository.dart';
+import 'package:metal/features/thought/data/domain/entries/melt.request.model.dart';
+import 'package:metal/features/thought/data/domain/entries/connection.model.dart';
 
 class MessageRepository implements IMessageRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -32,46 +34,123 @@ class MessageRepository implements IMessageRepository {
     }
   }
 
+  /// Create or get connection for direct messaging (without melting first)
+  @override
+  Future<String> createOrGetConnectionForDirectMessage({
+    required String senderId,
+    required String recipientId,
+  }) async {
+    // Check if connection already exists
+    final existingConnections = await _firestore
+        .collection(FirebaseFirestoreCollectionKeys.connections)
+        .where('users', arrayContains: senderId)
+        .get();
+
+    for (var doc in existingConnections.docs) {
+      final data = doc.data();
+      final users = List<String>.from(data['users'] ?? []);
+      if (users.contains(recipientId)) {
+        return doc.id; // Return existing connection ID
+      }
+    }
+
+    // Create new connection with pending melt status
+    final sortedUserIds = [senderId, recipientId]..sort();
+    final connectionId = sortedUserIds.join('_');
+
+    final connectionData = {
+      'connectionId': connectionId,
+      'users': [senderId, recipientId],
+      'connectedOn': DateTime.now().toIso8601String(),
+      'status': 'active',
+      'meltStatus': 'pending', // Pending until recipient melts
+      'lastMessage': 'Start sending messages!',
+      'lastUpdatedAt': DateTime.now().toIso8601String(),
+      'isAnonymous': false,
+      'unreadCount': 0,
+      'initiatorId': senderId,
+      'receiverId': recipientId,
+      'wasAnonymous': false,
+      'dailyConversations': <String>[],
+    };
+
+    await _firestore
+        .collection(FirebaseFirestoreCollectionKeys.connections)
+        .doc(connectionId)
+        .set(connectionData, SetOptions(merge: true));
+
+    // Create a melt request from sender to recipient
+    final meltRequest = MeltRequestModel(
+      requesterId: senderId,
+      recipientId: recipientId,
+      senderId: senderId,
+      isAnonymous: false,
+      createdAt: DateTime.now().toIso8601String(),
+      status: 'pending',
+    );
+
+    await _firestore
+        .collection(FirebaseFirestoreCollectionKeys.meltRequests)
+        .doc()
+        .set(meltRequest.toJson());
+
+    return connectionId;
+  }
+
   @override
   Future<Responses> sendMessage({
     required MessageModel message,
     required String conversationsId,
   }) async {
     try {
-      // Get today's date in YYYY-MM-DD format for tracking daily conversations
-      final today = DateTime.now().toIso8601String().split('T')[0];
-
-      // Get the conversation document
+      // Get the conversation document to check melt status
       final conversationDoc = await _firestore
           .collection(FirebaseFirestoreCollectionKeys.connections)
           .doc(conversationsId)
           .get();
 
-      if (conversationDoc.exists) {
-        final data = conversationDoc.data() as Map<String, dynamic>;
-        final List<String> dailyConversations =
-            List<String>.from(data['dailyConversations'] ?? []);
-        final String? lastConversationDate = data['lastConversationDate'];
-        final int currentUnreadCount = data['unreadCount'] ?? 0;
-
-        // Only add today's date if it's different from the last conversation date
-        if (lastConversationDate != today) {
-          dailyConversations.add(today);
-        }
-
-        // Update conversation with new message and daily conversation tracking
-        await _firestore
-            .collection(FirebaseFirestoreCollectionKeys.connections)
-            .doc(conversationsId)
-            .update({
-          'lastMessage': message.message,
-          'lastUpdatedAt': message.timestamp,
-          'dailyConversations': dailyConversations,
-          'lastConversationDate': today,
-          'lastSenderId': message.senderId,
-          'unreadCount': currentUnreadCount + 1, // Increment unread count
-        });
+      if (!conversationDoc.exists) {
+        return Responses(
+          success: false,
+          message: "Connection not found",
+        );
       }
+
+      final data = conversationDoc.data() as Map<String, dynamic>;
+      
+      // Check if user can send message based on melt status
+      final connection = ConnectionModel.fromJson(data);
+      if (!connection.canUserSendMessage(message.senderId)) {
+        return Responses(
+          success: false,
+          message: "You need to melt with this user first to reply",
+        );
+      }
+
+      // Get today's date in YYYY-MM-DD format for tracking daily conversations
+      final today = DateTime.now().toIso8601String().split('T')[0];
+      final List<String> dailyConversations =
+          List<String>.from(data['dailyConversations'] ?? []);
+      final String? lastConversationDate = data['lastConversationDate'];
+      final int currentUnreadCount = data['unreadCount'] ?? 0;
+
+      // Only add today's date if it's different from the last conversation date
+      if (lastConversationDate != today) {
+        dailyConversations.add(today);
+      }
+
+      // Update conversation with new message and daily conversation tracking
+      await _firestore
+          .collection(FirebaseFirestoreCollectionKeys.connections)
+          .doc(conversationsId)
+          .update({
+        'lastMessage': message.message,
+        'lastUpdatedAt': message.timestamp,
+        'dailyConversations': dailyConversations,
+        'lastConversationDate': today,
+        'lastSenderId': message.senderId,
+        'unreadCount': currentUnreadCount + 1, // Increment unread count
+      });
 
       // Create the message
       await createMessage(conversationsId, message);

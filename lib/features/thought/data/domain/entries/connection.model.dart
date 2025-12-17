@@ -28,6 +28,9 @@ class ConnectionModel {
   final String? initiatorId; // Who sent the original melt request
   final String? receiverId; // Who received the original melt request
   final bool wasAnonymous; // Whether the original request was anonymous
+  
+  // Melt status: 'mutual' = both users melted, 'pending' = one-way, needs melt to reply
+  final String meltStatus; // 'mutual' | 'pending'
 
   ConnectionModel({
     required this.connectionId,
@@ -46,6 +49,7 @@ class ConnectionModel {
     this.initiatorId, // Who initiated the connection (from melt request)
     this.receiverId, // Who received the connection request
     this.wasAnonymous = false, // Was the original request anonymous
+    this.meltStatus = 'mutual', // Default to 'mutual' for existing connections
   });
 
   factory ConnectionModel.fromJson(Map<String, dynamic> json) =>
@@ -74,6 +78,33 @@ class ConnectionModel {
   bool isInitiator(String currentUserId) {
     return initiatorId == currentUserId;
   }
+
+  /// Check if both users have melted (mutual melt)
+  bool get isMutualMelt => meltStatus == 'mutual';
+
+  /// Check if melt is pending (one-way connection)
+  bool get isMeltPending => meltStatus == 'pending';
+
+  /// Check if a user can send messages in this connection
+  /// Returns true if:
+  /// - Connection has mutual melt (both users melted)
+  /// - Connection is pending and user is the initiator (can send)
+  /// Returns false if:
+  /// - Connection is pending and user is the receiver (cannot send)
+  bool canUserSendMessage(String userId) {
+    if (isMutualMelt) return true;
+    if (isMeltPending) {
+      // Only initiator can send when pending
+      return initiatorId == userId;
+    }
+    return false;
+  }
+
+  /// Check if a user is the receiver in a pending connection
+  /// This means they can view messages but cannot send
+  bool isUserReceiver(String userId) {
+    return isMeltPending && receiverId == userId;
+  }
  
   ConnectionModel copyWith({
     String? connectionId,
@@ -92,6 +123,7 @@ class ConnectionModel {
     String? initiatorId,
     String? receiverId,
     bool? wasAnonymous,
+    String? meltStatus,
   }) {
     return ConnectionModel(
       connectionId: connectionId ?? this.connectionId,
@@ -110,6 +142,7 @@ class ConnectionModel {
       initiatorId: initiatorId ?? this.initiatorId,
       receiverId: receiverId ?? this.receiverId,
       wasAnonymous: wasAnonymous ?? this.wasAnonymous,
+      meltStatus: meltStatus ?? this.meltStatus,
     );
   }
 }

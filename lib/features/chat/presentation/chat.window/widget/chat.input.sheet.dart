@@ -14,9 +14,12 @@ import 'package:metal/features/chat/presentation/chat.window/widget/bubble/wave.
 import 'package:metal/features/chat/presentation/chat.window/widget/reply_preview_widget.dart';
 import 'package:metal/features/chat/provider/send.message.notifier.dart';
 import 'package:metal/features/thought/data/domain/entries/connection.model.dart';
+import 'package:metal/features/thought/provider/melt.user.notifier.dart';
+import 'package:metal/features/thought/provider/get.melt.users.notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
+import 'package:metal/widgets/text_views.dart';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 
@@ -98,6 +101,11 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
   @override
   Widget build(BuildContext context) {
     currentUserData = ref.watch(userStateProvider).data;
+    
+    // Check if user can send messages (receiver in pending connection)
+    final canSend = widget.connectionModel.canUserSendMessage(currentUserData!.id!);
+    final isReceiver = widget.connectionModel.isUserReceiver(currentUserData!.id!);
+    
     return Padding(
       padding: EdgeInsets.only(left: 18, right: 18, bottom: 18),
       child: Column(
@@ -108,48 +116,52 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
               replyToMessage: _replyingToMessage!,
               onCancel: cancelReply,
             ),
-          isRecordingCompleted
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        _refreshWave();
-                        isRecordingCompleted = false;
-                        setState(() {});
-                      },
-                      child: SvgPicture.asset(
-                        Assets.icons.profileTrash.path,
-                        color: Color(0xFFD9197B),
-                        height: 30,
-                        width: 30,
-                      ),
-                    ),
-                    WaveBubble(
-                      path: path ?? "",
-                      isSender: true,
-                    ),
-                    GestureDetector(
-                      onTap: sendAudioMessage,
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: const ShapeDecoration(
+          // Show "Melt & Reply" button if user is receiver in pending connection
+          if (!canSend && isReceiver)
+            _buildMeltToReplyButton()
+          else
+            isRecordingCompleted
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          _refreshWave();
+                          isRecordingCompleted = false;
+                          setState(() {});
+                        },
+                        child: SvgPicture.asset(
+                          Assets.icons.profileTrash.path,
                           color: Color(0xFFD9197B),
-                          shape: OvalBorder(),
+                          height: 30,
+                          width: 30,
                         ),
-                        child: Center(
-                          child: SvgPicture.asset(
-                            Assets.icons.chatsWindowactiveSend.path,
-                            height: 24,
-                            width: 24,
+                      ),
+                      WaveBubble(
+                        path: path ?? "",
+                        isSender: true,
+                      ),
+                      GestureDetector(
+                        onTap: sendAudioMessage,
+                        child: Container(
+                          height: 40,
+                          width: 40,
+                          decoration: const ShapeDecoration(
+                            color: Color(0xFFD9197B),
+                            shape: OvalBorder(),
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset(
+                              Assets.icons.chatsWindowactiveSend.path,
+                              height: 24,
+                              width: 24,
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  ],
-                )
-              : Row(
+                      )
+                    ],
+                  )
+                : Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     AnimatedSwitcher(
@@ -183,56 +195,58 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
                                       isChatControllerEmpty();
                                     },
                                     onTapped: () {},
-                                    label: 'Your Message',
+                                    label: canSend ? 'Your Message' : 'Melt to reply',
                                     controller: _chatController,
                                     keyboardType: TextInputType.text,
                                     autoValidate: false,
                                     radius: 34,
+                                    enabled: canSend,
                                   ),
                                 ),
                               ],
                             ),
                     ),
                     const Gap(4),
-                    isRecording
-                        ? IconButton(
-                            onPressed: _startOrStopRecording,
-                            icon: Icon(isRecording ? Icons.stop : Icons.mic),
-                            color: AppColors.metalPinkColour,
-                            iconSize: 28,
-                          )
-                        : _hasText
-                            ? Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: widget.onGameClick,
-                                    child: SvgPicture.asset(
-                                      Assets.icons.chatsEmptyStateGamingPad01
-                                          .path,
-                                      height: 30,
-                                      width: 30,
-                                    ),
-                                  ),
-                                  const Gap(17),
-                                  Material(
-                                    color: Colors.white,
-                                    shape: const CircleBorder(),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        _startOrStopRecording();
-                                      },
+                    if (canSend)
+                      isRecording
+                          ? IconButton(
+                              onPressed: _startOrStopRecording,
+                              icon: Icon(isRecording ? Icons.stop : Icons.mic),
+                              color: AppColors.metalPinkColour,
+                              iconSize: 28,
+                            )
+                          : _hasText
+                              ? Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: widget.onGameClick,
                                       child: SvgPicture.asset(
-                                        Assets.icons.chatsEmptyStateMicrophone
+                                        Assets.icons.chatsEmptyStateGamingPad01
                                             .path,
-                                        height: 24,
-                                        width: 24,
+                                        height: 30,
+                                        width: 30,
                                       ),
                                     ),
-                                  ),
-                                ],
-                              )
-                            : GestureDetector(
-                                onTap: sendTextMessage,
+                                    const Gap(17),
+                                    Material(
+                                      color: Colors.white,
+                                      shape: const CircleBorder(),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          _startOrStopRecording();
+                                        },
+                                        child: SvgPicture.asset(
+                                          Assets.icons.chatsEmptyStateMicrophone
+                                              .path,
+                                          height: 24,
+                                          width: 24,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : GestureDetector(
+                                  onTap: sendTextMessage,
                                 child: Container(
                                   height: 40,
                                   width: 40,
@@ -358,5 +372,71 @@ class _ChatBottomSheetState extends ConsumerState<ChatBottomSheet> {
     setState(() {
       _replyingToMessage = null;
     });
+  }
+
+  Widget _buildMeltToReplyButton() {
+    final meltState = ref.watch(meltUserProvider);
+    final otherUserId = widget.meltUserModel.id;
+    
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.metalPinkColour.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.metalPinkColour,
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        children: [
+          TextView(
+            text: "Melt with ${widget.meltUserModel.username ?? 'this user'} to reply",
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: AppColors.metalPinkColour,
+            textAlign: TextAlign.center,
+          ),
+          const Gap(12),
+          GestureDetector(
+            onTap: meltState.isLoading
+                ? null
+                : () {
+                    if (otherUserId != null) {
+                      ref.read(meltUserProvider.notifier).meltUser(otherUserId);
+                      // Refresh connections after melting
+                      ref.read(getMeltUserProvider.notifier).getMeltUsers();
+                    }
+                  },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColors.metalPinkColour,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: meltState.isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const TextView(
+                        text: "Melt & Reply",
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

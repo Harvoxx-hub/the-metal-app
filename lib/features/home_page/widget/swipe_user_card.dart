@@ -13,12 +13,15 @@ import 'package:metal/widgets/text_views.dart';
 import 'package:metal/route/routes.dart';
 import 'package:intl/intl.dart';
 import 'package:metal/features/home_page/widget/enhanced_swipe_card.dart';
+import 'package:metal/features/chat/data/repositories/message.repository.dart';
+import 'package:metal/features/thought/provider/get.melt.users.notifier.dart';
 
 class SwipeUserCard extends ConsumerStatefulWidget {
   final UserModel user;
   final VoidCallback? onLike;
   final VoidCallback? onPass;
   final VoidCallback? onSuperLike;
+  final VoidCallback? onDirectMessage;
 
   const SwipeUserCard({
     super.key,
@@ -26,6 +29,7 @@ class SwipeUserCard extends ConsumerStatefulWidget {
     this.onLike,
     this.onPass,
     this.onSuperLike,
+    this.onDirectMessage,
   });
 
   @override
@@ -353,6 +357,13 @@ class _SwipeUserCardState extends ConsumerState<SwipeUserCard> {
                               color: Colors.green,
                               onTap: widget.onLike,
                             ),
+
+                            // Direct message button
+                            _buildActionButton(
+                              icon: Icons.message,
+                              color: AppColors.metalPinkColour,
+                              onTap: () => _handleDirectMessage(ref),
+                            ),
                           ],
                         ),
                       ],
@@ -548,6 +559,131 @@ class _SwipeUserCardState extends ConsumerState<SwipeUserCard> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleDirectMessage(WidgetRef ref) async {
+    // Call the callback if provided (for external handling)
+    if (widget.onDirectMessage != null) {
+      widget.onDirectMessage!();
+      return;
+    }
+
+    // Otherwise, handle directly
+    final currentUser = ref.watch(userStateProvider).data;
+    final recipientId = widget.user.id;
+
+    if (currentUser == null || recipientId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Unable to open chat. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Prevent messaging yourself
+    if (currentUser.id == recipientId) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You cannot message yourself'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Show loading dialog
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+        canPop: false, // Prevent dismissing during loading
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppColors.metalPinkColour,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextView(
+                  text: 'Opening chat...',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      // Create or get connection for direct messaging
+      final messageRepository = ref.read(messageRepositoryProvider);
+      final connectionId = await messageRepository
+          .createOrGetConnectionForDirectMessage(
+        senderId: currentUser.id!,
+        recipientId: recipientId,
+      );
+
+      // Validate connection ID was created
+      if (connectionId.isEmpty) {
+        throw Exception('Failed to create connection');
+      }
+
+      // Refresh connections to get the new/updated one
+      ref.read(getMeltUserProvider.notifier).getMeltUsers();
+
+      // Wait a bit longer for connection to be populated with user data
+      // The getMeltUsers() method needs time to fetch user data for each connection
+      await Future.delayed(const Duration(milliseconds: 1500));
+
+      // Dismiss loading dialog
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close loading dialog
+
+      // Navigate to chat window only if connection was successfully created
+      if (!mounted) return;
+      Navigator.pushNamed(
+        context,
+        AppRoutes.chatWindowsPage,
+        arguments: connectionId,
+      );
+    } catch (e) {
+      // Dismiss loading dialog first
+      if (mounted) {
+        Navigator.of(context).pop(); // Close loading dialog
+      }
+
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to open chat: ${e.toString().replaceAll('Exception: ', '')}',
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildThoughtsCarousel(WidgetRef ref) {

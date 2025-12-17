@@ -16,6 +16,7 @@ import 'package:metal/features/thought/provider/check.melt.status.notifier.dart'
 import 'package:metal/features/thought/provider/get.melt.users.notifier.dart';
 import 'package:metal/features/thought/provider/get.user.notifier.dart';
 import 'package:metal/features/thought/provider/melt.user.notifier.dart';
+import 'package:metal/features/chat/data/repositories/message.repository.dart';
 import 'package:metal/features/my.metals/metal.tabs/metal.details.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
@@ -278,32 +279,156 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
         ],
       );
     } else {
-      return BaseButton(
-        loading: meltState.isLoading,
-        onPressed: () {
-          if (userData != null && !(userData!.completedProfile ?? false)) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return const CustomDialog(
-                  content: ComplecteProfileDialog(),
-                );
+      // No request state - show both Melt and Message buttons
+      return Row(
+        children: [
+          Expanded(
+            child: BaseButton(
+              loading: meltState.isLoading,
+              onPressed: () {
+                if (userData != null &&
+                    !(userData!.completedProfile ?? false)) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return const CustomDialog(
+                        content: ComplecteProfileDialog(),
+                      );
+                    },
+                  );
+                } else if (connectionInt <= 10) {
+                  ref
+                      .read(meltUserProvider.notifier)
+                      .meltUser(widget.metalDetials["metalId"]);
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) =>
+                        CustomDialog(content: _meltLimitDialog()),
+                  );
+                }
               },
-            );
-          } else if (connectionInt <= 10) {
-            ref
-                .read(meltUserProvider.notifier)
-                .meltUser(widget.metalDetials["metalId"]);
-          } else {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) =>
-                  CustomDialog(content: _meltLimitDialog()),
-            );
-          }
-        },
-        fontSize: 15,
-        buttonText: "Melt",
+              fontSize: 15,
+              buttonText: "Melt",
+            ),
+          ),
+          const Gap(12),
+          Expanded(
+            child: OutilineButton(
+              onPressed: () async {
+                final currentUserId = userData?.id;
+                final recipientId = recipient?.id;
+
+                if (currentUserId == null || recipientId == null) {
+                  return;
+                }
+
+                // Prevent messaging yourself
+                if (currentUserId == recipientId) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('You cannot message yourself'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  }
+                  return;
+                }
+
+                // Show loading dialog
+                if (!mounted) return;
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => PopScope(
+                    canPop: false, // Prevent dismissing during loading
+                    child: Dialog(
+                      backgroundColor: Colors.transparent,
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColors.metalPinkColour,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextView(
+                              text: 'Opening chat...',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+
+                try {
+                  // Create or get connection for direct messaging
+                  // This will return existing connection if one exists
+                  final messageRepository = ref.read(messageRepositoryProvider);
+                  final connectionId = await messageRepository
+                      .createOrGetConnectionForDirectMessage(
+                    senderId: currentUserId,
+                    recipientId: recipientId,
+                  );
+
+                  // Validate connection ID was created
+                  if (connectionId.isEmpty) {
+                    throw Exception('Failed to create connection');
+                  }
+
+                  // Refresh connections to get the new/updated one
+                  ref.read(getMeltUserProvider.notifier).getMeltUsers();
+
+                  // Wait a bit longer for connection to be populated with user data
+                  // The getMeltUsers() method needs time to fetch user data for each connection
+                  await Future.delayed(const Duration(milliseconds: 1500));
+
+                  // Dismiss loading dialog
+                  if (!mounted) return;
+                  Navigator.of(context).pop(); // Close loading dialog
+
+                  // Navigate to chat window
+                  if (!mounted) return;
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.chatWindowsPage,
+                    arguments: connectionId,
+                  );
+                } catch (e) {
+                  // Dismiss loading dialog first
+                  if (mounted) {
+                    Navigator.of(context).pop(); // Close loading dialog
+                  }
+
+                  // Show error if connection creation fails
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Failed to open chat: ${e.toString().replaceAll('Exception: ', '')}',
+                      ),
+                      backgroundColor: Colors.red,
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                }
+              },
+              fontSize: 15,
+              buttonText: "Message",
+            ),
+          ),
+        ],
       );
     }
   }

@@ -1,5 +1,4 @@
 import 'package:metal/core/model/responces.dart';
-import 'package:metal/features/chat/domain/entries/conversations.model.dart';
 
 import '../entries/message.model.dart';
 
@@ -15,4 +14,11 @@ abstract class IMessageRepository {
     deleteMessage(String id, messageId);
 
   Future<Responses> unMelt(String id, String messageId,  Map<String, dynamic> data);
+  
+  /// Create or get connection for direct messaging (without melting first)
+  /// Returns the connection ID
+  Future<String> createOrGetConnectionForDirectMessage({
+    required String senderId,
+    required String recipientId,
+  });
 }

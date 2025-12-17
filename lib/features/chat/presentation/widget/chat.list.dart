@@ -14,6 +14,7 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/features/chat/presentation/chat.page.dart'; // Import for searchQueryProvider
+import 'package:metal/res/colors/cr_colors.dart';
 
 class ChatListWidget extends ConsumerStatefulWidget {
   const ChatListWidget({super.key});
@@ -208,10 +209,38 @@ class chatListItem extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextView(
-                          text: getUser.data?.username ?? "Unknown",
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextView(
+                                text: getUser.data?.username ?? "Unknown",
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            // Show pending indicator if melt is pending and user is receiver
+                            if (conversationsModel.isMeltPending &&
+                                conversationsModel.isUserReceiver(currentUser!.id!))
+                              Container(
+                                margin: const EdgeInsets.only(left: 8),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.metalPinkColour.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: AppColors.metalPinkColour,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: const TextView(
+                                  text: "Melt to reply",
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.metalPinkColour,
+                                ),
+                              ),
+                          ],
                         ),
                         TextView(
                           text: conversationsModel.lastMessage ?? "",

@@ -5,7 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';
 import 'package:metal/gen/assets.gen.dart';

@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/metal.helper.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/features/thought/provider/get.melt.users.notifier.dart';
 
 import 'package:metal/features/profile/presentation/widget/edit.field.dart';

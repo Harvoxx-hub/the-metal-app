@@ -6,8 +6,8 @@ import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/authentication/presentation/widget/connection.options.card.dart';
-import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/presentation/widgets/profile_setup_cards.dart';
+import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dropdown/metal.dropdown.dart';

@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 
 import 'package:metal/core/services/firebase.service.db.dart';
  
-import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
+import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/res.dart';

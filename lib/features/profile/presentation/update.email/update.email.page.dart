@@ -4,8 +4,6 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
-
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
@@ -106,8 +104,9 @@ class UpdateEmailPage extends StatelessWidget {
                     BaseButton(
                       buttonText: "Confirm password",
                       onPressed: () {
-                        Navigator.pushNamed(context, AppRoutes.verificationPage,
-                            arguments: RouteFrom.UpdateEmail.name);
+                        // TODO: Implement email update flow with new verification
+                        // For now, navigate to new email page
+                        Navigator.pushNamed(context, AppRoutes.newEmailPage);
                       },
                     ),
                     const Gap(11),

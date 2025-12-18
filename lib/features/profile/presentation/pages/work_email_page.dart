@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
-import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
-import 'package:metal/features/authentication/provider/user_state_notifier.dart';
-import 'package:metal/features/authentication/provider/verfication.notifier.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/base/widget/appbar.state.dart';
-import 'package:metal/route/routes.dart';
 
 class WorkEmailPage extends ConsumerStatefulWidget {
   const WorkEmailPage({Key? key}) : super(key: key);
@@ -55,33 +51,25 @@ class _WorkEmailPageState extends ConsumerState<WorkEmailPage> {
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorText = null;
+    });
 
-    try {
-      // Send verification code for work email
-      await ref.read(verficationProvider.notifier).sendVerificationCode(email);
+    // TODO: Implement work email verification with new API flow
+    await Future.delayed(const Duration(seconds: 1));
 
-      if (mounted) {
-        // Navigate to verification page
-        Navigator.pushNamed(
-          context,
-          AppRoutes.verificationPage,
-          arguments: VerificationSentArgument(
-            email: email,
-            type: RouteFrom.WorkEmail,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() =>
-            _errorText = 'Failed to send verification code. Please try again.');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    if (mounted) {
+      setState(() => _isLoading = false);
+      Fluttertoast.showToast(msg: 'Work email verification coming soon');
+      Navigator.pop(context);
     }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
   }
 
   @override
@@ -89,73 +77,54 @@ class _WorkEmailPageState extends ConsumerState<WorkEmailPage> {
     return Scaffold(
       appBar: CustomAppBar(
         appBarState: AppBarState.BackWithHeader,
-        headerText: 'Work Email Verification',
+        headerText: 'Work Email',
         onBackButtonPressed: () => Navigator.pop(context),
-        onHamburgerPressed: () {},
-        onSkipButtonPressed: () {},
-        onNotificationPressed: () {},
-        appBarEnabled: true,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.metalPinkColour.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline,
-                        color: AppColors.metalPinkColour),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextView(
-                        text:
-                            'Only work or school email addresses are accepted. Public email domains (Gmail, Yahoo, etc.) are not allowed.',
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const TextView(
+              text: 'Verify Your Work Email',
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+            const SizedBox(height: 12),
+            const TextView(
+              text:
+                  'Add your work or school email to get verified and unlock additional features.',
+              fontSize: 14,
+              color: AppColors.metalBrownColourForText,
+            ),
+            const SizedBox(height: 32),
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                labelText: 'Work Email',
+                hintText: 'name@company.com',
+                errorText: _errorText,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              const SizedBox(height: 32),
-              TextFormField(
-                controller: _emailController,
-                enabled: !_isLoading,
-                decoration: InputDecoration(
-                  labelText: 'Work Email',
-                  hintText: 'Enter your work email',
-                  errorText: _errorText,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                onChanged: (_) => setState(() => _errorText = null),
-              ),
-              const SizedBox(height: 32),
-              BaseButton(
-                buttonText: 'Verify Email',
-                onPressed: _isLoading ? null : _verifyEmail,
-                loading: _isLoading,
-              ),
-            ],
-          ),
+              onChanged: (_) {
+                if (_errorText != null) {
+                  setState(() => _errorText = null);
+                }
+              },
+            ),
+            const Spacer(),
+            BaseButton(
+              buttonText: 'Verify Email',
+              loading: _isLoading,
+              onPressed: _isLoading ? null : _verifyEmail,
+            ),
+            const SizedBox(height: 24),
+          ],
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
   }
 }

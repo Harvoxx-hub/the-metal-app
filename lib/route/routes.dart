@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:metal/features/authentication/presentation/forget.password/create.new.password.dart';
-import 'package:metal/features/authentication/presentation/forget.password/forgot_password.otp.screen.dart';
-import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
-import 'package:metal/features/authentication/presentation/login/login.screen.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
 import 'package:metal/features/settings/presentation/edit.preferences.dart';
@@ -10,27 +6,25 @@ import 'package:metal/features/settings/presentation/edit.preferences.dart';
 import 'package:metal/features/thought/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
 
-import 'package:metal/features/onboarding/onboarding_page_view.dart';
-
 import 'package:metal/features/settings/presentation/delete.screen.dart';
 import 'package:metal/features/settings/presentation/edit.page.dart';
-import 'package:metal/features/splash/splash.screen.dart';
 import 'package:camera/camera.dart';
 
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
-
-import 'package:metal/features/authentication/presentation/profile.setting/about.you.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/choose.your.metal.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/connection.option.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/create.profile.dart';
-
-import 'package:metal/features/authentication/presentation/profile.setting/more.about.you.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/passions.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/preference.metal.dart';
-import 'package:metal/features/authentication/presentation/signup/account.setting.dart';
-import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
-import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
-import 'package:metal/features/authentication/presentation/welcome/presentation/welcome.page.dart';
+// New Clean Architecture views
+import 'package:metal/presentation/views/splash/splash_view.dart';
+import 'package:metal/presentation/views/onboarding/onboarding_view.dart';
+import 'package:metal/presentation/views/auth/login_view.dart';
+import 'package:metal/presentation/views/auth/signup_view.dart';
+import 'package:metal/presentation/views/auth/verification_view.dart';
+import 'package:metal/presentation/views/auth/forgot_password_view.dart';
+import 'package:metal/presentation/views/welcome/welcome_view.dart';
+import 'package:metal/presentation/views/profile/basic_info_view.dart';
+import 'package:metal/presentation/views/profile/choose_metal_view.dart';
+import 'package:metal/presentation/views/profile/passions_view.dart';
+import 'package:metal/presentation/views/profile/about_you_view.dart';
+import 'package:metal/presentation/views/profile/more_about_you_view.dart';
+import 'package:metal/presentation/views/profile/connection_options_view.dart';
+import 'package:metal/presentation/views/profile/preferences_view.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.dart';
 import 'package:metal/features/chat/presentation/games/games.page.dart';
 import 'package:metal/features/chat/presentation/games/games.rule.dart';
@@ -67,7 +61,6 @@ import 'package:metal/features/profile/presentation/pages/work_email_page.dart';
 import 'package:metal/features/community/presentation/screens/community_discovery_screen.dart';
 import 'package:metal/features/community/presentation/screens/community_profile_screen.dart';
 import 'package:metal/features/community/presentation/screens/create_community_screen.dart';
-import 'package:metal/features/community/data/domain/entries/community.model.dart';
 import 'package:metal/features/community/data/domain/entries/community_metadata.model.dart';
 
 class AppRoutes {
@@ -177,44 +170,41 @@ class AppRoutes {
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      // Core auth flow - Clean Architecture
       case splash:
-        return MaterialPageRoute(builder: (_) => const SplashPage());
+        return MaterialPageRoute(builder: (_) => const SplashView());
       case onboarding:
-        return MaterialPageRoute(builder: (_) => const OnboardingPageView());
-
+        return MaterialPageRoute(builder: (_) => const OnboardingView());
       case login:
-        return MaterialPageRoute(builder: (_) => const LoginPage());
-      case forgetPassword:
-        return MaterialPageRoute(builder: (_) => ForgetPasswordPage());
-      case forgetPasswordOTP:
-        return MaterialPageRoute(builder: (_) => const ForgetPasswordOTPPage());
-      case createNewPassword:
-        return MaterialPageRoute(
-            builder: (_) => CreateNewPasswordPage(
-                  userid: settings.arguments as String,
-                ));
+        return MaterialPageRoute(builder: (_) => const LoginView());
       case accountSetting:
-        return MaterialPageRoute(builder: (_) => const AccountSetting());
+        return MaterialPageRoute(builder: (_) => const SignupView());
       case verificationPage:
+        // Just pass email as string argument
         return MaterialPageRoute(
-            builder: (_) => VerificationPage(
-                settings.arguments as VerificationSentArgument));
+          builder: (_) => const VerificationView(),
+          settings: settings,
+        );
+      case forgetPassword:
+        return MaterialPageRoute(builder: (_) => const ForgotPasswordView());
       case welcomePage:
-        return MaterialPageRoute(builder: (_) => const WelcomePage());
-      case createProfilePage:
-        return MaterialPageRoute(builder: (_) => const CreateProfilePage());
-      case preferenceMetalPage:
-        return MaterialPageRoute(builder: (_) => const PreferenceMetalPage());
-      case passionsPage:
-        return MaterialPageRoute(builder: (_) => const PassionsPage());
-      case moreAboutYouPage:
-        return MaterialPageRoute(builder: (_) => const MoreAboutYouPage());
-      case connectionOptionsPage:
-        return MaterialPageRoute(builder: (_) => const ConnectionOptionsPage());
-      case chooseYourMetalPage:
-        return MaterialPageRoute(builder: (_) => const ChooseYourMetalPage());
-      case aboutYouPage:
-        return MaterialPageRoute(builder: (_) => const AboutYouPage());
+        return MaterialPageRoute(builder: (_) => const WelcomeView());
+
+      // New Clean Architecture Profile Setup Routes
+      case BasicInfoView.route:
+        return MaterialPageRoute(builder: (_) => const BasicInfoView());
+      case ChooseMetalView.route:
+        return MaterialPageRoute(builder: (_) => const ChooseMetalView());
+      case PassionsView.route:
+        return MaterialPageRoute(builder: (_) => const PassionsView());
+      case AboutYouView.route:
+        return MaterialPageRoute(builder: (_) => const AboutYouView());
+      case MoreAboutYouView.route:
+        return MaterialPageRoute(builder: (_) => const MoreAboutYouView());
+      case ConnectionOptionsView.route:
+        return MaterialPageRoute(builder: (_) => const ConnectionOptionsView());
+      case PreferencesView.route:
+        return MaterialPageRoute(builder: (_) => const PreferencesView());
 
       case dashboardPage:
         // Check if arguments contain a tab index
@@ -255,9 +245,10 @@ class AppRoutes {
       case notificationPage:
         return MaterialPageRoute(builder: (_) => const NotificationPage());
       case userProfilePage:
+        // UserProfilePage expects the old UserModel, pass as dynamic for now
         return MaterialPageRoute(
             builder: (_) =>
-                UserProfilePage(user: settings.arguments as UserModel));
+                UserProfilePage(user: settings.arguments as dynamic));
       // case upgradePage:
       //   return MaterialPageRoute(builder: (_) => const UpgradePage());
       case makePayment:
@@ -285,10 +276,11 @@ class AppRoutes {
                   id: settings.arguments as String,
                 ));
       case sendSpark:
+        // SendSpark expects the old UserModel, pass as dynamic for now
         return MaterialPageRoute(
             builder: (_) => SendSpark(
                 recipient: settings.arguments != null
-                    ? (settings.arguments as UserModel)
+                    ? (settings.arguments as dynamic)
                     : null));
       case buySpark:
         return MaterialPageRoute(builder: (_) => BuySpark());

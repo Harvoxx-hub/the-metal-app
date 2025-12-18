@@ -1,0 +1,202 @@
+import 'package:metal/domain/entities/user_dto.dart';
+import 'package:metal/data/models/user_address_model.dart';
+import 'package:metal/data/models/user_location_model.dart';
+import 'package:metal/data/models/user_preferences_model.dart';
+import 'package:metal/data/models/user_extra_data_model.dart';
+import 'package:metal/data/models/user_subscription_model.dart';
+
+/// User data model (API response)
+/// Maps API response to domain entity
+class UserModel {
+  final String id;
+  final String email;
+  final String? username;
+  final String? fullname;
+  final String? phone;
+  final String? dob;
+  final String? gender;
+  final String? description;
+  final String? profilePhoto;
+  final String? fcmToken;
+  final bool isVerified;
+  final bool isActivated;
+  final bool? emailVerified;
+  final bool? profileUpdated;
+  final bool? completedProfile;
+  final String? metal;
+  final List<String>? passion;
+  final String? connectWith;
+  final List<String>? connectionOption;
+  final UserAddressModel? address;
+  final UserLocationModel? location;
+  final UserPreferencesModel? preferences;
+  final UserExtraDataModel? extraData;
+  final UserSubscriptionModel? subscription;
+
+  UserModel({
+    required this.id,
+    required this.email,
+    this.username,
+    this.fullname,
+    this.phone,
+    this.dob,
+    this.gender,
+    this.description,
+    this.profilePhoto,
+    this.fcmToken,
+    this.isVerified = false,
+    this.isActivated = false,
+    this.emailVerified,
+    this.profileUpdated,
+    this.completedProfile,
+    this.metal,
+    this.passion,
+    this.connectWith,
+    this.connectionOption,
+    this.address,
+    this.location,
+    this.preferences,
+    this.extraData,
+    this.subscription,
+  });
+
+  /// Create from API JSON response
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json['id'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      username: json['username'] as String?,
+      fullname: json['fullname'] as String?,
+      phone: json['phone'] as String?,
+      dob: json['dob'] as String?,
+      gender: json['gender'] as String?,
+      description: json['description'] as String?,
+      profilePhoto: json['profilePhoto'] as String?,
+      fcmToken: json['fcmToken'] as String?,
+      isVerified: json['isVerified'] as bool? ?? false,
+      isActivated: json['isActivated'] as bool? ?? false,
+      emailVerified: json['emailVerified'] as bool?,
+      profileUpdated: json['profileUpdated'] as bool?,
+      completedProfile: json['completedProfile'] as bool?,
+      metal: json['metal'] as String?,
+      passion: json['passion'] != null
+          ? (json['passion'] is List
+              ? (json['passion'] as List).map((e) => e.toString()).toList()
+              : json['passion']
+                  .toString()
+                  .split(',')
+                  .where((e) => e.isNotEmpty)
+                  .toList())
+          : null,
+      connectWith: json['connectWith'] as String?,
+      connectionOption: json['connectionOption'] != null
+          ? (json['connectionOption'] is List
+              ? (json['connectionOption'] as List)
+                  .map((e) => e.toString())
+                  .toList()
+              : json['connectionOption']
+                  .toString()
+                  .split(',')
+                  .where((e) => e.isNotEmpty)
+                  .toList())
+          : null,
+      address: json['address'] != null
+          ? UserAddressModel.fromJson(json['address'] as Map<String, dynamic>)
+          : null,
+      location: json['location'] != null
+          ? UserLocationModel.fromJson(json['location'] as Map<String, dynamic>)
+          : null,
+      preferences: json['preferences'] != null
+          ? UserPreferencesModel.fromJson(
+              json['preferences'] as Map<String, dynamic>)
+          : null,
+      extraData: json['extraData'] != null
+          ? UserExtraDataModel.fromJson(
+              json['extraData'] as Map<String, dynamic>)
+          : null,
+      subscription: json['subscription'] != null
+          ? UserSubscriptionModel.fromJson(
+              json['subscription'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  /// Convert to domain entity
+  UserDto toDomain() {
+    return UserDto(
+      id: id,
+      email: email,
+      fullname: fullname,
+      phone: phone,
+      profilePhoto: profilePhoto,
+      fcmToken: fcmToken,
+      isVerified: isVerified,
+      isActivated: isActivated,
+      emailVerified: emailVerified,
+      profileUpdated: profileUpdated ?? completedProfile,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      if (username != null) 'username': username,
+      if (fullname != null) 'fullname': fullname,
+      if (phone != null) 'phone': phone,
+      if (dob != null) 'dob': dob,
+      if (gender != null) 'gender': gender,
+      if (description != null) 'description': description,
+      if (profilePhoto != null) 'profilePhoto': profilePhoto,
+      if (fcmToken != null) 'fcmToken': fcmToken,
+      'isVerified': isVerified,
+      'isActivated': isActivated,
+      if (emailVerified != null) 'emailVerified': emailVerified,
+      if (profileUpdated != null) 'profileUpdated': profileUpdated,
+      if (completedProfile != null) 'completedProfile': completedProfile,
+      if (metal != null) 'metal': metal,
+      if (passion != null) 'passion': passion,
+      if (connectWith != null) 'connectWith': connectWith,
+      if (connectionOption != null) 'connectionOption': connectionOption,
+      if (address != null) 'address': address!.toJson(),
+      if (location != null) 'location': location!.toJson(),
+      if (preferences != null) 'preferences': preferences!.toJson(),
+      if (extraData != null) 'extraData': extraData!.toJson(),
+      if (subscription != null) 'subscription': subscription!.toJson(),
+    };
+  }
+}
+
+/// Login response model from API
+class LoginResponseModel {
+  final String token;
+  final Map<String, dynamic> user;
+  final int expiresIn;
+  final String? refreshToken;
+
+  LoginResponseModel({
+    required this.token,
+    required this.user,
+    required this.expiresIn,
+    this.refreshToken,
+  });
+
+  factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
+    final data = json['data'] as Map<String, dynamic>? ?? json;
+    return LoginResponseModel(
+      token: data['token'] as String? ?? '',
+      user: data['user'] as Map<String, dynamic>? ?? {},
+      expiresIn: data['expiresIn'] as int? ?? 3600,
+      refreshToken: data['refreshToken'] as String?,
+    );
+  }
+
+  LoginResponseDto toDomain() {
+    return LoginResponseDto(
+      token: token,
+      user: UserModel.fromJson(user).toDomain(),
+      expiresIn: expiresIn,
+      refreshToken: refreshToken,
+    );
+  }
+}

@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/unmetal/widgets/unmetal_dialog.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/data/models/user_model.dart';
 
 import 'package:metal/features/thought/data/domain/entries/connection.model.dart';
 
 import 'package:metal/features/my.metals/provider/unmelt.user.notifier.dart';
-import 'package:metal/features/profile/presentation/widget/edit.field.dart';
+import 'package:metal/presentation/widgets/settings/edit_field.dart';
 
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';

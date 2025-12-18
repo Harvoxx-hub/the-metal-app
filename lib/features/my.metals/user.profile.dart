@@ -6,12 +6,12 @@ import 'package:intl/intl.dart';
 
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/metal.helper.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/data/models/user_model.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/features/thought/provider/get.melt.users.notifier.dart';
 
-import 'package:metal/features/profile/presentation/widget/edit.field.dart';
-import 'package:metal/features/profile/presentation/widget/profile.header.dart';
+import 'package:metal/presentation/widgets/settings/edit_field.dart';
+import 'package:metal/presentation/widgets/profile/profile_header.dart';
 import 'package:metal/features/settings/presentation/widget/block_button.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
@@ -122,7 +122,7 @@ class UserProfilePage extends ConsumerWidget {
                     ),
                     const Gap(20),
                     EditField(
-                      text: user.extraData?.maritalStatus ?? "",
+                      text: user.extraData?.marriageStatus ?? "",
                       floatingLabel: "Marital status",
                     ),
                     const Gap(20),

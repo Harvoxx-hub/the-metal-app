@@ -15,23 +15,33 @@ class UserModel {
   final String? phone;
   final String? dob;
   final String? gender;
+  final String? bio;
   final String? description;
   final String? profilePhoto;
   final String? fcmToken;
   final bool isVerified;
   final bool isActivated;
   final bool? emailVerified;
+  final bool? workEmailVerified;
   final bool? profileUpdated;
   final bool? completedProfile;
   final String? metal;
   final List<String>? passion;
   final String? connectWith;
   final List<String>? connectionOption;
+  final String? distance;
+  final bool? enableDistanceFilter;
+  final bool? showOnline;
+  final bool? alwaysMetal;
+  final bool? receiveNotification;
+  final bool? showMyProfile;
   final UserAddressModel? address;
   final UserLocationModel? location;
   final UserPreferencesModel? preferences;
   final UserExtraDataModel? extraData;
   final UserSubscriptionModel? subscription;
+  final String? createdAt;
+  final String? updatedAt;
 
   UserModel({
     required this.id,
@@ -41,23 +51,33 @@ class UserModel {
     this.phone,
     this.dob,
     this.gender,
+    this.bio,
     this.description,
     this.profilePhoto,
     this.fcmToken,
     this.isVerified = false,
     this.isActivated = false,
     this.emailVerified,
+    this.workEmailVerified,
     this.profileUpdated,
     this.completedProfile,
     this.metal,
     this.passion,
     this.connectWith,
     this.connectionOption,
+    this.distance,
+    this.enableDistanceFilter,
+    this.showOnline,
+    this.alwaysMetal,
+    this.receiveNotification,
+    this.showMyProfile,
     this.address,
     this.location,
     this.preferences,
     this.extraData,
     this.subscription,
+    this.createdAt,
+    this.updatedAt,
   });
 
   /// Create from API JSON response
@@ -70,12 +90,14 @@ class UserModel {
       phone: json['phone'] as String?,
       dob: json['dob'] as String?,
       gender: json['gender'] as String?,
+      bio: json['bio'] as String?,
       description: json['description'] as String?,
       profilePhoto: json['profilePhoto'] as String?,
       fcmToken: json['fcmToken'] as String?,
       isVerified: json['isVerified'] as bool? ?? false,
       isActivated: json['isActivated'] as bool? ?? false,
       emailVerified: json['emailVerified'] as bool?,
+      workEmailVerified: json['workEmailVerified'] as bool?,
       profileUpdated: json['profileUpdated'] as bool?,
       completedProfile: json['completedProfile'] as bool?,
       metal: json['metal'] as String?,
@@ -100,6 +122,12 @@ class UserModel {
                   .where((e) => e.isNotEmpty)
                   .toList())
           : null,
+      distance: json['distance'] as String?,
+      enableDistanceFilter: json['enableDistanceFilter'] as bool?,
+      showOnline: json['showOnline'] as bool?,
+      alwaysMetal: json['alwaysMetal'] as bool?,
+      receiveNotification: json['receiveNotification'] as bool?,
+      showMyProfile: json['showMyProfile'] as bool?,
       address: json['address'] != null
           ? UserAddressModel.fromJson(json['address'] as Map<String, dynamic>)
           : null,
@@ -118,6 +146,8 @@ class UserModel {
           ? UserSubscriptionModel.fromJson(
               json['subscription'] as Map<String, dynamic>)
           : null,
+      createdAt: json['createdAt'] as String?,
+      updatedAt: json['updatedAt'] as String?,
     );
   }
 
@@ -126,14 +156,35 @@ class UserModel {
     return UserDto(
       id: id,
       email: email,
+      username: username,
       fullname: fullname,
       phone: phone,
+      dob: dob,
+      gender: gender,
+      bio: bio ?? description,
       profilePhoto: profilePhoto,
       fcmToken: fcmToken,
       isVerified: isVerified,
       isActivated: isActivated,
       emailVerified: emailVerified,
+      workEmailVerified: workEmailVerified,
       profileUpdated: profileUpdated ?? completedProfile,
+      completedProfile: completedProfile,
+      metal: metal,
+      passion: passion,
+      connectWith: connectWith,
+      connectionOption: connectionOption,
+      distance: distance,
+      enableDistanceFilter: enableDistanceFilter,
+      showOnline: showOnline,
+      alwaysMetal: alwaysMetal,
+      receiveNotification: receiveNotification,
+      showMyProfile: showMyProfile,
+      location: location,
+      preferences: preferences,
+      extraData: extraData,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 

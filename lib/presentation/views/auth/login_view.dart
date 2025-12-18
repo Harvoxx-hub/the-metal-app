@@ -7,7 +7,7 @@ import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/auth/login_viewmodel.dart';
-import 'package:metal/presentation/viewmodels/profile/profile_viewmodel_providers.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/agree.click.dart';
@@ -54,8 +54,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
     final user = loginResponse.user;
 
-    // Fetch user profile to maintain state throughout the app
-    await ref.read(profileViewModelProvider.notifier).fetchUserProfile();
+    // Set user in global state
+    ref.read(userStateProvider.notifier).setUser(user);
 
     // Navigate based on user state
     if (user.emailVerified == false) {

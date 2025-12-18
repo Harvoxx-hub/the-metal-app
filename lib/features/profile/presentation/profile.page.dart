@@ -8,7 +8,7 @@ import 'package:metal/features/profile/presentation/tab.screen/discovery.tab.dar
 
 import 'package:metal/features/profile/presentation/tab.screen/personal.tab.dart';
 import 'package:metal/features/profile/presentation/tab.screen/thought.tab.dart';
-import 'package:metal/features/profile/presentation/widget/profile.header.dart';
+import 'package:metal/presentation/widgets/profile/profile_header.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
 

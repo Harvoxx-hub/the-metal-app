@@ -4,7 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
  
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
-import 'package:metal/features/profile/presentation/widget/edit.field.dart';
+import 'package:metal/presentation/widgets/settings/edit_field.dart';
 import 'package:metal/features/upgrade/domain/entries/metal.plan.model.dart';
 import 'package:metal/features/upgrade/domain/entries/subscribed.plan.model.dart';
 import 'package:metal/features/upgrade/provider/metal.plan.notifier.dart';

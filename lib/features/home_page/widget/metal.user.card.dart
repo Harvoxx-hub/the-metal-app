@@ -9,7 +9,7 @@ import 'package:metal/core/utils/metal.helper.dart';
 import 'package:metal/features/authentication/domain/entries/user.model.dart';
 
 import 'package:metal/features/authentication/provider/auth.notifier.dart';
-import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
+import 'package:metal/presentation/views/dashboard/widgets/complete.profile.dialog.dart';
  
 import 'package:metal/features/home_page/widget/swipe_card.dart';
 import 'package:metal/features/settings/provider/block.user.notifier.dart';

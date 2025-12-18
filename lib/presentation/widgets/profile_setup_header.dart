@@ -3,8 +3,8 @@ import 'package:gap/gap.dart';
 import 'package:metal/widgets/text_views.dart';
 
 /// Header style 1 - for basic info screen
-class ProfileSetupHeader1 extends StatelessWidget {
-  const ProfileSetupHeader1({
+class CreateProfileHeader1 extends StatelessWidget {
+  const CreateProfileHeader1({
     super.key,
     required this.title1,
     required this.title2,
@@ -44,8 +44,8 @@ class ProfileSetupHeader1 extends StatelessWidget {
 }
 
 /// Header style 2 - for other profile setup screens
-class ProfileSetupHeader2 extends StatelessWidget {
-  const ProfileSetupHeader2({
+class CreateProfileHeader2 extends StatelessWidget {
+  const CreateProfileHeader2({
     super.key,
     required this.path,
     required this.title,

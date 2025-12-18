@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/presentation/viewmodels/profile/profile_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/splash/splash_viewmodel_providers.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -52,10 +52,11 @@ class _SplashViewState extends ConsumerState<SplashView> {
 
     if (user == null) {
       // User is not authenticated, go to onboarding/login
+      ref.read(userStateProvider.notifier).clear();
       Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
     } else {
-      // User is authenticated - fetch profile to maintain state and navigate
-      await ref.read(profileViewModelProvider.notifier).fetchUserProfile();
+      // User is authenticated - set in global state
+      ref.read(userStateProvider.notifier).setUser(user);
 
       // Navigate based on user state
       if (!mounted) return;

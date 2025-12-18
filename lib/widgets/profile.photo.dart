@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
-import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
-
+ 
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 
 class ProfilePhoto extends ConsumerWidget {
   final double size;

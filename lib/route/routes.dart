@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
-import 'package:metal/features/settings/presentation/edit.preferences.dart';
 
 import 'package:metal/features/thought/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
 
 import 'package:metal/features/settings/presentation/delete.screen.dart';
-import 'package:metal/features/settings/presentation/edit.page.dart';
 import 'package:camera/camera.dart';
 
 // New Clean Architecture views
@@ -25,10 +23,13 @@ import 'package:metal/presentation/views/profile/about_you_view.dart';
 import 'package:metal/presentation/views/profile/more_about_you_view.dart';
 import 'package:metal/presentation/views/profile/connection_options_view.dart';
 import 'package:metal/presentation/views/profile/preferences_view.dart';
+import 'package:metal/presentation/views/settings/settings_view.dart';
+import 'package:metal/presentation/views/settings/edit_profile_view.dart';
+import 'package:metal/presentation/views/settings/edit_preferences_view.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.dart';
 import 'package:metal/features/chat/presentation/games/games.page.dart';
 import 'package:metal/features/chat/presentation/games/games.rule.dart';
-import 'package:metal/features/dashboard.dart/dashboard.dart';
+import 'package:metal/presentation/views/dashboard/dashboard_view.dart';
 import 'package:metal/features/eyes/domain/entries/status.model.dart';
 import 'package:metal/features/eyes/presentation/eye.preview.media.dart';
 import 'package:metal/features/eyes/presentation/eye.select.media.dart';
@@ -41,14 +42,9 @@ import 'package:metal/features/my.metals/my.melted.user.dart';
 import 'package:metal/features/my.metals/user.profile.dart';
 import 'package:metal/features/notification/notification.page.dart';
 
-import 'package:metal/features/profile/presentation/update.email/new.email.page.dart';
-import 'package:metal/features/profile/presentation/update.email/update.email.page.dart';
-import 'package:metal/features/profile/presentation/update.phone.number/new.phone.number.page.dart';
-import 'package:metal/features/profile/presentation/update.phone.number/update.phone.number.page.dart';
 import 'package:metal/features/refer.earn/refer.earn.dart';
 import 'package:metal/features/settings/presentation/blocked.user.dart'
     as block;
-import 'package:metal/features/settings/presentation/settings.page.dart';
 
 import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
 import 'package:metal/features/sparks_page/screens/refer.earn/refer.earn.dart';
@@ -211,14 +207,14 @@ class AppRoutes {
         final args = settings.arguments;
         if (args is int) {
           return MaterialPageRoute(
-              builder: (_) => DashboardPage(initialPageIndex: args));
+              builder: (_) => DashboardView(initialPageIndex: args));
         } else if (args is Map<String, dynamic> &&
             args.containsKey('tabIndex')) {
           return MaterialPageRoute(
               builder: (_) =>
-                  DashboardPage(initialPageIndex: args['tabIndex']));
+                  DashboardView(initialPageIndex: args['tabIndex']));
         }
-        return MaterialPageRoute(builder: (_) => const DashboardPage());
+        return MaterialPageRoute(builder: (_) => const DashboardView());
       case viewEyes:
         return MaterialPageRoute(
             builder: (_) =>
@@ -228,15 +224,15 @@ class AppRoutes {
       case eyeSelectMedia:
         return MaterialPageRoute(builder: (_) => const EyeSelectMedia());
       case editPage:
-        return MaterialPageRoute(builder: (_) => const EditPage());
+        return MaterialPageRoute(builder: (_) => const EditProfileView());
       case editPreferences:
-        return MaterialPageRoute(builder: (_) => const EditPreferences());
+        return MaterialPageRoute(builder: (_) => const EditPreferencesView());
       case eyePreviewMedia:
         return MaterialPageRoute(
             builder: (_) =>
                 EyePreviewMedia(media: settings.arguments as XFile));
       case settingPage:
-        return MaterialPageRoute(builder: (_) => const SettingPage());
+        return MaterialPageRoute(builder: (_) => const SettingsView());
 
       case feedBackPage:
         return MaterialPageRoute(builder: (_) => FeedBackPage());
@@ -296,14 +292,17 @@ class AppRoutes {
       case gameRules:
         return MaterialPageRoute(
             builder: (_) => GameRules(games: settings.arguments as GameModel));
+      // Phone number and email update pages have been removed
+      // TODO: Re-implement these in Clean Architecture when needed
       case updatePhoneNumberPage:
-        return MaterialPageRoute(builder: (_) => UpdatePhoneNumberPage());
       case updateEmailPage:
-        return MaterialPageRoute(builder: (_) => UpdateEmailPage());
       case newPhoneNumberPage:
-        return MaterialPageRoute(builder: (_) => NewPhoneNumberPage());
       case newEmailPage:
-        return MaterialPageRoute(builder: (_) => NewEmailPage());
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Feature coming soon')),
+          ),
+        );
       case delete:
         return MaterialPageRoute(builder: (_) => DeleteScreen());
 

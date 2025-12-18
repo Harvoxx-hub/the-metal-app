@@ -6,11 +6,11 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/core/utils/connection_helper.dart';
 import 'package:metal/core/utils/constant/enums.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
+import 'package:metal/data/models/user_model.dart';
 
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
-import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
+import 'package:metal/presentation/views/dashboard/widgets/complete.profile.dialog.dart';
 import 'package:metal/features/thought/repositories/home.repository.dart';
 import 'package:metal/features/thought/provider/check.melt.status.notifier.dart';
 import 'package:metal/features/thought/provider/get.melt.users.notifier.dart';
@@ -22,7 +22,7 @@ import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart'
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
 
 import 'package:metal/features/profile/presentation/tab.screen/thought.tab.dart';
-import 'package:metal/features/profile/presentation/widget/profile.header.dart';
+import 'package:metal/presentation/widgets/profile/profile_header.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
@@ -188,7 +188,7 @@ class _MyMeltedUserState extends ConsumerState<MyMeltedUser> {
                                       connection?.connectionId ?? '',
                                   melted: checkMeltState.data ==
                                       MeltRequestState.connected,
-                                  userModel: myMelt.data ?? UserModel(),
+                                  userModel: myMelt.data ?? UserModel(id: '', email: ''),
                                   isUnmelted: connection?.isAnonymous == false,
                                 ),
                                 title: 'Metal Details ',

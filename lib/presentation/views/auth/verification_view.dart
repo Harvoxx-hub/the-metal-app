@@ -6,7 +6,7 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/auth/verification_viewmodel.dart';
-import 'package:metal/presentation/viewmodels/profile/profile_viewmodel_providers.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/res.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/buttons.dart';
@@ -75,13 +75,13 @@ class _VerificationViewState extends ConsumerState<VerificationView> {
   }
 
   void _handleVerificationSuccess() async {
-    // Refresh user profile to get updated emailVerified status
-    await ref.read(profileViewModelProvider.notifier).fetchUserProfile();
+    // Refresh user state to get updated emailVerified status
+    await ref.read(userStateProvider.notifier).fetchAndSetUser();
 
     if (!mounted) return;
 
-    final profileState = ref.read(profileViewModelProvider);
-    final user = profileState.data;
+    final userState = ref.read(userStateProvider);
+    final user = userState.user;
 
     // Navigate based on profile completion
     if (user?.profileUpdated == true) {

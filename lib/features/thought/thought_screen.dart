@@ -21,7 +21,7 @@ import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 
 import 'package:metal/widgets/text_views.dart';
-import 'package:metal/features/dashboard.dart/widget/tutorial_overlay.dart';
+import 'package:metal/presentation/views/dashboard/widgets/tutorial_overlay.dart';
 import 'package:metal/route/routes.dart';
 
 class ThoughtScreen extends ConsumerStatefulWidget {

@@ -30,4 +30,21 @@ class ApiRoutes {
   static const String updateUserProfile = '/users/me';
   static const String completeProfile = '/users/me/profile/complete';
   static const String getUserById = '/users'; // /users/:id
+
+  // Discovery endpoints
+  static const String discoveryUsers = '/discovery/users';
+  static const String discoverySwipe = '/discovery/swipe';
+  static const String discoveryHistory = '/discovery/history';
+  static const String discoveryUndo = '/discovery/undo';
+
+  // Connection endpoints
+  static const String connections = '/connections';
+  static const String connectionById = '/connections'; // /connections/:id
+
+  // Message endpoints
+  static const String messages = '/messages';
+  static const String messagesByConnection = '/messages'; // /messages/:connectionId
+  static const String messageById = '/messages'; // /messages/:id
+  static const String markMessageRead = '/messages'; // /messages/:id/read
+  static const String clearChat = '/connections'; // /connections/:id/clear
 }

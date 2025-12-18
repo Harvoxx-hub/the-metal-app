@@ -7,7 +7,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:audio_waveforms/audio_waveforms.dart' hide PlayerState;
 import 'package:permission_handler/permission_handler.dart';
 
-import 'package:metal/features/dashboard.dart/widget/complete.profile.dialog.dart';
+import 'package:metal/presentation/views/dashboard/widgets/complete.profile.dialog.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
 import 'package:metal/features/thought/provider/send.thoughts.dart';
 import 'package:metal/features/thought/provider/edit.thoughts.dart';

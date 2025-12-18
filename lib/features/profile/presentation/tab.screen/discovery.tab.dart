@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/features/authentication/provider/user_state_notifier.dart';
-import 'package:metal/features/profile/presentation/widget/edit.field.dart';
+import 'package:metal/presentation/widgets/settings/edit_field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/widgets/button/plain.button.dart';

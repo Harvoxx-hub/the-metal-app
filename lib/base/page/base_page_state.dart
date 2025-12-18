@@ -7,7 +7,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/dashboard.dart/widget/nav.drawer.dart';
+import 'package:metal/presentation/views/dashboard/widgets/nav.drawer.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';

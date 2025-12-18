@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
+import 'package:metal/data/models/user_preferences_model.dart';
 import 'package:metal/presentation/widgets/profile_setup_header.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -14,6 +15,9 @@ import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
 import 'package:metal/widgets/text_views.dart';
+
+/// Alias for UserPreferencesModel
+typedef Preferences = UserPreferencesModel;
 
 /// Preferences View - Step 7 of profile setup (Final step)
 /// Collects: Age range, Religion, Ethnicity, Education, Demography preferences

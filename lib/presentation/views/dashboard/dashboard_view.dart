@@ -7,7 +7,7 @@ import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/presentation/views/chat/chat_list_view.dart';
 import 'package:metal/features/profile/presentation/profile.page.dart';
 import 'package:metal/features/sparks_page/screens/sparks_page.dart';
-import 'package:metal/features/thought/thought_screen.dart';
+import 'package:metal/presentation/views/thought/thought_screen.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
@@ -41,7 +41,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   /// Pages displayed in bottom navigation
   final List<Widget> _pages = [
     const HomeView(),
-    ThoughtScreen(),
+    const ThoughtScreen(), // Updated to use new API-based thoughts with 3 tabs
     const SparksPage(),
     const ChatListView(), // Updated to use new API-based chat
     const ProfilePage(),

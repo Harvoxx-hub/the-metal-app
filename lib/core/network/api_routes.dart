@@ -53,4 +53,19 @@ class ApiRoutes {
   // Block/Unmetal endpoints
   static const String blockConnection = '/connections'; // POST /connections/:id/block
   static const String unmeltAction = '/connections'; // POST /connections/:id/unmelt
+
+  // Thought endpoints
+  static const String thoughts = '/thoughts';
+  static const String thoughtById = '/thoughts'; // GET/PUT/DELETE /thoughts/:id
+  static const String thoughtReactions = '/thoughts'; // GET/POST /thoughts/:id/reactions
+  static const String thoughtComments = '/thoughts'; // GET/POST /thoughts/:id/comments
+  static const String deleteComment = '/thoughts'; // DELETE /thoughts/:id/comments/:commentId
+  static const String commentReaction = '/thoughts'; // POST /thoughts/:id/comments/:commentId/reactions
+
+  // Melt endpoints
+  static const String melt = '/melt'; // POST - create melt request
+  static const String meltStatus = '/melt/status'; // GET /melt/status/:userId
+  static const String meltPending = '/melt/pending'; // GET - pending melt requests
+  static const String meltCancel = '/melt'; // DELETE /melt/:userId
+  static const String meltUnmelt = '/melt/unmelt'; // POST /melt/unmelt/:userId
 }

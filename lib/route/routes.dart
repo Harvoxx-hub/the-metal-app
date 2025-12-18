@@ -38,8 +38,9 @@ import 'package:metal/features/eyes/presentation/eyes.intro.screen.dart';
 import 'package:metal/features/eyes/presentation/view.eyes.dart';
 import 'package:metal/features/feedback/feedback.page.dart';
 
-import 'package:metal/features/my.metals/my.melted.metals.dart';
-import 'package:metal/features/my.metals/my.melted.user.dart';
+// New Clean Architecture Connection views
+import 'package:metal/presentation/views/connection/connection_list_screen.dart';
+import 'package:metal/presentation/views/connection/connection_detail_screen.dart';
 import 'package:metal/features/my.metals/user.profile.dart';
 import 'package:metal/features/notification/notification.page.dart';
 
@@ -259,11 +260,11 @@ class AppRoutes {
       case referEarn:
         return MaterialPageRoute(builder: (_) => const ReferEarn());
       case myMeltedMetals:
-        return MaterialPageRoute(builder: (_) => const MyMeltedMetals());
+        return MaterialPageRoute(builder: (_) => const ConnectionListScreen());
       case myMeltedUser:
         return MaterialPageRoute(
-            builder: (_) => MyMeltedUser(
-                  metalDetials: settings.arguments as Map<String, dynamic>,
+            builder: (_) => ConnectionDetailScreen(
+                  metalDetails: settings.arguments as Map<String, dynamic>,
                 ));
 
       case meltMetal:

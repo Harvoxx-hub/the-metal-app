@@ -1,13 +1,14 @@
 import 'package:metal/core/network/api_interceptor.dart';
 import 'package:metal/core/network/api_routes.dart';
+import 'package:metal/core/network/dio_client.dart';
 import 'package:metal/domain/entities/discovery_user_dto.dart';
 
 /// Remote data source for discovery operations
 /// Handles API communication for swipe/discovery features
 class DiscoveryRemoteDataSource {
-  final ApiInterceptor _api;
+   final DioClient _client;
 
-  DiscoveryRemoteDataSource(this._api);
+  DiscoveryRemoteDataSource(this._client);
 
   /// Get users for discovery
   /// Returns filtered users based on preferences
@@ -24,7 +25,7 @@ class DiscoveryRemoteDataSource {
         .map((e) => '${e.key}=${e.value}')
         .join('&');
 
-    final response = await _api.get(
+    final response = await _client.get(
       '${ApiRoutes.discoveryUsers}?$queryString',
     );
 
@@ -56,7 +57,7 @@ class DiscoveryRemoteDataSource {
     required String targetUserId,
     required SwipeAction action,
   }) async {
-    final response = await _api.post(
+    final response = await _client.post(
       ApiRoutes.discoverySwipe,
       data: {
         'targetUserId': targetUserId,
@@ -91,7 +92,7 @@ class DiscoveryRemoteDataSource {
         .map((e) => '${e.key}=${e.value}')
         .join('&');
 
-    final response = await _api.get(
+    final response = await _client.get(
       '${ApiRoutes.discoveryHistory}?$queryString',
     );
 
@@ -107,7 +108,7 @@ class DiscoveryRemoteDataSource {
 
   /// Undo last swipe
   Future<SwipeHistoryDto> undoLastSwipe() async {
-    final response = await _api.post(ApiRoutes.discoveryUndo);
+    final response = await _client.post(ApiRoutes.discoveryUndo);
 
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data['data'] as Map<String, dynamic>?;

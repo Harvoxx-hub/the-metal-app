@@ -43,8 +43,14 @@ class ApiRoutes {
 
   // Message endpoints
   static const String messages = '/messages';
-  static const String messagesByConnection = '/messages'; // /messages/:connectionId
-  static const String messageById = '/messages'; // /messages/:id
-  static const String markMessageRead = '/messages'; // /messages/:id/read
-  static const String clearChat = '/connections'; // /connections/:id/clear
+  static const String messagesByConnection = '/messages'; // GET /messages/:connectionId
+  static const String messageById = '/messages'; // GET/DELETE /messages/:id
+  static const String messagesAudio = '/messages/audio'; // POST - upload audio message
+  static const String markMessageRead = '/messages'; // PUT /messages/:id/read
+  static const String markAllMessagesRead = '/messages'; // PUT /messages/:connectionId/read-all
+  static const String clearChat = '/connections'; // DELETE /connections/:id/messages
+
+  // Block/Unmetal endpoints
+  static const String blockConnection = '/connections'; // POST /connections/:id/block
+  static const String unmeltAction = '/connections'; // POST /connections/:id/unmelt
 }

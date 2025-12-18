@@ -75,8 +75,8 @@ class DiscoveryRepository implements IDiscoveryRepository {
 
 /// Provider for discovery remote data source
 final discoveryRemoteDataSourceProvider = Provider<DiscoveryRemoteDataSource>((ref) {
-  final api = ref.watch(apiInterceptorProvider);
-  return DiscoveryRemoteDataSource(api);
+  final dioClient = ref.watch(dioClientProvider);
+  return DiscoveryRemoteDataSource(dioClient);
 });
 
 /// Provider for discovery repository

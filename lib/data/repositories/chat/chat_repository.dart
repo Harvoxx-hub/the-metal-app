@@ -128,6 +128,30 @@ class ChatRepository implements ChatRepositoryAbstract {
   }
 
   @override
+  Future<BaseState<MessageDto>> sendAudioMessage({
+    required String connectionId,
+    required String audioFilePath,
+    String? replyToMessageId,
+    String? replyToMessageText,
+    String? replyToSenderId,
+    String? replyToMessageType,
+  }) async {
+    try {
+      final response = await _remoteDataSource.sendAudioMessage(
+        connectionId: connectionId,
+        audioFilePath: audioFilePath,
+        replyToMessageId: replyToMessageId,
+        replyToMessageText: replyToMessageText,
+        replyToSenderId: replyToSenderId,
+        replyToMessageType: replyToMessageType,
+      );
+      return BaseState.success(response.toDomain());
+    } catch (e) {
+      return ErrorHandler.handleError<MessageDto>(e);
+    }
+  }
+
+  @override
   Future<BaseState<void>> deleteMessage(String messageId) async {
     try {
       await _remoteDataSource.deleteMessage(messageId);

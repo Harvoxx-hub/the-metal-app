@@ -45,6 +45,16 @@ abstract class ChatRepositoryAbstract {
     required MessageDto message,
   });
 
+  /// Send an audio message
+  Future<BaseState<MessageDto>> sendAudioMessage({
+    required String connectionId,
+    required String audioFilePath,
+    String? replyToMessageId,
+    String? replyToMessageText,
+    String? replyToSenderId,
+    String? replyToMessageType,
+  });
+
   /// Delete a message
   Future<BaseState<void>> deleteMessage(String messageId);
 

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/network/dio_client.dart';
 import 'package:metal/data/models/message_model.dart';
@@ -143,6 +144,39 @@ class ChatRemoteDataSource {
     }
 
     throw Exception(response.data?['error'] ?? 'Failed to send message');
+  }
+
+  /// Upload and send an audio message
+  Future<MessageModel> sendAudioMessage({
+    required String connectionId,
+    required String audioFilePath,
+    String? replyToMessageId,
+    String? replyToMessageText,
+    String? replyToSenderId,
+    String? replyToMessageType,
+  }) async {
+    final formData = FormData.fromMap({
+      'connectionId': connectionId,
+      'audio': await MultipartFile.fromFile(audioFilePath),
+      if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
+      if (replyToMessageText != null) 'replyToMessageText': replyToMessageText,
+      if (replyToSenderId != null) 'replyToSenderId': replyToSenderId,
+      if (replyToMessageType != null) 'replyToMessageType': replyToMessageType,
+    });
+
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.messagesAudio),
+      data: formData,
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.data != null) {
+        final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+        return MessageModel.fromJson(data);
+      }
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to send audio message');
   }
 
   /// Delete a message

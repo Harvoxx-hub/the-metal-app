@@ -29,6 +29,7 @@ import 'package:metal/presentation/views/settings/edit_preferences_view.dart';
 import 'package:metal/features/chat/presentation/chat.window/chat.window.dart';
 import 'package:metal/features/chat/presentation/games/games.page.dart';
 import 'package:metal/features/chat/presentation/games/games.rule.dart';
+import 'package:metal/presentation/views/chat/chat_window_view.dart';
 import 'package:metal/presentation/views/dashboard/dashboard_view.dart';
 import 'package:metal/features/eyes/domain/entries/status.model.dart';
 import 'package:metal/features/eyes/presentation/eye.preview.media.dart';
@@ -105,6 +106,7 @@ class AppRoutes {
   static const String buySpark = '/buySpark';
   static const String referEarnSpark = '/referEarnSpark';
   static const String chatWindowsPage = '/chatWindowsPage';
+  static const String chatWindowView = '/chatWindowView'; // New API-based chat
   static const String gamePage = '/gamePage';
   static const String gameRules = '/gameRules';
   static const String updatePhoneNumberPage = '/updatePhoneNumberPage';
@@ -285,6 +287,11 @@ class AppRoutes {
       case chatWindowsPage:
         return MaterialPageRoute(
             builder: (_) => ChatWindowsPage(
+                  connectionId: settings.arguments as String,
+                ));
+      case chatWindowView:
+        return MaterialPageRoute(
+            builder: (_) => ChatWindowView(
                   connectionId: settings.arguments as String,
                 ));
       case gamePage:

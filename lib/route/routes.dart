@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:metal/features/chat/domain/entries/game.model.dart';
 import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
 
-import 'package:metal/features/thought/post_thought.dart';
 import 'package:metal/features/my.metals/melt.metal.dart';
 
 import 'package:metal/features/settings/presentation/delete.screen.dart';
@@ -26,9 +24,6 @@ import 'package:metal/presentation/views/profile/preferences_view.dart';
 import 'package:metal/presentation/views/settings/settings_view.dart';
 import 'package:metal/presentation/views/settings/edit_profile_view.dart';
 import 'package:metal/presentation/views/settings/edit_preferences_view.dart';
-import 'package:metal/features/chat/presentation/chat.window/chat.window.dart';
-import 'package:metal/features/chat/presentation/games/games.page.dart';
-import 'package:metal/features/chat/presentation/games/games.rule.dart';
 import 'package:metal/presentation/views/chat/chat_window_view.dart';
 import 'package:metal/presentation/views/dashboard/dashboard_view.dart';
 import 'package:metal/features/eyes/domain/entries/status.model.dart';
@@ -54,7 +49,6 @@ import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 
 import 'package:metal/features/upgrade/make.payment.dart';
 
-import 'package:metal/features/thought/presentation/thought_details.page.dart';
 import 'package:metal/features/profile/presentation/pages/work_email_page.dart';
 import 'package:metal/features/community/presentation/screens/community_discovery_screen.dart';
 import 'package:metal/features/community/presentation/screens/community_profile_screen.dart';
@@ -106,10 +100,7 @@ class AppRoutes {
   static const String sendSpark = '/sendSpark';
   static const String buySpark = '/buySpark';
   static const String referEarnSpark = '/referEarnSpark';
-  static const String chatWindowsPage = '/chatWindowsPage';
   static const String chatWindowView = '/chatWindowView'; // New API-based chat
-  static const String gamePage = '/gamePage';
-  static const String gameRules = '/gameRules';
   static const String updatePhoneNumberPage = '/updatePhoneNumberPage';
   static const String updateEmailPage = '/updateEmailPage';
   static const String newPhoneNumberPage = '/newPhoneNumberPage';
@@ -285,21 +276,11 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => BuySpark());
       case referEarnSpark:
         return MaterialPageRoute(builder: (_) => const ReferEarnSpark());
-      case chatWindowsPage:
-        return MaterialPageRoute(
-            builder: (_) => ChatWindowsPage(
-                  connectionId: settings.arguments as String,
-                ));
       case chatWindowView:
         return MaterialPageRoute(
             builder: (_) => ChatWindowView(
                   connectionId: settings.arguments as String,
                 ));
-      case gamePage:
-        return MaterialPageRoute(builder: (_) => const GamePage());
-      case gameRules:
-        return MaterialPageRoute(
-            builder: (_) => GameRules(games: settings.arguments as GameModel));
       // Phone number and email update pages have been removed
       // TODO: Re-implement these in Clean Architecture when needed
       case updatePhoneNumberPage:
@@ -314,30 +295,13 @@ class AppRoutes {
       case delete:
         return MaterialPageRoute(builder: (_) => DeleteScreen());
 
+      // TODO: Re-implement postThought and thoughtDetails in new architecture
       case postThought:
-        final args = settings.arguments;
-        ThoughtModel? thoughtModel;
-        CommunityMetadata? communityMetadata;
-
-        if (args is Map<String, dynamic>) {
-          thoughtModel = args['thoughtModel'] as ThoughtModel?;
-          if (args['communityMetadata'] != null) {
-            communityMetadata =
-                CommunityMetadata.fromJson(args['communityMetadata']);
-          }
-        } else if (args is ThoughtModel) {
-          thoughtModel = args;
-        }
-
-        return MaterialPageRoute(
-            builder: (_) => PostThought(
-                  thoughtModel: thoughtModel,
-                  communityMetadata: communityMetadata,
-                ));
       case thoughtDetails:
         return MaterialPageRoute(
-          builder: (_) => ThoughtDetailsPage(),
-          settings: settings,
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Feature coming soon')),
+          ),
         );
       case workEmail:
         return MaterialPageRoute(

@@ -9,8 +9,8 @@ import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/dashboard/widgets/complete.profile.dialog.dart';
 import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
 import 'package:metal/presentation/viewmodels/connection/melt_viewmodel.dart';
-import 'package:metal/features/thought/provider/get.user.notifier.dart';
-import 'package:metal/features/chat/data/repositories/message.repository.dart';
+// TODO: Re-implement user fetching in new architecture (GET /api/v1/users/{userId})
+// import 'package:metal/features/thought/provider/get.user.notifier.dart';
 import 'package:metal/presentation/views/connection/widgets/metal_details_tab.dart';
 import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
 import 'package:metal/features/settings/provider/block.user.notifier.dart';
@@ -73,8 +73,9 @@ class _ConnectionDetailScreenState
     final connection = ref.read(connectionViewModelProvider.notifier)
         .getConnectionByUserId(metalId);
 
-    // Get user data (still using the existing provider for now)
-    final userState = ref.watch(getUserProvider(metalId));
+    // TODO: Get user data using new architecture
+    // final userState = ref.watch(getUserProvider(metalId));
+    final userState = null; // Temporary placeholder
 
     // Check if the user is blocked
     final blockedUsers = ref.watch(getBlockUserProvider).data ?? [];
@@ -114,7 +115,7 @@ class _ConnectionDetailScreenState
                   padding: const EdgeInsets.all(40.0),
                   child: _buildErrorSection(
                     userState.errorMessage.toString(),
-                    () => ref.invalidate(getUserProvider(metalId)),
+                    () {}, // TODO: Implement refresh with new user provider
                   ),
                 )
               : ProfileHeader(
@@ -257,7 +258,7 @@ class _ConnectionDetailScreenState
                 if (connectionId != null) {
                   Navigator.pushNamed(
                     context,
-                    AppRoutes.chatWindowsPage,
+                    AppRoutes.chatWindowView,
                     arguments: connectionId,
                   );
                 }
@@ -367,15 +368,20 @@ class _ConnectionDetailScreenState
     );
 
     try {
-      final messageRepository = ref.read(messageRepositoryProvider);
-      final connectionId = await messageRepository
-          .createOrGetConnectionForDirectMessage(
-        senderId: currentUserId,
-        recipientId: recipientId,
-      );
+      // Create melt request using new architecture
+      final meltViewModel = ref.read(meltActionProvider.notifier);
+      final success = await meltViewModel.meltUser(recipientId);
 
-      if (connectionId.isEmpty) {
+      if (!success) {
         throw Exception('Failed to create connection');
+      }
+
+      // Get connectionId from melt response
+      final meltState = ref.read(meltActionProvider);
+      final connectionId = meltState.response?.connectionId;
+
+      if (connectionId == null || connectionId.isEmpty) {
+        throw Exception('Connection ID not found');
       }
 
       // Refresh connections
@@ -388,7 +394,7 @@ class _ConnectionDetailScreenState
       if (!mounted) return;
       Navigator.pushNamed(
         context,
-        AppRoutes.chatWindowsPage,
+        AppRoutes.chatWindowView,
         arguments: connectionId,
       );
     } catch (e) {

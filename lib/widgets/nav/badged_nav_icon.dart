@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/features/chat/provider/unread.count.notifier.dart';
+import 'package:metal/presentation/viewmodels/chat/chat_viewmodel_providers.dart';
 
 /// Badged navigation icon widget
 /// Shows an icon with an optional badge (e.g., unread count)
@@ -67,8 +67,8 @@ class ChatNavIcon extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final unreadState = ref.watch(unreadCountProvider);
-    final count = unreadState.isSuccess ? unreadState.data ?? 0 : 0;
+    final chatListState = ref.watch(chatListViewModelProvider);
+    final count = chatListState.totalUnreadCount;
 
     return BadgedNavIcon(
       icon: icon,

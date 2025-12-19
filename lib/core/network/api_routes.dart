@@ -68,4 +68,11 @@ class ApiRoutes {
   static const String meltPending = '/melt/pending'; // GET - pending melt requests
   static const String meltCancel = '/melt'; // DELETE /melt/:userId
   static const String meltUnmelt = '/melt/unmelt'; // POST /melt/unmelt/:userId
+
+  // Media endpoints
+  static const String mediaUpload = '/media/upload-url'; // POST - request signed upload URL
+
+  // Spark endpoints
+  static const String sparks = '/sparks'; // GET - get balance and transaction history
+  static const String sparksSend = '/sparks/send'; // POST - send sparks to user
 }

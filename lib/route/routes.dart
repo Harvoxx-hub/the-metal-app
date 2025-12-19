@@ -77,6 +77,7 @@ class AppRoutes {
   static const String myMeltedUser = '/myMeltedUser';
   static const String sendSpark = '/sendSpark';
   static const String buySpark = '/buySpark';
+  static const String referEarn = '/referEarn';
   static const String chatWindowView = '/chatWindowView'; // New API-based chat
   static const String updatePhoneNumberPage = '/updatePhoneNumberPage';
   static const String updateEmailPage = '/updateEmailPage';
@@ -229,6 +230,12 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => const Scaffold(
             body: Center(child: Text('Use Sparks tab in dashboard')),
+          ),
+        );
+      case referEarn:
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Refer & Earn feature coming soon')),
           ),
         );
       case chatWindowView:

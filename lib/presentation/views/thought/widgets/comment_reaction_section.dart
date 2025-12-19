@@ -162,20 +162,46 @@ class _CommentReactionSectionState
                   ),
                   title: Consumer(
                     builder: (context, ref, child) {
-                      final userState =
+                      final userAsync =
                           ref.watch(getUserProvider(reaction.userId));
-                      if (userState.isLoading || userState.data == null) {
-                        return const SizedBox.shrink();
-                      }
-                      return Row(
-                        children: [
-                          TextView(text: userState.data!.username ?? ""),
-                          const Gap(5),
-                          TextView(
-                            text: reaction.emoji,
-                            fontSize: 16,
-                          ),
-                        ],
+
+                      return userAsync.when(
+                        data: (baseState) {
+                          if (baseState.isError || baseState.data == null) {
+                            return Row(
+                              children: [
+                                const TextView(text: "User"),
+                                const Gap(5),
+                                TextView(
+                                  text: reaction.emoji,
+                                  fontSize: 16,
+                                ),
+                              ],
+                            );
+                          }
+
+                          return Row(
+                            children: [
+                              TextView(text: baseState.data!.username ?? "User"),
+                              const Gap(5),
+                              TextView(
+                                text: reaction.emoji,
+                                fontSize: 16,
+                              ),
+                            ],
+                          );
+                        },
+                        loading: () => const SizedBox.shrink(),
+                        error: (error, stack) => Row(
+                          children: [
+                            const TextView(text: "User"),
+                            const Gap(5),
+                            TextView(
+                              text: reaction.emoji,
+                              fontSize: 16,
+                            ),
+                          ],
+                        ),
                       );
                     },
                   ),

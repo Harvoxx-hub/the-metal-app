@@ -56,30 +56,9 @@ class _CommentItemWidgetState extends ConsumerState<CommentItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, ref, child) {
-        final userState = ref.watch(getUserProvider(widget.comment.userId));
-        final replies = widget.replies ?? [];
+    final replies = widget.replies ?? [];
 
-        if (userState.isLoading) {
-          return const SizedBox(
-              height: 60, child: Center(child: CircularProgressIndicator()));
-        }
-
-        if (userState.isError) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child:
-                TextView(text: userState.errorMessage ?? "Error loading user"),
-          );
-        }
-
-        final user = userState.data;
-        if (user == null) {
-          return const SizedBox();
-        }
-
-        return Container(
+    return Container(
           margin: EdgeInsets.only(
             bottom: 12,
             left: widget.comment.isReply ? 20 : 0,
@@ -217,7 +196,5 @@ class _CommentItemWidgetState extends ConsumerState<CommentItemWidget> {
             ],
           ),
         );
-      },
-    );
   }
 }

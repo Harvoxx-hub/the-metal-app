@@ -29,6 +29,36 @@ class ProfileRepository implements ProfileRepositoryAbstract {
   }
 
   @override
+  Future<BaseState<UserDto>> getUserById(String userId) async {
+    try {
+      final response = await profileRemoteDataSource.getUserById(userId);
+      final user = UserModel.fromJson(response).toDomain();
+      return BaseState.success(user);
+    } catch (e) {
+      return ErrorHandler.handleError<UserDto>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<List<UserDto>>> searchUsers({
+    required String query,
+    int limit = 10,
+  }) async {
+    try {
+      final response = await profileRemoteDataSource.searchUsers(
+        query: query,
+        limit: limit,
+      );
+      final users = response
+          .map((json) => UserModel.fromJson(json).toDomain())
+          .toList();
+      return BaseState.success(users);
+    } catch (e) {
+      return ErrorHandler.handleError<List<UserDto>>(e);
+    }
+  }
+
+  @override
   Future<BaseState<UserDto>> updateUserProfile({
     required Map<String, dynamic> profileData,
   }) async {

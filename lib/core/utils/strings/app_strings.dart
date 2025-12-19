@@ -1,4 +1,5 @@
 class AppStrings {
+  //base
   // Dashboard Strings
   static const String completeProfileSetup = "Complete Profile Setup";
   static const String completeProfileDesc =

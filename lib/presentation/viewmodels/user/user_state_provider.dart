@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/di/provider_setup.dart';
+import 'package:metal/core/state/base.state.dart';
 import 'package:metal/core/storage/secure_storage_helper.dart';
 import 'package:metal/data/repositories/auth/auth_repository_providers.dart';
 import 'package:metal/data/repositories/profile/profile_repository_providers.dart';
@@ -258,4 +259,115 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
 /// Convenience provider - is user data being updated
 final isUpdatingUserProvider = Provider<bool>((ref) {
   return ref.watch(userStateProvider).isUpdating;
+});
+
+/// Provider to get user by ID
+/// Returns BaseState<UserDto> with user data, loading, or error state
+///
+/// Usage:
+/// ```dart
+/// final userState = ref.watch(getUserProvider(userId));
+/// if (userState.isLoading) { ... }
+/// if (userState.isError) { ... }
+/// final user = userState.data; // UserDto?
+/// ```
+final getUserProvider = FutureProvider.family<BaseState<UserDto>, String>((ref, userId) async {
+  final profileRepo = ref.read(profileRepositoryProvider);
+  return await profileRepo.getUserById(userId);
+});
+
+/// State for user search/query results
+class GetUsersByQueryState {
+  final List<UserDto>? data;
+  final bool isLoading;
+  final bool isError;
+  final String? errorMessage;
+
+  const GetUsersByQueryState({
+    this.data,
+    this.isLoading = false,
+    this.isError = false,
+    this.errorMessage,
+  });
+
+  GetUsersByQueryState copyWith({
+    List<UserDto>? data,
+    bool? isLoading,
+    bool? isError,
+    String? errorMessage,
+  }) {
+    return GetUsersByQueryState(
+      data: data ?? this.data,
+      isLoading: isLoading ?? this.isLoading,
+      isError: isError ?? this.isError,
+      errorMessage: errorMessage,
+    );
+  }
+}
+
+/// Notifier for searching users by query
+class GetUsersByQueryNotifier extends StateNotifier<GetUsersByQueryState> {
+  final Ref _ref;
+
+  GetUsersByQueryNotifier(this._ref) : super(const GetUsersByQueryState());
+
+  /// Search users by query (username, name, etc.)
+  Future<void> getUserByquery({required String query}) async {
+    if (query.isEmpty) {
+      state = const GetUsersByQueryState();
+      return;
+    }
+
+    state = state.copyWith(isLoading: true, isError: false);
+
+    try {
+      final profileRepo = _ref.read(profileRepositoryProvider);
+      final result = await profileRepo.searchUsers(query: query, limit: 10);
+
+      if (result.isSuccess && result.data != null) {
+        state = GetUsersByQueryState(
+          data: result.data,
+          isLoading: false,
+          isError: false,
+        );
+      } else {
+        state = GetUsersByQueryState(
+          data: null,
+          isLoading: false,
+          isError: true,
+          errorMessage: result.errorMessage ?? 'Failed to search users',
+        );
+      }
+    } catch (e) {
+      state = GetUsersByQueryState(
+        data: null,
+        isLoading: false,
+        isError: true,
+        errorMessage: e.toString(),
+      );
+    }
+  }
+
+  /// Clear search results
+  void clear() {
+    state = const GetUsersByQueryState();
+  }
+}
+
+/// Provider for searching users by name/query
+///
+/// Usage:
+/// ```dart
+/// // Trigger search
+/// ref.read(getUserByNameProvider.notifier).getUserByquery(query: 'john');
+///
+/// // Watch results
+/// final searchState = ref.watch(getUserByNameProvider);
+/// if (searchState.isLoading) { ... }
+/// if (searchState.isError) { ... }
+/// final users = searchState.data; // List<UserDto>?
+/// ```
+final getUserByNameProvider =
+    StateNotifierProvider<GetUsersByQueryNotifier, GetUsersByQueryState>((ref) {
+  return GetUsersByQueryNotifier(ref);
 });

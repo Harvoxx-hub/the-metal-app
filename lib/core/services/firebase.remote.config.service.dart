@@ -1,8 +1,9 @@
+import 'dart:convert';
+
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:metal/core/utils/constant/firebase.remote.config.key.dart';
-import 'package:metal/core/utils/metal.helper.dart';
-
+ 
 class FirebaseRemoteConfigService {
   FirebaseRemoteConfigService._()
       : _remoteConfig = FirebaseRemoteConfig.instance;
@@ -55,7 +56,7 @@ class FirebaseRemoteConfigService {
   String getLatestVersion() =>
       getString(FirebaseRemoteConfigKeys.latest_version);
   Map<String, dynamic> getMetalProperties() =>
-      MetalHelper.parseJson(
+ jsonDecode(
           getString(FirebaseRemoteConfigKeys.metalProperties)) ??
       {};
   int getDaysRequiredToUnMelt() =>

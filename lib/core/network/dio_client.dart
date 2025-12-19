@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:metal/app_config.dart';
+ 
 import 'package:metal/core/network/api_interceptor.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
@@ -14,7 +14,7 @@ class DioClient {
   DioClient({
     required ApiInterceptor interceptor,
   })  : _dio = Dio(BaseOptions(
-          baseUrl: AppConfig.config.url,
+          baseUrl: baseUrl,
           connectTimeout: const Duration(seconds: 60),
           receiveTimeout: const Duration(seconds: 60),
           headers: {

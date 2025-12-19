@@ -277,13 +277,13 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
             /// get community from id from community provider
 
             GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.communityProfile,
-                  arguments: thoughtModel.communityMetadata!.communityId,
-                );
-              },
+              // onTap: () {
+              //   Navigator.pushNamed(
+              //     context,
+              //     Communi.communityDetails,
+              //     arguments: thoughtModel.communityMetadata!.communityId,
+              //   );
+              // },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(

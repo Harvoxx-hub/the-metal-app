@@ -3,7 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/storage/secure_storage_helper.dart';
 import 'package:metal/core/storage/shared_prefs_helper.dart';
-import 'package:metal/app_config.dart';
+
+const String baseUrl = "https://metal-ad87d.web.app/api/v1";
 
 /// Interceptor for API requests
 /// Handles authentication token attachment, token refresh, and error handling
@@ -23,7 +24,7 @@ class ApiInterceptor extends Interceptor {
         _secureStorage = secureStorage {
     // Create separate Dio instance for token refresh (without interceptors)
     _refreshDio = Dio(BaseOptions(
-      baseUrl: AppConfig.config.url,
+      baseUrl:  baseUrl,
       connectTimeout: const Duration(seconds: 60),
       receiveTimeout: const Duration(seconds: 60),
       headers: {
@@ -172,7 +173,7 @@ class ApiInterceptor extends Interceptor {
   Future<Response> _retryRequest(RequestOptions options) async {
     // Create a new Dio instance with base configuration
     final dio = Dio(BaseOptions(
-      baseUrl: AppConfig.config.url,
+      baseUrl:  baseUrl,
       connectTimeout: const Duration(seconds: 60),
       receiveTimeout: const Duration(seconds: 60),
     ));

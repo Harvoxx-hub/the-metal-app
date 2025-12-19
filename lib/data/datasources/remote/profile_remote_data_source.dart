@@ -17,7 +17,7 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
     this.mediaDataSource,
   });
 
-  /// Get user profile
+  /// Get user profile (current user)
   Future<Map<String, dynamic>> getUserProfile() async {
     try {
       final response = await dioClient.get(
@@ -35,6 +35,56 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       throw Exception('Invalid response format');
     } on DioException catch (e) {
       throw Exception('Get user profile failed: ${e.message}');
+    }
+  }
+
+  /// Get user by ID
+  Future<Map<String, dynamic>> getUserById(String userId) async {
+    try {
+      final response = await dioClient.get(
+        ApiRoutes.buildPath('${ApiRoutes.getUserById}/$userId'),
+      );
+
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['success'] == true && data['data'] != null) {
+          return data['data'] as Map<String, dynamic>;
+        }
+        throw Exception(data['message'] ?? 'Failed to get user by ID');
+      }
+
+      throw Exception('Invalid response format');
+    } on DioException catch (e) {
+      throw Exception('Get user by ID failed: ${e.message}');
+    }
+  }
+
+  /// Search users by query (username, name, etc.)
+  Future<List<Map<String, dynamic>>> searchUsers({
+    required String query,
+    int limit = 10,
+  }) async {
+    try {
+      final response = await dioClient.get(
+        ApiRoutes.buildPath(ApiRoutes.getUserById),
+        queryParameters: {
+          'query': query,
+          'limit': limit,
+        },
+      );
+
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['success'] == true && data['data'] != null) {
+          final users = data['data'] as List<dynamic>;
+          return users.map((user) => user as Map<String, dynamic>).toList();
+        }
+        throw Exception(data['message'] ?? 'Failed to search users');
+      }
+
+      throw Exception('Invalid response format');
+    } on DioException catch (e) {
+      throw Exception('Search users failed: ${e.message}');
     }
   }
 

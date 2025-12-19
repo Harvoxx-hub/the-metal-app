@@ -11,6 +11,17 @@ abstract class ProfileRepositoryAbstract extends BaseRepository {
   /// Used to fetch and maintain user state throughout the application
   Future<BaseState<UserDto>> getUserProfile();
 
+  /// Get user by ID
+  /// Used to fetch any user's public profile information
+  Future<BaseState<UserDto>> getUserById(String userId);
+
+  /// Search users by query (username, name, etc.)
+  /// Returns a list of matching users
+  Future<BaseState<List<UserDto>>> searchUsers({
+    required String query,
+    int limit = 10,
+  });
+
   /// Update user profile
   Future<BaseState<UserDto>> updateUserProfile({
     required Map<String, dynamic> profileData,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:metal/core/utils/metal.helper.dart';
+ 
 import 'package:metal/domain/entities/discovery_user_dto.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/presentation/views/home/widgets/enhanced_swipe_card.dart';
@@ -225,7 +225,7 @@ class DiscoveryUserCard extends ConsumerWidget {
           // Age range
           if (user.dob != null)
             TextView(
-              text: MetalHelper.getAgeRange(user.dob!),
+              text: user.dob!,
               fontSize: 16,
               color: Colors.black87,
             ),

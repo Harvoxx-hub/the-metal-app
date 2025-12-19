@@ -101,7 +101,7 @@ class NotificationView extends ConsumerWidget {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextView(text: notification.body, fontSize: 12, color: Colors.grey.shade700),
+                TextView(text: notification.message, fontSize: 12, color: Colors.grey.shade700),
                 const Gap(4),
                 TextView(text: timeago.format(notification.createdAt), fontSize: 11, color: Colors.grey.shade500),
               ],

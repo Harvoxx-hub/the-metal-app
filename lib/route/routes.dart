@@ -32,8 +32,8 @@ import 'package:metal/presentation/views/connection/connection_list_screen.dart'
 import 'package:metal/presentation/views/connection/connection_detail_screen.dart';
 import 'package:metal/features/my.metals/user.profile.dart';
 
-// Notification (pending migration)
-import 'package:metal/features/notification/notification.page.dart';
+// Notification view
+import 'package:metal/presentation/views/notification/notification_view.dart';
 
 // Settings
 import 'package:metal/features/settings/presentation/blocked.user.dart'
@@ -200,7 +200,7 @@ class AppRoutes {
       case blockedUser:
         return MaterialPageRoute(builder: (_) => const block.BlockedUser());
       case notificationPage:
-        return MaterialPageRoute(builder: (_) => const NotificationPage());
+        return MaterialPageRoute(builder: (_) => const NotificationView());
       case userProfilePage:
         // UserProfilePage expects the old UserModel, pass as dynamic for now
         return MaterialPageRoute(

@@ -21,7 +21,7 @@ class NotificationRepository implements NotificationRepositoryAbstract {
     try {
       final response = await _remoteDataSource.getNotifications(
         type: type,
-        unreadOnly: unreadOnly,
+        unreadOnly: unreadOnly ?? false,
         page: page,
         limit: limit,
       );

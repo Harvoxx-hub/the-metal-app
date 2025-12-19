@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:metal/fcm/models/notification_payload_model.dart';
 import 'package:metal/fcm/models/push_type.dart';
-import 'package:metal/features/notification/domain/entries/notification.model.dart';
+import 'package:metal/domain/entities/notification_dto.dart';
 import 'package:metal/route/routes.dart';
 
 /// Centralized service for handling notification navigation
@@ -35,12 +35,12 @@ class NotificationNavigationService {
 
   /// Navigate based on notification model from database
   Future<void> navigateFromNotification(
-    NotificationModel notification,
+    NotificationDto notification,
     BuildContext context,
   ) async {
     if (!context.mounted) return;
 
-    final data = notification.data as Map<String, dynamic>?;
+    final data = notification.data;
     final pushType = _mapNotificationTypeToPushType(notification.type);
 
     await _handleNavigation(pushType, data, context);
@@ -91,28 +91,18 @@ class NotificationNavigationService {
   /// Map NotificationType to PushType
   PushType? _mapNotificationTypeToPushType(NotificationType type) {
     switch (type) {
-      case NotificationType.new_message:
+      case NotificationType.message:
         return PushType.message;
-      case NotificationType.new_connection:
+      case NotificationType.match:
         return PushType.new_connection;
-      case NotificationType.unmetal_request:
-        return PushType.unmetal_request;
-      case NotificationType.thought_created:
-        return PushType.thought_created;
-      case NotificationType.reaction_added:
+      case NotificationType.like:
         return PushType.reaction_added;
       case NotificationType.comment:
         return PushType.comment;
-      case NotificationType.comment_reaction:
-        return PushType.comment_reaction;
-      case NotificationType.sparks_transaction:
+      case NotificationType.spark:
         return PushType.sparks_transaction;
-      case NotificationType.thought_reminder:
-        return PushType.thought_reminder;
-      case NotificationType.community_post:
-        return PushType.community_post;
-      case NotificationType.community_join:
-        return PushType.community_join;
+      case NotificationType.system:
+        return null;
     }
   }
 
@@ -156,7 +146,7 @@ class NotificationNavigationService {
     if (connectionId != null || chatId != null) {
       await _safeNavigate(
         context,
-        AppRoutes.chatWindowsPage,
+        AppRoutes.chatWindowView,
         connectionId ?? chatId,
         _navigateToMessages,
       );
@@ -236,22 +226,13 @@ class NotificationNavigationService {
   Future<void> _navigateToCommunityPost(
       Map<String, dynamic>? data, BuildContext context) async {
     final metadata = _parseMetadata(data);
-    final communityId =
-        metadata?['communityId'] ?? data?['communityId'] as String?;
     final thoughtId = metadata?['thoughtId'] ?? data?['thoughtId'] as String?;
 
-    if (communityId != null && communityId.isNotEmpty) {
-      // Navigate to community profile which shows the feed
-      await _safeNavigate(
-        context,
-        AppRoutes.communityProfile,
-        communityId,
-        _navigateToHome,
-      );
-    } else if (thoughtId != null && thoughtId.isNotEmpty) {
-      // Fallback: navigate to thought details if communityId is missing
+    if (thoughtId != null && thoughtId.isNotEmpty) {
+      // Navigate to thought details
       await _navigateToThoughtDetails(data, context);
     } else {
+      // TODO: Add community profile route when community feature is migrated
       await _navigateToHome(context);
     }
   }
@@ -259,20 +240,7 @@ class NotificationNavigationService {
   /// Navigate to community (community profile)
   Future<void> _navigateToCommunity(
       Map<String, dynamic>? data, BuildContext context) async {
-    final metadata = _parseMetadata(data);
-    final communityId =
-        metadata?['communityId'] ?? data?['communityId'] as String?;
-
-    if (communityId != null && communityId.isNotEmpty) {
-      // Navigate to community profile
-      await _safeNavigate(
-        context,
-        AppRoutes.communityProfile,
-        communityId,
-        _navigateToHome,
-      );
-    } else {
-      await _navigateToHome(context);
-    }
+    // TODO: Add community profile route when community feature is migrated
+    await _navigateToHome(context);
   }
 }

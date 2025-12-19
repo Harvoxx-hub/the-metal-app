@@ -52,7 +52,7 @@ class NotificationRemoteDataSource extends BaseRemoteDataSource {
   }
 
   /// Mark a single notification as read
-  Future<void> markAsRead(String notificationId) async {
+  Future<void> markAsRead({required String notificationId}) async {
     try {
       final response = await dioClient.put(
         ApiRoutes.buildPath('${ApiRoutes.notificationRead}/$notificationId/read'),
@@ -94,13 +94,13 @@ class NotificationRemoteDataSource extends BaseRemoteDataSource {
   }
 
   /// Update notification settings/preferences
-  Future<NotificationSettingsModel> updateNotificationSettings({
-    required NotificationSettingsDto settings,
+  Future<NotificationSettingsModel> updateSettings({
+    required Map<String, dynamic> settings,
   }) async {
     try {
       final response = await dioClient.put(
         ApiRoutes.buildPath(ApiRoutes.notificationSettings),
-        data: settings.toJson(),
+        data: settings,
       );
 
       if (response.data is Map<String, dynamic>) {
@@ -143,16 +143,18 @@ class NotificationRemoteDataSource extends BaseRemoteDataSource {
   }
 
   /// Register FCM device token for push notifications
-  Future<void> registerDeviceToken({
-    required String deviceToken,
-    String? platform,
+  Future<void> registerDevice({
+    required String fcmToken,
+    String? deviceId,
+    String? deviceType,
   }) async {
     try {
       final response = await dioClient.post(
         ApiRoutes.buildPath(ApiRoutes.notificationDevices),
         data: {
-          'deviceToken': deviceToken,
-          if (platform != null) 'platform': platform,
+          'fcmToken': fcmToken,
+          if (deviceId != null) 'deviceId': deviceId,
+          if (deviceType != null) 'deviceType': deviceType,
         },
       );
 

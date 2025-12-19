@@ -71,6 +71,34 @@ class NotificationDto {
     this.data,
     required this.createdAt,
   });
+
+  NotificationDto copyWith({
+    String? id,
+    NotificationType? type,
+    String? title,
+    String? message,
+    bool? isRead,
+    String? senderId,
+    String? senderName,
+    String? senderPhoto,
+    String? relatedId,
+    Map<String, dynamic>? data,
+    DateTime? createdAt,
+  }) {
+    return NotificationDto(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      title: title ?? this.title,
+      message: message ?? this.message,
+      isRead: isRead ?? this.isRead,
+      senderId: senderId ?? this.senderId,
+      senderName: senderName ?? this.senderName,
+      senderPhoto: senderPhoto ?? this.senderPhoto,
+      relatedId: relatedId ?? this.relatedId,
+      data: data ?? this.data,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }
 
 /// Notifications list response DTO
@@ -80,6 +108,7 @@ class NotificationsResponseDto {
   final int unreadCount;
   final bool hasMore;
   final String? nextCursor;
+  final int? currentPage;
 
   NotificationsResponseDto({
     required this.notifications,
@@ -87,6 +116,7 @@ class NotificationsResponseDto {
     required this.unreadCount,
     required this.hasMore,
     this.nextCursor,
+    this.currentPage,
   });
 }
 

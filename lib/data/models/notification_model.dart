@@ -68,6 +68,7 @@ class NotificationsResponseModel {
   final int unreadCount;
   final bool hasMore;
   final String? nextCursor;
+  final int? currentPage;
 
   NotificationsResponseModel({
     required this.notifications,
@@ -75,6 +76,7 @@ class NotificationsResponseModel {
     required this.unreadCount,
     required this.hasMore,
     this.nextCursor,
+    this.currentPage,
   });
 
   factory NotificationsResponseModel.fromJson(Map<String, dynamic> json) {
@@ -87,6 +89,7 @@ class NotificationsResponseModel {
       unreadCount: json['unreadCount'] as int? ?? 0,
       hasMore: json['hasMore'] as bool? ?? false,
       nextCursor: json['nextCursor'] as String?,
+      currentPage: json['currentPage'] as int?,
     );
   }
 
@@ -97,6 +100,7 @@ class NotificationsResponseModel {
       unreadCount: unreadCount,
       hasMore: hasMore,
       nextCursor: nextCursor,
+      currentPage: currentPage,
     );
   }
 }

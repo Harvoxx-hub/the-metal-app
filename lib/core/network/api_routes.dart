@@ -95,4 +95,10 @@ class ApiRoutes {
   static const String stories = '/stories'; // GET - get stories feed, POST - create story
   static const String storyById = '/stories'; // DELETE /stories/:id - delete story
   static const String storyView = '/stories'; // POST /stories/:id/view - mark story as viewed
+
+  // Community endpoints
+  static const String communities = '/communities'; // GET - get communities list, POST - create community
+  static const String communityById = '/communities'; // GET /communities/:id - get community details
+  static const String communityJoin = '/communities'; // POST /communities/:id/join - join community
+  static const String communityLeave = '/communities'; // DELETE /communities/:id/leave - leave community
 }

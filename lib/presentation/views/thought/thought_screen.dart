@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/presentation/views/thought/widgets/thought_card.dart';
 import 'package:metal/presentation/views/story/story_view.dart';
+import 'package:metal/presentation/views/community/community_list_view.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_feed_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -202,45 +203,9 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
     );
   }
 
-  /// Community Tab - Placeholder for now
+  /// Community Tab - Shows communities list
   Widget _buildCommunityTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.people_outline,
-            size: 80,
-            color: Colors.grey[400],
-          ),
-          const Gap(16),
-          TextView(
-            text: 'Community',
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[600],
-          ),
-          const Gap(8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: TextView(
-              text: 'Join communities and connect with people who share your interests.',
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: Colors.grey[500],
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const Gap(24),
-          TextView(
-            text: 'Coming Soon',
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: AppColors.metalPinkColour,
-          ),
-        ],
-      ),
-    );
+    return const CommunityListView();
   }
 
   /// Link Up Tab - Placeholder for now

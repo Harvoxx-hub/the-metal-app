@@ -1,0 +1,19 @@
+import 'package:metal/core/state/base.state.dart';
+import 'package:metal/domain/entities/community_dto.dart';
+
+abstract class CommunityRepositoryAbstract {
+  Future<BaseState<List<CommunityDto>>> getCommunities({
+    String? type,
+    String? category,
+    int page = 1,
+    int limit = 20,
+  });
+
+  Future<BaseState<CommunityDto>> getCommunityById(String id);
+
+  Future<BaseState<CommunityDto>> createCommunity(CreateCommunityDto request);
+
+  Future<BaseState<void>> joinCommunity(String communityId);
+
+  Future<BaseState<void>> leaveCommunity(String communityId);
+}

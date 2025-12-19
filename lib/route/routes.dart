@@ -45,10 +45,6 @@ import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 import 'package:metal/features/upgrade/make.payment.dart';
 
 import 'package:metal/features/profile/presentation/pages/work_email_page.dart';
-import 'package:metal/features/community/presentation/screens/community_discovery_screen.dart';
-import 'package:metal/features/community/presentation/screens/community_profile_screen.dart';
-import 'package:metal/features/community/presentation/screens/create_community_screen.dart';
-import 'package:metal/features/community/data/domain/entries/community_metadata.model.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -102,9 +98,6 @@ class AppRoutes {
   static const String postThought = '/postThought';
   static const String thoughtDetails = '/thoughtDetails';
   static const String workEmail = '/work-email';
-  static const String communityDiscovery = '/communityDiscovery';
-  static const String communityProfile = '/communityProfile';
-  static const String createCommunity = '/createCommunity';
   // Dashboard tab indices
   static const int homeTab = 0;
   static const int thoughtsTab = 1;
@@ -285,20 +278,6 @@ class AppRoutes {
       case workEmail:
         return MaterialPageRoute(
           builder: (_) => const WorkEmailPage(),
-        );
-      case communityDiscovery:
-        return MaterialPageRoute(
-          builder: (_) => const CommunityDiscoveryScreen(),
-        );
-      case communityProfile:
-        return MaterialPageRoute(
-          builder: (_) => CommunityProfileScreen(
-            communityId: settings.arguments as String,
-          ),
-        );
-      case createCommunity:
-        return MaterialPageRoute(
-          builder: (_) => const CreateCommunityScreen(),
         );
       default:
         return MaterialPageRoute(

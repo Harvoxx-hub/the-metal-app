@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
-import 'package:metal/data/models/reaction_model.dart';
+import 'package:metal/domain/entities/reaction_dto.dart';
 import 'package:metal/presentation/viewmodels/thought/reaction_viewmodel.dart';
 import 'package:metal/presentation/views/thought/widgets/reaction_list_tile.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
@@ -55,7 +55,7 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
     );
   }
 
-  Widget _buildReactionDisplay(List<ReactionModel> reactions, String? userId) {
+  Widget _buildReactionDisplay(List<ReactionDto> reactions, String? userId) {
     if (reactions.isEmpty) {
       return Row(
         key: widget.reactionKey,
@@ -139,7 +139,7 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
   }
 
   Widget _buildReactionList(
-      List<ReactionModel> reactions, ScrollController scrollController) {
+      List<ReactionDto> reactions, ScrollController scrollController) {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -190,7 +190,7 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
     );
   }
 
-  Widget _buildReactionsSelector(List<ReactionModel> reactions) {
+  Widget _buildReactionsSelector(List<ReactionDto> reactions) {
     return Positioned(
       bottom: 40,
       left: 20,
@@ -209,7 +209,7 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
     );
   }
 
-  List<Widget> _buildReactionIcons(List<ReactionModel> reactions) {
+  List<Widget> _buildReactionIcons(List<ReactionDto> reactions) {
     final userdata = ref.watch(userStateProvider).user;
     final userReaction = userdata?.id != null
         ? reactions

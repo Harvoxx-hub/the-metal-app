@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
-import 'package:metal/data/models/comment_model.dart';
-import 'package:metal/data/models/reaction_model.dart';
+import 'package:metal/domain/entities/reaction_dto.dart';
 import 'package:metal/presentation/viewmodels/thought/comment_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/widgets/profile.photo.dart';
@@ -13,7 +12,7 @@ import 'package:metal/res/res.dart';
 class CommentReactionSection extends ConsumerStatefulWidget {
   final String thoughtId;
   final String commentId;
-  final List<ReactionModel> reactions;
+  final List<ReactionDto> reactions;
 
   const CommentReactionSection({
     Key? key,
@@ -60,7 +59,7 @@ class _CommentReactionSectionState
     );
   }
 
-  Widget _buildReactionDisplay(List<ReactionModel> reactions, String? userId) {
+  Widget _buildReactionDisplay(List<ReactionDto> reactions, String? userId) {
     if (reactions.isEmpty) {
       return Row(
         children: [
@@ -131,7 +130,7 @@ class _CommentReactionSectionState
     );
   }
 
-  Widget _buildReactionList(List<ReactionModel> reactions) {
+  Widget _buildReactionList(List<ReactionDto> reactions) {
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,

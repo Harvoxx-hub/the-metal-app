@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:metal/data/models/comment_model.dart';
- 
+import 'package:metal/domain/entities/comment_dto.dart';
+
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/domain/entities/thought_dto.dart';
 import 'package:metal/presentation/viewmodels/thought/comment_viewmodel.dart';
@@ -27,7 +27,7 @@ class CommentBottomSheet extends ConsumerStatefulWidget {
 class _CommentBottomSheetState extends ConsumerState<CommentBottomSheet> {
   final TextEditingController _commentController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  CommentModel? _replyingToComment;
+  CommentDto? _replyingToComment;
   bool _hasScrolledToTarget = false;
 
   @override
@@ -66,7 +66,7 @@ class _CommentBottomSheetState extends ConsumerState<CommentBottomSheet> {
     );
   }
 
-  void _handleReplyToComment(CommentModel comment) {
+  void _handleReplyToComment(CommentDto comment) {
     setState(() {
       _replyingToComment = comment;
     });

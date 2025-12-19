@@ -1,13 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/data/models/reaction_model.dart';
-
 import 'package:metal/data/repositories/thought/thought_repository.dart';
 import 'package:metal/domain/entities/reaction_dto.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
 
 /// State for reaction management
 class ReactionViewState {
-  final List<ReactionModel> reactions;
+  final List<ReactionDto> reactions;
   final bool isLoading;
   final bool isError;
   final String? errorMessage;
@@ -23,14 +21,14 @@ class ReactionViewState {
 
   factory ReactionViewState.loading() => const ReactionViewState(isLoading: true);
 
-  factory ReactionViewState.success(List<ReactionModel> reactions) =>
+  factory ReactionViewState.success(List<ReactionDto> reactions) =>
       ReactionViewState(reactions: reactions);
 
   factory ReactionViewState.error(String message) =>
       ReactionViewState(isError: true, errorMessage: message);
 
   ReactionViewState copyWith({
-    List<ReactionModel>? reactions,
+    List<ReactionDto>? reactions,
     bool? isLoading,
     bool? isError,
     String? errorMessage,
@@ -93,7 +91,7 @@ class ReactionViewModel extends StateNotifier<ReactionViewState> {
   }
 
   /// Find user's current reaction
-  ReactionModel? getUserReaction(String userId) {
+  ReactionDto? getUserReaction(String userId) {
     try {
       return state.reactions.firstWhere((r) => r.userId == userId);
     } catch (_) {

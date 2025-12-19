@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/data/models/comment_model.dart';
-import 'package:metal/data/models/thought_model.dart';
+import 'package:metal/domain/entities/comment_dto.dart';
+import 'package:metal/domain/entities/thought_dto.dart';
 import 'package:metal/presentation/views/thought/widgets/comment_reaction_section.dart';
 import 'package:metal/widgets/build_user_info.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 
 class CommentItemWidget extends ConsumerStatefulWidget {
-  final CommentModel comment;
-  final ThoughtModel thought;
+  final CommentDto comment;
+  final ThoughtDto thought;
   final Function(String)? onDeleteComment;
-  final List<CommentModel>? replies;
+  final List<CommentDto>? replies;
   final bool showReplies;
   final VoidCallback? onToggleReplies;
-  final Function(CommentModel)? onReplyToComment;
+  final Function(CommentDto)? onReplyToComment;
 
   const CommentItemWidget({
     super.key,

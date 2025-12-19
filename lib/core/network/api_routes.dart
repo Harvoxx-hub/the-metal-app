@@ -83,4 +83,16 @@ class ApiRoutes {
 
   // Account management endpoints
   static const String deleteAccount = '/users/me'; // DELETE - delete account
+
+  // Notification endpoints
+  static const String notifications = '/notifications'; // GET - get notifications with filters
+  static const String notificationRead = '/notifications'; // PUT /notifications/:id/read - mark as read
+  static const String notificationReadAll = '/notifications/read-all'; // PUT - mark all as read
+  static const String notificationSettings = '/notifications/settings'; // PUT - update notification preferences
+  static const String notificationDevices = '/notifications/devices'; // POST - register FCM device token
+
+  // Story/Eyes endpoints
+  static const String stories = '/stories'; // GET - get stories feed, POST - create story
+  static const String storyById = '/stories'; // DELETE /stories/:id - delete story
+  static const String storyView = '/stories'; // POST /stories/:id/view - mark story as viewed
 }

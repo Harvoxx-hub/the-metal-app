@@ -149,16 +149,7 @@ final xViewModelProvider = StateNotifierProvider.autoDispose<XViewModel, XState>
  
 - API Routes: `lib/core/network/api_routes.dart`
 - Dashboard: `lib/presentation/views/dashboard/dashboard_view.dart`
+ 
+ 
 
-## MIGRATION STATUS
-- Features migrated: 4/16 (Home, Chat, Thought, Sparks ✅)
-- Firestore refs eliminated: 145/345 (42%)
-- Sprint 1 complete: Removed 95 Firestore refs ✅
-- Sprint 2 target: Remove 30 Firestore refs from Settings
 
----
-
-**To resume work**: Paste this summary, then run:
-```bash
-Read ai/CHECKPOINT_RESUME_POINT_V1.md
-```

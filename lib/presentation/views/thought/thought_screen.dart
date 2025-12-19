@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/presentation/views/thought/widgets/thought_card.dart';
+import 'package:metal/presentation/views/story/story_view.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_feed_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -163,10 +164,22 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
         return false;
       },
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: feedState.thoughts.length + (feedState.isLoadingMore ? 1 : 0),
+        padding: EdgeInsets.zero,
+        itemCount:
+            1 + feedState.thoughts.length + (feedState.isLoadingMore ? 1 : 0), // +1 for StoryView
         itemBuilder: (context, index) {
-          if (index == feedState.thoughts.length) {
+          // First item is StoryView
+          if (index == 0) {
+            return const Column(
+              children: [
+                StoryView(),
+                Gap(8),
+              ],
+            );
+          }
+
+          // Loading indicator at the end
+          if (index == feedState.thoughts.length + 1) {
             return const Center(
               child: Padding(
                 padding: EdgeInsets.all(16),
@@ -175,9 +188,11 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
             );
           }
 
-          final thought = feedState.thoughts[index];
+          // Thought cards
+          final thoughtIndex = index - 1; // Adjust for StoryView at index 0
+          final thought = feedState.thoughts[thoughtIndex];
           return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 16),
             child: ThoughtCard(
               thoughtModel: thought,
             ),

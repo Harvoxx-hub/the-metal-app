@@ -26,11 +26,6 @@ import 'package:metal/presentation/views/settings/edit_profile_view.dart';
 import 'package:metal/presentation/views/settings/edit_preferences_view.dart';
 import 'package:metal/presentation/views/chat/chat_window_view.dart';
 import 'package:metal/presentation/views/dashboard/dashboard_view.dart';
-import 'package:metal/features/eyes/domain/entries/status.model.dart';
-import 'package:metal/features/eyes/presentation/eye.preview.media.dart';
-import 'package:metal/features/eyes/presentation/eye.select.media.dart';
-import 'package:metal/features/eyes/presentation/eyes.intro.screen.dart';
-import 'package:metal/features/eyes/presentation/view.eyes.dart';
 import 'package:metal/features/feedback/feedback.page.dart';
 
 // New Clean Architecture Connection views
@@ -80,10 +75,6 @@ class AppRoutes {
   static const String locationEnablePage = '/locationEnablePage';
   static const String homeAddressPage = '/homeAddressPage';
   static const String dashboardPage = '/dashboardPage';
-  static const String viewEyes = '/viewEyes';
-  static const String eyesIntro = '/eyesIntro';
-  static const String eyeSelectMedia = '/eyeSelectMedia';
-  static const String eyePreviewMedia = '/eyePreviewMedia';
   static const String settingPage = '/settingPage';
 
   static const String meltMetal = '/meltMetal';
@@ -209,22 +200,10 @@ class AppRoutes {
                   DashboardView(initialPageIndex: args['tabIndex']));
         }
         return MaterialPageRoute(builder: (_) => const DashboardView());
-      case viewEyes:
-        return MaterialPageRoute(
-            builder: (_) =>
-                ViewEyes(eyes: settings.arguments as List<StatusModel>));
-      case eyesIntro:
-        return MaterialPageRoute(builder: (_) => const EyesIntro());
-      case eyeSelectMedia:
-        return MaterialPageRoute(builder: (_) => const EyeSelectMedia());
       case editPage:
         return MaterialPageRoute(builder: (_) => const EditProfileView());
       case editPreferences:
         return MaterialPageRoute(builder: (_) => const EditPreferencesView());
-      case eyePreviewMedia:
-        return MaterialPageRoute(
-            builder: (_) =>
-                EyePreviewMedia(media: settings.arguments as XFile));
       case settingPage:
         return MaterialPageRoute(builder: (_) => const SettingsView());
 

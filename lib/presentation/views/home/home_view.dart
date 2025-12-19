@@ -275,7 +275,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               if (result.connectionId != null) {
                 Navigator.pushNamed(
                   context,
-                  AppRoutes.chatWindowsPage,
+                  AppRoutes.chatWindowView,
                   arguments: result.connectionId,
                 );
               }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/features/settings/presentation/widget/block_user_helper.dart';
-import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
+import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
+import 'package:metal/presentation/widgets/settings/block_user_helper.dart';
 
 /// A reusable block button that can be used across the app
 /// Shows either 'Block' or 'Unblock' based on the current block status
@@ -27,9 +27,8 @@ class BlockUserButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final blockedUsers = ref.watch(getBlockUserProvider).data ?? [];
-    final isBlocked =
-        blockedUsers.any((blockedUser) => blockedUser['id'] == userId);
+    final blockedUsers = ref.watch(blockedUsersViewModelProvider).blockedUsers;
+    final isBlocked = blockedUsers.any((user) => user.id == userId);
 
     return isOutlined
         ? OutlinedButton.icon(
@@ -81,10 +80,16 @@ class BlockUserButton extends ConsumerWidget {
         context,
         userName: username,
         userId: userId,
-        onUnblock: () {
-          // Unblock logic handled in the dialog
-          if (onBlockStatusChanged != null) {
-            onBlockStatusChanged!();
+        onUnblock: () async {
+          // Call the unblock method from the viewmodel
+          final success = await ref
+              .read(blockedUsersViewModelProvider.notifier)
+              .unblockUser(userId: userId);
+
+          if (success) {
+            if (onBlockStatusChanged != null) {
+              onBlockStatusChanged!();
+            }
           }
         },
       );

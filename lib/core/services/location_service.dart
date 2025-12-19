@@ -2,11 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart' hide Location;
 
-import '../../features/authentication/domain/entries/user.model.dart';
+import '../../data/models/user_location_model.dart';
 
 /// Result class for location service operations
 class LocationResult {
-  final Location? location;
+  final UserLocationModel? location;
   final bool permissionDenied;
   final bool serviceDisabled;
   final String? errorMessage;
@@ -67,9 +67,9 @@ class LocationService {
       );
 
       return LocationResult(
-        location: Location(
-          lat: position.latitude,
-          lng: position.longitude,
+        location: UserLocationModel(
+          latitude: position.latitude,
+          longitude: position.longitude,
           address: addressDetails['address'],
           city: addressDetails['city'],
           state: addressDetails['state'],

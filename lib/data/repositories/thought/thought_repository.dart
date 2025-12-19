@@ -2,8 +2,9 @@ import 'package:metal/core/error_handling/error_handler.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/data/datasources/remote/thought_remote_data_source.dart';
 import 'package:metal/data/repositories/thought/thought_repository_abstract.dart';
-import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
-import 'package:metal/features/thought/data/domain/entries/comment.model.dart';
+import 'package:metal/domain/entities/thought_dto.dart';
+import 'package:metal/domain/entities/comment_dto.dart';
+import 'package:metal/domain/entities/reaction_dto.dart';
 
 /// Implementation of thought repository
 /// Coordinates data sources and handles error mapping
@@ -27,8 +28,11 @@ class ThoughtRepository implements ThoughtRepositoryAbstract {
         cursor: cursor,
       );
 
+      // Convert models to DTOs
+      final thoughtDtos = response.thoughts.map((model) => model.toDomain()).toList();
+
       return BaseState.success(ThoughtsResponseDto(
-        thoughts: response.thoughts,
+        thoughts: thoughtDtos,
         hasMore: response.pagination.hasMore,
         nextCursor: response.pagination.nextCursor,
       ));
@@ -38,17 +42,17 @@ class ThoughtRepository implements ThoughtRepositoryAbstract {
   }
 
   @override
-  Future<BaseState<ThoughtModel>> getThoughtById(String thoughtId) async {
+  Future<BaseState<ThoughtDto>> getThoughtById(String thoughtId) async {
     try {
       final response = await _remoteDataSource.getThoughtById(thoughtId);
-      return BaseState.success(response);
+      return BaseState.success(response.toDomain());
     } catch (e) {
-      return ErrorHandler.handleError<ThoughtModel>(e);
+      return ErrorHandler.handleError<ThoughtDto>(e);
     }
   }
 
   @override
-  Future<BaseState<ThoughtModel>> createThought({
+  Future<BaseState<ThoughtDto>> createThought({
     required String content,
     String type = 'text',
     String? audioUrl,
@@ -67,14 +71,14 @@ class ThoughtRepository implements ThoughtRepositoryAbstract {
         communityMetadata: communityMetadata,
         originalThoughtId: originalThoughtId,
       );
-      return BaseState.success(response);
+      return BaseState.success(response.toDomain());
     } catch (e) {
-      return ErrorHandler.handleError<ThoughtModel>(e);
+      return ErrorHandler.handleError<ThoughtDto>(e);
     }
   }
 
   @override
-  Future<BaseState<ThoughtModel>> updateThought({
+  Future<BaseState<ThoughtDto>> updateThought({
     required String thoughtId,
     String? content,
     bool? connectionOnly,
@@ -85,9 +89,9 @@ class ThoughtRepository implements ThoughtRepositoryAbstract {
         content: content,
         connectionOnly: connectionOnly,
       );
-      return BaseState.success(response);
+      return BaseState.success(response.toDomain());
     } catch (e) {
-      return ErrorHandler.handleError<ThoughtModel>(e);
+      return ErrorHandler.handleError<ThoughtDto>(e);
     }
   }
 
@@ -104,19 +108,25 @@ class ThoughtRepository implements ThoughtRepositoryAbstract {
   // ============ Reaction Methods ============
 
   @override
-  Future<BaseState<ReactionsResponseModel>> getReactions(
+  Future<BaseState<ReactionsResponseDto>> getReactions(
     String thoughtId,
   ) async {
     try {
       final response = await _remoteDataSource.getReactions(thoughtId);
-      return BaseState.success(response);
+
+      // Convert models to DTOs
+      final reactionDtos = response.reactions.map((model) => model.toDomain()).toList();
+
+      return BaseState.success(ReactionsResponseDto(
+        reactions: reactionDtos,
+      ));
     } catch (e) {
-      return ErrorHandler.handleError<ReactionsResponseModel>(e);
+      return ErrorHandler.handleError<ReactionsResponseDto>(e);
     }
   }
 
   @override
-  Future<BaseState<ReactionResponseModel>> addReaction({
+  Future<BaseState<ReactionDto>> addReaction({
     required String thoughtId,
     required String emoji,
   }) async {
@@ -125,9 +135,21 @@ class ThoughtRepository implements ThoughtRepositoryAbstract {
         thoughtId: thoughtId,
         emoji: emoji,
       );
-      return BaseState.success(response);
+
+      // Create a DTO from the response
+      // Since ReactionResponseModel doesn't have a direct toDomain() method,
+      // we create it manually
+      final reactionDto = ReactionDto(
+        id: response.id ?? '',
+        userId: '', // Not provided in response
+        thoughtId: response.thoughtId,
+        emoji: response.emoji,
+        createdAt: DateTime.now(),
+      );
+
+      return BaseState.success(reactionDto);
     } catch (e) {
-      return ErrorHandler.handleError<ReactionResponseModel>(e);
+      return ErrorHandler.handleError<ReactionDto>(e);
     }
   }
 
@@ -146,8 +168,11 @@ class ThoughtRepository implements ThoughtRepositoryAbstract {
         cursor: cursor,
       );
 
+      // Convert models to DTOs
+      final commentDtos = response.comments.map((model) => model.toDomain()).toList();
+
       return BaseState.success(CommentsResponseDto(
-        comments: response.comments,
+        comments: commentDtos,
         hasMore: response.pagination.hasMore,
         nextCursor: response.pagination.nextCursor,
       ));
@@ -157,7 +182,7 @@ class ThoughtRepository implements ThoughtRepositoryAbstract {
   }
 
   @override
-  Future<BaseState<CommentModel>> addComment({
+  Future<BaseState<CommentDto>> addComment({
     required String thoughtId,
     required String content,
     String? replyToCommentId,
@@ -168,9 +193,9 @@ class ThoughtRepository implements ThoughtRepositoryAbstract {
         content: content,
         replyToCommentId: replyToCommentId,
       );
-      return BaseState.success(response);
+      return BaseState.success(response.toDomain());
     } catch (e) {
-      return ErrorHandler.handleError<CommentModel>(e);
+      return ErrorHandler.handleError<CommentDto>(e);
     }
   }
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/utils/image_picker_util.dart';
-import 'package:metal/features/profile/presentation/widget/appbar.background.dart';
-import 'package:metal/features/profile/provider/upload.profile.image.notifier.dart';
+// AppbarBackground widget removed - using inline widget instead
+import 'package:metal/presentation/viewmodels/profile/profile_photo_viewmodel.dart';
 import 'package:metal/widgets/profile.photo.dart';
 
 class ProfileHeader extends ConsumerWidget {
@@ -23,23 +23,31 @@ class ProfileHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileImage = ref.watch(profileImageProvider);
+    final profilePhotoState = ref.watch(profilePhotoViewModelProvider);
 
     return SingleChildScrollView(
       child: Stack(
         children: [
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppbarBackground(),
-            ],
+          // Background gradient for profile header
+          Container(
+            height: 200,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Theme.of(context).primaryColor,
+                  Theme.of(context).primaryColor.withOpacity(0.7),
+                ],
+              ),
+            ),
           ),
           child,
           Positioned(
             top: 19,
             left: 0,
             right: 0,
-            child: profileImage.isLoading
+            child: profilePhotoState.isUploading
                 ? const Center(child: CircularProgressIndicator.adaptive())
                 : GestureDetector(
                     onTap: () {

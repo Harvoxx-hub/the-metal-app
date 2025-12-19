@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-import 'package:metal/features/verification/provider/verification.notifier.dart';
+// TODO: Re-implement video verification in new architecture
+// import 'package:metal/features/verification/provider/verification.notifier.dart';
+import 'package:metal/presentation/viewmodels/verification/work_email_verification_viewmodel.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
@@ -34,10 +36,18 @@ class _VerificationDialogState extends ConsumerState<VerificationDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final verificationState = ref.watch(verficationVideoProvider);
+    // TODO: Re-implement video verification provider
+    // final verificationState = ref.watch(verficationVideoProvider);
+    final verificationState = ref.watch(workEmailVerificationViewModelProvider);
 
-    ref.listen<VerificationState>(verficationVideoProvider, (prev, current) {
-      if (current.isSuccess) {
+    // ref.listen<VerificationState>(verficationVideoProvider, (prev, current) {
+    //   if (current.isSuccess) {
+    //     Navigator.pop(context);
+    //     Navigator.pop(context);
+    //   }
+    // });
+    ref.listen<WorkEmailVerificationState>(workEmailVerificationViewModelProvider, (prev, current) {
+      if (current.isVerified) {
         Navigator.pop(context);
         Navigator.pop(context);
       }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/features/settings/domain/entries/block.reason.model.dart';
-import 'package:metal/features/settings/provider/block.user.notifier.dart';
+import 'package:metal/domain/entities/block_reason_code.dart';
+import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -37,7 +37,7 @@ class _BlockReasonDialogState extends ConsumerState<BlockReasonDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final blockState = ref.watch(blockUserProvider);
+    final blockState = ref.watch(blockedUsersViewModelProvider);
 
     return SingleChildScrollView(
       child: Padding(
@@ -134,7 +134,7 @@ class _BlockReasonDialogState extends ConsumerState<BlockReasonDialog> {
                
                 BaseButton(
                   buttonText: isReporting ? "Block & Report" : "Block",
-                  loading: blockState.isLoading,
+                  loading: blockState.isBlocking,
                   onPressed: () {
                     _handleBlockUser();
                   },
@@ -185,7 +185,7 @@ class _BlockReasonDialogState extends ConsumerState<BlockReasonDialog> {
     );
   }
 
-  void _handleBlockUser() {
+  void _handleBlockUser() async {
     // Get custom reason if 'Other' was selected
     String? customReason;
     if (selectedReasonCode == BlockReasonCode.other.name) {
@@ -212,17 +212,51 @@ class _BlockReasonDialogState extends ConsumerState<BlockReasonDialog> {
       }
     }
 
-    // Call the enhanced block method
-    ref.read(blockUserProvider.notifier).blockUserWithReason(
-          userName: widget.username,
-          id: widget.userId,
-          reasonCode: selectedReasonCode,
-          customReason: customReason,
-          isReported: isReporting,
-          reportDetails: reportDetails,
+    // Build comprehensive reason string
+    final reasonCode = BlockReasonCode.values.firstWhere(
+      (code) => code.name == selectedReasonCode,
+      orElse: () => BlockReasonCode.other,
+    );
+    final reasonDisplay = BlockReasonCodeExtension(reasonCode).displayName;
+
+    String fullReason = reasonDisplay;
+    if (customReason != null && customReason.isNotEmpty) {
+      fullReason = '$fullReason: $customReason';
+    }
+    if (isReporting && reportDetails != null && reportDetails.isNotEmpty) {
+      fullReason = '$fullReason | Report: $reportDetails';
+    }
+
+    // Call the block method with the new architecture
+    final success = await ref
+        .read(blockedUsersViewModelProvider.notifier)
+        .blockUser(
+          userId: widget.userId,
+          reason: fullReason,
         );
 
-    // Close the dialog
-    Navigator.of(context).pop();
+    if (success && mounted) {
+      // Close the dialog
+      Navigator.of(context).pop();
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isReporting
+                ? 'User blocked and reported successfully'
+                : 'User blocked successfully',
+          ),
+        ),
+      );
+    } else if (mounted) {
+      // Show error message
+      final errorMessage =
+          ref.read(blockedUsersViewModelProvider).errorMessage ??
+              'Failed to block user';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage)),
+      );
+    }
   }
 }

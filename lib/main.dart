@@ -7,7 +7,7 @@ import 'package:metal/core/utils/handler/app.lifeycle.handler.dart';
 
 import 'package:metal/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:metal/firebase_options_dev.dart' show DefaultFirebaseOptionDev;
+
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:zego_uikit/zego_uikit.dart';
@@ -15,8 +15,7 @@ import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:metal/fcm/fcm_client.dart';
-import 'package:metal/app_config.dart';
-import 'package:metal/core/services/firebase_test_service.dart';
+
 import 'package:metal/core/services/deep_link_service.dart';
 
 /// Global key for navigation
@@ -50,19 +49,10 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Initialize app configuration based on environment
-  // This should be set via build arguments or environment variables
-  const environment = String.fromEnvironment('FLAVOR', defaultValue: 'prod');
-  AppConfig.init(flavour: Flavour.valueOf(environment));
-
-  await initializeFirebase(
-      environment); // Pass environment to Firebase initialization
-
-  // Test Firebase connection
-  await FirebaseTestService.testFirebaseConnection();
-  FirebaseTestService.printEnvironmentInfo();
-
+  FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+  await FirebaseRemoteConfigService().initialize();
   // Set the background messaging handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -98,23 +88,6 @@ void main() async {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     DeepLinkService.instance.initialize(navKey.currentContext!);
   });
-}
-
-/// Initializes Firebase and sets analytics based on environment
-Future<void> initializeFirebase(String environment) async {
-  try {
-    if (environment == 'dev') {
-      await Firebase.initializeApp(
-          options: DefaultFirebaseOptionDev.currentPlatform);
-    } else {
-      await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform);
-    }
-    FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
-    await FirebaseRemoteConfigService().initialize();
-  } catch (e) {
-    debugPrint('Error initializing Firebase: $e');
-  }
 }
 
 class MyApp extends ConsumerStatefulWidget {

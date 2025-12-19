@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/features/thought/data/domain/entries/comment.model.dart';
-import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
-import 'package:metal/features/thought/provider/get.user.notifier.dart';
+import 'package:metal/data/models/comment_model.dart';
+import 'package:metal/data/models/thought_model.dart';
 import 'package:metal/presentation/views/thought/widgets/comment_reaction_section.dart';
 import 'package:metal/widgets/build_user_info.dart';
 import 'package:metal/widgets/text_views.dart';

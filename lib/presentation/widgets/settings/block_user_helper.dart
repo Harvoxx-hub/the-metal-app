@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:metal/features/settings/presentation/widget/block_reason_dialog.dart';
+import 'package:metal/presentation/widgets/settings/block_reason_dialog.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -39,6 +39,7 @@ Future<void> showBlockReasonDialog(
 }
 
 /// Shows a dialog to inform the user they've blocked someone
+/// Returns true if the user was successfully unblocked
 Future<bool> showBlockedUserDialog(
   BuildContext context, {
   required String userName,
@@ -53,7 +54,7 @@ Future<bool> showBlockedUserDialog(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextView(
+            const TextView(
               text: "User Blocked",
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -88,7 +89,7 @@ Future<bool> showBlockedUserDialog(
                 ),
                 const SizedBox(width: 8),
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     try {
                       onUnblock();
                       Navigator.of(context).pop(true);

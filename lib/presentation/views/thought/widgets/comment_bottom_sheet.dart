@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:metal/features/thought/data/domain/entries/comment.model.dart';
+import 'package:metal/data/models/comment_model.dart';
+ 
 import 'package:metal/widgets/text_views.dart';
-import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
+import 'package:metal/domain/entities/thought_dto.dart';
 import 'package:metal/presentation/viewmodels/thought/comment_viewmodel.dart';
-import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
+ 
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/views/thought/widgets/comment_item_widget.dart';
 
 class CommentBottomSheet extends ConsumerStatefulWidget {
-  final ThoughtModel thought;
+  final ThoughtDto thought;
   final String? targetCommentId;
 
   const CommentBottomSheet({

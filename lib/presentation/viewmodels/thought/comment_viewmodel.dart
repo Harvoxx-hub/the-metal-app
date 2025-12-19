@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/data/repositories/thought/thought_repository.dart';
-import 'package:metal/features/thought/data/domain/entries/comment.model.dart';
+import 'package:metal/domain/entities/comment_dto.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
 
 /// State for comment management
 class CommentViewState {
-  final List<CommentModel> comments;
+  final List<CommentDto> comments;
   final bool isLoading;
   final bool isLoadingMore;
   final bool isError;
@@ -28,7 +28,7 @@ class CommentViewState {
   factory CommentViewState.loading() => const CommentViewState(isLoading: true);
 
   factory CommentViewState.success(
-    List<CommentModel> comments, {
+    List<CommentDto> comments, {
     bool hasMore = false,
     String? nextCursor,
   }) =>
@@ -42,7 +42,7 @@ class CommentViewState {
       CommentViewState(isError: true, errorMessage: message);
 
   CommentViewState copyWith({
-    List<CommentModel>? comments,
+    List<CommentDto>? comments,
     bool? isLoading,
     bool? isLoadingMore,
     bool? isError,

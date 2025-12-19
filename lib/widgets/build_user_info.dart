@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
-import 'package:metal/features/thought/provider/get.user.notifier.dart';
+import 'package:metal/domain/entities/thought_dto.dart';
+ 
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -12,7 +12,7 @@ import 'package:metal/route/routes.dart';
 /// Widget to display user info in thoughts and comments
 class BuildUserInfo extends ConsumerWidget {
   final String userId;
-  final ThoughtModel thought;
+  final ThoughtDto thought;
   final String? date;
   final String? commentId;
   final Function(String)? onDeleteComment;
@@ -46,13 +46,13 @@ class BuildUserInfo extends ConsumerWidget {
     }
 
     // Fallback to fetching user data if author metadata not available
-    final userState = ref.watch(getUserProvider(userId));
+    final userState = ref.watch(userStateProvider);
 
     if (userState.isLoading) {
       return _buildLoadingState();
     }
 
-    if (userState.isError || userState.data == null) {
+    if ( userState.user == null) {
       return _buildUserInfoRow(
         context: context,
         name: 'Anonymous',
@@ -63,7 +63,7 @@ class BuildUserInfo extends ConsumerWidget {
       );
     }
 
-    final user = userState.data!;
+    final user = userState.user!;
     return _buildUserInfoRow(
       context: context,
       name: user.username ?? user.fullname ?? 'Anonymous',

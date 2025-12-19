@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
-import 'package:metal/features/thought/data/domain/entries/comment.model.dart';
+import 'package:metal/data/models/comment_model.dart';
+import 'package:metal/data/models/reaction_model.dart';
 import 'package:metal/presentation/viewmodels/thought/comment_viewmodel.dart';
-import 'package:metal/features/thought/provider/get.user.notifier.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';

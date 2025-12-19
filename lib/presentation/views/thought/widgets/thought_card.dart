@@ -10,7 +10,7 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
-import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
+import 'package:metal/domain/entities/thought_dto.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/presentation/viewmodels/thought/comment_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
@@ -30,7 +30,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:metal/core/services/deep_link_service.dart';
 
 class ThoughtCard extends ConsumerStatefulWidget {
-  final ThoughtModel thoughtModel;
+  final ThoughtDto thoughtModel;
 
   const ThoughtCard({
     super.key,
@@ -42,8 +42,8 @@ class ThoughtCard extends ConsumerStatefulWidget {
 }
 
 class _ThoughtCardState extends ConsumerState<ThoughtCard> {
-  late ThoughtModel thoughtModel;
-  ThoughtModel? originalThought;
+  late ThoughtDto thoughtModel;
+  ThoughtDto? originalThought;
   bool isLoadingRepost = false;
 
   final PlayerController _waveformController = PlayerController();
@@ -234,7 +234,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
   }
 
   /// Check if a thought is deleted
-  bool _isThoughtDeleted(ThoughtModel thought) {
+  bool _isThoughtDeleted(ThoughtDto thought) {
     // A thought is considered deleted if:
     // 1. It has no content and no audio file
     // 2. It has empty or null content
@@ -595,7 +595,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     }
   }
 
-  Widget _buildVoicePlayer(BuildContext context, ThoughtModel original) {
+  Widget _buildVoicePlayer(BuildContext context, ThoughtDto original) {
     final audioUrl = original.audioUrl;
     if (audioUrl == null || audioUrl.isEmpty) {
       return Container(

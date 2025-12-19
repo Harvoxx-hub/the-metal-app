@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:intl/intl.dart';
 import 'package:metal/core/services/firebase.service.db.dart';
-import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
+import 'package:metal/data/models/thought_model.dart';
 
 class MetalHelper {
   static Map<String, dynamic>? parseJson(String jsonString) {

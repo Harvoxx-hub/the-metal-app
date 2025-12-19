@@ -160,10 +160,10 @@ class NavDrawer extends ConsumerWidget {
             ),
             title: const TextView(text: "Refer & Earn"),
             onTap: () => {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.referEarn,
-              )
+              // Navigator.pushNamed(
+              //   context,
+              //   AppRoutes.referEarn,
+              // )
             },
           ),
           const Gap(20),
@@ -230,10 +230,10 @@ class NavDrawer extends ConsumerWidget {
             ),
             title: const TextView(text: "Let's hear from you"),
             onTap: () => {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.feedBackPage,
-              )
+              // Navigator.pushNamed(
+              //   context,
+              //   AppRoutes.feedBackPage,
+              // )
             },
           ),
           const Gap(20),

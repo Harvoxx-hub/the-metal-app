@@ -6,7 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../services/location_service.dart';
 import '../services/app_version_service.dart';
 import '../utils/permission_helper.dart';
-import '../../features/authentication/provider/user_state_notifier.dart';
+import '../../presentation/viewmodels/user/user_state_provider.dart';
 
 /// Simple location manager for app startup
 class LocationManager {
@@ -26,7 +26,7 @@ class LocationManager {
 
     try {
       // Check if user is authenticated
-      final user = ref.read(userStateProvider).data;
+      final user = ref.read(userStateProvider).user;
       if (user == null) return;
 
       // Get current location

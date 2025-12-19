@@ -1,8 +1,8 @@
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/network/dio_client.dart';
-import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
-import 'package:metal/features/thought/data/domain/entries/comment.model.dart';
-import 'package:metal/features/thought/data/domain/entries/reaction.model.dart' as reaction;
+import 'package:metal/data/models/thought_model.dart';
+import 'package:metal/data/models/comment_model.dart';
+import 'package:metal/data/models/reaction_model.dart';
 
 /// Remote data source for thought operations
 /// Handles API communication for thoughts feed
@@ -264,7 +264,7 @@ class ThoughtsResponseModel {
 
 /// Response model for reactions
 class ReactionsResponseModel {
-  final List<reaction.ReactionModel> reactions;
+  final List<ReactionModel> reactions;
   final Map<String, int> counts;
   final int total;
 
@@ -280,7 +280,7 @@ class ReactionsResponseModel {
 
     return ReactionsResponseModel(
       reactions: reactionsJson
-          .map((r) => reaction.ReactionModel.fromJson(r as Map<String, dynamic>))
+          .map((r) => ReactionModel.fromJson(r as Map<String, dynamic>))
           .toList(),
       counts: countsJson.map((k, v) => MapEntry(k, v as int)),
       total: json['total'] as int? ?? 0,

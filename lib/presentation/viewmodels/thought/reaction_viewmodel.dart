@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
- 
+import 'package:metal/data/models/reaction_model.dart';
+
 import 'package:metal/data/repositories/thought/thought_repository.dart';
-import 'package:metal/features/thought/data/domain/entries/reaction.model.dart';
+import 'package:metal/domain/entities/reaction_dto.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
 
 /// State for reaction management

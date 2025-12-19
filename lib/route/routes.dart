@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
-
-import 'package:metal/features/my.metals/melt.metal.dart';
-
+ 
 import 'package:metal/presentation/views/settings/delete_account_view.dart';
 import 'package:camera/camera.dart';
 
@@ -30,8 +27,7 @@ import 'package:metal/presentation/views/dashboard/dashboard_view.dart';
 // New Clean Architecture Connection views
 import 'package:metal/presentation/views/connection/connection_list_screen.dart';
 import 'package:metal/presentation/views/connection/connection_detail_screen.dart';
-import 'package:metal/features/my.metals/user.profile.dart';
-
+ 
 // Notification view
 import 'package:metal/presentation/views/notification/notification_view.dart';
 
@@ -39,13 +35,11 @@ import 'package:metal/presentation/views/notification/notification_view.dart';
 import 'package:metal/presentation/views/settings/blocked_users_view.dart';
 
 // Spark features (to be migrated)
-import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
-import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
+// Spark features migrated to lib/presentation/views/spark/
+// import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
+// import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 
-import 'package:metal/features/upgrade/make.payment.dart';
-
-import 'package:metal/features/profile/presentation/pages/work_email_page.dart';
-
+ 
 class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
@@ -201,19 +195,14 @@ class AppRoutes {
       case notificationPage:
         return MaterialPageRoute(builder: (_) => const NotificationView());
       case userProfilePage:
-        // UserProfilePage expects the old UserModel, pass as dynamic for now
         return MaterialPageRoute(
-            builder: (_) =>
-                UserProfilePage(user: settings.arguments as dynamic));
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Feature migrated to connections')),
+          ),
+        );
       // case upgradePage:
       //   return MaterialPageRoute(builder: (_) => const UpgradePage());
-      case makePayment:
-        final arguments = settings.arguments as List<dynamic>;
-        return MaterialPageRoute(
-            builder: (_) => MakePayment(
-                  price: arguments[1],
-                  paymentType: arguments[0],
-                ));
+     
       case myMeltedMetals:
         return MaterialPageRoute(builder: (_) => const ConnectionListScreen());
       case myMeltedUser:
@@ -223,21 +212,25 @@ class AppRoutes {
                 ));
 
       case meltMetal:
-
-//"NUFXmf3EzrOAiw7k9PQsVzf7x7B3"
         return MaterialPageRoute(
-            builder: (_) => MeltMetal(
-                  id: settings.arguments as String,
-                ));
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Melt feature coming soon')),
+          ),
+        );
+      case makePayment:
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Payment feature coming soon')),
+          ),
+        );
+      // Spark features moved to new architecture - use spark tab in dashboard
       case sendSpark:
-        // SendSpark expects the old UserModel, pass as dynamic for now
-        return MaterialPageRoute(
-            builder: (_) => SendSpark(
-                recipient: settings.arguments != null
-                    ? (settings.arguments as dynamic)
-                    : null));
       case buySpark:
-        return MaterialPageRoute(builder: (_) => BuySpark());
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Use Sparks tab in dashboard')),
+          ),
+        );
       case chatWindowView:
         return MaterialPageRoute(
             builder: (_) => ChatWindowView(
@@ -245,15 +238,7 @@ class AppRoutes {
                 ));
       // Phone number and email update pages have been removed
       // TODO: Re-implement these in Clean Architecture when needed
-      case updatePhoneNumberPage:
-      case updateEmailPage:
-      case newPhoneNumberPage:
-      case newEmailPage:
-        return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            body: Center(child: Text('Feature coming soon')),
-          ),
-        );
+      
       case delete:
         return MaterialPageRoute(builder: (_) => const DeleteAccountView());
 
@@ -267,7 +252,9 @@ class AppRoutes {
         );
       case workEmail:
         return MaterialPageRoute(
-          builder: (_) => const WorkEmailPage(),
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Work email verification coming soon')),
+          ),
         );
       default:
         return MaterialPageRoute(

@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/services/startup_service.dart';
-import 'package:metal/core/utils/strings/app_strings.dart';
+
 import 'package:metal/presentation/views/chat/chat_list_view.dart';
-import 'package:metal/features/profile/presentation/profile.page.dart';
+import 'package:metal/presentation/views/settings/settings_view.dart';
 import 'package:metal/presentation/views/spark/spark_view.dart';
 import 'package:metal/presentation/views/thought/thought_screen.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -44,7 +44,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     const ThoughtScreen(), // Updated to use new API-based thoughts with 3 tabs
     const SparkView(), // Updated to use new API-based sparks
     const ChatListView(), // Updated to use new API-based chat
-    const ProfilePage(),
+    const SettingsView(),
   ];
 
   @override
@@ -117,7 +117,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
         _buildNavItem(
           icon: Assets.images.inactiveHome.path,
           activeIcon: Assets.images.activeHome.path,
-          label: AppStrings.home,
+          label:  "Home",
         ),
         _buildNavItem(
           iconWidget: Assets.icons.tought.svg(
@@ -127,18 +127,18 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
             colorFilter: const ColorFilter.mode(
                 AppColors.metalPinkColour, BlendMode.srcIn),
           ),
-          label: AppStrings.tought,
+          label: "Thoughts",
         ),
         _buildNavItem(
           icon: Assets.images.inactiveSpark.path,
           activeIcon: Assets.images.activeSpark.path,
-          label: AppStrings.sparks,
+          label: "Spark",
         ),
         _buildChatNavItem(),
         _buildNavItem(
           icon: Assets.images.inactiveUser.path,
           activeIcon: Assets.images.activeUser.path,
-          label: AppStrings.profile,
+          label: "Profile",
         ),
       ],
     );
@@ -165,7 +165,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
       icon: ChatNavIcon(icon: Image.asset(Assets.images.inactiveMessage.path)),
       activeIcon:
           ChatNavIcon(icon: Image.asset(Assets.images.activeMessage.path)),
-      label: AppStrings.chat,
+      label: "Chat",
     );
   }
 }

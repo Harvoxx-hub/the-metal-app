@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/data/repositories/thought/thought_repository.dart';
-import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
+import 'package:metal/domain/entities/thought_dto.dart';
 
 /// Thought Feed State
 class ThoughtFeedState {
@@ -9,7 +9,7 @@ class ThoughtFeedState {
   final bool isSuccess;
   final bool isError;
   final String? errorMessage;
-  final List<ThoughtModel> thoughts;
+  final List<ThoughtDto> thoughts;
   final bool hasMore;
   final String? nextCursor;
 
@@ -29,7 +29,7 @@ class ThoughtFeedState {
 
   /// Loading state
   factory ThoughtFeedState.loading({
-    List<ThoughtModel>? existingThoughts,
+    List<ThoughtDto>? existingThoughts,
   }) =>
       ThoughtFeedState(
         isLoading: true,
@@ -38,7 +38,7 @@ class ThoughtFeedState {
 
   /// Success state
   factory ThoughtFeedState.success(
-    List<ThoughtModel> thoughts, {
+    List<ThoughtDto> thoughts, {
     bool hasMore = true,
     String? nextCursor,
   }) {
@@ -53,7 +53,7 @@ class ThoughtFeedState {
   /// Error state
   factory ThoughtFeedState.error(
     String message, {
-    List<ThoughtModel>? existingThoughts,
+    List<ThoughtDto>? existingThoughts,
   }) =>
       ThoughtFeedState(
         isError: true,
@@ -68,7 +68,7 @@ class ThoughtFeedState {
     bool? isSuccess,
     bool? isError,
     String? errorMessage,
-    List<ThoughtModel>? thoughts,
+    List<ThoughtDto>? thoughts,
     bool? hasMore,
     String? nextCursor,
   }) {
@@ -157,17 +157,17 @@ class ThoughtFeedViewModel extends StateNotifier<ThoughtFeedState> {
   }
 
   /// Add a thought to the top of the feed (after creating)
-  void addThought(ThoughtModel thought) {
+  void addThought(ThoughtDto thought) {
     state = state.copyWith(
       thoughts: [thought, ...state.thoughts],
     );
   }
 
   /// Update a thought in the feed
-  void updateThought(ThoughtModel updatedThought) {
+  void updateThought(ThoughtDto updatedThought) {
     final index = state.thoughts.indexWhere((t) => t.id == updatedThought.id);
     if (index >= 0) {
-      final updatedThoughts = List<ThoughtModel>.from(state.thoughts);
+      final updatedThoughts = List<ThoughtDto>.from(state.thoughts);
       updatedThoughts[index] = updatedThought;
       state = state.copyWith(thoughts: updatedThoughts);
     }

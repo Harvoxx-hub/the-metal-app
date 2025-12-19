@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
-import 'package:metal/features/thought/data/domain/entries/reaction.model.dart';
-import 'package:metal/features/thought/provider/get.user.notifier.dart';
+import 'package:metal/data/models/reaction_model.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 

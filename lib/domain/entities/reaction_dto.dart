@@ -1,16 +1,14 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:metal/domain/entities/base_entity.dart';
 
-part 'reaction.model.g.dart';
-
-@JsonSerializable(explicitToJson: true)
-class ReactionModel {
+/// Reaction domain entity (DTO)
+class ReactionDto extends BaseEntity {
   final String id;
   final String userId;
   final String thoughtId;
   final String emoji;
-  final String createdAt;
+  final DateTime createdAt;
 
-  ReactionModel({
+  const ReactionDto({
     required this.id,
     required this.userId,
     required this.thoughtId,
@@ -18,19 +16,14 @@ class ReactionModel {
     required this.createdAt,
   });
 
-  factory ReactionModel.fromJson(Map<String, dynamic> json) =>
-      _$ReactionModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ReactionModelToJson(this);
-
-  ReactionModel copyWith({
+  ReactionDto copyWith({
     String? id,
     String? userId,
     String? thoughtId,
     String? emoji,
-    String? createdAt,
+    DateTime? createdAt,
   }) {
-    return ReactionModel(
+    return ReactionDto(
       id: id ?? this.id,
       userId: userId ?? this.userId,
       thoughtId: thoughtId ?? this.thoughtId,

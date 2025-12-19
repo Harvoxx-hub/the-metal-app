@@ -1,15 +1,14 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:metal/domain/entities/base_entity.dart';
+import 'package:metal/domain/entities/reaction_dto.dart';
 
-part 'comment.model.g.dart';
-
-@JsonSerializable(explicitToJson: true)
-class CommentModel {
+/// Comment domain entity (DTO)
+class CommentDto extends BaseEntity {
   final String id;
   final String userId;
   final String thoughtId;
   final String content;
-  final String createdAt;
-  final List<ReactionModel> reactions;
+  final DateTime createdAt;
+  final List<ReactionDto> reactions;
 
   // Reply functionality fields
   final String? replyToCommentId;
@@ -18,7 +17,7 @@ class CommentModel {
   final int replyLevel;
   final bool isDeleted;
 
-  CommentModel({
+  const CommentDto({
     required this.id,
     required this.userId,
     required this.thoughtId,
@@ -32,30 +31,34 @@ class CommentModel {
     this.isDeleted = false,
   });
 
-  factory CommentModel.fromJson(Map<String, dynamic> json) =>
-      _$CommentModelFromJson(json);
+  CommentDto copyWith({
+    String? id,
+    String? userId,
+    String? thoughtId,
+    String? content,
+    DateTime? createdAt,
+    List<ReactionDto>? reactions,
+    String? replyToCommentId,
+    String? replyToUserId,
+    String? replyToContent,
+    int? replyLevel,
+    bool? isDeleted,
+  }) {
+    return CommentDto(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      thoughtId: thoughtId ?? this.thoughtId,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      reactions: reactions ?? this.reactions,
+      replyToCommentId: replyToCommentId ?? this.replyToCommentId,
+      replyToUserId: replyToUserId ?? this.replyToUserId,
+      replyToContent: replyToContent ?? this.replyToContent,
+      replyLevel: replyLevel ?? this.replyLevel,
+      isDeleted: isDeleted ?? this.isDeleted,
+    );
+  }
 
-  Map<String, dynamic> toJson() => _$CommentModelToJson(this);
-}
-
-@JsonSerializable(explicitToJson: true)
-class ReactionModel {
-  final String userId;
-  final String emoji;
-
-  ReactionModel({
-    required this.userId,
-    required this.emoji,
-  });
-
-  factory ReactionModel.fromJson(Map<String, dynamic> json) =>
-      _$ReactionModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ReactionModelToJson(this);
-}
-
-// Extension methods for CommentModel
-extension CommentModelExtension on CommentModel {
   /// Check if this comment is a reply to another comment
   bool get isReply => replyToCommentId != null && replyToCommentId!.isNotEmpty;
 
@@ -66,17 +69,11 @@ extension CommentModelExtension on CommentModel {
   String get truncatedReplyContent {
     if (!isReply || replyToContent == null) return '';
 
-    const maxLength = 50; // Truncate to 50 characters
+    const maxLength = 50;
     if (replyToContent!.length <= maxLength) {
       return replyToContent!;
     }
     return '${replyToContent!.substring(0, maxLength)}...';
-  }
-
-  /// Get display text for reply preview
-  String get replyPreviewText {
-    if (!isReply) return '';
-    return truncatedReplyContent;
   }
 
   /// Check if this comment can have replies (max 2 levels)

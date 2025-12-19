@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:metal/features/profile/provider/upload.profile.image.notifier.dart';
+import 'package:metal/presentation/viewmodels/profile/profile_photo_viewmodel.dart';
 
 /// Utility class for picking images.
 class ImagePickerUtil {
@@ -38,9 +38,12 @@ class ImagePickerUtil {
       if (pickedFile != null) {
         // Consider adding loading indicators here if needed
         try {
-          ref
-              .read(profileImageProvider.notifier)
-              .UploadProfileImage(File(pickedFile.path));
+          await ref
+              .read(profilePhotoViewModelProvider.notifier)
+              .uploadProfilePhoto(
+                photoFile: File(pickedFile.path),
+                contentType: 'image/jpeg',
+              );
           // Optionally, show a success message or handle the result
         } catch (e) {
           // Optionally, show an error message

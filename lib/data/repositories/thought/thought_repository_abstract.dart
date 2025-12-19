@@ -1,7 +1,7 @@
 import 'package:metal/core/state/base.state.dart';
-import 'package:metal/data/datasources/remote/thought_remote_data_source.dart';
-import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
-import 'package:metal/features/thought/data/domain/entries/comment.model.dart';
+import 'package:metal/domain/entities/thought_dto.dart';
+import 'package:metal/domain/entities/comment_dto.dart';
+import 'package:metal/domain/entities/reaction_dto.dart';
 
 /// Abstract repository interface for thought operations
 /// Defines the contract for thought data access
@@ -15,10 +15,10 @@ abstract class ThoughtRepositoryAbstract {
   });
 
   /// Get a single thought by ID
-  Future<BaseState<ThoughtModel>> getThoughtById(String thoughtId);
+  Future<BaseState<ThoughtDto>> getThoughtById(String thoughtId);
 
   /// Create a new thought
-  Future<BaseState<ThoughtModel>> createThought({
+  Future<BaseState<ThoughtDto>> createThought({
     required String content,
     String type = 'text',
     String? audioUrl,
@@ -29,7 +29,7 @@ abstract class ThoughtRepositoryAbstract {
   });
 
   /// Update a thought
-  Future<BaseState<ThoughtModel>> updateThought({
+  Future<BaseState<ThoughtDto>> updateThought({
     required String thoughtId,
     String? content,
     bool? connectionOnly,
@@ -41,10 +41,10 @@ abstract class ThoughtRepositoryAbstract {
   // ============ Reaction Methods ============
 
   /// Get reactions for a thought
-  Future<BaseState<ReactionsResponseModel>> getReactions(String thoughtId);
+  Future<BaseState<ReactionsResponseDto>> getReactions(String thoughtId);
 
   /// Add or toggle a reaction on a thought
-  Future<BaseState<ReactionResponseModel>> addReaction({
+  Future<BaseState<ReactionDto>> addReaction({
     required String thoughtId,
     required String emoji,
   });
@@ -59,7 +59,7 @@ abstract class ThoughtRepositoryAbstract {
   });
 
   /// Add a comment to a thought
-  Future<BaseState<CommentModel>> addComment({
+  Future<BaseState<CommentDto>> addComment({
     required String thoughtId,
     required String content,
     String? replyToCommentId,
@@ -81,7 +81,7 @@ abstract class ThoughtRepositoryAbstract {
 
 /// DTO for thoughts response with pagination
 class ThoughtsResponseDto {
-  final List<ThoughtModel> thoughts;
+  final List<ThoughtDto> thoughts;
   final bool hasMore;
   final String? nextCursor;
 
@@ -94,7 +94,7 @@ class ThoughtsResponseDto {
 
 /// DTO for comments response with pagination
 class CommentsResponseDto {
-  final List<CommentModel> comments;
+  final List<CommentDto> comments;
   final bool hasMore;
   final String? nextCursor;
 
@@ -102,5 +102,14 @@ class CommentsResponseDto {
     required this.comments,
     required this.hasMore,
     this.nextCursor,
+  });
+}
+
+/// DTO for reactions response
+class ReactionsResponseDto {
+  final List<ReactionDto> reactions;
+
+  ReactionsResponseDto({
+    required this.reactions,
   });
 }

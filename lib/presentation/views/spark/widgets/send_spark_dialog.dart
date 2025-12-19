@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
-import 'package:metal/features/thought/provider/get.users.by.query.notifier.dart';
+import 'package:metal/domain/entities/user_dto.dart';
+// TODO: Implement getUsersByQueryProvider in new architecture
+// import 'package:metal/features/thought/provider/get.users.by.query.notifier.dart';
 import 'package:metal/presentation/viewmodels/spark/spark_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -26,7 +27,7 @@ class _SendSparkDialogState extends ConsumerState<SendSparkDialog> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   String? selectedUserId;
-  UserModel? selectedUser;
+  UserDto? selectedUser;
 
   @override
   void initState() {

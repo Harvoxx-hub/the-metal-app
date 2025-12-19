@@ -105,7 +105,7 @@ class SparkView extends ConsumerWidget {
                 context,
                 title: "Refer & Earn",
                 imagePath: Assets.images.refer.path,
-                onTap: () => Navigator.pushNamed(context, AppRoutes.referEarnSpark),
+                onTap: () => Navigator.pushNamed(context, AppRoutes.referEarn),
               ),
             ],
           )

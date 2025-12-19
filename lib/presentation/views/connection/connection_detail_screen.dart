@@ -12,9 +12,9 @@ import 'package:metal/presentation/viewmodels/connection/melt_viewmodel.dart';
 // TODO: Re-implement user fetching in new architecture (GET /api/v1/users/{userId})
 // import 'package:metal/features/thought/provider/get.user.notifier.dart';
 import 'package:metal/presentation/views/connection/widgets/metal_details_tab.dart';
-import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
-import 'package:metal/features/settings/provider/block.user.notifier.dart';
-import 'package:metal/features/profile/presentation/tab.screen/thought.tab.dart';
+import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
+// TODO: Re-implement user-specific thought tab in new architecture
+// import 'package:metal/features/profile/presentation/tab.screen/thought.tab.dart';
 import 'package:metal/presentation/widgets/profile/profile_header.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -78,9 +78,10 @@ class _ConnectionDetailScreenState
     final userState = null; // Temporary placeholder
 
     // Check if the user is blocked
-    final blockedUsers = ref.watch(getBlockUserProvider).data ?? [];
+    final blockedUsersState = ref.watch(blockedUsersViewModelProvider);
+    final blockedUsers = blockedUsersState.blockedUsers;
     final isUserBlocked =
-        blockedUsers.any((blockedUser) => blockedUser['id'] == metalId);
+        blockedUsers.any((blockedUser) => blockedUser.userId == metalId);
 
     // Show non-dismissible blocked user dialog if user is blocked
     if (isUserBlocked && userState.data != null && !_hasShownBlockedDialog) {
@@ -152,9 +153,13 @@ class _ConnectionDetailScreenState
                           BaseTab(
                             tabs: [
                               BaseTabModel(
-                                child: MyThoughtTab(
-                                  id: userState.data!.id,
-                                  toughtID: widget.metalDetails["toughtId"],
+                                // TODO: Implement user-specific thought feed
+                                child: Center(
+                                  child: TextView(
+                                    text: 'User thoughts coming soon',
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                                 title: 'Metal Thought',
                               ),
@@ -583,10 +588,10 @@ class _ConnectionDetailScreenState
                   Expanded(
                     child: BaseButton(
                       buttonText: "Unblock User",
-                      onPressed: () {
-                        ref
-                            .read(blockUserProvider.notifier)
-                            .unBlockUser(metalId);
+                      onPressed: () async {
+                        await ref
+                            .read(blockedUsersViewModelProvider.notifier)
+                            .unblockUser(userId: metalId);
                         Navigator.of(context).pop();
                         setState(() {
                           _hasShownBlockedDialog = false;

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../features/authentication/provider/user_state_notifier.dart';
+import '../../presentation/viewmodels/user/user_state_provider.dart';
 
 /// Service to track and update app version
 class AppVersionService {
@@ -39,19 +39,13 @@ class AppVersionService {
       }
 
       // Check if user is authenticated
-      final user = ref.read(userStateProvider).data;
+      final user = ref.read(userStateProvider).user;
       if (user == null) {
         debugPrint('No user logged in, skipping app version update');
         return;
       }
 
-      // Only update if version has changed
-      if (user.toJson()['appVersion'] == version) {
-        debugPrint('App version unchanged, skipping update');
-        return;
-      }
-
-      // Update user's app version in Firestore
+      // Update user's app version in backend
       await ref.read(userStateProvider.notifier).updateUserField(
             field: 'appVersion',
             value: version,

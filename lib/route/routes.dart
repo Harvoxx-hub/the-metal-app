@@ -3,7 +3,7 @@ import 'package:metal/features/thought/data/domain/entries/thought.model.dart';
 
 import 'package:metal/features/my.metals/melt.metal.dart';
 
-import 'package:metal/features/settings/presentation/delete.screen.dart';
+import 'package:metal/presentation/views/settings/delete_account_view.dart';
 import 'package:camera/camera.dart';
 
 // New Clean Architecture views
@@ -36,8 +36,7 @@ import 'package:metal/features/my.metals/user.profile.dart';
 import 'package:metal/presentation/views/notification/notification_view.dart';
 
 // Settings
-import 'package:metal/features/settings/presentation/blocked.user.dart'
-    as block;
+import 'package:metal/presentation/views/settings/blocked_users_view.dart';
 
 // Spark features (to be migrated)
 import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
@@ -198,7 +197,7 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const SettingsView());
 
       case blockedUser:
-        return MaterialPageRoute(builder: (_) => const block.BlockedUser());
+        return MaterialPageRoute(builder: (_) => const BlockedUsersView());
       case notificationPage:
         return MaterialPageRoute(builder: (_) => const NotificationView());
       case userProfilePage:
@@ -256,7 +255,7 @@ class AppRoutes {
           ),
         );
       case delete:
-        return MaterialPageRoute(builder: (_) => DeleteScreen());
+        return MaterialPageRoute(builder: (_) => const DeleteAccountView());
 
       // TODO: Re-implement postThought and thoughtDetails in new architecture
       case postThought:

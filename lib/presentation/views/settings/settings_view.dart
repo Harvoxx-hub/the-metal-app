@@ -5,7 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
-import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
+import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/widgets/profile/profile_header.dart';
@@ -27,7 +27,8 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
-    final blocked = ref.watch(getBlockUserProvider).data;
+    final blockedUsersState = ref.watch(blockedUsersViewModelProvider);
+    final blocked = blockedUsersState.blockedUsers;
 
     if (user == null) {
       return const Center(child: CircularProgressIndicator());

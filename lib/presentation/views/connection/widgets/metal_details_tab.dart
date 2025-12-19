@@ -10,7 +10,7 @@ import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:metal/features/settings/presentation/widget/block_user_helper.dart';
+import 'package:metal/presentation/widgets/settings/block_user_helper.dart';
 
 /// Metal details tab showing actions for a connection
 class MetalDetailsTabNew extends ConsumerStatefulWidget {

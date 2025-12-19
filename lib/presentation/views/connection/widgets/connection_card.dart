@@ -3,9 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/data/datasources/remote/connection_remote_data_source.dart';
-import 'package:metal/features/settings/presentation/widget/block_user_helper.dart';
-import 'package:metal/features/settings/provider/get.blocked.user.notifier.dart';
-import 'package:metal/features/settings/provider/block.user.notifier.dart';
+import 'package:metal/presentation/widgets/settings/block_user_helper.dart';
+import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/card.with.shadow.dart';
 import 'package:metal/widgets/profile.photo.dart';
@@ -20,7 +19,7 @@ class ConnectionCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUserDto = ref.watch(userStateProvider).user;
-    final blockedUsers = ref.watch(getBlockUserProvider).data ?? [];
+    final blockedUsersState = ref.watch(blockedUsersViewModelProvider);
 
     // Get the other user's ID from the connection
     final otherUserId = connection.users.firstWhere(
@@ -29,8 +28,8 @@ class ConnectionCard extends ConsumerWidget {
     );
 
     // Check if this user is blocked
-    final isBlocked =
-        blockedUsers.any((blockedUser) => blockedUser['id'] == otherUserId);
+    final isBlocked = blockedUsersState.blockedUsers
+        .any((blockedUser) => blockedUser.userId == otherUserId);
     final isConnectionBlocked = connection.status == "blocked";
 
     // Use otherUser from the connection API response
@@ -44,7 +43,7 @@ class ConnectionCard extends ConsumerWidget {
             userName: otherUser?.username ?? "This user",
             userId: otherUserId,
             onUnblock: () {
-              ref.read(blockUserProvider.notifier).unBlockUser(otherUserId);
+              ref.read(blockedUsersViewModelProvider.notifier).unblockUser(userId: otherUserId);
             },
           );
         } else {

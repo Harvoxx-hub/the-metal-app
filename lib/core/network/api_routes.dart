@@ -101,4 +101,19 @@ class ApiRoutes {
   static const String communityById = '/communities'; // GET /communities/:id - get community details
   static const String communityJoin = '/communities'; // POST /communities/:id/join - join community
   static const String communityLeave = '/communities'; // DELETE /communities/:id/leave - leave community
+
+  // Work Email Verification endpoints
+  static const String workEmailVerification = '/verification/work-email'; // POST - request work email verification
+  static const String workEmailVerify = '/verification/work-email/verify'; // POST - verify work email code
+
+  // Feedback endpoints
+  static const String feedback = '/feedback'; // POST - submit feedback
+
+  // Referral endpoints
+  static const String referrals = '/referrals'; // GET - get referral info
+  static const String applyReferral = '/referrals/apply'; // POST - apply referral code
+
+  // Report endpoints
+  static const String reportUser = '/reports/user'; // POST - report user
+  static const String reportContent = '/reports/content'; // POST - report content (thought/comment/message)
 }

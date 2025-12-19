@@ -1,162 +1,147 @@
-import 'package:metal/data/models/spark_model.dart';
 import 'package:metal/domain/entities/notification_dto.dart';
 
-/// Notifications response model from API
-class NotificationsResponseModel {
-  final List<NotificationModel> notifications;
-  final int unreadCount;
-  final PaginationModel? pagination;
-
-  NotificationsResponseModel({
-    required this.notifications,
-    required this.unreadCount,
-    this.pagination,
-  });
-
-  factory NotificationsResponseModel.fromJson(Map<String, dynamic> json) {
-    return NotificationsResponseModel(
-      notifications: (json['notifications'] as List<dynamic>?)
-              ?.map((n) => NotificationModel.fromJson(n as Map<String, dynamic>))
-              .toList() ??
-          [],
-      unreadCount: json['unreadCount'] as int? ?? 0,
-      pagination: json['pagination'] != null
-          ? PaginationModel.fromJson(json['pagination'] as Map<String, dynamic>)
-          : null,
-    );
-  }
-
-  /// Convert to domain DTO
-  NotificationsResponseDto toDomain() {
-    return NotificationsResponseDto(
-      notifications: notifications.map((n) => n.toDomain()).toList(),
-      unreadCount: unreadCount,
-      hasMore: pagination?.hasMore ?? false,
-      currentPage: pagination?.currentPage,
-      totalPages: pagination?.totalPages,
-    );
-  }
-}
-
-/// Notification model
+/// Notification model for API responses
 class NotificationModel {
   final String id;
   final String type;
   final String title;
-  final String body;
+  final String message;
   final bool isRead;
   final String? senderId;
   final String? senderName;
   final String? senderPhoto;
-  final String? targetId;
-  final Map<String, dynamic>? metadata;
+  final String? relatedId;
+  final Map<String, dynamic>? data;
   final String createdAt;
 
   NotificationModel({
     required this.id,
     required this.type,
     required this.title,
-    required this.body,
+    required this.message,
     required this.isRead,
     this.senderId,
     this.senderName,
     this.senderPhoto,
-    this.targetId,
-    this.metadata,
+    this.relatedId,
+    this.data,
     required this.createdAt,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
-      id: json['id'] as String,
-      type: json['type'] as String,
-      title: json['title'] as String,
-      body: json['body'] as String,
+      id: json['id'] as String? ?? '',
+      type: json['type'] as String? ?? 'system',
+      title: json['title'] as String? ?? '',
+      message: json['message'] as String? ?? '',
       isRead: json['isRead'] as bool? ?? false,
       senderId: json['senderId'] as String?,
       senderName: json['senderName'] as String?,
       senderPhoto: json['senderPhoto'] as String?,
-      targetId: json['targetId'] as String?,
-      metadata: json['metadata'] as Map<String, dynamic>?,
-      createdAt: json['createdAt'] as String,
+      relatedId: json['relatedId'] as String?,
+      data: json['data'] as Map<String, dynamic>?,
+      createdAt: json['createdAt'] as String? ?? '',
     );
   }
 
-  /// Convert to domain DTO
   NotificationDto toDomain() {
     return NotificationDto(
       id: id,
-      type: _parseNotificationType(type),
+      type: NotificationType.fromString(type),
       title: title,
-      body: body,
+      message: message,
       isRead: isRead,
       senderId: senderId,
       senderName: senderName,
       senderPhoto: senderPhoto,
-      targetId: targetId,
-      metadata: metadata,
-      createdAt: DateTime.parse(createdAt),
+      relatedId: relatedId,
+      data: data,
+      createdAt: DateTime.tryParse(createdAt) ?? DateTime.now(),
+    );
+  }
+}
+
+/// Notifications list response model
+class NotificationsResponseModel {
+  final List<NotificationModel> notifications;
+  final int total;
+  final int unreadCount;
+  final bool hasMore;
+  final String? nextCursor;
+
+  NotificationsResponseModel({
+    required this.notifications,
+    required this.total,
+    required this.unreadCount,
+    required this.hasMore,
+    this.nextCursor,
+  });
+
+  factory NotificationsResponseModel.fromJson(Map<String, dynamic> json) {
+    return NotificationsResponseModel(
+      notifications: (json['notifications'] as List<dynamic>?)
+              ?.map((e) => NotificationModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      total: json['total'] as int? ?? 0,
+      unreadCount: json['unreadCount'] as int? ?? 0,
+      hasMore: json['hasMore'] as bool? ?? false,
+      nextCursor: json['nextCursor'] as String?,
     );
   }
 
-  NotificationType _parseNotificationType(String type) {
-    switch (type.toLowerCase()) {
-      case 'melt':
-        return NotificationType.melt;
-      case 'unmelt':
-        return NotificationType.unmelt;
-      case 'message':
-        return NotificationType.message;
-      case 'thought':
-        return NotificationType.thought;
-      case 'reaction':
-        return NotificationType.reaction;
-      case 'comment':
-        return NotificationType.comment;
-      case 'spark':
-        return NotificationType.spark;
-      case 'system':
-        return NotificationType.system;
-      default:
-        return NotificationType.system;
-    }
+  NotificationsResponseDto toDomain() {
+    return NotificationsResponseDto(
+      notifications: notifications.map((e) => e.toDomain()).toList(),
+      total: total,
+      unreadCount: unreadCount,
+      hasMore: hasMore,
+      nextCursor: nextCursor,
+    );
   }
 }
 
 /// Notification settings model
 class NotificationSettingsModel {
-  final bool pushEnabled;
-  final bool meltNotifications;
+  final bool matchNotifications;
   final bool messageNotifications;
-  final bool thoughtNotifications;
+  final bool likeNotifications;
+  final bool commentNotifications;
   final bool sparkNotifications;
+  final bool emailNotifications;
+  final bool pushNotifications;
 
   NotificationSettingsModel({
-    required this.pushEnabled,
-    required this.meltNotifications,
+    required this.matchNotifications,
     required this.messageNotifications,
-    required this.thoughtNotifications,
+    required this.likeNotifications,
+    required this.commentNotifications,
     required this.sparkNotifications,
+    required this.emailNotifications,
+    required this.pushNotifications,
   });
 
   factory NotificationSettingsModel.fromJson(Map<String, dynamic> json) {
     return NotificationSettingsModel(
-      pushEnabled: json['pushEnabled'] as bool? ?? true,
-      meltNotifications: json['meltNotifications'] as bool? ?? true,
+      matchNotifications: json['matchNotifications'] as bool? ?? true,
       messageNotifications: json['messageNotifications'] as bool? ?? true,
-      thoughtNotifications: json['thoughtNotifications'] as bool? ?? true,
+      likeNotifications: json['likeNotifications'] as bool? ?? true,
+      commentNotifications: json['commentNotifications'] as bool? ?? true,
       sparkNotifications: json['sparkNotifications'] as bool? ?? true,
+      emailNotifications: json['emailNotifications'] as bool? ?? false,
+      pushNotifications: json['pushNotifications'] as bool? ?? true,
     );
   }
 
-  /// Convert to domain DTO
   NotificationSettingsDto toDomain() {
     return NotificationSettingsDto(
-      pushEnabled: pushEnabled,
-      meltNotifications: meltNotifications,
+      matchNotifications: matchNotifications,
       messageNotifications: messageNotifications,
-      thoughtNotifications: thoughtNotifications,
+      likeNotifications: likeNotifications,
+      commentNotifications: commentNotifications,
       sparkNotifications: sparkNotifications,
+      emailNotifications: emailNotifications,
+      pushNotifications: pushNotifications,
     );
   }
 }

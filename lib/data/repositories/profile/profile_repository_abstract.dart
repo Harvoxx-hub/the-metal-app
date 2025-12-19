@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/data/repositories/base_repository.dart';
 import 'package:metal/domain/entities/user_dto.dart';
@@ -40,5 +41,12 @@ abstract class ProfileRepositoryAbstract extends BaseRepository {
   /// Delete user account
   Future<BaseState<void>> deleteAccount({
     required String password,
+  });
+
+  /// Upload profile photo
+  /// Complete flow: Upload photo to storage -> Update profile with photo URL
+  Future<BaseState<UserDto>> uploadProfilePhoto({
+    required File photoFile,
+    required String contentType,
   });
 }

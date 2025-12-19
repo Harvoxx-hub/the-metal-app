@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:metal/core/error_handling/error_handler.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/data/datasources/remote/profile_remote_data_source.dart';
@@ -111,6 +112,23 @@ class ProfileRepository implements ProfileRepositoryAbstract {
       return BaseState.success(null);
     } catch (e) {
       return ErrorHandler.handleError<void>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<UserDto>> uploadProfilePhoto({
+    required File photoFile,
+    required String contentType,
+  }) async {
+    try {
+      final response = await profileRemoteDataSource.uploadProfilePhoto(
+        photoFile: photoFile,
+        contentType: contentType,
+      );
+      final user = UserModel.fromJson(response).toDomain();
+      return BaseState.success(user);
+    } catch (e) {
+      return ErrorHandler.handleError<UserDto>(e);
     }
   }
 }

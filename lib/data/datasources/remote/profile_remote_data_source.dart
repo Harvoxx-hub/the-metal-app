@@ -1,15 +1,21 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/network/dio_client.dart';
 import 'package:metal/data/datasources/base_data_source.dart';
 import 'package:metal/data/models/blocked_user_model.dart';
+import 'package:metal/data/datasources/remote/media_remote_data_source.dart';
 
 /// Remote data source for profile operations
 /// Handles all API calls related to user profile
 class ProfileRemoteDataSource extends BaseRemoteDataSource {
   final DioClient dioClient;
+  final MediaRemoteDataSource? mediaDataSource;
 
-  ProfileRemoteDataSource(this.dioClient);
+  ProfileRemoteDataSource(
+    this.dioClient, {
+    this.mediaDataSource,
+  });
 
   /// Get user profile
   Future<Map<String, dynamic>> getUserProfile() async {
@@ -181,6 +187,38 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       throw Exception('Invalid response format');
     } on DioException catch (e) {
       throw Exception('Delete account failed: ${e.message}');
+    }
+  }
+
+  /// Upload profile photo and update profile
+  /// Complete flow: Upload photo to storage -> Update profile with photo URL
+  /// Returns updated user profile data
+  Future<Map<String, dynamic>> uploadProfilePhoto({
+    required File photoFile,
+    required String contentType,
+  }) async {
+    if (mediaDataSource == null) {
+      throw Exception(
+        'MediaRemoteDataSource is required for photo upload. '
+        'Pass it in the constructor.',
+      );
+    }
+
+    try {
+      // Step 1: Upload photo to storage and get public URL
+      final publicUrl = await mediaDataSource!.uploadMedia(
+        file: photoFile,
+        mediaType: MediaType.image,
+        purpose: MediaPurpose.profile,
+        contentType: contentType,
+      );
+
+      // Step 2: Update profile with new photo URL
+      return await updateUserProfile(
+        profileData: {'profilePhoto': publicUrl},
+      );
+    } catch (e) {
+      throw Exception('Upload profile photo failed: $e');
     }
   }
 }

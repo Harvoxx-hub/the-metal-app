@@ -1,130 +1,144 @@
-import 'package:metal/domain/entities/base_entity.dart';
-
-/// Notification types
+/// Notification type enumeration
 enum NotificationType {
-  melt,
-  unmelt,
+  match,
   message,
-  thought,
-  reaction,
+  like,
   comment,
   spark,
-  system,
+  system;
+
+  String get value {
+    switch (this) {
+      case NotificationType.match:
+        return 'match';
+      case NotificationType.message:
+        return 'message';
+      case NotificationType.like:
+        return 'like';
+      case NotificationType.comment:
+        return 'comment';
+      case NotificationType.spark:
+        return 'spark';
+      case NotificationType.system:
+        return 'system';
+    }
+  }
+
+  static NotificationType fromString(String value) {
+    switch (value.toLowerCase()) {
+      case 'match':
+        return NotificationType.match;
+      case 'message':
+        return NotificationType.message;
+      case 'like':
+        return NotificationType.like;
+      case 'comment':
+        return NotificationType.comment;
+      case 'spark':
+        return NotificationType.spark;
+      case 'system':
+        return NotificationType.system;
+      default:
+        return NotificationType.system;
+    }
+  }
 }
 
-/// Notification domain entity (DTO)
-class NotificationDto extends BaseEntity {
+/// Notification DTO
+class NotificationDto {
   final String id;
   final NotificationType type;
   final String title;
-  final String body;
+  final String message;
   final bool isRead;
   final String? senderId;
   final String? senderName;
   final String? senderPhoto;
-  final String? targetId; // ID of thought, message, connection, etc.
-  final Map<String, dynamic>? metadata;
+  final String? relatedId;
+  final Map<String, dynamic>? data;
   final DateTime createdAt;
 
-  const NotificationDto({
+  NotificationDto({
     required this.id,
     required this.type,
     required this.title,
-    required this.body,
+    required this.message,
     required this.isRead,
     this.senderId,
     this.senderName,
     this.senderPhoto,
-    this.targetId,
-    this.metadata,
+    this.relatedId,
+    this.data,
     required this.createdAt,
   });
-
-  NotificationDto copyWith({
-    String? id,
-    NotificationType? type,
-    String? title,
-    String? body,
-    bool? isRead,
-    String? senderId,
-    String? senderName,
-    String? senderPhoto,
-    String? targetId,
-    Map<String, dynamic>? metadata,
-    DateTime? createdAt,
-  }) {
-    return NotificationDto(
-      id: id ?? this.id,
-      type: type ?? this.type,
-      title: title ?? this.title,
-      body: body ?? this.body,
-      isRead: isRead ?? this.isRead,
-      senderId: senderId ?? this.senderId,
-      senderName: senderName ?? this.senderName,
-      senderPhoto: senderPhoto ?? this.senderPhoto,
-      targetId: targetId ?? this.targetId,
-      metadata: metadata ?? this.metadata,
-      createdAt: createdAt ?? this.createdAt,
-    );
-  }
 }
 
 /// Notifications list response DTO
-class NotificationsResponseDto extends BaseEntity {
+class NotificationsResponseDto {
   final List<NotificationDto> notifications;
+  final int total;
   final int unreadCount;
   final bool hasMore;
-  final int? currentPage;
-  final int? totalPages;
+  final String? nextCursor;
 
-  const NotificationsResponseDto({
+  NotificationsResponseDto({
     required this.notifications,
+    required this.total,
     required this.unreadCount,
     required this.hasMore,
-    this.currentPage,
-    this.totalPages,
+    this.nextCursor,
   });
 }
 
 /// Notification settings DTO
-class NotificationSettingsDto extends BaseEntity {
-  final bool pushEnabled;
-  final bool meltNotifications;
+class NotificationSettingsDto {
+  final bool matchNotifications;
   final bool messageNotifications;
-  final bool thoughtNotifications;
+  final bool likeNotifications;
+  final bool commentNotifications;
   final bool sparkNotifications;
+  final bool emailNotifications;
+  final bool pushNotifications;
 
-  const NotificationSettingsDto({
-    required this.pushEnabled,
-    required this.meltNotifications,
+  NotificationSettingsDto({
+    required this.matchNotifications,
     required this.messageNotifications,
-    required this.thoughtNotifications,
+    required this.likeNotifications,
+    required this.commentNotifications,
     required this.sparkNotifications,
+    required this.emailNotifications,
+    required this.pushNotifications,
   });
 
   NotificationSettingsDto copyWith({
-    bool? pushEnabled,
-    bool? meltNotifications,
+    bool? matchNotifications,
     bool? messageNotifications,
-    bool? thoughtNotifications,
+    bool? likeNotifications,
+    bool? commentNotifications,
     bool? sparkNotifications,
+    bool? emailNotifications,
+    bool? pushNotifications,
   }) {
     return NotificationSettingsDto(
-      pushEnabled: pushEnabled ?? this.pushEnabled,
-      meltNotifications: meltNotifications ?? this.meltNotifications,
+      matchNotifications: matchNotifications ?? this.matchNotifications,
       messageNotifications: messageNotifications ?? this.messageNotifications,
-      thoughtNotifications: thoughtNotifications ?? this.thoughtNotifications,
+      likeNotifications: likeNotifications ?? this.likeNotifications,
+      commentNotifications: commentNotifications ?? this.commentNotifications,
       sparkNotifications: sparkNotifications ?? this.sparkNotifications,
+      emailNotifications: emailNotifications ?? this.emailNotifications,
+      pushNotifications: pushNotifications ?? this.pushNotifications,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'pushEnabled': pushEnabled,
-      'meltNotifications': meltNotifications,
+      'matchNotifications': matchNotifications,
       'messageNotifications': messageNotifications,
-      'thoughtNotifications': thoughtNotifications,
+      'likeNotifications': likeNotifications,
+      'commentNotifications': commentNotifications,
       'sparkNotifications': sparkNotifications,
+      'emailNotifications': emailNotifications,
+      'pushNotifications': pushNotifications,
     };
   }
 }

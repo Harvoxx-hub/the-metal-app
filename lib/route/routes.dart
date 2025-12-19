@@ -26,20 +26,21 @@ import 'package:metal/presentation/views/settings/edit_profile_view.dart';
 import 'package:metal/presentation/views/settings/edit_preferences_view.dart';
 import 'package:metal/presentation/views/chat/chat_window_view.dart';
 import 'package:metal/presentation/views/dashboard/dashboard_view.dart';
-import 'package:metal/features/feedback/feedback.page.dart';
 
 // New Clean Architecture Connection views
 import 'package:metal/presentation/views/connection/connection_list_screen.dart';
 import 'package:metal/presentation/views/connection/connection_detail_screen.dart';
 import 'package:metal/features/my.metals/user.profile.dart';
+
+// Notification (pending migration)
 import 'package:metal/features/notification/notification.page.dart';
 
-import 'package:metal/features/refer.earn/refer.earn.dart';
+// Settings
 import 'package:metal/features/settings/presentation/blocked.user.dart'
     as block;
 
+// Spark features (to be migrated)
 import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
-import 'package:metal/features/sparks_page/screens/refer.earn/refer.earn.dart';
 import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 
 import 'package:metal/features/upgrade/make.payment.dart';
@@ -50,7 +51,6 @@ class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
   static const String onboardingTutorialView = '/onboardingTutorialView';
-  static const String unmetalView = '/unmetal';
   static const String metalPlusView = '/metalPlusView';
   static const String sparkInfoSwitchView = '/sparkInfoSwitchView';
   static const String login = '/login';
@@ -75,18 +75,15 @@ class AppRoutes {
 
   static const String meltMetal = '/meltMetal';
   static const String pushMetal = '/pushMetal';
-  static const String feedBackPage = '/feedBackPage';
   static const String blockedUser = '/blockedUser';
   static const String notificationPage = '/notificationPage';
   static const String userProfilePage = '/userProfilePage';
   static const String upgradePage = '/upgradePage';
   static const String makePayment = '/makePayment';
-  static const String referEarn = '/referEarn';
   static const String myMeltedMetals = '/myMeltedMetals';
   static const String myMeltedUser = '/myMeltedUser';
   static const String sendSpark = '/sendSpark';
   static const String buySpark = '/buySpark';
-  static const String referEarnSpark = '/referEarnSpark';
   static const String chatWindowView = '/chatWindowView'; // New API-based chat
   static const String updatePhoneNumberPage = '/updatePhoneNumberPage';
   static const String updateEmailPage = '/updateEmailPage';
@@ -200,8 +197,6 @@ class AppRoutes {
       case settingPage:
         return MaterialPageRoute(builder: (_) => const SettingsView());
 
-      case feedBackPage:
-        return MaterialPageRoute(builder: (_) => FeedBackPage());
       case blockedUser:
         return MaterialPageRoute(builder: (_) => const block.BlockedUser());
       case notificationPage:
@@ -220,8 +215,6 @@ class AppRoutes {
                   price: arguments[1],
                   paymentType: arguments[0],
                 ));
-      case referEarn:
-        return MaterialPageRoute(builder: (_) => const ReferEarn());
       case myMeltedMetals:
         return MaterialPageRoute(builder: (_) => const ConnectionListScreen());
       case myMeltedUser:
@@ -246,8 +239,6 @@ class AppRoutes {
                     : null));
       case buySpark:
         return MaterialPageRoute(builder: (_) => BuySpark());
-      case referEarnSpark:
-        return MaterialPageRoute(builder: (_) => const ReferEarnSpark());
       case chatWindowView:
         return MaterialPageRoute(
             builder: (_) => ChatWindowView(

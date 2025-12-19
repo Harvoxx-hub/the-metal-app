@@ -4,6 +4,7 @@ import 'package:metal/data/datasources/remote/profile_remote_data_source.dart';
 import 'package:metal/data/models/user_model.dart';
 import 'package:metal/data/repositories/profile/profile_repository_abstract.dart';
 import 'package:metal/domain/entities/user_dto.dart';
+import 'package:metal/domain/entities/blocked_user_dto.dart';
 
 /// Profile repository implementation
 /// Coordinates between remote data source and domain layer
@@ -53,6 +54,63 @@ class ProfileRepository implements ProfileRepositoryAbstract {
       return BaseState.success(user);
     } catch (e) {
       return ErrorHandler.handleError<UserDto>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<BlockedUsersResponseDto>> getBlockedUsers({
+    required int page,
+    required int limit,
+  }) async {
+    try {
+      final response = await profileRemoteDataSource.getBlockedUsers(
+        page: page,
+        limit: limit,
+      );
+      final dto = response.toDomain();
+      return BaseState.success(dto);
+    } catch (e) {
+      return ErrorHandler.handleError<BlockedUsersResponseDto>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<void>> blockUser({
+    required String userId,
+    String? reason,
+  }) async {
+    try {
+      await profileRemoteDataSource.blockUser(
+        userId: userId,
+        reason: reason,
+      );
+      return BaseState.success(null);
+    } catch (e) {
+      return ErrorHandler.handleError<void>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<void>> unblockUser({
+    required String userId,
+  }) async {
+    try {
+      await profileRemoteDataSource.unblockUser(userId: userId);
+      return BaseState.success(null);
+    } catch (e) {
+      return ErrorHandler.handleError<void>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<void>> deleteAccount({
+    required String password,
+  }) async {
+    try {
+      await profileRemoteDataSource.deleteAccount(password: password);
+      return BaseState.success(null);
+    } catch (e) {
+      return ErrorHandler.handleError<void>(e);
     }
   }
 }

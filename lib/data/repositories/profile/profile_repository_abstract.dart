@@ -1,6 +1,7 @@
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/data/repositories/base_repository.dart';
 import 'package:metal/domain/entities/user_dto.dart';
+import 'package:metal/domain/entities/blocked_user_dto.dart';
 
 /// Abstract repository interface for profile operations
 /// This defines the contract that all profile repositories must implement
@@ -17,5 +18,27 @@ abstract class ProfileRepositoryAbstract extends BaseRepository {
   /// Complete profile setup
   Future<BaseState<UserDto>> completeProfile({
     required Map<String, dynamic> finalData,
+  });
+
+  /// Get blocked users with pagination
+  Future<BaseState<BlockedUsersResponseDto>> getBlockedUsers({
+    required int page,
+    required int limit,
+  });
+
+  /// Block a user
+  Future<BaseState<void>> blockUser({
+    required String userId,
+    String? reason,
+  });
+
+  /// Unblock a user
+  Future<BaseState<void>> unblockUser({
+    required String userId,
+  });
+
+  /// Delete user account
+  Future<BaseState<void>> deleteAccount({
+    required String password,
   });
 }

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/network/dio_client.dart';
 import 'package:metal/data/datasources/base_data_source.dart';
+import 'package:metal/data/models/blocked_user_model.dart';
 
 /// Remote data source for profile operations
 /// Handles all API calls related to user profile
@@ -76,6 +77,110 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       throw Exception('Invalid response format');
     } on DioException catch (e) {
       throw Exception('Complete profile failed: ${e.message}');
+    }
+  }
+
+  /// Get blocked users with pagination
+  Future<BlockedUsersResponseModel> getBlockedUsers({
+    required int page,
+    required int limit,
+  }) async {
+    try {
+      final response = await dioClient.get(
+        ApiRoutes.buildPath(ApiRoutes.blockedUsers),
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+        },
+      );
+
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['success'] == true && data['data'] != null) {
+          return BlockedUsersResponseModel.fromJson(
+            data['data'] as Map<String, dynamic>,
+          );
+        }
+        throw Exception(data['message'] ?? 'Failed to get blocked users');
+      }
+
+      throw Exception('Invalid response format');
+    } on DioException catch (e) {
+      throw Exception('Get blocked users failed: ${e.message}');
+    }
+  }
+
+  /// Block a user
+  Future<Map<String, dynamic>> blockUser({
+    required String userId,
+    String? reason,
+  }) async {
+    try {
+      final response = await dioClient.post(
+        ApiRoutes.buildPath('${ApiRoutes.blockUser}/$userId'),
+        data: {
+          if (reason != null) 'reason': reason,
+        },
+      );
+
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['success'] == true) {
+          return data['data'] as Map<String, dynamic>? ?? {};
+        }
+        throw Exception(data['message'] ?? 'Failed to block user');
+      }
+
+      throw Exception('Invalid response format');
+    } on DioException catch (e) {
+      throw Exception('Block user failed: ${e.message}');
+    }
+  }
+
+  /// Unblock a user
+  Future<Map<String, dynamic>> unblockUser({
+    required String userId,
+  }) async {
+    try {
+      final response = await dioClient.delete(
+        ApiRoutes.buildPath('${ApiRoutes.unblockUser}/$userId'),
+      );
+
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['success'] == true) {
+          return data['data'] as Map<String, dynamic>? ?? {};
+        }
+        throw Exception(data['message'] ?? 'Failed to unblock user');
+      }
+
+      throw Exception('Invalid response format');
+    } on DioException catch (e) {
+      throw Exception('Unblock user failed: ${e.message}');
+    }
+  }
+
+  /// Delete user account
+  Future<void> deleteAccount({
+    required String password,
+  }) async {
+    try {
+      final response = await dioClient.delete(
+        ApiRoutes.buildPath(ApiRoutes.deleteAccount),
+        data: {'password': password},
+      );
+
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['success'] == true) {
+          return;
+        }
+        throw Exception(data['message'] ?? 'Failed to delete account');
+      }
+
+      throw Exception('Invalid response format');
+    } on DioException catch (e) {
+      throw Exception('Delete account failed: ${e.message}');
     }
   }
 }

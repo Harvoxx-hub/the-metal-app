@@ -75,4 +75,12 @@ class ApiRoutes {
   // Spark endpoints
   static const String sparks = '/sparks'; // GET - get balance and transaction history
   static const String sparksSend = '/sparks/send'; // POST - send sparks to user
+
+  // Blocked users endpoints
+  static const String blockedUsers = '/users/me/blocked'; // GET - list blocked users
+  static const String blockUser = '/users/me/blocked'; // POST /users/me/blocked/:userId - block user
+  static const String unblockUser = '/users/me/blocked'; // DELETE /users/me/blocked/:userId - unblock user
+
+  // Account management endpoints
+  static const String deleteAccount = '/users/me'; // DELETE - delete account
 }

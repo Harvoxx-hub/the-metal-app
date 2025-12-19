@@ -6,7 +6,7 @@ import 'package:metal/core/services/startup_service.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/presentation/views/chat/chat_list_view.dart';
 import 'package:metal/features/profile/presentation/profile.page.dart';
-import 'package:metal/features/sparks_page/screens/sparks_page.dart';
+import 'package:metal/presentation/views/spark/spark_view.dart';
 import 'package:metal/presentation/views/thought/thought_screen.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
@@ -42,7 +42,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   final List<Widget> _pages = [
     const HomeView(),
     const ThoughtScreen(), // Updated to use new API-based thoughts with 3 tabs
-    const SparksPage(),
+    const SparkView(), // Updated to use new API-based sparks
     const ChatListView(), // Updated to use new API-based chat
     const ProfilePage(),
   ];

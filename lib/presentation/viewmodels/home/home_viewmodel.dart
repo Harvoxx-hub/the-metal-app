@@ -120,7 +120,7 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
       );
 
       if (mounted) {
-        final updatedUsers = [...(state.data ?? []), ...response.users];
+        final updatedUsers = [...?state.data, ...response.users];
         state = HomeState.success(
           updatedUsers,
           hasMore: response.pagination?.hasMore ?? false,
@@ -160,7 +160,7 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
 
       if (mounted) {
         // Remove swiped user from list
-        final updatedUsers = (state.data ?? [])
+        final updatedUsers = (state.data ?? <DiscoveryUserDto>[])
             .where((user) => user.id != userId)
             .toList();
 

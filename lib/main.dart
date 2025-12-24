@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/handler/app.lifeycle.handler.dart';
@@ -17,6 +18,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:metal/fcm/fcm_client.dart';
 
 import 'package:metal/core/services/deep_link_service.dart';
+import 'package:metal/core/di/provider_setup.dart';
 
 /// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
@@ -73,14 +75,21 @@ void main() async {
     );
   });
 
+  // Initialize SharedPreferences eagerly before app starts
+  final sharedPreferences = await SharedPreferences.getInstance();
+  
   // Initialize the lifecycle handler (handles its own auth state changes)
   final lifecycleHandler = AppLifecycleHandler();
   WidgetsBinding.instance.addObserver(lifecycleHandler);
   await lifecycleHandler.initialize();
 
   runApp(
-    const ProviderScope(
-      child: MyApp(),
+    ProviderScope(
+      overrides: [
+        // Override sharedPreferencesProvider with pre-initialized instance
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+      ],
+      child: const MyApp(),
     ),
   );
 

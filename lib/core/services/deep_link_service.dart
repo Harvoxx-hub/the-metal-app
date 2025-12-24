@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:app_links/app_links.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+ 
 import 'package:metal/route/routes.dart';
 
 /// Service to handle deep links and universal links
@@ -238,9 +238,9 @@ class DeepLinkService {
     }
 
     print('DeepLinkService: Navigating to thought: $thoughtId');
-
+    //TODO: check of users is logged in 
     // Check if user is authenticated
-    final user = FirebaseAuth.instance.currentUser;
+ final user = null;
     if (user == null) {
       print('DeepLinkService: User not authenticated, redirecting to login');
       Navigator.pushNamedAndRemoveUntil(

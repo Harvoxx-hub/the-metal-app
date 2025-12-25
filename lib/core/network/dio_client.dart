@@ -1,20 +1,21 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
- 
-import 'package:metal/core/network/api_interceptor.dart';
+import 'package:metal/core/constants/app_constants.dart';
+import 'package:metal/core/network/auth/auth_interceptor.dart';
+import 'package:metal/core/storage/secure_storage_helper.dart';
+import 'package:metal/core/storage/shared_prefs_helper.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 /// HTTP client with interceptors for authentication, logging, and error handling
 /// This is the core network client used by all data sources
 class DioClient {
   final Dio _dio;
-  final ApiInterceptor _interceptor;
+  final AuthInterceptor _authInterceptor;
 
   DioClient({
-    required ApiInterceptor interceptor,
+    SecureStorageHelper? secureStorage,
+    SharedPrefsHelper? sharedPrefs,
   })  : _dio = Dio(BaseOptions(
-          baseUrl: baseUrl,
+          baseUrl: AppConstants.apiUrl,
           connectTimeout: const Duration(seconds: 60),
           receiveTimeout: const Duration(seconds: 60),
           headers: {
@@ -22,13 +23,16 @@ class DioClient {
             'Accept': 'application/json',
           },
         )),
-        _interceptor = interceptor {
+        _authInterceptor = AuthInterceptor(
+          secureStorage: secureStorage,
+          sharedPrefs: sharedPrefs,
+        ) {
     _setupInterceptors();
   }
 
   void _setupInterceptors() {
     _dio.interceptors.addAll([
-      _interceptor,
+      _authInterceptor,
       PrettyDioLogger(
         requestHeader: true,
         requestBody: true,
@@ -57,6 +61,7 @@ class DioClient {
   }
 
   /// POST request
+  /// Dio automatically handles JSON encoding for Map/List types
   Future<Response> post(
     String path, {
     dynamic data,
@@ -66,14 +71,19 @@ class DioClient {
   }) async {
     return await _dio.post(
       path,
-      data: data is FormData ? data : (data != null ? jsonEncode(data) : null),
+      data: data, // Let Dio handle encoding for Map/List/String/FormData
       queryParameters: queryParameters,
-      options: options,
+      options: options ??
+          Options(
+            contentType:
+                data is FormData ? 'multipart/form-data' : 'application/json',
+          ),
       cancelToken: cancelToken,
     );
   }
 
   /// PATCH request
+  /// Dio automatically handles JSON encoding for Map/List types
   Future<Response> patch(
     String path, {
     dynamic data,
@@ -83,7 +93,7 @@ class DioClient {
   }) async {
     return await _dio.patch(
       path,
-      data: data is FormData ? data : (data != null ? jsonEncode(data) : null),
+      data: data, // Let Dio handle encoding for Map/List/String/FormData
       queryParameters: queryParameters,
       options: options,
       cancelToken: cancelToken,
@@ -91,6 +101,7 @@ class DioClient {
   }
 
   /// PUT request
+  /// Dio automatically handles JSON encoding for Map/List types
   Future<Response> put(
     String path, {
     dynamic data,
@@ -100,7 +111,7 @@ class DioClient {
   }) async {
     return await _dio.put(
       path,
-      data: data is FormData ? data : (data != null ? jsonEncode(data) : null),
+      data: data, // Let Dio handle encoding for Map/List/String/FormData
       queryParameters: queryParameters,
       options: options,
       cancelToken: cancelToken,
@@ -108,6 +119,7 @@ class DioClient {
   }
 
   /// DELETE request
+  /// Dio automatically handles JSON encoding for Map/List types
   Future<Response> delete(
     String path, {
     dynamic data,
@@ -117,11 +129,10 @@ class DioClient {
   }) async {
     return await _dio.delete(
       path,
-      data: data is FormData ? data : (data != null ? jsonEncode(data) : null),
+      data: data, // Let Dio handle encoding for Map/List/String/FormData
       queryParameters: queryParameters,
       options: options,
       cancelToken: cancelToken,
     );
   }
 }
-

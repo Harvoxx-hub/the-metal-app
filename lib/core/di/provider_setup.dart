@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/core/network/api_interceptor.dart';
 import 'package:metal/core/network/dio_client.dart';
 import 'package:metal/core/storage/secure_storage_helper.dart';
 import 'package:metal/core/storage/shared_prefs_helper.dart';
@@ -28,21 +27,10 @@ final secureStorageHelperProvider = Provider<SecureStorageHelper>((ref) {
   return SecureStorageHelper();
 });
 
-/// ApiInterceptor provider
-/// Note: authRemoteDataSource is injected lazily to avoid circular dependency
-final apiInterceptorProvider = Provider<ApiInterceptor>((ref) {
-  final interceptor = ApiInterceptor(
-    sharedPrefs: ref.watch(sharedPrefsHelperProvider),
-    secureStorage: ref.watch(secureStorageHelperProvider),
-  );
-  // Inject authRemoteDataSource after creation to avoid circular dependency
-  // This will be set up in a separate initialization step if needed
-  return interceptor;
-});
-
 /// DioClient provider - Core HTTP client
 final dioClientProvider = Provider<DioClient>((ref) {
   return DioClient(
-    interceptor: ref.watch(apiInterceptorProvider),
+    secureStorage: ref.watch(secureStorageHelperProvider),
+    sharedPrefs: ref.watch(sharedPrefsHelperProvider),
   );
 });

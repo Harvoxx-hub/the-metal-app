@@ -1,4 +1,3 @@
-import 'package:metal/core/network/api_interceptor.dart';
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/network/dio_client.dart';
 import 'package:metal/domain/entities/discovery_user_dto.dart';
@@ -6,7 +5,7 @@ import 'package:metal/domain/entities/discovery_user_dto.dart';
 /// Remote data source for discovery operations
 /// Handles API communication for swipe/discovery features
 class DiscoveryRemoteDataSource {
-   final DioClient _client;
+  final DioClient _client;
 
   DiscoveryRemoteDataSource(this._client);
 
@@ -21,9 +20,8 @@ class DiscoveryRemoteDataSource {
       if (cursor != null) 'cursor': cursor,
     };
 
-    final queryString = queryParams.entries
-        .map((e) => '${e.key}=${e.value}')
-        .join('&');
+    final queryString =
+        queryParams.entries.map((e) => '${e.key}=${e.value}').join('&');
 
     final response = await _client.get(
       '${ApiRoutes.discoveryUsers}?$queryString',
@@ -31,14 +29,15 @@ class DiscoveryRemoteDataSource {
 
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data['data'] as Map<String, dynamic>?;
-      
+
       if (data == null) {
         return const DiscoveryUsersResponse(users: [], pagination: null);
       }
 
       final usersJson = data['users'] as List<dynamic>? ?? [];
       final users = usersJson
-          .map((json) => DiscoveryUserDto.fromJson(json as Map<String, dynamic>))
+          .map(
+              (json) => DiscoveryUserDto.fromJson(json as Map<String, dynamic>))
           .toList();
 
       final paginationJson = data['pagination'] as Map<String, dynamic>?;
@@ -67,7 +66,7 @@ class DiscoveryRemoteDataSource {
 
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data['data'] as Map<String, dynamic>?;
-      
+
       if (data == null) {
         throw Exception('Invalid response from server');
       }
@@ -88,9 +87,8 @@ class DiscoveryRemoteDataSource {
       if (action != null) 'action': action.value,
     };
 
-    final queryString = queryParams.entries
-        .map((e) => '${e.key}=${e.value}')
-        .join('&');
+    final queryString =
+        queryParams.entries.map((e) => '${e.key}=${e.value}').join('&');
 
     final response = await _client.get(
       '${ApiRoutes.discoveryHistory}?$queryString',
@@ -112,7 +110,7 @@ class DiscoveryRemoteDataSource {
 
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data['data'] as Map<String, dynamic>?;
-      
+
       if (data == null) {
         throw Exception('Invalid response from server');
       }
@@ -163,4 +161,3 @@ class SwipeHistoryDto {
     );
   }
 }
-

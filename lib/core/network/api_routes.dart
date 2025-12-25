@@ -7,11 +7,11 @@ class ApiRoutes {
 
   // Helper methods to build full paths
   static String buildPath(String endpoint) {
-    return '$apiVersion$endpoint';
+    return endpoint;
   }
 
   static String buildPathWithId(String endpoint, String id) {
-    return '$apiVersion$endpoint/$id';
+    return '$endpoint/$id';
   }
 
   // Auth endpoints

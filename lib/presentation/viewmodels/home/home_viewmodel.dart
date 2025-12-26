@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:metal/core/error_handling/error_handler.dart';
 import 'package:metal/data/repositories/discovery/discovery_repository.dart';
 import 'package:metal/domain/entities/discovery_user_dto.dart';
 
@@ -28,7 +30,8 @@ class HomeState {
   factory HomeState.initial() => const HomeState(data: []);
 
   /// Loading state
-  factory HomeState.loading({List<DiscoveryUserDto>? existingUsers}) => HomeState(
+  factory HomeState.loading({List<DiscoveryUserDto>? existingUsers}) =>
+      HomeState(
         isLoading: true,
         data: existingUsers ?? [],
       );
@@ -49,12 +52,16 @@ class HomeState {
       );
 
   /// Error state
-  factory HomeState.error(String message, {List<DiscoveryUserDto>? existingUsers}) =>
-      HomeState(
-        isError: true,
-        errorMessage: message,
-        data: existingUsers ?? [],
-      );
+  factory HomeState.error(String message,
+      {List<DiscoveryUserDto>? existingUsers}) {
+    // Show error in toast
+    Fluttertoast.showToast(msg: message);
+    return HomeState(
+      isError: true,
+      errorMessage: message,
+      data: existingUsers ?? [],
+    );
+  }
 
   /// Copy with
   HomeState copyWith({
@@ -104,7 +111,8 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
       }
     } catch (e) {
       if (mounted) {
-        state = HomeState.error(e.toString());
+        final errorMessage = ErrorHandler.handleErrorToString(e);
+        state = HomeState.error(errorMessage);
       }
     }
   }
@@ -130,7 +138,9 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
     } catch (e) {
       // Don't override existing users on pagination error
       if (mounted) {
-        state = state.copyWith(isError: true, errorMessage: e.toString());
+        final errorMessage = ErrorHandler.handleErrorToString(e);
+        Fluttertoast.showToast(msg: errorMessage);
+        state = state.copyWith(isError: true, errorMessage: errorMessage);
       }
     }
   }
@@ -151,7 +161,8 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
   }
 
   /// Record swipe action and remove user from list
-  Future<SwipeResultDto?> _recordSwipe(String userId, SwipeAction action) async {
+  Future<SwipeResultDto?> _recordSwipe(
+      String userId, SwipeAction action) async {
     try {
       final result = await _repository.recordSwipe(
         targetUserId: userId,
@@ -180,7 +191,9 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
       return result;
     } catch (e) {
       if (mounted) {
-        state = state.copyWith(isError: true, errorMessage: e.toString());
+        final errorMessage = ErrorHandler.handleErrorToString(e);
+        Fluttertoast.showToast(msg: errorMessage);
+        state = state.copyWith(isError: true, errorMessage: errorMessage);
       }
       return null;
     }
@@ -195,7 +208,9 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
       await loadUsers();
     } catch (e) {
       if (mounted) {
-        state = state.copyWith(isError: true, errorMessage: e.toString());
+        final errorMessage = ErrorHandler.handleErrorToString(e);
+        Fluttertoast.showToast(msg: errorMessage);
+        state = state.copyWith(isError: true, errorMessage: errorMessage);
       }
     }
   }
@@ -229,7 +244,8 @@ final homeViewModelProvider =
 });
 
 /// Convenience provider for current users
-final discoveryUsersProvider = Provider.autoDispose<List<DiscoveryUserDto>>((ref) {
+final discoveryUsersProvider =
+    Provider.autoDispose<List<DiscoveryUserDto>>((ref) {
   return ref.watch(homeViewModelProvider).data ?? [];
 });
 
@@ -237,4 +253,3 @@ final discoveryUsersProvider = Provider.autoDispose<List<DiscoveryUserDto>>((ref
 final lastSwipeResultProvider = Provider.autoDispose<SwipeResultDto?>((ref) {
   return ref.watch(homeViewModelProvider).lastSwipeResult;
 });
-

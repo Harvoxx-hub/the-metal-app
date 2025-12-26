@@ -36,9 +36,10 @@ class AuthRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      // Re-throw with more context
-      throw Exception('Login failed: ${e.message}');
+    } on DioException {
+      // Re-throw DioException to preserve response data for error handling
+      // ErrorHandler will extract the proper error message from the response
+      rethrow;
     }
   }
 
@@ -71,8 +72,10 @@ class AuthRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Signup failed: ${e.message}');
+    } on DioException {
+      // Re-throw DioException to preserve response data for error handling
+      // ErrorHandler will extract the proper error message from the response
+      rethrow;
     }
   }
 
@@ -96,8 +99,10 @@ class AuthRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Token refresh failed: ${e.message}');
+    } on DioException {
+      // Re-throw DioException to preserve response data for error handling
+      // ErrorHandler will extract the proper error message from the response
+      rethrow;
     }
   }
 
@@ -105,8 +110,10 @@ class AuthRemoteDataSource extends BaseRemoteDataSource {
   Future<void> logout() async {
     try {
       await dioClient.post(ApiRoutes.buildPath(ApiRoutes.logout));
-    } on DioException catch (e) {
-      throw Exception('Logout failed: ${e.message}');
+    } on DioException {
+      // Re-throw DioException to preserve response data for error handling
+      // ErrorHandler will extract the proper error message from the response
+      rethrow;
     }
   }
 
@@ -127,8 +134,10 @@ class AuthRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Failed to send verification code: ${e.message}');
+    } on DioException {
+      // Re-throw DioException to preserve response data for error handling
+      // ErrorHandler will extract the proper error message from the response
+      rethrow;
     }
   }
 
@@ -155,8 +164,10 @@ class AuthRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Verification failed: ${e.message}');
+    } on DioException {
+      // Re-throw DioException to preserve response data for error handling
+      // ErrorHandler will extract the proper error message from the response
+      rethrow;
     }
   }
 
@@ -185,8 +196,10 @@ class AuthRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Password reset failed: ${e.message}');
+    } on DioException {
+      // Re-throw DioException to preserve response data for error handling
+      // ErrorHandler will extract the proper error message from the response
+      rethrow;
     }
   }
 }

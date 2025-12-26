@@ -110,7 +110,7 @@ class NotificationState {
 class NotificationViewModel extends StateNotifier<NotificationState> {
   final NotificationRepository _repository;
   Timer? _pollingTimer;
-  static const Duration pollingInterval = Duration(seconds: 30);
+  static const Duration pollingInterval = Duration(seconds: 300);
 
   NotificationViewModel({
     required NotificationRepository repository,

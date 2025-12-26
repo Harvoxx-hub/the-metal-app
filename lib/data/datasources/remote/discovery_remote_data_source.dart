@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/network/dio_client.dart';
 import 'package:metal/domain/entities/discovery_user_dto.dart';
@@ -23,32 +24,39 @@ class DiscoveryRemoteDataSource {
     final queryString =
         queryParams.entries.map((e) => '${e.key}=${e.value}').join('&');
 
-    final response = await _client.get(
-      '${ApiRoutes.discoveryUsers}?$queryString',
-    );
+    try {
+      final response = await _client.get(
+        '${ApiRoutes.discoveryUsers}?$queryString',
+      );
 
-    if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>?;
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data['data'] as Map<String, dynamic>?;
 
-      if (data == null) {
-        return const DiscoveryUsersResponse(users: [], pagination: null);
+        if (data == null) {
+          return const DiscoveryUsersResponse(users: [], pagination: null);
+        }
+
+        final usersJson = data['users'] as List<dynamic>? ?? [];
+        final users = usersJson
+            .map((json) =>
+                DiscoveryUserDto.fromJson(json as Map<String, dynamic>))
+            .toList();
+
+        final paginationJson = data['pagination'] as Map<String, dynamic>?;
+        final pagination = paginationJson != null
+            ? DiscoveryPaginationDto.fromJson(paginationJson)
+            : null;
+
+        return DiscoveryUsersResponse(users: users, pagination: pagination);
       }
 
-      final usersJson = data['users'] as List<dynamic>? ?? [];
-      final users = usersJson
-          .map(
-              (json) => DiscoveryUserDto.fromJson(json as Map<String, dynamic>))
-          .toList();
-
-      final paginationJson = data['pagination'] as Map<String, dynamic>?;
-      final pagination = paginationJson != null
-          ? DiscoveryPaginationDto.fromJson(paginationJson)
-          : null;
-
-      return DiscoveryUsersResponse(users: users, pagination: pagination);
+      throw Exception(
+          response.data?['error'] ?? 'Failed to get discovery users');
+    } on DioException {
+      // Re-throw DioException to preserve response data for error handling
+      // ErrorHandler will extract the proper error message from the response
+      rethrow;
     }
-
-    throw Exception(response.data?['error'] ?? 'Failed to get discovery users');
   }
 
   /// Record a swipe action
@@ -56,25 +64,31 @@ class DiscoveryRemoteDataSource {
     required String targetUserId,
     required SwipeAction action,
   }) async {
-    final response = await _client.post(
-      ApiRoutes.discoverySwipe,
-      data: {
-        'targetUserId': targetUserId,
-        'action': action.value,
-      },
-    );
+    try {
+      final response = await _client.post(
+        ApiRoutes.discoverySwipe,
+        data: {
+          'targetUserId': targetUserId,
+          'action': action.value,
+        },
+      );
 
-    if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>?;
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data['data'] as Map<String, dynamic>?;
 
-      if (data == null) {
-        throw Exception('Invalid response from server');
+        if (data == null) {
+          throw Exception('Invalid response from server');
+        }
+
+        return SwipeResultDto.fromJson(data);
       }
 
-      return SwipeResultDto.fromJson(data);
+      throw Exception(response.data?['error'] ?? 'Failed to record swipe');
+    } on DioException {
+      // Re-throw DioException to preserve response data for error handling
+      // ErrorHandler will extract the proper error message from the response
+      rethrow;
     }
-
-    throw Exception(response.data?['error'] ?? 'Failed to record swipe');
   }
 
   /// Get swipe history
@@ -82,48 +96,61 @@ class DiscoveryRemoteDataSource {
     int limit = 50,
     SwipeAction? action,
   }) async {
-    final queryParams = <String, String>{
-      'limit': limit.toString(),
-      if (action != null) 'action': action.value,
-    };
+    try {
+      final queryParams = <String, String>{
+        'limit': limit.toString(),
+        if (action != null) 'action': action.value,
+      };
 
-    final queryString =
-        queryParams.entries.map((e) => '${e.key}=${e.value}').join('&');
+      final queryString =
+          queryParams.entries.map((e) => '${e.key}=${e.value}').join('&');
 
-    final response = await _client.get(
-      '${ApiRoutes.discoveryHistory}?$queryString',
-    );
+      final response = await _client.get(
+        '${ApiRoutes.discoveryHistory}?$queryString',
+      );
 
-    if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as List<dynamic>? ?? [];
-      return data
-          .map((json) => SwipeHistoryDto.fromJson(json as Map<String, dynamic>))
-          .toList();
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data['data'] as List<dynamic>? ?? [];
+        return data
+            .map((json) =>
+                SwipeHistoryDto.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+
+      throw Exception(response.data?['error'] ?? 'Failed to get swipe history');
+    } on DioException {
+      // Re-throw DioException to preserve response data for error handling
+      // ErrorHandler will extract the proper error message from the response
+      rethrow;
     }
-
-    throw Exception(response.data?['error'] ?? 'Failed to get swipe history');
   }
 
   /// Undo last swipe
   Future<SwipeHistoryDto> undoLastSwipe() async {
-    final response = await _client.post(ApiRoutes.discoveryUndo);
+    try {
+      final response = await _client.post(ApiRoutes.discoveryUndo);
 
-    if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>?;
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data['data'] as Map<String, dynamic>?;
 
-      if (data == null) {
-        throw Exception('Invalid response from server');
+        if (data == null) {
+          throw Exception('Invalid response from server');
+        }
+
+        final undoneSwipe = data['undoneSwipe'] as Map<String, dynamic>?;
+        if (undoneSwipe == null) {
+          throw Exception('No swipe data returned');
+        }
+
+        return SwipeHistoryDto.fromJson(undoneSwipe);
       }
 
-      final undoneSwipe = data['undoneSwipe'] as Map<String, dynamic>?;
-      if (undoneSwipe == null) {
-        throw Exception('No swipe data returned');
-      }
-
-      return SwipeHistoryDto.fromJson(undoneSwipe);
+      throw Exception(response.data?['error'] ?? 'Failed to undo swipe');
+    } on DioException {
+      // Re-throw DioException to preserve response data for error handling
+      // ErrorHandler will extract the proper error message from the response
+      rethrow;
     }
-
-    throw Exception(response.data?['error'] ?? 'Failed to undo swipe');
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -59,23 +60,25 @@ class DiscoveryUserCard extends ConsumerWidget {
             borderRadius: BorderRadius.circular(20),
             child: Stack(
               children: [
-                // Background
+                // Metal image as full background
                 Positioned.fill(
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: _buildMetalBackground(ref),
                 ),
 
-                // Metal image at top
-                Positioned(
-                  top: 20,
-                  left: 0,
-                  right: 0,
-                  child: SizedBox(
-                    height: 300,
-                    child: _buildMetalBackground(ref),
+                // Gradient overlay for better text readability
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.7),
+                        ],
+                        stops: const [0.0, 0.6],
+                      ),
+                    ),
                   ),
                 ),
 
@@ -134,13 +137,32 @@ class DiscoveryUserCard extends ConsumerWidget {
       orElse: () => metals[0],
     );
 
+    // Check if metal image URL is valid
+    if (metal.img.isEmpty || metal.img.trim().isEmpty) {
+      return _buildDefaultBackground();
+    }
+
     return CachedNetworkImage(
       imageUrl: metal.img,
-      fit: BoxFit.fill,
+      fit: BoxFit.cover,
       width: double.infinity,
       height: double.infinity,
-      placeholder: (context, url) => _buildDefaultBackground(),
-      errorWidget: (context, url, error) => _buildDefaultBackground(),
+      placeholder: (context, url) => Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.grey.withOpacity(0.3),
+        child: const Center(
+          child: CircularProgressIndicator.adaptive(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        ),
+      ),
+      errorWidget: (context, url, error) {
+        debugPrint('Error loading metal image: $error, URL: $url');
+        return _buildDefaultBackground();
+      },
+      fadeInDuration: const Duration(milliseconds: 300),
+      fadeOutDuration: const Duration(milliseconds: 100),
     );
   }
 

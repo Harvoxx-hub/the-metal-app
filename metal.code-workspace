@@ -4,7 +4,7 @@
 			"path": "."
 		},
 		{
-			"path": "../metal-function"
+			"path": "../metal-BE"
 		}
 	],
 	"settings": {}

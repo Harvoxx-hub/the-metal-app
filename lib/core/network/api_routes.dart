@@ -116,4 +116,7 @@ class ApiRoutes {
   // Report endpoints
   static const String reportUser = '/reports/user'; // POST - report user
   static const String reportContent = '/reports/content'; // POST - report content (thought/comment/message)
+
+  // Metal endpoints
+  static const String metals = '/metals'; // GET - get all metals
 }

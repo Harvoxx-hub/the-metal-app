@@ -7,6 +7,7 @@ import 'package:metal/data/datasources/remote/verification_remote_data_source.da
 import 'package:metal/data/datasources/remote/feedback_remote_data_source.dart';
 import 'package:metal/data/datasources/remote/referral_remote_data_source.dart';
 import 'package:metal/data/datasources/remote/report_remote_data_source.dart';
+import 'package:metal/data/datasources/remote/metal_remote_data_source.dart';
 
 /// Auth Remote Data Source Provider
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
@@ -43,4 +44,9 @@ final referralRemoteDataSourceProvider =
 /// Report Remote Data Source Provider
 final reportRemoteDataSourceProvider = Provider<ReportRemoteDataSource>((ref) {
   return ReportRemoteDataSource(ref.read(dioClientProvider));
+});
+
+/// Metal Remote Data Source Provider
+final metalRemoteDataSourceProvider = Provider<MetalRemoteDataSource>((ref) {
+  return MetalRemoteDataSource(ref.read(dioClientProvider));
 });

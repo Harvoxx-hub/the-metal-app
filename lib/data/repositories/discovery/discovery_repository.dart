@@ -39,10 +39,15 @@ class DiscoveryRepository implements IDiscoveryRepository {
     int limit = 20,
     String? cursor,
   }) async {
-    return _remoteDataSource.getDiscoveryUsers(
-      limit: limit,
-      cursor: cursor,
-    );
+    try {
+      return await _remoteDataSource.getDiscoveryUsers(
+        limit: limit,
+        cursor: cursor,
+      );
+    } catch (e) {
+      // Re-throw to let ViewModel handle with ErrorHandler
+      rethrow;
+    }
   }
 
   @override
@@ -50,10 +55,15 @@ class DiscoveryRepository implements IDiscoveryRepository {
     required String targetUserId,
     required SwipeAction action,
   }) async {
-    return _remoteDataSource.recordSwipe(
-      targetUserId: targetUserId,
-      action: action,
-    );
+    try {
+      return await _remoteDataSource.recordSwipe(
+        targetUserId: targetUserId,
+        action: action,
+      );
+    } catch (e) {
+      // Re-throw to let ViewModel handle with ErrorHandler
+      rethrow;
+    }
   }
 
   @override
@@ -61,20 +71,31 @@ class DiscoveryRepository implements IDiscoveryRepository {
     int limit = 50,
     SwipeAction? action,
   }) async {
-    return _remoteDataSource.getSwipeHistory(
-      limit: limit,
-      action: action,
-    );
+    try {
+      return await _remoteDataSource.getSwipeHistory(
+        limit: limit,
+        action: action,
+      );
+    } catch (e) {
+      // Re-throw to let ViewModel handle with ErrorHandler
+      rethrow;
+    }
   }
 
   @override
   Future<SwipeHistoryDto> undoLastSwipe() async {
-    return _remoteDataSource.undoLastSwipe();
+    try {
+      return await _remoteDataSource.undoLastSwipe();
+    } catch (e) {
+      // Re-throw to let ViewModel handle with ErrorHandler
+      rethrow;
+    }
   }
 }
 
 /// Provider for discovery remote data source
-final discoveryRemoteDataSourceProvider = Provider<DiscoveryRemoteDataSource>((ref) {
+final discoveryRemoteDataSourceProvider =
+    Provider<DiscoveryRemoteDataSource>((ref) {
   final dioClient = ref.watch(dioClientProvider);
   return DiscoveryRemoteDataSource(dioClient);
 });
@@ -84,4 +105,3 @@ final discoveryRepositoryProvider = Provider<IDiscoveryRepository>((ref) {
   final remoteDataSource = ref.watch(discoveryRemoteDataSourceProvider);
   return DiscoveryRepository(remoteDataSource);
 });
-

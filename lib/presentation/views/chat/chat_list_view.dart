@@ -137,7 +137,8 @@ class _ChatListViewState extends ConsumerState<ChatListView> {
         return _buildNoSearchResults(chatState.searchQuery);
       }
       return const EmptyState(
-        text: 'No messages yet\nTap on any of your metals to start a conversation',
+        text:
+            'No messages yet\nTap on any of your metals to start a conversation',
       );
     }
 
@@ -199,7 +200,10 @@ class _ChatListItem extends ConsumerWidget {
           context,
           AppRoutes.chatWindowView,
           arguments: connection.id,
-        );
+        ).then((_) {
+          // Refresh chat list when returning from chat window
+          ref.read(chatListViewModelProvider.notifier).refresh();
+        });
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -245,7 +249,9 @@ class _ChatListItem extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 TextView(
-                  text: formatTime(isoDateString: connection.lastUpdatedAt?.toIso8601String()),
+                  text: formatTime(
+                      isoDateString:
+                          connection.lastUpdatedAt?.toIso8601String()),
                   fontWeight: FontWeight.w300,
                   fontSize: 13,
                 ),

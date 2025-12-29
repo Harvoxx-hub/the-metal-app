@@ -1,8 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
- 
+
 import 'package:metal/domain/entities/discovery_user_dto.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/presentation/views/home/widgets/enhanced_swipe_card.dart';
@@ -60,25 +59,23 @@ class DiscoveryUserCard extends ConsumerWidget {
             borderRadius: BorderRadius.circular(20),
             child: Stack(
               children: [
-                // Metal image as full background
-                Positioned.fill(
-                  child: _buildMetalBackground(ref),
-                ),
-
-                // Gradient overlay for better text readability
+                // Background
                 Positioned.fill(
                   child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.7),
-                        ],
-                        stops: const [0.0, 0.6],
-                      ),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
                     ),
+                  ),
+                ),
+
+                // Metal image at top
+                Positioned(
+                  top: 20,
+                  left: 0,
+                  right: 0,
+                  child: SizedBox(
+                    height: 300,
+                    child: _buildMetalBackground(ref),
                   ),
                 ),
 
@@ -137,32 +134,13 @@ class DiscoveryUserCard extends ConsumerWidget {
       orElse: () => metals[0],
     );
 
-    // Check if metal image URL is valid
-    if (metal.img.isEmpty || metal.img.trim().isEmpty) {
-      return _buildDefaultBackground();
-    }
-
     return CachedNetworkImage(
       imageUrl: metal.img,
-      fit: BoxFit.cover,
+      fit: BoxFit.fill,
       width: double.infinity,
       height: double.infinity,
-      placeholder: (context, url) => Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: Colors.grey.withOpacity(0.3),
-        child: const Center(
-          child: CircularProgressIndicator.adaptive(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        ),
-      ),
-      errorWidget: (context, url, error) {
-        debugPrint('Error loading metal image: $error, URL: $url');
-        return _buildDefaultBackground();
-      },
-      fadeInDuration: const Duration(milliseconds: 300),
-      fadeOutDuration: const Duration(milliseconds: 100),
+      placeholder: (context, url) => _buildDefaultBackground(),
+      errorWidget: (context, url, error) => _buildDefaultBackground(),
     );
   }
 
@@ -272,7 +250,8 @@ class DiscoveryUserCard extends ConsumerWidget {
               runSpacing: 4,
               children: user.passion!.take(3).map((passion) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
@@ -289,7 +268,8 @@ class DiscoveryUserCard extends ConsumerWidget {
             ),
 
           // Connection options
-          if (user.connectionOption != null && user.connectionOption!.isNotEmpty) ...[
+          if (user.connectionOption != null &&
+              user.connectionOption!.isNotEmpty) ...[
             const SizedBox(height: 8),
             const TextView(
               text: "Looking for:",
@@ -303,11 +283,13 @@ class DiscoveryUserCard extends ConsumerWidget {
               runSpacing: 4,
               children: user.connectionOption!.take(3).map((option) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppColors.metalPinkColour.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.metalPinkColour.withOpacity(0.3)),
+                    border: Border.all(
+                        color: AppColors.metalPinkColour.withOpacity(0.3)),
                   ),
                   child: TextView(
                     text: option,
@@ -472,4 +454,3 @@ class DiscoveryUserCard extends ConsumerWidget {
     );
   }
 }
-

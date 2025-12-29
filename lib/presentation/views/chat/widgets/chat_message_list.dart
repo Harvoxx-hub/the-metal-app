@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/domain/entities/message_dto.dart';
+import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/presentation/views/chat/widgets/audio_player_widget.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -29,7 +31,7 @@ class ChatMessageList extends StatelessWidget {
     return ListView.builder(
       controller: scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount: messages.length + (isLoadingMore ? 1 : 0),
+      itemCount: messages.length + (isLoadingMore ? 1 : 0) + 1, // +1 for date divider
       itemBuilder: (context, index) {
         if (isLoadingMore && index == 0) {
           return const Center(
@@ -40,7 +42,23 @@ class ChatMessageList extends StatelessWidget {
           );
         }
 
-        final messageIndex = isLoadingMore ? index - 1 : index;
+        // Show "Today" divider after loading indicator (or at start)
+        final dividerIndex = isLoadingMore ? 1 : 0;
+        if (index == dividerIndex) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0),
+            child: Center(
+              child: TextView(
+                text: 'Today',
+                fontSize: 12,
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          );
+        }
+
+        final messageIndex = (isLoadingMore ? index - 2 : index - 1);
         final message = messages[messageIndex];
         final isMe = message.senderId == currentUserId;
 
@@ -74,10 +92,11 @@ class _MessageBubble extends StatelessWidget {
     return GestureDetector(
       onLongPress: () => _showOptions(context),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
           mainAxisAlignment:
               isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (isMe) const Spacer(flex: 1),
             Flexible(
@@ -91,43 +110,40 @@ class _MessageBubble extends StatelessWidget {
                   // Message bubble
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
+                      horizontal: 16,
+                      vertical: 12,
                     ),
                     decoration: BoxDecoration(
                       color: isMe
-                          ? AppColors.metalPinkColour
-                          : Colors.grey[200],
+                          ? const Color(0xFFE8E8E8)
+                          : const Color(0xFFF5E6F5),
                       borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(16),
-                        topRight: const Radius.circular(16),
-                        bottomLeft: Radius.circular(isMe ? 16 : 4),
-                        bottomRight: Radius.circular(isMe ? 4 : 16),
+                        topLeft: const Radius.circular(18),
+                        topRight: const Radius.circular(18),
+                        bottomLeft: Radius.circular(isMe ? 18 : 4),
+                        bottomRight: Radius.circular(isMe ? 4 : 18),
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    child: _buildMessageContent(),
+                  ),
+                  const Gap(4),
+                  // Timestamp and status below bubble
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Message content
-                        _buildMessageContent(),
-                        const Gap(4),
-                        // Timestamp and status
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextView(
-                              text: formatTime(
-                                isoDateString: message.timestamp.toIso8601String(),
-                              ),
-                              fontSize: 10,
-                              color: isMe ? Colors.white70 : Colors.grey,
-                            ),
-                            if (isMe) ...[
-                              const Gap(4),
-                              _buildStatusIcon(),
-                            ],
-                          ],
+                        TextView(
+                          text: formatTime(
+                            isoDateString: message.timestamp.toIso8601String(),
+                          ),
+                          fontSize: 11,
+                          color: Colors.grey,
                         ),
+                        if (isMe) ...[
+                          const Gap(4),
+                          _buildStatusIcon(),
+                        ],
                       ],
                     ),
                   ),
@@ -143,38 +159,20 @@ class _MessageBubble extends StatelessWidget {
 
   Widget _buildMessageContent() {
     if (message.isAudio) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.play_circle_fill,
-            color: isMe ? Colors.white : AppColors.metalPinkColour,
-            size: 32,
-          ),
-          const Gap(8),
-          Container(
-            width: 120,
-            height: 30,
-            decoration: BoxDecoration(
-              color: isMe ? Colors.white24 : Colors.grey[300],
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Center(
-              child: TextView(
-                text: '🎵 Voice message',
-                fontSize: 12,
-                color: isMe ? Colors.white : Colors.black87,
-              ),
-            ),
-          ),
-        ],
+      // Use the audio player widget
+      return SizedBox(
+        width: 220,
+        child: AudioPlayerWidget(
+          audioUrl: message.content ?? '',
+          isMe: isMe,
+        ),
       );
     }
 
     return TextView(
       text: message.message,
       fontSize: 14,
-      color: isMe ? Colors.white : Colors.black87,
+      color: Colors.black87,
     );
   }
 
@@ -184,12 +182,12 @@ class _MessageBubble extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: isMe
-            ? AppColors.metalPinkColour.withOpacity(0.7)
-            : Colors.grey[300],
+            ? const Color(0xFFD0D0D0)
+            : const Color(0xFFE8D4E8),
         borderRadius: BorderRadius.circular(8),
         border: Border(
           left: BorderSide(
-            color: isMe ? Colors.white : AppColors.metalPinkColour,
+            color: AppColors.metalPinkColour,
             width: 2,
           ),
         ),
@@ -198,9 +196,9 @@ class _MessageBubble extends StatelessWidget {
         message.replyToMessageType == 'audio'
             ? '🎵 Voice message'
             : message.replyToMessageText ?? 'Message',
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 12,
-          color: isMe ? Colors.white70 : Colors.black54,
+          color: Colors.black54,
         ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -215,7 +213,7 @@ class _MessageBubble extends StatelessWidget {
         height: 12,
         child: CircularProgressIndicator(
           strokeWidth: 1.5,
-          color: Colors.white70,
+          color: Colors.grey,
         ),
       );
     }
@@ -228,10 +226,13 @@ class _MessageBubble extends StatelessWidget {
       );
     }
 
-    return Icon(
-      message.isRead ? Icons.done_all : Icons.done,
-      size: 14,
-      color: message.isRead ? Colors.blue[200] : Colors.white70,
+    return Assets.icons.chatsWindowactiveDoneAll.svg(
+      width: 14,
+      height: 14,
+      colorFilter: ColorFilter.mode(
+        message.isRead ? AppColors.metalPinkColour : Colors.grey,
+        BlendMode.srcIn,
+      ),
     );
   }
 

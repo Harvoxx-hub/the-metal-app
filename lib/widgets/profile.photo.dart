@@ -56,22 +56,32 @@ class ProfilePhoto extends ConsumerWidget {
                   ),
                   shape: OvalBorder(),
                 ),
-                child: Padding(
-                    padding: EdgeInsets.all(9),
-                    child: CachedNetworkImage(
-                        imageUrl: imgUrl ?? metal.img,
-                        imageBuilder: (context, imageProvider) => CircleAvatar(
-                             // Image radius
-                              backgroundImage: imageProvider,
-                            ),
-                        placeholder: (context, url) => const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator
-                                  .adaptive(), // Loading indicator
-                            ),
-                        errorWidget: (context, url, error) => Assets.images.logo
-                            .image(height: size * 0.7, width: size * 0.7))),
+                child: CachedNetworkImage(
+                  imageUrl: imgUrl ?? metal.img,
+                  fit: BoxFit.cover,
+                  imageBuilder: (context, imageProvider) => Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  placeholder: (context, url) => Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator.adaptive(),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Center(
+                    child: Assets.images.logo.image(
+                      height: size * 0.5,
+                      width: size * 0.5,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

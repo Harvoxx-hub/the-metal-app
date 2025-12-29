@@ -204,7 +204,7 @@ class ChatRemoteDataSource {
   /// Mark all messages in a connection as read
   Future<void> markAllMessagesAsRead(String connectionId) async {
     final response = await _client.put(
-      '${ApiRoutes.buildPath(ApiRoutes.connectionById)}/$connectionId/read-all',
+      '${ApiRoutes.buildPath(ApiRoutes.markAllMessagesRead)}/$connectionId/read-all',
     );
 
     if (response.statusCode != 200) {

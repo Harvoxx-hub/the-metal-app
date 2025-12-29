@@ -11,14 +11,13 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'package:metal/route/routes.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:zego_uikit/zego_uikit.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
-import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:metal/fcm/fcm_client.dart';
 
 import 'package:metal/core/services/deep_link_service.dart';
 import 'package:metal/core/di/provider_setup.dart';
+import 'package:metal/core/utils/permission_helper.dart';
 
 /// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
@@ -66,20 +65,11 @@ void main() async {
     // Continue app startup even if FCM fails
   }
 
-  // Set navigator key
-  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navKey);
-
-  await ZegoUIKit().initLog().then((value) {
-    ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
-      [ZegoUIKitSignalingPlugin()],
-    );
-  });
-
   // Initialize SharedPreferences eagerly before app starts
   final sharedPreferences = await SharedPreferences.getInstance();
-  
+
   // Initialize the lifecycle handler (handles its own auth state changes)
-  final lifecycleHandler = AppLifecycleHandler();
+  final lifecycleHandler= AppLifecycleHandler();
   WidgetsBinding.instance.addObserver(lifecycleHandler);
   await lifecycleHandler.initialize();
 
@@ -112,6 +102,16 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     super.initState();
     //  ref.read(authProvider.notifier).initZIMKIt();
     // ref.read(updateProfileProvider.notifier);
+
+    // Request microphone and camera permissions on iOS after app is initialized
+    // Using post-frame callback to ensure app is fully running
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await PermissionHelper.requestIOSMediaPermissionsOnLaunch();
+      } catch (e) {
+        print('iOS media permissions request failed: $e');
+      }
+    });
   }
 
   /// Check if a route name is numeric (likely an ID from deep link)
@@ -131,9 +131,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         return Stack(
           children: [
             child!,
-            ZegoUIKitPrebuiltCallMiniOverlayPage(
-              contextQuery: () => navKey.currentState!.context,
-            ),
+            // ZegoUIKitPrebuiltCallMiniOverlayPage(
+            //   contextQuery: () => navKey.currentState!.context,
+            // ),
           ],
         );
       },

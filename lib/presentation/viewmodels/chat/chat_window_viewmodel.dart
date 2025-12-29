@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/services/websocket_service.dart';
 import 'package:metal/core/utils/constant/chat_constants.dart';
+import 'package:metal/data/models/message_model.dart';
 import 'package:metal/domain/entities/message_dto.dart';
 import 'package:metal/domain/usecases/chat/delete_message_usecase.dart';
 import 'package:metal/domain/usecases/chat/get_messages_usecase.dart';
@@ -104,31 +106,37 @@ class ChatWindowState {
 }
 
 /// Chat Window ViewModel
-/// Handles message loading, sending, and polling
+/// Handles message loading, sending, and real-time updates via WebSocket
 class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
   final String connectionId;
+  final String? currentUserId;
   final GetMessagesUseCase _getMessagesUseCase;
   final GetMessagesSinceUseCase _getMessagesSinceUseCase;
   final SendMessageUseCase _sendMessageUseCase;
   final DeleteMessageUseCase _deleteMessageUseCase;
   final MarkAllMessagesReadUseCase _markAllMessagesReadUseCase;
+  final WebSocketService _websocketService;
 
-  Timer? _pollingTimer;
+  Timer? _pollingTimer; // Fallback polling if WebSocket fails
   bool _isPollingEnabled = false;
+  StreamSubscription? _websocketSubscription;
   final _random = Random();
 
   ChatWindowViewModel({
     required this.connectionId,
+    this.currentUserId,
     required GetMessagesUseCase getMessagesUseCase,
     required GetMessagesSinceUseCase getMessagesSinceUseCase,
     required SendMessageUseCase sendMessageUseCase,
     required DeleteMessageUseCase deleteMessageUseCase,
     required MarkAllMessagesReadUseCase markAllMessagesReadUseCase,
+    required WebSocketService websocketService,
   })  : _getMessagesUseCase = getMessagesUseCase,
         _getMessagesSinceUseCase = getMessagesSinceUseCase,
         _sendMessageUseCase = sendMessageUseCase,
         _deleteMessageUseCase = deleteMessageUseCase,
         _markAllMessagesReadUseCase = markAllMessagesReadUseCase,
+        _websocketService = websocketService,
         super(ChatWindowState.initial());
 
   /// Load initial messages
@@ -153,8 +161,8 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
         // Mark all messages as read when opening chat
         _markAllAsRead();
 
-        // Start polling for new messages
-        startPolling();
+        // Start WebSocket connection for real-time updates
+        _startWebSocket();
       } else {
         state = ChatWindowState.error(
           result.errorMessage ?? 'Failed to load messages',
@@ -351,10 +359,192 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
     state = state.copyWith(clearSendError: true);
   }
 
-  // ============ Polling ============
+  // ============ WebSocket ============
 
-  /// Start polling for new messages
-  void startPolling() {
+  /// Start WebSocket connection for real-time updates
+  Future<void> _startWebSocket() async {
+    // Connect to WebSocket if not already connected
+    if (!_websocketService.isConnected) {
+      await _websocketService.connect();
+    }
+
+    // Listen to WebSocket messages
+    _websocketSubscription?.cancel();
+    _websocketSubscription = _websocketService.messageStream.listen(
+      _handleWebSocketMessage,
+      onError: (error) {
+        print('WebSocket error in chat: $error');
+        // Fallback to polling if WebSocket fails
+        _startPollingFallback();
+      },
+    );
+
+    // Also listen to connection status
+    _websocketService.connectionStream.listen((isConnected) {
+      if (!isConnected) {
+        // WebSocket disconnected, fallback to polling
+        _startPollingFallback();
+      } else {
+        // WebSocket reconnected, stop polling
+        stopPolling();
+      }
+    });
+  }
+
+  /// Handle WebSocket messages
+  void _handleWebSocketMessage(Map<String, dynamic> message) {
+    final type = message['type'] as String?;
+    final data = message['data'] as Map<String, dynamic>?;
+
+    if (data == null) return;
+
+    switch (type) {
+      case 'message':
+        // New message received
+        _handleNewMessage(data);
+        break;
+
+      case 'message_sent':
+        // Confirmation that our message was sent (already handled by REST response)
+        // Could update message state here if needed
+        break;
+
+      case 'message_read':
+        // Read receipt received
+        _handleReadReceipt(data);
+        break;
+
+      case 'messages_read':
+        // Multiple messages read
+        _handleMessagesRead(data);
+        break;
+
+      case 'message_deleted':
+        // Message deleted
+        _handleMessageDeleted(data);
+        break;
+
+      case 'message_updated':
+        // Message updated
+        _handleMessageUpdated(data);
+        break;
+
+      case 'typing':
+        // Typing indicator (could be implemented in UI if needed)
+        break;
+
+      default:
+        print('Unknown WebSocket message type: $type');
+    }
+  }
+
+  /// Handle new message from WebSocket
+  void _handleNewMessage(Map<String, dynamic> data) {
+    final messageData = data['message'] as Map<String, dynamic>?;
+    final msgConnectionId = data['connectionId'] as String?;
+
+    if (messageData == null || msgConnectionId != connectionId) return;
+
+    try {
+      final messageModel = MessageModel.fromJson(messageData);
+      final messageDto = messageModel.toDomain();
+
+      // Check if message already exists (avoid duplicates)
+      final existingIds = state.messages.map((m) => m.id).toSet();
+      if (existingIds.contains(messageDto.id)) return;
+
+      // Only add if not from current user (current user's messages come from REST API)
+      if (currentUserId != null && messageDto.senderId != currentUserId) {
+        state = state.copyWith(
+          messages: [...state.messages, messageDto],
+        );
+
+        // Mark as read if chat is open
+        _markAllAsRead();
+      }
+    } catch (e) {
+      print('Error parsing WebSocket message: $e');
+    }
+  }
+
+  /// Handle read receipt
+  void _handleReadReceipt(Map<String, dynamic> data) {
+    final messageId = data['messageId'] as String?;
+    if (messageId == null) return;
+
+    // Update message read status in state
+    final updatedMessages = state.messages.map((m) {
+      if (m.id == messageId) {
+        return m.copyWith(isRead: true, state: MessageState.read);
+      }
+      return m;
+    }).toList();
+
+    state = state.copyWith(messages: updatedMessages);
+  }
+
+  /// Handle multiple messages read
+  void _handleMessagesRead(Map<String, dynamic> data) {
+    final msgConnectionId = data['connectionId'] as String?;
+    if (msgConnectionId != connectionId) return;
+
+    // Mark all messages sent by current user as read
+    if (currentUserId != null) {
+      final updatedMessages = state.messages.map((m) {
+        if (m.senderId == currentUserId && !m.isRead) {
+          return m.copyWith(isRead: true, state: MessageState.read);
+        }
+        return m;
+      }).toList();
+
+      state = state.copyWith(messages: updatedMessages);
+    }
+  }
+
+  /// Handle message deleted
+  void _handleMessageDeleted(Map<String, dynamic> data) {
+    final messageId = data['messageId'] as String?;
+    if (messageId == null) return;
+
+    final updatedMessages = state.messages
+        .where((m) => m.id != messageId)
+        .toList();
+
+    state = state.copyWith(messages: updatedMessages);
+  }
+
+  /// Handle message updated
+  void _handleMessageUpdated(Map<String, dynamic> data) {
+    final messageData = data['message'] as Map<String, dynamic>?;
+    if (messageData == null) return;
+
+    try {
+      final messageModel = MessageModel.fromJson(messageData);
+      final updatedMessage = messageModel.toDomain();
+
+      final updatedMessages = state.messages.map((m) {
+        if (m.id == updatedMessage.id) {
+          return updatedMessage;
+        }
+        return m;
+      }).toList();
+
+      state = state.copyWith(messages: updatedMessages);
+    } catch (e) {
+      print('Error parsing updated message: $e');
+    }
+  }
+
+  /// Stop WebSocket subscription
+  void _stopWebSocket() {
+    _websocketSubscription?.cancel();
+    _websocketSubscription = null;
+  }
+
+  // ============ Polling (Fallback) ============
+
+  /// Start polling as fallback if WebSocket fails
+  void _startPollingFallback() {
     if (_isPollingEnabled) return;
     _isPollingEnabled = true;
 
@@ -364,6 +554,11 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
     );
   }
 
+  /// Start polling for new messages (explicit fallback)
+  void startPolling() {
+    _startPollingFallback();
+  }
+
   /// Stop polling
   void stopPolling() {
     _isPollingEnabled = false;
@@ -371,7 +566,7 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
     _pollingTimer = null;
   }
 
-  /// Poll for new messages
+  /// Poll for new messages (fallback)
   Future<void> _pollNewMessages() async {
     if (!_isPollingEnabled || state.messages.isEmpty) return;
 
@@ -412,6 +607,7 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
 
   /// Refresh messages
   Future<void> refresh() async {
+    _stopWebSocket();
     stopPolling();
     state = ChatWindowState.initial();
     await loadMessages();
@@ -425,6 +621,7 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
 
   @override
   void dispose() {
+    _stopWebSocket();
     stopPolling();
     super.dispose();
   }

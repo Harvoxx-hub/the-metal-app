@@ -128,7 +128,7 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
         Expanded(
           child: _buildMessagesList(chatState, currentUser?.id ?? ''),
         ),
-        // Input
+        // Input (no gap/padding between messages and input)
         ChatInput(
           connectionId: widget.connectionId,
           canSend: !isPendingReceiver,
@@ -169,24 +169,40 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
       );
     }
 
-    return ChatMessageList(
-      messages: chatState.messages,
-      currentUserId: currentUserId,
-      scrollController: _scrollController,
-      isLoadingMore: chatState.isLoading,
-      onReply: (message) {
-        ref
-            .read(chatWindowViewModelProvider(widget.connectionId).notifier)
-            .setReplyingTo(message);
-      },
-      onDelete: (messageId) async {
-        final confirm = await _showDeleteConfirmation();
-        if (confirm == true) {
-          await ref
-              .read(chatWindowViewModelProvider(widget.connectionId).notifier)
-              .deleteMessage(messageId);
-        }
-      },
+    return Stack(
+      children: [
+        // Decorative hearts background
+        Positioned.fill(
+          child: _buildHeartsBackground(),
+        ),
+        // Messages
+        ChatMessageList(
+          messages: chatState.messages,
+          currentUserId: currentUserId,
+          scrollController: _scrollController,
+          isLoadingMore: chatState.isLoading,
+          onReply: (message) {
+            ref
+                .read(chatWindowViewModelProvider(widget.connectionId).notifier)
+                .setReplyingTo(message);
+          },
+          onDelete: (messageId) async {
+            final confirm = await _showDeleteConfirmation();
+            if (confirm == true) {
+              await ref
+                  .read(chatWindowViewModelProvider(widget.connectionId).notifier)
+                  .deleteMessage(messageId);
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeartsBackground() {
+    return CustomPaint(
+      painter: _HeartsPainter(),
+      child: Container(),
     );
   }
 
@@ -196,10 +212,10 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.metalPinkColour.withOpacity(0.1),
+        color: AppColors.metalPinkColour.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.metalPinkColour.withOpacity(0.3),
+          color: AppColors.metalPinkColour.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -245,4 +261,55 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
       ),
     );
   }
+}
+
+/// Custom painter for decorative hearts background
+class _HeartsPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.metalPinkColour.withValues(alpha: 0.08)
+      ..style = PaintingStyle.fill;
+
+    // Draw hearts at various positions
+    final heartPositions = [
+      Offset(size.width * 0.1, size.height * 0.15),
+      Offset(size.width * 0.85, size.height * 0.25),
+      Offset(size.width * 0.15, size.height * 0.45),
+      Offset(size.width * 0.9, size.height * 0.65),
+      Offset(size.width * 0.2, size.height * 0.80),
+      Offset(size.width * 0.75, size.height * 0.90),
+    ];
+
+    for (final position in heartPositions) {
+      _drawHeart(canvas, paint, position, 20);
+    }
+  }
+
+  void _drawHeart(Canvas canvas, Paint paint, Offset center, double size) {
+    final path = Path();
+
+    // Start from bottom point
+    path.moveTo(center.dx, center.dy + size * 0.3);
+
+    // Left curve
+    path.cubicTo(
+      center.dx - size * 0.6, center.dy - size * 0.1,
+      center.dx - size * 0.6, center.dy - size * 0.6,
+      center.dx, center.dy - size * 0.3,
+    );
+
+    // Right curve
+    path.cubicTo(
+      center.dx + size * 0.6, center.dy - size * 0.6,
+      center.dx + size * 0.6, center.dy - size * 0.1,
+      center.dx, center.dy + size * 0.3,
+    );
+
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

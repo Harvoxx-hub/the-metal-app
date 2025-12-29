@@ -32,6 +32,7 @@ dependencies:
   dio: ^5.0.0
   pretty_dio_logger: ^1.3.1
   json_serializable: ^6.9.3
+  web_socket_channel: ^3.0.1
   flutter_tts: ^4.2.2
   
   flutter_screenutil: ^5.7.0
@@ -53,7 +54,7 @@ dependencies:
   shimmer: ^3.0.0
   flutter_ringtone_player: ^4.0.0+4
   audioplayers: ^6.4.0
-  cloud_firestore: ^5.1.0
+ 
  
  
   firebase_messaging: ^15.1.6
@@ -65,19 +66,17 @@ dependencies:
   video_player: ^2.9.2
   just_the_tooltip: ^0.0.12
   emoji_picker_flutter: ^4.3.0
-  share_plus: ^11.0.0
+  share_plus: ^12.0.0
   flutter_dropzone: ^4.0.3
   cached_network_image: ^3.3.1
   timeago: ^3.7.0
   
   firebase_remote_config: ^5.1.5
-  permission_handler: ^11.3.1
+  permission_handler: ^11.4.0
  
   file_picker: ^10.1.2
   cloud_functions: ^5.2.0
-  zego_uikit_prebuilt_call: ^4.17.9
-  zego_uikit_signaling_plugin: ^2.8.15
-  zego_uikit: ^2.28.23
+  
   package_info_plus: ^8.1.3
   geocoding: ^3.0.0
  

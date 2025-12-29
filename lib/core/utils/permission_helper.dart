@@ -756,4 +756,191 @@ class PermissionHelper {
       },
     );
   }
+
+  // ============================================
+  // iOS App Launch Permission Requests
+  // ============================================
+
+  /// Request microphone and camera permissions on iOS app launch
+  /// Shows native iOS permission dialogs
+  static Future<void> requestIOSMediaPermissionsOnLaunch() async {
+    if (!Platform.isIOS) {
+      return;
+    }
+
+    // Simply request both permissions - iOS will show dialogs if needed
+    // If already granted or denied, this returns immediately
+    await Permission.camera.request();
+    await Permission.microphone.request();
+  }
+
+  // ============================================
+  // Voice Note / Microphone Permission Methods
+  // ============================================
+
+  /// Request microphone permission for voice notes with proper dialog flow
+  /// Returns true if permission is granted, false otherwise
+  static Future<bool> requestMicrophonePermission(BuildContext context) async {
+    // Check current permission status
+    var microphoneStatus = await Permission.microphone.status;
+
+    // If already granted, return true
+    if (microphoneStatus.isGranted) {
+      return true;
+    }
+
+    // On iOS, if status shows denied but user might have granted it in settings,
+    // try requesting to refresh the status (won't show dialog if already granted)
+    if (Platform.isIOS && microphoneStatus.isDenied) {
+      final refreshedStatus = await Permission.microphone.request();
+      if (refreshedStatus.isGranted) {
+        return true;
+      }
+      // Update status after refresh attempt
+      microphoneStatus = await Permission.microphone.status;
+    }
+
+    // If permanently denied, show settings dialog
+    if (microphoneStatus.isPermanentlyDenied) {
+      final shouldOpenSettings = await _showMicrophoneSettingsDialog(context);
+
+      if (shouldOpenSettings) {
+        await openAppSettings();
+      }
+      return false;
+    }
+
+    // Show explanation dialog first
+    final shouldRequest =
+        await _showMicrophonePermissionExplanationDialog(context);
+
+    if (!shouldRequest) {
+      return false;
+    }
+
+    // Request the permission
+    final result = await Permission.microphone.request();
+
+    // Check if permanently denied after request
+    if (result.isPermanentlyDenied) {
+      final shouldOpenSettings = await _showMicrophoneSettingsDialog(context);
+
+      if (shouldOpenSettings) {
+        await openAppSettings();
+      }
+      return false;
+    }
+
+    return result.isGranted;
+  }
+
+  /// Show microphone permission explanation dialog for voice notes
+  static Future<bool> _showMicrophonePermissionExplanationDialog(
+      BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return EnhancedDialog(
+              title: 'Microphone Access',
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextView(
+                    text:
+                        'To send voice messages, Metal needs access to your microphone.',
+                    fontSize: 14,
+                  ),
+                  const SizedBox(height: 12),
+                  TextView(
+                    text: 'This allows you to:',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildPermissionItem('Record voice notes',
+                      'Send audio messages to your matches'),
+                  const SizedBox(height: 8),
+                  _buildPermissionItem(
+                      'Express yourself', 'Share your voice instead of typing'),
+                  const SizedBox(height: 8),
+                  _buildPermissionItem('Personal connection',
+                      'Create more meaningful conversations'),
+                ],
+              ),
+              primaryButtonText: 'Allow Microphone',
+              onPrimaryButtonPressed: () => Navigator.of(context).pop(true),
+              secondaryButtonText: 'Not Now',
+              onSecondaryButtonPressed: () => Navigator.of(context).pop(false),
+            );
+          },
+        ) ??
+        false;
+  }
+
+  /// Show microphone settings dialog when permission is permanently denied
+  static Future<bool> _showMicrophoneSettingsDialog(
+      BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return EnhancedDialog(
+              title: 'Microphone Permission Required',
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextView(
+                    text:
+                        'Microphone access has been denied. To send voice messages, please enable it in Settings.',
+                    fontSize: 14,
+                  ),
+                  const SizedBox(height: 12),
+                  TextView(
+                    text: 'To enable microphone:',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildPermissionItem(
+                      'Open Settings', 'Go to app permissions'),
+                  const SizedBox(height: 8),
+                  _buildPermissionItem(
+                      'Enable Microphone', 'Turn on microphone access'),
+                  const SizedBox(height: 8),
+                  _buildPermissionItem(
+                      'Return to App', 'Come back and try again'),
+                ],
+              ),
+              primaryButtonText: 'Open Settings',
+              onPrimaryButtonPressed: () => Navigator.of(context).pop(true),
+              secondaryButtonText: 'Cancel',
+              onSecondaryButtonPressed: () => Navigator.of(context).pop(false),
+            );
+          },
+        ) ??
+        false;
+  }
+
+  /// Check if microphone permission is granted
+  /// This method checks the current status without requesting permission
+  /// On iOS, if status is denied, it may try to refresh to get accurate state
+  static Future<bool> hasMicrophonePermission() async {
+    var microphoneStatus = await Permission.microphone.status;
+
+    if (microphoneStatus.isGranted) {
+      return true;
+    }
+
+    // On iOS, if status shows denied, try requesting to refresh status
+    // This won't show a dialog if permission is already granted in settings
+    if (Platform.isIOS && microphoneStatus.isDenied) {
+      final refreshedStatus = await Permission.microphone.request();
+      return refreshedStatus.isGranted;
+    }
+
+    return microphoneStatus.isGranted;
+  }
 }

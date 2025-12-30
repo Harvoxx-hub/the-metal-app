@@ -167,9 +167,9 @@ class _ChatInputState extends ConsumerState<ChatInput> {
         final responseData =
             uploadUrlResponse.data['data'] ?? uploadUrlResponse.data;
         final uploadUrl = responseData['uploadUrl'] as String;
-        // Use downloadUrl which is a signed URL that allows reading
-        final downloadUrl = responseData['downloadUrl'] as String? ??
-            responseData['publicUrl'] as String;
+        final filePath = responseData['filePath'] as String;
+        final makePublic = responseData['makePublic'] as bool? ?? false;
+        final publicUrl = responseData['publicUrl'] as String;
 
         // Upload file to the signed URL
         final fileBytes = await file.readAsBytes();
@@ -185,7 +185,24 @@ class _ChatInputState extends ConsumerState<ChatInput> {
         );
 
         if (uploadResponse.statusCode == 200) {
-          return downloadUrl;
+          // For message files, make them publicly readable so they never expire
+          if (makePublic && filePath.isNotEmpty) {
+            try {
+              await dioClient.post(
+                ApiRoutes.mediaMakePublic,
+                data: {
+                  'filePath': filePath,
+                },
+              );
+              print('File made public: $filePath');
+            } catch (e) {
+              print('Warning: Failed to make file public: $e');
+              // Continue anyway - the signed URL will work for 6 days
+            }
+          }
+
+          // Return the public URL (or signed URL if makePublic failed)
+          return publicUrl;
         }
       }
       return null;

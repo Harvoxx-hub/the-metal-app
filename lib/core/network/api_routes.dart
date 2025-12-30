@@ -83,6 +83,8 @@ class ApiRoutes {
   // Media endpoints
   static const String mediaUpload =
       '/media/upload-url'; // POST - request signed upload URL
+  static const String mediaMakePublic =
+      '/media/make-public'; // POST - make file publicly readable
 
   // Spark endpoints
   static const String sparks =

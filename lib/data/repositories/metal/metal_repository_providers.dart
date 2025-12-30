@@ -7,8 +7,3 @@ final metalRepositoryProvider = Provider<IMetalRepository>((ref) {
   final remoteDataSource = ref.watch(metalRemoteDataSourceProvider);
   return MetalRepository(remoteDataSource);
 });
-
-
-
-
-

@@ -26,8 +26,3 @@ class MetalRepository implements IMetalRepository {
     }
   }
 }
-
-
-
-
-

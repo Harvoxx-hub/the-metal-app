@@ -152,9 +152,9 @@ class ChatRepository implements ChatRepositoryAbstract {
   }
 
   @override
-  Future<BaseState<void>> deleteMessage(String messageId) async {
+  Future<BaseState<void>> deleteMessage(String messageId, String connectionId) async {
     try {
-      await _remoteDataSource.deleteMessage(messageId);
+      await _remoteDataSource.deleteMessage(messageId, connectionId);
       return BaseState.success(null);
     } catch (e) {
       return ErrorHandler.handleError<void>(e);

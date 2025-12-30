@@ -29,8 +29,10 @@ class MetalPropertiesNotifier extends StateNotifier<MetalPropertiesState> {
 
       // Get other properties from Firebase Remote Config (if needed)
       // For now, we'll only use metals from API
-      final remoteConfigProperties = FirebaseRemoteConfigService().getMetalProperties();
-      final remoteConfigModel = MetalPropertiesModel.fromJson(remoteConfigProperties);
+      final remoteConfigProperties =
+          FirebaseRemoteConfigService().getMetalProperties();
+      final remoteConfigModel =
+          MetalPropertiesModel.fromJson(remoteConfigProperties);
 
       // Combine: metals from API, other properties from Remote Config
       final metalProperties = MetalPropertiesModel(
@@ -66,4 +68,3 @@ final metalPropertiesProvider =
     StateNotifierProvider<MetalPropertiesNotifier, MetalPropertiesState>(
   (ref) => MetalPropertiesNotifier(MetalPropertiesState.initial(), ref),
 );
-

@@ -31,8 +31,33 @@ class MessageModel {
 
   /// Create from API JSON response
   factory MessageModel.fromJson(Map<String, dynamic> json) {
+    // Try multiple possible ID field names
+    final messageId = json['id'] as String? ?? 
+                      json['_id'] as String? ?? 
+                      json['messageId'] as String?;
+    
+    if (messageId == null || messageId.isEmpty) {
+      print('Warning: Message missing ID field. JSON: $json');
+      // Generate a fallback ID if missing (shouldn't happen in production)
+      final fallbackId = 'missing_${DateTime.now().millisecondsSinceEpoch}';
+      print('Generated fallback ID: $fallbackId');
+      return MessageModel(
+        id: fallbackId,
+        message: json['message'] as String? ?? '',
+        senderId: json['senderId'] as String? ?? '',
+        type: json['type'] as String? ?? 'text',
+        content: json['content'] as String?,
+        timestamp: json['timestamp'] as String? ?? DateTime.now().toIso8601String(),
+        isRead: json['isRead'] as bool? ?? false,
+        replyToMessageId: json['replyToMessageId'] as String?,
+        replyToMessageText: json['replyToMessageText'] as String?,
+        replyToSenderId: json['replyToSenderId'] as String?,
+        replyToMessageType: json['replyToMessageType'] as String?,
+      );
+    }
+    
     return MessageModel(
-      id: json['id'] as String? ?? json['_id'] as String? ?? '',
+      id: messageId,
       message: json['message'] as String? ?? '',
       senderId: json['senderId'] as String? ?? '',
       type: json['type'] as String? ?? 'text',

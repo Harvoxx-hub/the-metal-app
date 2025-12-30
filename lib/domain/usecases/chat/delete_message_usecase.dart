@@ -5,8 +5,12 @@ import 'package:metal/domain/usecases/base_usecase.dart';
 /// Parameters for deleting a message
 class DeleteMessageParams {
   final String messageId;
+  final String connectionId;
 
-  DeleteMessageParams({required this.messageId});
+  DeleteMessageParams({
+    required this.messageId,
+    required this.connectionId,
+  });
 }
 
 /// Use case for deleting a message
@@ -17,7 +21,10 @@ class DeleteMessageUseCase implements BaseUseCase<void, DeleteMessageParams> {
 
   @override
   Future<BaseState<void>> call(DeleteMessageParams params) async {
-    return await repository.deleteMessage(params.messageId);
+    return await repository.deleteMessage(
+      params.messageId,
+      params.connectionId,
+    );
   }
 }
 

@@ -19,14 +19,14 @@ class MetalRemoteDataSource {
 
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data as Map<String, dynamic>;
-        
+
         if (data['success'] == true && data['data'] != null) {
           final metalsJson = data['data'] as List<dynamic>;
           return metalsJson
               .map((json) => Metal.fromJson(json as Map<String, dynamic>))
               .toList();
         }
-        
+
         throw Exception(data['message'] ?? 'Failed to get metals');
       }
 
@@ -38,8 +38,3 @@ class MetalRemoteDataSource {
     }
   }
 }
-
-
-
-
-

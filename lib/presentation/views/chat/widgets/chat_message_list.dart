@@ -31,7 +31,8 @@ class ChatMessageList extends StatelessWidget {
     return ListView.builder(
       controller: scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount: messages.length + (isLoadingMore ? 1 : 0) + 1, // +1 for date divider
+      itemCount:
+          messages.length + (isLoadingMore ? 1 : 0) + 1, // +1 for date divider
       itemBuilder: (context, index) {
         if (isLoadingMore && index == 0) {
           return const Center(
@@ -66,7 +67,13 @@ class ChatMessageList extends StatelessWidget {
           message: message,
           isMe: isMe,
           onReply: onReply != null ? () => onReply!(message) : null,
-          onDelete: isMe && onDelete != null ? () => onDelete!(message.id) : null,
+          // Only allow delete if message has a valid ID (not temp ID and not empty)
+          onDelete: isMe &&
+                  onDelete != null &&
+                  message.id.isNotEmpty &&
+                  !message.id.startsWith('temp_')
+              ? () => onDelete!(message.id)
+              : null,
         );
       },
     );
@@ -181,9 +188,7 @@ class _MessageBubble extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 4),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: isMe
-            ? const Color(0xFFD0D0D0)
-            : const Color(0xFFE8D4E8),
+        color: isMe ? const Color(0xFFD0D0D0) : const Color(0xFFE8D4E8),
         borderRadius: BorderRadius.circular(8),
         border: Border(
           left: BorderSide(
@@ -255,7 +260,8 @@ class _MessageBubble extends StatelessWidget {
             if (onDelete != null)
               ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Delete', style: TextStyle(color: Colors.red)),
+                title:
+                    const Text('Delete', style: TextStyle(color: Colors.red)),
                 onTap: () {
                   Navigator.pop(context);
                   onDelete!();

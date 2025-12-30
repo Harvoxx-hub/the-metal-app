@@ -308,18 +308,42 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
 
   /// Delete a message
   Future<bool> deleteMessage(String messageId) async {
+    if (messageId.isEmpty) {
+      print('Cannot delete message: messageId is empty');
+      return false;
+    }
+
+    // Don't try to delete temporary messages (optimistic updates that haven't been saved yet)
+    if (messageId.startsWith('temp_')) {
+      print(
+          'Cannot delete message: message is still sending (temp ID: $messageId)');
+      // Just remove it from local state since it was never saved
+      if (mounted) {
+        final updatedMessages =
+            state.messages.where((m) => m.id != messageId).toList();
+        state = state.copyWith(messages: updatedMessages);
+      }
+      return true;
+    }
+
     final result = await _deleteMessageUseCase(DeleteMessageParams(
       messageId: messageId,
+      connectionId: connectionId,
     ));
 
     if (mounted && result.isSuccess) {
-      final updatedMessages = state.messages
-          .where((m) => m.id != messageId)
-          .toList();
+      final updatedMessages =
+          state.messages.where((m) => m.id != messageId).toList();
 
       state = state.copyWith(messages: updatedMessages);
       return true;
     }
+
+    if (mounted && result.isError) {
+      print(
+          'Failed to delete message: ${result.errorMessage ?? "Unknown error"}');
+    }
+
     return false;
   }
 
@@ -331,9 +355,8 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
     );
 
     // Remove failed message
-    final messagesWithoutFailed = state.messages
-        .where((m) => m.id != messageId)
-        .toList();
+    final messagesWithoutFailed =
+        state.messages.where((m) => m.id != messageId).toList();
     state = state.copyWith(messages: messagesWithoutFailed);
 
     // Resend
@@ -506,9 +529,8 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
     final messageId = data['messageId'] as String?;
     if (messageId == null) return;
 
-    final updatedMessages = state.messages
-        .where((m) => m.id != messageId)
-        .toList();
+    final updatedMessages =
+        state.messages.where((m) => m.id != messageId).toList();
 
     state = state.copyWith(messages: updatedMessages);
   }
@@ -582,9 +604,8 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
       if (newMessages.isNotEmpty) {
         // Filter out messages we already have
         final existingIds = state.messages.map((m) => m.id).toSet();
-        final uniqueNewMessages = newMessages
-            .where((m) => !existingIds.contains(m.id))
-            .toList();
+        final uniqueNewMessages =
+            newMessages.where((m) => !existingIds.contains(m.id)).toList();
 
         if (uniqueNewMessages.isNotEmpty) {
           state = state.copyWith(

@@ -29,7 +29,8 @@ class ChatRemoteDataSource {
     );
 
     if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
       return ConnectionsResponseModel.fromJson(data);
     }
 
@@ -43,7 +44,8 @@ class ChatRemoteDataSource {
     );
 
     if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
       return ConnectionModel.fromJson(data);
     }
 
@@ -72,7 +74,8 @@ class ChatRemoteDataSource {
     );
 
     if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
       return ConnectionModel.fromJson(data);
     }
 
@@ -101,7 +104,8 @@ class ChatRemoteDataSource {
     );
 
     if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
       return MessagesResponseModel.fromJson(data);
     }
 
@@ -119,7 +123,8 @@ class ChatRemoteDataSource {
     );
 
     if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
       final messagesJson = data['messages'] as List<dynamic>? ?? [];
       return messagesJson
           .map((m) => MessageModel.fromJson(m as Map<String, dynamic>))
@@ -138,7 +143,8 @@ class ChatRemoteDataSource {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       if (response.data != null) {
-        final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+        final data =
+            response.data['data'] as Map<String, dynamic>? ?? response.data;
         return MessageModel.fromJson(data);
       }
     }
@@ -171,7 +177,8 @@ class ChatRemoteDataSource {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       if (response.data != null) {
-        final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+        final data =
+            response.data['data'] as Map<String, dynamic>? ?? response.data;
         return MessageModel.fromJson(data);
       }
     }
@@ -180,12 +187,22 @@ class ChatRemoteDataSource {
   }
 
   /// Delete a message
-  Future<void> deleteMessage(String messageId) async {
+  Future<void> deleteMessage(String messageId, String connectionId) async {
+    if (messageId.isEmpty) {
+      throw Exception('Message ID is required');
+    }
+    if (connectionId.isEmpty) {
+      throw Exception('Connection ID is required');
+    }
+
     final response = await _client.delete(
-      '${ApiRoutes.buildPath(ApiRoutes.messageById)}/$messageId',
+      ApiRoutes.buildPathWithId(ApiRoutes.messageById, messageId),
+      data: {
+        'connectionId': connectionId,
+      },
     );
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 204) {
       throw Exception(response.data?['error'] ?? 'Failed to delete message');
     }
   }
@@ -197,7 +214,8 @@ class ChatRemoteDataSource {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(response.data?['error'] ?? 'Failed to mark message as read');
+      throw Exception(
+          response.data?['error'] ?? 'Failed to mark message as read');
     }
   }
 
@@ -208,7 +226,8 @@ class ChatRemoteDataSource {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(response.data?['error'] ?? 'Failed to mark messages as read');
+      throw Exception(
+          response.data?['error'] ?? 'Failed to mark messages as read');
     }
   }
 
@@ -223,7 +242,8 @@ class ChatRemoteDataSource {
     );
 
     if (response.statusCode == 200 && response.data != null) {
-      final responseData = response.data['data'] as Map<String, dynamic>? ?? response.data;
+      final responseData =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
       return MessageModel.fromJson(responseData);
     }
 
@@ -247,7 +267,8 @@ class ChatRemoteDataSource {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(response.data?['error'] ?? 'Failed to process unmelt action');
+      throw Exception(
+          response.data?['error'] ?? 'Failed to process unmelt action');
     }
   }
 }

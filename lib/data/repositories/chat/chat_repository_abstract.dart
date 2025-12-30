@@ -56,7 +56,7 @@ abstract class ChatRepositoryAbstract {
   });
 
   /// Delete a message
-  Future<BaseState<void>> deleteMessage(String messageId);
+  Future<BaseState<void>> deleteMessage(String messageId, String connectionId);
 
   /// Mark a message as read
   Future<BaseState<void>> markMessageAsRead(String messageId);

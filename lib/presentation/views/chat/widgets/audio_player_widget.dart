@@ -23,6 +23,8 @@ class AudioPlayerWidget extends StatefulWidget {
 class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
   late AudioPlayer _audioPlayer;
   bool _isPlaying = false;
+  bool _hasError = false;
+  bool _isLoading = true;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
   StreamSubscription? _durationSubscription;
@@ -37,38 +39,63 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
     _initPlayer();
   }
 
-  void _initPlayer() {
+  Future<void> _initPlayer() async {
     // Listen to duration
     _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) {
-      setState(() {
-        _duration = duration;
-      });
+      if (mounted) {
+        setState(() {
+          _duration = duration;
+          _isLoading = false;
+        });
+      }
     });
 
     // Listen to position
     _positionSubscription = _audioPlayer.onPositionChanged.listen((position) {
-      setState(() {
-        _position = position;
-      });
+      if (mounted) {
+        setState(() {
+          _position = position;
+        });
+      }
     });
 
     // Listen to completion
     _playerCompleteSubscription = _audioPlayer.onPlayerComplete.listen((_) {
-      setState(() {
-        _isPlaying = false;
-        _position = Duration.zero;
-      });
+      if (mounted) {
+        setState(() {
+          _isPlaying = false;
+          _position = Duration.zero;
+        });
+      }
     });
 
     // Listen to state changes
-    _playerStateSubscription = _audioPlayer.onPlayerStateChanged.listen((state) {
-      setState(() {
-        _isPlaying = state == PlayerState.playing;
-      });
+    _playerStateSubscription =
+        _audioPlayer.onPlayerStateChanged.listen((state) {
+      if (mounted) {
+        setState(() {
+          _isPlaying = state == PlayerState.playing;
+        });
+      }
     });
 
-    // Load the audio source
-    _audioPlayer.setSourceUrl(widget.audioUrl);
+    // Load the audio source with error handling
+    try {
+      await _audioPlayer.setSourceUrl(widget.audioUrl);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('AudioPlayer error loading URL: $e');
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -82,10 +109,21 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
   }
 
   Future<void> _togglePlayPause() async {
-    if (_isPlaying) {
-      await _audioPlayer.pause();
-    } else {
-      await _audioPlayer.resume();
+    if (_hasError) return;
+
+    try {
+      if (_isPlaying) {
+        await _audioPlayer.pause();
+      } else {
+        await _audioPlayer.resume();
+      }
+    } catch (e) {
+      print('AudioPlayer toggle error: $e');
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+        });
+      }
     }
   }
 
@@ -98,6 +136,57 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // Show error state
+    if (_hasError) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: widget.isMe ? Colors.white70 : Colors.grey,
+              size: 20,
+            ),
+            const Gap(8),
+            TextView(
+              text: 'Audio unavailable',
+              fontSize: 12,
+              color: widget.isMe ? Colors.white70 : Colors.grey,
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Show loading state
+    if (_isLoading) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  widget.isMe ? Colors.white70 : AppColors.metalPinkColour,
+                ),
+              ),
+            ),
+            const Gap(8),
+            TextView(
+              text: 'Loading...',
+              fontSize: 12,
+              color: widget.isMe ? Colors.white70 : Colors.grey,
+            ),
+          ],
+        ),
+      );
+    }
+
     final progress = _duration.inMilliseconds > 0
         ? _position.inMilliseconds / _duration.inMilliseconds
         : 0.0;
@@ -121,7 +210,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
               ),
               child: Icon(
                 _isPlaying ? Icons.pause : Icons.play_arrow,
-                color: widget.isMe ? Colors.white : AppColors.metalPinkColour,
+                color: widget.isMe ? Colors.black : AppColors.metalPinkColour,
                 size: 20,
               ),
             ),

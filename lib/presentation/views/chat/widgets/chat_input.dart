@@ -167,7 +167,9 @@ class _ChatInputState extends ConsumerState<ChatInput> {
         final responseData =
             uploadUrlResponse.data['data'] ?? uploadUrlResponse.data;
         final uploadUrl = responseData['uploadUrl'] as String;
-        final publicUrl = responseData['publicUrl'] as String;
+        // Use downloadUrl which is a signed URL that allows reading
+        final downloadUrl = responseData['downloadUrl'] as String? ??
+            responseData['publicUrl'] as String;
 
         // Upload file to the signed URL
         final fileBytes = await file.readAsBytes();
@@ -183,7 +185,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
         );
 
         if (uploadResponse.statusCode == 200) {
-          return publicUrl;
+          return downloadUrl;
         }
       }
       return null;

@@ -25,6 +25,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
   bool _isPlaying = false;
   bool _hasError = false;
   bool _isLoading = true;
+  bool _isCompleted = false; // Track if playback completed
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
   StreamSubscription? _durationSubscription;
@@ -65,6 +66,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
         setState(() {
           _isPlaying = false;
           _position = Duration.zero;
+          _isCompleted = true; // Mark as completed for replay handling
         });
       }
     });
@@ -115,7 +117,26 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
       if (_isPlaying) {
         await _audioPlayer.pause();
       } else {
-        await _audioPlayer.resume();
+        // If playback completed, we need to reload the source and play from start
+        // Just seeking/resuming causes timeout issues
+        if (_isCompleted) {
+          setState(() {
+            _isCompleted = false;
+            _position = Duration.zero;
+          });
+          // Stop and reload the source for clean replay
+          await _audioPlayer.stop();
+          await _audioPlayer.setSourceUrl(widget.audioUrl);
+          await _audioPlayer.resume();
+        } else if (_audioPlayer.state == PlayerState.stopped ||
+            _audioPlayer.state == PlayerState.completed) {
+          // Player stopped but not marked as completed - reload source
+          await _audioPlayer.setSourceUrl(widget.audioUrl);
+          await _audioPlayer.resume();
+        } else {
+          // Normal resume (e.g., after pause)
+          await _audioPlayer.resume();
+        }
       }
     } catch (e) {
       print('AudioPlayer toggle error: $e');
@@ -145,14 +166,14 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
           children: [
             Icon(
               Icons.error_outline,
-              color: widget.isMe ? Colors.white70 : Colors.grey,
+              color: widget.isMe ? Colors.black : Colors.grey,
               size: 20,
             ),
             const Gap(8),
             TextView(
               text: 'Audio unavailable',
               fontSize: 12,
-              color: widget.isMe ? Colors.white70 : Colors.grey,
+              color: widget.isMe ? Colors.black : Colors.grey,
             ),
           ],
         ),
@@ -172,7 +193,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  widget.isMe ? Colors.white70 : AppColors.metalPinkColour,
+                  !widget.isMe ? Colors.white70 : AppColors.metalPinkColour,
                 ),
               ),
             ),
@@ -180,7 +201,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
             TextView(
               text: 'Loading...',
               fontSize: 12,
-              color: widget.isMe ? Colors.white70 : Colors.grey,
+              color: widget.isMe ? Colors.black : Colors.grey,
             ),
           ],
         ),
@@ -230,7 +251,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                       height: 4,
                       decoration: BoxDecoration(
                         color: widget.isMe
-                            ? Colors.white.withValues(alpha: 0.3)
+                            ? Colors.black.withValues(alpha: 0.3)
                             : Colors.grey[300],
                         borderRadius: BorderRadius.circular(2),
                       ),
@@ -242,7 +263,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                         height: 4,
                         decoration: BoxDecoration(
                           color: widget.isMe
-                              ? Colors.white
+                              ? Colors.black
                               : AppColors.metalPinkColour,
                           borderRadius: BorderRadius.circular(2),
                         ),
@@ -257,7 +278,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                       ? _formatDuration(_position)
                       : _formatDuration(_duration),
                   fontSize: 11,
-                  color: widget.isMe
+                  color: !widget.isMe
                       ? Colors.white.withValues(alpha: 0.8)
                       : Colors.black54,
                 ),
@@ -269,7 +290,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
           TextView(
             text: _formatDuration(_duration),
             fontSize: 11,
-            color: widget.isMe
+            color: !widget.isMe
                 ? Colors.white.withValues(alpha: 0.8)
                 : Colors.black54,
           ),

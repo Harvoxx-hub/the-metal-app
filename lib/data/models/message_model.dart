@@ -14,6 +14,7 @@ class MessageModel {
   final String? replyToMessageText;
   final String? replyToSenderId;
   final String? replyToMessageType;
+  final String? unmeltStatus; // 'pending', 'approved', 'rejected' for unmelt messages
 
   MessageModel({
     required this.id,
@@ -27,6 +28,7 @@ class MessageModel {
     this.replyToMessageText,
     this.replyToSenderId,
     this.replyToMessageType,
+    this.unmeltStatus,
   });
 
   /// Create from API JSON response
@@ -53,6 +55,7 @@ class MessageModel {
         replyToMessageText: json['replyToMessageText'] as String?,
         replyToSenderId: json['replyToSenderId'] as String?,
         replyToMessageType: json['replyToMessageType'] as String?,
+        unmeltStatus: json['unmeltStatus'] as String?,
       );
     }
     
@@ -68,6 +71,7 @@ class MessageModel {
       replyToMessageText: json['replyToMessageText'] as String?,
       replyToSenderId: json['replyToSenderId'] as String?,
       replyToMessageType: json['replyToMessageType'] as String?,
+      unmeltStatus: json['unmeltStatus'] as String?,
     );
   }
 
@@ -85,6 +89,7 @@ class MessageModel {
       replyToMessageText: replyToMessageText,
       replyToSenderId: replyToSenderId,
       replyToMessageType: replyToMessageType,
+      unmeltStatus: unmeltStatus,
     );
   }
 
@@ -177,6 +182,7 @@ class ConnectionModel {
   final String? initiatorId;
   final String? receiverId;
   final String? connectedOn;
+  final bool canUnmelt;
   final Map<String, dynamic>? otherUserData;
 
   ConnectionModel({
@@ -188,10 +194,11 @@ class ConnectionModel {
     this.unreadCount = 0,
     this.game,
     this.meltStatus = 'mutual',
-    this.isAnonymous = false,
+    this.isAnonymous = true, // Default to anonymous
     this.initiatorId,
     this.receiverId,
     this.connectedOn,
+    this.canUnmelt = false,
     this.otherUserData,
   });
 
@@ -206,10 +213,11 @@ class ConnectionModel {
       unreadCount: json['unreadCount'] as int? ?? 0,
       game: json['game'] as String?,
       meltStatus: json['meltStatus'] as String? ?? 'mutual',
-      isAnonymous: json['isAnonymous'] as bool? ?? false,
+      isAnonymous: json['isAnonymous'] as bool? ?? true, // Default to anonymous
       initiatorId: json['initiatorId'] as String?,
       receiverId: json['receiverId'] as String?,
       connectedOn: json['connectedOn'] as String?,
+      canUnmelt: json['canUnmelt'] as bool? ?? false,
       otherUserData: json['otherUser'] as Map<String, dynamic>?,
     );
   }
@@ -229,6 +237,7 @@ class ConnectionModel {
       initiatorId: initiatorId,
       receiverId: receiverId,
       connectedOn: connectedOn != null ? DateTime.tryParse(connectedOn!) : null,
+      canUnmelt: canUnmelt,
       otherUser: otherUserData != null ? ChatUserModel.fromJson(otherUserData!).toDomain() : null,
     );
   }

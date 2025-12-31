@@ -84,6 +84,9 @@ class MessageDto extends BaseEntity {
   final String? replyToSenderId;
   final String? replyToMessageType;
 
+  // Unmelt data (for unmelt message type)
+  final String? unmeltStatus; // 'pending', 'approved', 'rejected'
+
   const MessageDto({
     required this.id,
     required this.message,
@@ -97,11 +100,11 @@ class MessageDto extends BaseEntity {
     this.replyToMessageText,
     this.replyToSenderId,
     this.replyToMessageType,
+    this.unmeltStatus,
   });
 
   /// Check if this message is a reply to another message
-  bool get isReply =>
-      replyToMessageId != null && replyToMessageId!.isNotEmpty;
+  bool get isReply => replyToMessageId != null && replyToMessageId!.isNotEmpty;
 
   /// Get truncated reply text for display
   String get truncatedReplyText {
@@ -168,6 +171,7 @@ class MessageDto extends BaseEntity {
     String? replyToMessageText,
     String? replyToSenderId,
     String? replyToMessageType,
+    String? unmeltStatus,
   }) {
     return MessageDto(
       id: id ?? this.id,
@@ -182,6 +186,7 @@ class MessageDto extends BaseEntity {
       replyToMessageText: replyToMessageText ?? this.replyToMessageText,
       replyToSenderId: replyToSenderId ?? this.replyToSenderId,
       replyToMessageType: replyToMessageType ?? this.replyToMessageType,
+      unmeltStatus: unmeltStatus ?? this.unmeltStatus,
     );
   }
 
@@ -225,6 +230,7 @@ class ChatConnectionDto extends BaseEntity {
   final String? initiatorId;
   final String? receiverId;
   final DateTime? connectedOn;
+  final bool canUnmelt;
 
   // Enriched user data (the other user in the connection)
   final ChatUserDto? otherUser;
@@ -238,10 +244,11 @@ class ChatConnectionDto extends BaseEntity {
     this.unreadCount = 0,
     this.game,
     this.meltStatus = 'mutual',
-    this.isAnonymous = false,
+    this.isAnonymous = true, // Default to anonymous
     this.initiatorId,
     this.receiverId,
     this.connectedOn,
+    this.canUnmelt = false,
     this.otherUser,
   });
 
@@ -250,6 +257,13 @@ class ChatConnectionDto extends BaseEntity {
 
   /// Check if this is a mutual melt
   bool get isMutualMelt => meltStatus == 'mutual';
+
+  /// Check if identities are revealed (unmelted)
+  bool get isUnmelted => !isAnonymous;
+
+  /// Check if profile image should be shown
+  /// Profile image is visible ONLY if unmelted (isAnonymous == false)
+  bool get shouldShowProfileImage => !isAnonymous;
 
   /// Check if the given user can send messages
   bool canUserSendMessage(String userId) {
@@ -284,6 +298,7 @@ class ChatConnectionDto extends BaseEntity {
     String? initiatorId,
     String? receiverId,
     DateTime? connectedOn,
+    bool? canUnmelt,
     ChatUserDto? otherUser,
   }) {
     return ChatConnectionDto(
@@ -299,6 +314,7 @@ class ChatConnectionDto extends BaseEntity {
       initiatorId: initiatorId ?? this.initiatorId,
       receiverId: receiverId ?? this.receiverId,
       connectedOn: connectedOn ?? this.connectedOn,
+      canUnmelt: canUnmelt ?? this.canUnmelt,
       otherUser: otherUser ?? this.otherUser,
     );
   }

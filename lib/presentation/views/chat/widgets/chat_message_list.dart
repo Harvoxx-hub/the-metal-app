@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/domain/entities/message_dto.dart';
@@ -15,6 +16,7 @@ class ChatMessageList extends StatelessWidget {
   final bool isLoadingMore;
   final Function(MessageDto)? onReply;
   final Function(String)? onDelete;
+  final Function(String messageId, String action)? onUnmeltAction;
 
   const ChatMessageList({
     super.key,
@@ -24,6 +26,7 @@ class ChatMessageList extends StatelessWidget {
     this.isLoadingMore = false,
     this.onReply,
     this.onDelete,
+    this.onUnmeltAction,
   });
 
   @override
@@ -74,113 +77,364 @@ class ChatMessageList extends StatelessWidget {
                   !message.id.startsWith('temp_')
               ? () => onDelete!(message.id)
               : null,
+          onUnmeltAction: onUnmeltAction,
         );
       },
     );
   }
 }
 
-/// Individual message bubble
-class _MessageBubble extends StatelessWidget {
+/// Individual message bubble with swipe-to-reply
+class _MessageBubble extends StatefulWidget {
   final MessageDto message;
   final bool isMe;
   final VoidCallback? onReply;
   final VoidCallback? onDelete;
+  final Function(String messageId, String action)? onUnmeltAction;
 
   const _MessageBubble({
     required this.message,
     required this.isMe,
     this.onReply,
     this.onDelete,
+    this.onUnmeltAction,
   });
+
+  @override
+  State<_MessageBubble> createState() => _MessageBubbleState();
+}
+
+class _MessageBubbleState extends State<_MessageBubble>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  double _dragOffset = 0;
+  static const double _maxDragDistance = 80.0;
+  static const double _triggerDistance = 60.0;
+  bool _hasTriggeredHaptic = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _animation = Tween<double>(begin: 0, end: 0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onHorizontalDragStart(DragStartDetails details) {
+    _controller.stop();
+    _hasTriggeredHaptic = false;
+  }
+
+  void _onHorizontalDragUpdate(DragUpdateDetails details) {
+    setState(() {
+      // Allow swipe right for all messages (like WhatsApp)
+      _dragOffset += details.delta.dx;
+      // Clamp to only allow right swipe with max distance
+      _dragOffset = _dragOffset.clamp(0, _maxDragDistance);
+
+      // Haptic feedback when reaching trigger distance
+      if (_dragOffset >= _triggerDistance && !_hasTriggeredHaptic) {
+        HapticFeedback.lightImpact();
+        _hasTriggeredHaptic = true;
+      }
+    });
+  }
+
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    // If dragged past trigger distance, trigger reply
+    if (_dragOffset >= _triggerDistance && widget.onReply != null) {
+      HapticFeedback.mediumImpact();
+      widget.onReply!();
+    }
+
+    // Animate back to original position
+    _animation = Tween<double>(begin: _dragOffset, end: 0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+    _controller.forward(from: 0).then((_) {
+      if (mounted) {
+        setState(() {
+          _dragOffset = 0;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onLongPress: () => _showOptions(context),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
-          mainAxisAlignment:
-              isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            if (isMe) const Spacer(flex: 1),
-            Flexible(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment:
-                    isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                children: [
-                  // Reply preview
-                  if (message.replyToMessageId != null) _buildReplyPreview(),
-                  // Message bubble
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isMe
-                          ? const Color(0xFFE8E8E8)
-                          : const Color(0xFFF5E6F5),
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(18),
-                        topRight: const Radius.circular(18),
-                        bottomLeft: Radius.circular(isMe ? 18 : 4),
-                        bottomRight: Radius.circular(isMe ? 4 : 18),
+      onHorizontalDragStart:
+          widget.onReply != null ? _onHorizontalDragStart : null,
+      onHorizontalDragUpdate:
+          widget.onReply != null ? _onHorizontalDragUpdate : null,
+      onHorizontalDragEnd: widget.onReply != null ? _onHorizontalDragEnd : null,
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          final offset =
+              _controller.isAnimating ? _animation.value : _dragOffset;
+          final progress = (offset / _maxDragDistance).clamp(0.0, 1.0);
+
+          return Stack(
+            alignment:
+                widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
+            children: [
+              // Reply icon that appears behind the message
+              if (offset > 0)
+                Positioned(
+                  left: widget.isMe ? null : 8,
+                  right: widget.isMe ? null : null,
+                  child: Opacity(
+                    opacity: progress,
+                    child: Transform.scale(
+                      scale: 0.5 + (progress * 0.5),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color:
+                              AppColors.metalPinkColour.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.reply,
+                          color: AppColors.metalPinkColour,
+                          size: 20,
+                        ),
                       ),
                     ),
-                    child: _buildMessageContent(),
                   ),
-                  const Gap(4),
-                  // Timestamp and status below bubble
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextView(
-                          text: formatTime(
-                            isoDateString: message.timestamp.toIso8601String(),
-                          ),
-                          fontSize: 11,
-                          color: Colors.grey,
-                        ),
-                        if (isMe) ...[
-                          const Gap(4),
-                          _buildStatusIcon(),
-                        ],
-                      ],
+                ),
+              // The message bubble
+              Transform.translate(
+                offset: Offset(offset, 0),
+                child: _buildBubbleContent(),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBubbleContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment:
+            widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (widget.isMe) const Spacer(flex: 1),
+          Flexible(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: widget.isMe
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
+              children: [
+                // Reply preview
+                if (widget.message.replyToMessageId != null)
+                  _buildReplyPreview(),
+                // Message bubble
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: widget.isMe
+                        ? const Color(0xFFE8E8E8)
+                        : const Color(0xFFF5E6F5),
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(18),
+                      topRight: const Radius.circular(18),
+                      bottomLeft: Radius.circular(widget.isMe ? 18 : 4),
+                      bottomRight: Radius.circular(widget.isMe ? 4 : 18),
                     ),
                   ),
-                ],
-              ),
+                  child: _buildMessageContent(),
+                ),
+                const Gap(4),
+                // Timestamp and status below bubble
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextView(
+                        text: formatTime(
+                          isoDateString:
+                              widget.message.timestamp.toIso8601String(),
+                        ),
+                        fontSize: 11,
+                        color: Colors.grey,
+                      ),
+                      if (widget.isMe) ...[
+                        const Gap(4),
+                        _buildStatusIcon(),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
-            if (!isMe) const Spacer(flex: 1),
-          ],
-        ),
+          ),
+          if (!widget.isMe) const Spacer(flex: 1),
+        ],
       ),
     );
   }
 
   Widget _buildMessageContent() {
-    if (message.isAudio) {
+    if (widget.message.isAudio) {
       // Use the audio player widget
       return SizedBox(
         width: 220,
         child: AudioPlayerWidget(
-          audioUrl: message.content ?? '',
-          isMe: isMe,
+          audioUrl: widget.message.content ?? '',
+          isMe: widget.isMe,
         ),
       );
     }
 
+    // Handle unmelt message type
+    if (widget.message.isUnmelt) {
+      return _buildUnmeltMessage();
+    }
+
     return TextView(
-      text: message.message,
+      text: widget.message.message,
       fontSize: 14,
       color: Colors.black87,
     );
+  }
+
+  /// Build the unmelt request message UI
+  Widget _buildUnmeltMessage() {
+    // Check the unmelt status from message metadata (if available)
+    final unmeltStatus = widget.message.unmeltStatus;
+    final isCurrentUserSender = widget.isMe;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.visibility,
+              size: 16,
+              color: AppColors.metalPinkColour,
+            ),
+            const Gap(8),
+            const TextView(
+              text: 'Unmelt Request',
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ],
+        ),
+        const Gap(8),
+        if (unmeltStatus == 'pending') ...[
+          if (!isCurrentUserSender) ...[
+            // Show approve/reject buttons for receiver
+            const TextView(
+              text: 'Do you want to reveal your identities to each other?',
+              fontSize: 12,
+              color: Colors.black54,
+            ),
+            const Gap(12),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildUnmeltActionButton(
+                  'Approve',
+                  AppColors.metalPinkColour,
+                  Colors.white,
+                  () => _handleUnmeltAction('approve'),
+                ),
+                const Gap(8),
+                _buildUnmeltActionButton(
+                  'Reject',
+                  Colors.grey[300]!,
+                  Colors.black87,
+                  () => _handleUnmeltAction('reject'),
+                ),
+              ],
+            ),
+          ] else ...[
+            const TextView(
+              text: 'Waiting for approval...',
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+              color: Colors.black54,
+            ),
+          ],
+        ] else if (unmeltStatus == 'approved') ...[
+          const TextView(
+            text: '✓ Identities revealed!',
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: Colors.green,
+          ),
+        ] else if (unmeltStatus == 'rejected') ...[
+          const TextView(
+            text: '✗ Request declined',
+            fontSize: 12,
+            color: Colors.red,
+          ),
+        ] else ...[
+          const TextView(
+            text: 'Request to reveal identities',
+            fontSize: 12,
+            color: Colors.black54,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildUnmeltActionButton(
+    String text,
+    Color bgColor,
+    Color textColor,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: TextView(
+          text: text,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: textColor,
+        ),
+      ),
+    );
+  }
+
+  void _handleUnmeltAction(String action) {
+    // This will be called when user approves/rejects unmelt
+    widget.onUnmeltAction?.call(widget.message.id, action);
   }
 
   Widget _buildReplyPreview() {
@@ -188,7 +442,7 @@ class _MessageBubble extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 4),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: isMe ? const Color(0xFFD0D0D0) : const Color(0xFFE8D4E8),
+        color: widget.isMe ? const Color(0xFFD0D0D0) : const Color(0xFFE8D4E8),
         borderRadius: BorderRadius.circular(8),
         border: Border(
           left: BorderSide(
@@ -198,9 +452,9 @@ class _MessageBubble extends StatelessWidget {
         ),
       ),
       child: Text(
-        message.replyToMessageType == 'audio'
+        widget.message.replyToMessageType == 'audio'
             ? '🎵 Voice message'
-            : message.replyToMessageText ?? 'Message',
+            : widget.message.replyToMessageText ?? 'Message',
         style: const TextStyle(
           fontSize: 12,
           color: Colors.black54,
@@ -212,7 +466,7 @@ class _MessageBubble extends StatelessWidget {
   }
 
   Widget _buildStatusIcon() {
-    if (message.isSending) {
+    if (widget.message.isSending) {
       return const SizedBox(
         width: 12,
         height: 12,
@@ -223,7 +477,7 @@ class _MessageBubble extends StatelessWidget {
       );
     }
 
-    if (message.hasError) {
+    if (widget.message.hasError) {
       return const Icon(
         Icons.error_outline,
         size: 14,
@@ -235,8 +489,29 @@ class _MessageBubble extends StatelessWidget {
       width: 14,
       height: 14,
       colorFilter: ColorFilter.mode(
-        message.isRead ? AppColors.metalPinkColour : Colors.grey,
+        widget.message.isRead ? AppColors.metalPinkColour : Colors.grey,
         BlendMode.srcIn,
+      ),
+    );
+  }
+
+  void _copyMessage(BuildContext context) {
+    final textToCopy = widget.message.message.trim();
+    if (textToCopy.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No text to copy'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    Clipboard.setData(ClipboardData(text: textToCopy));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Message copied to clipboard'),
+        duration: Duration(seconds: 2),
       ),
     );
   }
@@ -248,33 +523,34 @@ class _MessageBubble extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (onReply != null)
+            if (widget.onReply != null)
               ListTile(
                 leading: const Icon(Icons.reply),
                 title: const Text('Reply'),
                 onTap: () {
                   Navigator.pop(context);
-                  onReply!();
+                  widget.onReply!();
                 },
               ),
-            if (onDelete != null)
+            if (widget.onDelete != null)
               ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
                 title:
                     const Text('Delete', style: TextStyle(color: Colors.red)),
                 onTap: () {
                   Navigator.pop(context);
-                  onDelete!();
+                  widget.onDelete!();
                 },
               ),
-            ListTile(
-              leading: const Icon(Icons.copy),
-              title: const Text('Copy'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement copy
-              },
-            ),
+            if (!widget.message.isAudio)
+              ListTile(
+                leading: const Icon(Icons.copy),
+                title: const Text('Copy'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _copyMessage(context);
+                },
+              ),
           ],
         ),
       ),

@@ -140,7 +140,7 @@ class ConnectionRemoteDataSource {
     }
   }
 
-  /// Unmelt from a user
+  /// Unmelt from a user (disconnect)
   Future<void> unmeltUser(String userId) async {
     final response = await _client.post(
       '${ApiRoutes.buildPath(ApiRoutes.meltUnmelt)}/$userId',
@@ -149,6 +149,60 @@ class ConnectionRemoteDataSource {
     if (response.statusCode != 200) {
       throw Exception(response.data?['error'] ?? 'Failed to unmelt user');
     }
+  }
+
+  /// Request to unmelt (reveal identities) for a connection
+  /// This sends an unmelt request that the other user must approve
+  Future<UnmeltRequestResponse> requestUnmelt(String connectionId) async {
+    final response = await _client.patch(
+      '${ApiRoutes.buildPath(ApiRoutes.connectionById)}/$connectionId',
+      data: {'requestUnmelt': true},
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return UnmeltRequestResponse.fromJson(data);
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to request unmelt');
+  }
+
+  /// Approve or reject an unmelt request
+  /// Action can be 'approve' or 'reject'
+  Future<void> processUnmeltAction(
+    String connectionId,
+    String messageId,
+    String action,
+  ) async {
+    final response = await _client.post(
+      '${ApiRoutes.buildPath(ApiRoutes.unmeltAction)}/$connectionId/unmelt',
+      data: {
+        'messageId': messageId,
+        'action': action,
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(response.data?['error'] ?? 'Failed to process unmelt action');
+    }
+  }
+}
+
+/// Response model for unmelt request
+class UnmeltRequestResponse {
+  final bool unmeltRequested;
+  final String? message;
+
+  UnmeltRequestResponse({
+    this.unmeltRequested = false,
+    this.message,
+  });
+
+  factory UnmeltRequestResponse.fromJson(Map<String, dynamic> json) {
+    return UnmeltRequestResponse(
+      unmeltRequested: json['unmeltRequested'] as bool? ?? false,
+      message: json['message'] as String?,
+    );
   }
 }
 
@@ -166,6 +220,7 @@ class ConnectionApiModel {
   final String? lastSenderId;
   final String? lastUpdatedAt;
   final OtherUserModel? otherUser;
+  final bool canUnmelt;
 
   ConnectionApiModel({
     required this.id,
@@ -178,6 +233,7 @@ class ConnectionApiModel {
     this.lastSenderId,
     this.lastUpdatedAt,
     this.otherUser,
+    this.canUnmelt = false,
   });
 
   factory ConnectionApiModel.fromJson(Map<String, dynamic> json) {
@@ -194,6 +250,7 @@ class ConnectionApiModel {
       otherUser: json['otherUser'] != null
           ? OtherUserModel.fromJson(json['otherUser'] as Map<String, dynamic>)
           : null,
+      canUnmelt: json['canUnmelt'] as bool? ?? false,
     );
   }
 }

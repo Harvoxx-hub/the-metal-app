@@ -69,7 +69,7 @@ void main() async {
   final sharedPreferences = await SharedPreferences.getInstance();
 
   // Initialize the lifecycle handler (handles its own auth state changes)
-  final lifecycleHandler= AppLifecycleHandler();
+  final lifecycleHandler = AppLifecycleHandler();
   WidgetsBinding.instance.addObserver(lifecycleHandler);
   await lifecycleHandler.initialize();
 

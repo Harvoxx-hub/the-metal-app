@@ -5,6 +5,7 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/domain/entities/message_dto.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_window_viewmodel.dart';
+import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/chat/widgets/chat_app_bar.dart';
 import 'package:metal/presentation/views/chat/widgets/chat_input.dart';
@@ -194,6 +195,9 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
                   .deleteMessage(messageId);
             }
           },
+          onUnmeltAction: (messageId, action) async {
+            await _handleUnmeltAction(messageId, action);
+          },
         ),
       ],
     );
@@ -260,6 +264,54 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
         ],
       ),
     );
+  }
+
+  /// Handle unmelt action (approve/reject)
+  Future<void> _handleUnmeltAction(String messageId, String action) async {
+    final connectionId = widget.connectionId;
+    
+    try {
+      final repository = ref.read(connectionRepositoryProvider);
+      final result = await repository.processUnmeltAction(
+        connectionId,
+        messageId,
+        action,
+      );
+
+      if (mounted) {
+        if (result.isSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                action == 'approve'
+                    ? 'Identities revealed! You can now see each other\'s photos.'
+                    : 'Unmelt request declined.',
+              ),
+              backgroundColor: action == 'approve' ? Colors.green : Colors.orange,
+            ),
+          );
+          
+          // Refresh messages to update the unmelt message status
+          ref.read(chatWindowViewModelProvider(connectionId).notifier).loadMessages();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result.errorMessage ?? 'Failed to process unmelt action'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
 

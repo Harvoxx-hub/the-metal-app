@@ -126,10 +126,40 @@ class ConnectionRepository {
     }
   }
 
-  /// Unmelt from a user
+  /// Unmelt from a user (disconnect)
   Future<BaseState<void>> unmeltUser(String userId) async {
     try {
       await _remoteDataSource.unmeltUser(userId);
+      return BaseState.success(null);
+    } catch (e) {
+      return ErrorHandler.handleError<void>(e);
+    }
+  }
+
+  /// Request to unmelt (reveal identities) for a connection
+  Future<BaseState<UnmeltRequestResponse>> requestUnmelt(
+    String connectionId,
+  ) async {
+    try {
+      final response = await _remoteDataSource.requestUnmelt(connectionId);
+      return BaseState.success(response);
+    } catch (e) {
+      return ErrorHandler.handleError<UnmeltRequestResponse>(e);
+    }
+  }
+
+  /// Process an unmelt action (approve/reject)
+  Future<BaseState<void>> processUnmeltAction(
+    String connectionId,
+    String messageId,
+    String action,
+  ) async {
+    try {
+      await _remoteDataSource.processUnmeltAction(
+        connectionId,
+        messageId,
+        action,
+      );
       return BaseState.success(null);
     } catch (e) {
       return ErrorHandler.handleError<void>(e);

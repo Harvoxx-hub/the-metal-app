@@ -223,7 +223,7 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
     final message = MessageDto(
       id: tempId,
       message: text.trim(),
-      senderId: '', // Will be set by backend
+      senderId: currentUserId ?? '', // Set current user ID for correct positioning
       type: MessageType.text,
       timestamp: DateTime.now(),
       state: MessageState.sending,
@@ -242,7 +242,7 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
     final message = MessageDto(
       id: tempId,
       message: 'Voice message',
-      senderId: '',
+      senderId: currentUserId ?? '', // Set current user ID for correct positioning
       type: MessageType.audio,
       content: audioUrl,
       timestamp: DateTime.now(),

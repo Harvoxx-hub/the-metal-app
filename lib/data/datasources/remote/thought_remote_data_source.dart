@@ -51,8 +51,9 @@ class ThoughtRemoteDataSource {
   }
 
   /// Create a new thought
+  /// content can be null for voice-only thoughts
   Future<ThoughtModel> createThought({
-    required String content,
+    String? content,
     String type = 'text',
     String? audioUrl,
     int? audioDuration,
@@ -61,7 +62,7 @@ class ThoughtRemoteDataSource {
     String? originalThoughtId, // For reposts
   }) async {
     final data = <String, dynamic>{
-      'content': content,
+      if (content != null && content.isNotEmpty) 'content': content,
       'type': type,
       'connectionOnly': connectionOnly,
       if (audioUrl != null) 'audioUrl': audioUrl,

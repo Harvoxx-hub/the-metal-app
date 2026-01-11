@@ -18,8 +18,9 @@ abstract class ThoughtRepositoryAbstract {
   Future<BaseState<ThoughtDto>> getThoughtById(String thoughtId);
 
   /// Create a new thought
+  /// content can be null for voice-only thoughts
   Future<BaseState<ThoughtDto>> createThought({
-    required String content,
+    String? content,
     String type = 'text',
     String? audioUrl,
     int? audioDuration,

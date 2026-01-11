@@ -53,7 +53,7 @@ class ThoughtRepository implements ThoughtRepositoryAbstract {
 
   @override
   Future<BaseState<ThoughtDto>> createThought({
-    required String content,
+    String? content,
     String type = 'text',
     String? audioUrl,
     int? audioDuration,

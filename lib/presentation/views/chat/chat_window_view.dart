@@ -66,8 +66,10 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
 
   @override
   Widget build(BuildContext context) {
-    final chatState = ref.watch(chatWindowViewModelProvider(widget.connectionId));
-    final connectionAsync = ref.watch(connectionDetailProvider(widget.connectionId));
+    final chatState =
+        ref.watch(chatWindowViewModelProvider(widget.connectionId));
+    final connectionAsync =
+        ref.watch(connectionDetailProvider(widget.connectionId));
 
     return BaseScreen(
       appBarEnabled: false,
@@ -88,7 +90,8 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
               padding: const EdgeInsets.all(20.0),
               child: ErrorState(
                 text: error.toString(),
-                retry: () => ref.invalidate(connectionDetailProvider(widget.connectionId)),
+                retry: () => ref
+                    .invalidate(connectionDetailProvider(widget.connectionId)),
               ),
             ),
             data: (connection) {
@@ -96,7 +99,8 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
                 return const EmptyState(text: 'Connection not found');
               }
 
-              return _buildChatContent(chatState, connection as ChatConnectionDto);
+              return _buildChatContent(
+                  chatState, connection as ChatConnectionDto);
             },
           ),
         ),
@@ -104,7 +108,8 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
     );
   }
 
-  Widget _buildChatContent(ChatWindowState chatState, ChatConnectionDto connection) {
+  Widget _buildChatContent(
+      ChatWindowState chatState, ChatConnectionDto connection) {
     final currentUser = ref.watch(currentUserProvider);
     final otherUser = connection.otherUser;
 
@@ -112,7 +117,7 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
       return const EmptyState(text: 'User not found');
     }
 
-    final isPendingReceiver = connection.isMeltPending &&
+    final isPendingReceiver = connection.meltStatus == 'pending' &&
         connection.isUserReceiver(currentUser?.id ?? '');
 
     return Column(
@@ -191,7 +196,8 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
             final confirm = await _showDeleteConfirmation();
             if (confirm == true) {
               await ref
-                  .read(chatWindowViewModelProvider(widget.connectionId).notifier)
+                  .read(
+                      chatWindowViewModelProvider(widget.connectionId).notifier)
                   .deleteMessage(messageId);
             }
           },
@@ -269,7 +275,7 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
   /// Handle unmelt action (approve/reject)
   Future<void> _handleUnmeltAction(String messageId, String action) async {
     final connectionId = widget.connectionId;
-    
+
     try {
       final repository = ref.read(connectionRepositoryProvider);
       final result = await repository.processUnmeltAction(
@@ -287,16 +293,20 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
                     ? 'Identities revealed! You can now see each other\'s photos.'
                     : 'Unmelt request declined.',
               ),
-              backgroundColor: action == 'approve' ? Colors.green : Colors.orange,
+              backgroundColor:
+                  action == 'approve' ? Colors.green : Colors.orange,
             ),
           );
-          
+
           // Refresh messages to update the unmelt message status
-          ref.read(chatWindowViewModelProvider(connectionId).notifier).loadMessages();
+          ref
+              .read(chatWindowViewModelProvider(connectionId).notifier)
+              .loadMessages();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result.errorMessage ?? 'Failed to process unmelt action'),
+              content: Text(
+                  result.errorMessage ?? 'Failed to process unmelt action'),
               backgroundColor: Colors.red,
             ),
           );
@@ -346,16 +356,22 @@ class _HeartsPainter extends CustomPainter {
 
     // Left curve
     path.cubicTo(
-      center.dx - size * 0.6, center.dy - size * 0.1,
-      center.dx - size * 0.6, center.dy - size * 0.6,
-      center.dx, center.dy - size * 0.3,
+      center.dx - size * 0.6,
+      center.dy - size * 0.1,
+      center.dx - size * 0.6,
+      center.dy - size * 0.6,
+      center.dx,
+      center.dy - size * 0.3,
     );
 
     // Right curve
     path.cubicTo(
-      center.dx + size * 0.6, center.dy - size * 0.6,
-      center.dx + size * 0.6, center.dy - size * 0.1,
-      center.dx, center.dy + size * 0.3,
+      center.dx + size * 0.6,
+      center.dy - size * 0.6,
+      center.dx + size * 0.6,
+      center.dy - size * 0.1,
+      center.dx,
+      center.dy + size * 0.3,
     );
 
     path.close();

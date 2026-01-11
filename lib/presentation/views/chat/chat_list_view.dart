@@ -228,7 +228,7 @@ class _ChatListItem extends ConsumerWidget {
                         ),
                       ),
                       // Pending melt indicator
-                      if (connection.isMeltPending &&
+                      if (connection.meltStatus == 'pending' &&
                           connection.isUserReceiver(currentUser?.id ?? ''))
                         _buildMeltBadge(),
                     ],

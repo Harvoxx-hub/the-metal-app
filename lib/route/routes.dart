@@ -23,6 +23,7 @@ import 'package:metal/presentation/views/settings/edit_profile_view.dart';
 import 'package:metal/presentation/views/settings/edit_preferences_view.dart';
 import 'package:metal/presentation/views/chat/chat_window_view.dart';
 import 'package:metal/presentation/views/dashboard/dashboard_view.dart';
+import 'package:metal/presentation/views/thought/create_thought_screen.dart';
 
 // New Clean Architecture Connection views
 import 'package:metal/presentation/views/connection/connection_list_screen.dart';
@@ -249,8 +250,11 @@ class AppRoutes {
       case delete:
         return MaterialPageRoute(builder: (_) => const DeleteAccountView());
 
-      // TODO: Re-implement postThought and thoughtDetails in new architecture
       case postThought:
+        return MaterialPageRoute(
+          builder: (_) => const CreateThoughtScreen(),
+        );
+      // TODO: Re-implement thoughtDetails in new architecture
       case thoughtDetails:
         return MaterialPageRoute(
           builder: (_) => const Scaffold(

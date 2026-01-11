@@ -252,29 +252,16 @@ class ChatConnectionDto extends BaseEntity {
     this.otherUser,
   });
 
-  /// Check if this is a pending melt
-  bool get isMeltPending => meltStatus == 'pending';
-
-  /// Check if this is a mutual melt
-  bool get isMutualMelt => meltStatus == 'mutual';
-
-  /// Check if identities are revealed (unmelted)
-  bool get isUnmelted => !isAnonymous;
-
-  /// Check if profile image should be shown
-  /// Profile image is visible ONLY if unmelted (isAnonymous == false)
-  bool get shouldShowProfileImage => !isAnonymous;
-
   /// Check if the given user can send messages
   bool canUserSendMessage(String userId) {
-    if (isMutualMelt) return true;
-    if (isMeltPending && initiatorId == userId) return true;
+    if (meltStatus == 'mutual') return true;
+    if (meltStatus == 'pending' && initiatorId == userId) return true;
     return false;
   }
 
   /// Check if the given user is the melt receiver (can only view, not reply)
   bool isUserReceiver(String userId) {
-    return isMeltPending && receiverId == userId;
+    return meltStatus == 'pending' && receiverId == userId;
   }
 
   /// Get the other user's ID from the connection

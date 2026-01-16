@@ -56,8 +56,8 @@ class ProfilePhoto extends ConsumerWidget {
                   ),
                   shape: OvalBorder(),
                 ),
-                child: CachedNetworkImage(
-                  imageUrl: imgUrl ?? metal.img,
+                    child: CachedNetworkImage(
+                        imageUrl: imgUrl ?? metal.img,
                   fit: BoxFit.cover,
                   imageBuilder: (context, imageProvider) => Container(
                     decoration: BoxDecoration(
@@ -67,14 +67,14 @@ class ProfilePhoto extends ConsumerWidget {
                         fit: BoxFit.cover,
                       ),
                     ),
-                  ),
+                            ),
                   placeholder: (context, url) => Center(
                     child: SizedBox(
-                      width: 20,
-                      height: 20,
+                              width: 20,
+                              height: 20,
                       child: CircularProgressIndicator.adaptive(),
                     ),
-                  ),
+                            ),
                   errorWidget: (context, url, error) => Center(
                     child: Assets.images.logo.image(
                       height: size * 0.5,

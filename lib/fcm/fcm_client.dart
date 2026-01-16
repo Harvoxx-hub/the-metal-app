@@ -101,6 +101,7 @@ class FCMClient {
     }
 
     if (Platform.isIOS) {
+      // Ensure APNS token is available before proceeding
       await _ensureAPNSToken();
     }
 
@@ -134,13 +135,41 @@ class FCMClient {
   /// Get FCM token with error handling
   Future<String?> _getFCMToken() async {
     try {
+      // On iOS, ensure APNS token is available first
+      if (Platform.isIOS) {
+        final apnsToken = await _firebaseMessaging.getAPNSToken();
+        if (apnsToken == null) {
+          print(
+              'APNS token not available, waiting before getting FCM token...');
+          // Wait a bit more and try to get APNS token again
+          await Future.delayed(const Duration(seconds: 1));
+          final retryApnsToken = await _firebaseMessaging.getAPNSToken();
+          if (retryApnsToken == null) {
+            print(
+                'APNS token still not available. FCM token may not be available.');
+            // Return null instead of throwing - allows app to continue
+            return null;
+          }
+        }
+      }
+
       return await _firebaseMessaging.getToken();
     } catch (e) {
       print('Error getting FCM token: $e');
+
+      // On iOS, if APNS token error, try one more time after delay
       if (Platform.isIOS && e.toString().contains('APNS token')) {
+        print('Retrying FCM token after APNS token error...');
         await Future.delayed(const Duration(seconds: 2));
         try {
-          return await _firebaseMessaging.getToken();
+          // Try to get APNS token first
+          final apnsToken = await _firebaseMessaging.getAPNSToken();
+          if (apnsToken != null) {
+            return await _firebaseMessaging.getToken();
+          } else {
+            print('APNS token still not available on retry');
+            return null;
+          }
         } catch (retryError) {
           print('Retry getting FCM token failed: $retryError');
           return null;
@@ -368,17 +397,41 @@ class FCMClient {
   }
 
   /// Ensure APNS token is set for iOS
+  /// This must be called before getting FCM token on iOS
   Future<void> _ensureAPNSToken() async {
     if (!Platform.isIOS) return;
 
     try {
-      final apnsToken = await _firebaseMessaging.getAPNSToken();
+      // Request APNS token - this may return null initially
+      String? apnsToken = await _firebaseMessaging.getAPNSToken();
+
+      // If token is null, wait and retry with exponential backoff
+      int retryCount = 0;
+      const maxRetries = 5;
+      const baseDelay = Duration(milliseconds: 500);
+
+      while (apnsToken == null && retryCount < maxRetries) {
+        await Future.delayed(baseDelay * (retryCount + 1));
+        apnsToken = await _firebaseMessaging.getAPNSToken();
+        retryCount++;
+
+        if (apnsToken != null) {
+          print('APNS token obtained after $retryCount retries');
+          break;
+        }
+      }
+
       if (apnsToken == null) {
-        await Future.delayed(const Duration(seconds: 1));
-        await _firebaseMessaging.getAPNSToken();
+        print(
+            'Warning: APNS token still null after $maxRetries retries. FCM may not work properly.');
+        // Don't throw error - let FCM handle it gracefully
+      } else {
+        print('APNS token obtained successfully');
       }
     } catch (e) {
       print('Error getting APNS token: $e');
+      // Don't throw - allow FCM initialization to continue
+      // The error will be caught when trying to get FCM token
     }
   }
 }

@@ -77,9 +77,12 @@ class CommentViewModel extends StateNotifier<CommentViewState> {
 
   /// Load comments for the thought
   Future<void> loadComments() async {
+    if (!mounted) return;
     state = CommentViewState.loading();
 
     final result = await _repository.getComments(thoughtId);
+
+    if (!mounted) return;
 
     if (result.isSuccess && result.data != null) {
       state = CommentViewState.success(
@@ -88,7 +91,8 @@ class CommentViewModel extends StateNotifier<CommentViewState> {
         nextCursor: result.data!.nextCursor,
       );
     } else if (result.isError) {
-      state = CommentViewState.error(result.errorMessage ?? 'Failed to load comments');
+      state = CommentViewState.error(
+          result.errorMessage ?? 'Failed to load comments');
     } else {
       state = CommentViewState.success([]);
     }
@@ -96,7 +100,12 @@ class CommentViewModel extends StateNotifier<CommentViewState> {
 
   /// Load more comments (pagination)
   Future<void> loadMoreComments() async {
-    if (state.isLoadingMore || !state.hasMore || state.nextCursor == null) return;
+    if (!mounted ||
+        state.isLoadingMore ||
+        !state.hasMore ||
+        state.nextCursor == null) {
+      return;
+    }
 
     state = state.copyWith(isLoadingMore: true);
 
@@ -104,6 +113,8 @@ class CommentViewModel extends StateNotifier<CommentViewState> {
       thoughtId,
       cursor: state.nextCursor,
     );
+
+    if (!mounted) return;
 
     if (result.isSuccess && result.data != null) {
       final newComments = [...state.comments, ...result.data!.comments];
@@ -120,11 +131,15 @@ class CommentViewModel extends StateNotifier<CommentViewState> {
 
   /// Add a comment
   Future<void> addComment(String content, {String? replyToCommentId}) async {
+    if (!mounted) return;
+
     final result = await _repository.addComment(
       thoughtId: thoughtId,
       content: content,
       replyToCommentId: replyToCommentId,
     );
+
+    if (!mounted) return;
 
     if (result.isSuccess && result.data != null) {
       // Add the new comment to the list optimistically
@@ -135,25 +150,34 @@ class CommentViewModel extends StateNotifier<CommentViewState> {
 
   /// Delete a comment
   Future<void> deleteComment(String commentId) async {
+    if (!mounted) return;
+
     final result = await _repository.deleteComment(
       thoughtId: thoughtId,
       commentId: commentId,
     );
 
+    if (!mounted) return;
+
     if (result.isSuccess) {
       // Remove the comment from the list optimistically
-      final newComments = state.comments.where((c) => c.id != commentId).toList();
+      final newComments =
+          state.comments.where((c) => c.id != commentId).toList();
       state = state.copyWith(comments: newComments);
     }
   }
 
   /// React to a comment
   Future<void> reactToComment(String commentId, String emoji) async {
+    if (!mounted) return;
+
     await _repository.reactToComment(
       thoughtId: thoughtId,
       commentId: commentId,
       emoji: emoji,
     );
+
+    if (!mounted) return;
 
     // Reload comments to get updated reaction counts
     await loadComments();

@@ -1,6 +1,7 @@
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/network/dio_client.dart';
 import 'package:metal/data/models/community_model.dart';
+import 'package:metal/data/models/thought_model.dart';
 
 /// Remote data source for community operations
 class CommunityRemoteDataSource {
@@ -12,6 +13,7 @@ class CommunityRemoteDataSource {
   Future<CommunitiesListModel> getCommunities({
     String? type,
     String? category,
+    String? search,
     int page = 1,
     int limit = 20,
   }) async {
@@ -20,6 +22,7 @@ class CommunityRemoteDataSource {
       'limit': limit,
       if (type != null) 'type': type,
       if (category != null) 'category': category,
+      if (search != null && search.isNotEmpty) 'search': search,
     };
 
     final response = await _client.get(
@@ -35,15 +38,15 @@ class CommunityRemoteDataSource {
     throw Exception(response.data?['error'] ?? 'Failed to get communities');
   }
 
-  /// Get single community by ID
-  Future<CommunityModel> getCommunityById(String id) async {
+  /// Get single community by ID with details (includes recent posts)
+  Future<CommunityDetailsModel> getCommunityById(String id) async {
     final response = await _client.get(
       '${ApiRoutes.buildPath(ApiRoutes.communityById)}/$id',
     );
 
     if (response.statusCode == 200 && response.data != null) {
       final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
-      return CommunityModel.fromJson(data);
+      return CommunityDetailsModel.fromJson(data);
     }
 
     throw Exception(response.data?['error'] ?? 'Failed to get community');
@@ -84,5 +87,31 @@ class CommunityRemoteDataSource {
     if (response.statusCode != 200) {
       throw Exception(response.data?['error'] ?? 'Failed to leave community');
     }
+  }
+
+  /// Get community members
+  Future<CommunityMembersListModel> getCommunityMembers(
+    String communityId, {
+    int page = 1,
+    int limit = 50,
+    String? role,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      if (role != null && role.isNotEmpty) 'role': role,
+    };
+
+    final response = await _client.get(
+      '${ApiRoutes.buildPath(ApiRoutes.communityMembers)}/$communityId/members',
+      queryParameters: queryParams,
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return CommunityMembersListModel.fromJson(data);
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to get community members');
   }
 }

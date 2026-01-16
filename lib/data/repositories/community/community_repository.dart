@@ -15,6 +15,7 @@ class CommunityRepository implements CommunityRepositoryAbstract {
   Future<BaseState<List<CommunityDto>>> getCommunities({
     String? type,
     String? category,
+    String? search,
     int page = 1,
     int limit = 20,
   }) async {
@@ -22,6 +23,7 @@ class CommunityRepository implements CommunityRepositoryAbstract {
       final response = await _remoteDataSource.getCommunities(
         type: type,
         category: category,
+        search: search,
         page: page,
         limit: limit,
       );
@@ -36,10 +38,42 @@ class CommunityRepository implements CommunityRepositoryAbstract {
   Future<BaseState<CommunityDto>> getCommunityById(String id) async {
     try {
       final response = await _remoteDataSource.getCommunityById(id);
-      final community = response.toDomain();
+      final community = response.community.toDomain();
       return BaseState.success(community);
     } catch (e) {
       return ErrorHandler.handleError<CommunityDto>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<CommunityDetailsDto>> getCommunityDetails(String id) async {
+    try {
+      final response = await _remoteDataSource.getCommunityById(id);
+      final details = response.toDomain();
+      return BaseState.success(details);
+    } catch (e) {
+      return ErrorHandler.handleError<CommunityDetailsDto>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<List<CommunityMemberDto>>> getCommunityMembers(
+    String communityId, {
+    int page = 1,
+    int limit = 50,
+    String? role,
+  }) async {
+    try {
+      final response = await _remoteDataSource.getCommunityMembers(
+        communityId,
+        page: page,
+        limit: limit,
+        role: role,
+      );
+      final members = response.toDomain(communityId);
+      return BaseState.success(members);
+    } catch (e) {
+      return ErrorHandler.handleError<List<CommunityMemberDto>>(e);
     }
   }
 

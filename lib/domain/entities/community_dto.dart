@@ -1,3 +1,5 @@
+import 'package:metal/domain/entities/thought_dto.dart';
+
 /// Community data transfer object
 class CommunityDto {
   final String id;
@@ -103,6 +105,17 @@ enum CommunityMemberRole {
   creator,
   admin,
   member,
+}
+
+/// Community details DTO (includes community + recent posts)
+class CommunityDetailsDto {
+  final CommunityDto community;
+  final List<ThoughtDto> recentPosts;
+
+  CommunityDetailsDto({
+    required this.community,
+    required this.recentPosts,
+  });
 }
 
 /// Create community request DTO

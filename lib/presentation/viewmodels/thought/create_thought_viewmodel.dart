@@ -153,7 +153,8 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
   }
 
   /// Post the thought
-  Future<bool> postThought() async {
+  /// [communityMetadata] - Optional metadata for posting to a community
+  Future<bool> postThought({Map<String, dynamic>? communityMetadata}) async {
     if (!state.canPost) return false;
 
     state = state.copyWith(isPosting: true, isError: false, errorMessage: null);
@@ -195,6 +196,7 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
         audioUrl: uploadedAudioUrl,
         audioDuration: uploadedAudioDuration,
         connectionOnly: false,
+        communityMetadata: communityMetadata,
       );
 
       if (result.isSuccess) {

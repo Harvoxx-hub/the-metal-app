@@ -9,7 +9,12 @@ import 'package:metal/presentation/views/thought/widgets/thought_audio_section.d
 
 /// Create Thought Screen - Facebook-style thought creation
 class CreateThoughtScreen extends ConsumerStatefulWidget {
-  const CreateThoughtScreen({super.key});
+  final Map<String, dynamic>? communityMetadata;
+
+  const CreateThoughtScreen({
+    super.key,
+    this.communityMetadata,
+  });
 
   @override
   ConsumerState<CreateThoughtScreen> createState() => _CreateThoughtScreenState();
@@ -223,7 +228,9 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
   }
 
   Future<void> _handlePost(CreateThoughtViewModel viewModel) async {
-    final success = await viewModel.postThought();
+    final success = await viewModel.postThought(
+      communityMetadata: widget.communityMetadata,
+    );
 
     if (!mounted) return;
 

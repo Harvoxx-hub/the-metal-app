@@ -131,6 +131,8 @@ class ApiRoutes {
       '/communities'; // POST /communities/:id/join - join community
   static const String communityLeave =
       '/communities'; // DELETE /communities/:id/leave - leave community
+  static const String communityMembers =
+      '/communities'; // GET /communities/:id/members - get community members
 
   // Work Email Verification endpoints
   static const String workEmailVerification =

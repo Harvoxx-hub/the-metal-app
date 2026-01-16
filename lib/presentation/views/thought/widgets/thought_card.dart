@@ -25,6 +25,8 @@ import 'package:metal/widgets/read_more_text.dart';
 import 'package:metal/presentation/views/thought/widgets/comment_bottom_sheet.dart';
 import 'package:metal/presentation/views/thought/widgets/reaction_section.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
+import 'package:metal/data/datasources/remote/remote_data_source_providers.dart';
+import 'package:metal/domain/entities/report_dto.dart';
  
 import 'package:share_plus/share_plus.dart';
 import 'package:metal/core/services/deep_link_service.dart';
@@ -270,6 +272,10 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           BuildUserInfo(
             userId: thoughtModel.userId,
             thought: thoughtModel,
+            showThoughtMenu: true,
+            onDeleteThought: () => _handleDeleteThought(context),
+            onReportThought: () => _handleReportThought(context),
+            onBlockUser: () => _handleBlockUser(context),
           ),
           const Gap(10),
           // Community tag if this is a community post
@@ -788,6 +794,301 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
       return '$minutes:${seconds.toString().padLeft(2, '0')}';
     } else {
       return '0:${seconds.toString().padLeft(2, '0')}';
+    }
+  }
+
+  Future<void> _handleDeleteThought(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const TextView(
+          text: 'Delete Thought',
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
+        content: const TextView(
+          text: 'Are you sure you want to delete this thought? This action cannot be undone.',
+          fontSize: 14,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const TextView(
+              text: 'Cancel',
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const TextView(
+              text: 'Delete',
+              fontSize: 14,
+              color: AppColors.metalWhite,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final feedViewModel = ref.read(thoughtFeedViewModelProvider.notifier);
+      final success = await feedViewModel.deleteThought(thoughtModel.id);
+
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Thought deleted successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to delete thought'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _handleReportThought(BuildContext context) async {
+    // Show report dialog
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (context) => _ReportThoughtDialog(thoughtId: thoughtModel.id),
+    );
+
+    if (result != null && mounted) {
+      // Report submitted
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Thank you for reporting. We will review this thought.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleBlockUser(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const TextView(
+          text: 'Block User',
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
+        content: TextView(
+          text: 'Are you sure you want to block ${thoughtModel.authorMetadata?.authorName ?? "this user"}? You will no longer see their thoughts or be able to interact with them.',
+          fontSize: 14,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const TextView(
+              text: 'Cancel',
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const TextView(
+              text: 'Block',
+              fontSize: 14,
+              color: AppColors.metalWhite,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        final profileDataSource = ref.read(profileRemoteDataSourceProvider);
+        await profileDataSource.blockUser(userId: thoughtModel.userId);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('User blocked successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Remove thought from feed
+          ref.read(thoughtFeedViewModelProvider.notifier).removeThought(thoughtModel.id);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to block user: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+}
+
+/// Report Thought Dialog
+class _ReportThoughtDialog extends ConsumerStatefulWidget {
+  final String thoughtId;
+
+  const _ReportThoughtDialog({required this.thoughtId});
+
+  @override
+  ConsumerState<_ReportThoughtDialog> createState() => _ReportThoughtDialogState();
+}
+
+class _ReportThoughtDialogState extends ConsumerState<_ReportThoughtDialog> {
+  String? selectedReason;
+  final TextEditingController _detailsController = TextEditingController();
+  bool _isSubmitting = false;
+
+  final List<String> _reportReasons = [
+    'Spam',
+    'Harassment',
+    'Hate speech',
+    'Inappropriate content',
+    'False information',
+    'Other',
+  ];
+
+  @override
+  void dispose() {
+    _detailsController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const TextView(
+        text: 'Report Thought',
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const TextView(
+              text: 'Why are you reporting this thought?',
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+            const Gap(12),
+            ..._reportReasons.map((reason) => RadioListTile<String>(
+              title: TextView(text: reason, fontSize: 14),
+              value: reason,
+              groupValue: selectedReason,
+              onChanged: (value) {
+                setState(() {
+                  selectedReason = value;
+                });
+              },
+              contentPadding: EdgeInsets.zero,
+            )),
+            if (selectedReason == 'Other') ...[
+              const Gap(12),
+              TextField(
+                controller: _detailsController,
+                decoration: const InputDecoration(
+                  hintText: 'Please provide details...',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+          child: const TextView(
+            text: 'Cancel',
+            fontSize: 14,
+            color: Colors.grey,
+          ),
+        ),
+        ElevatedButton(
+          onPressed: _isSubmitting || selectedReason == null
+              ? null
+              : () => _submitReport(context),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.metalPinkColour,
+          ),
+          child: _isSubmitting
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const TextView(
+                  text: 'Submit',
+                  fontSize: 14,
+                  color: AppColors.metalWhite,
+                ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _submitReport(BuildContext context) async {
+    if (selectedReason == null) return;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final reportDataSource = ref.read(reportRemoteDataSourceProvider);
+      await reportDataSource.reportContent(
+        report: ContentReportDto(
+          contentType: ReportContentType.thought,
+          contentId: widget.thoughtId,
+          reason: selectedReason!,
+          additionalInfo: _detailsController.text.isNotEmpty
+              ? _detailsController.text
+              : null,
+        ),
+      );
+
+      if (mounted) {
+        Navigator.of(context).pop({
+          'success': true,
+          'reason': selectedReason,
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to submit report: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

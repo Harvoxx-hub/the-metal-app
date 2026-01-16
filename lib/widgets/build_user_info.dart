@@ -16,6 +16,10 @@ class BuildUserInfo extends ConsumerWidget {
   final DateTime? date;
   final String? commentId;
   final Function(String)? onDeleteComment;
+  final VoidCallback? onDeleteThought;
+  final VoidCallback? onReportThought;
+  final VoidCallback? onBlockUser;
+  final bool showThoughtMenu;
 
   const BuildUserInfo({
     super.key,
@@ -24,6 +28,10 @@ class BuildUserInfo extends ConsumerWidget {
     this.date,
     this.commentId,
     this.onDeleteComment,
+    this.onDeleteThought,
+    this.onReportThought,
+    this.onBlockUser,
+    this.showThoughtMenu = false,
   });
 
   @override
@@ -42,6 +50,7 @@ class BuildUserInfo extends ConsumerWidget {
         isVerified: authorMetadata.authorIsVerified ?? false,
         isOwnContent: isOwnContent,
         metalId: userId,
+        thoughtDate: thought.createdAt,
       );
     }
 
@@ -60,6 +69,7 @@ class BuildUserInfo extends ConsumerWidget {
         isVerified: false,
         isOwnContent: isOwnContent,
         metalId: userId,
+        thoughtDate: thought.createdAt,
       );
     }
 
@@ -71,6 +81,7 @@ class BuildUserInfo extends ConsumerWidget {
       isVerified: user.isVerified ?? false,
       isOwnContent: isOwnContent,
       metalId: user.metal ?? userId,
+      thoughtDate: thought.createdAt,
     );
   }
 
@@ -105,6 +116,7 @@ class BuildUserInfo extends ConsumerWidget {
     required bool isVerified,
     required bool isOwnContent,
     required String metalId,
+    required DateTime thoughtDate,
   }) {
     return Row(
       children: [
@@ -160,14 +172,13 @@ class BuildUserInfo extends ConsumerWidget {
                     ],
                   ],
                 ),
-                if (date != null) ...[
+                // Always show datetime from thought
                   const Gap(2),
                   TextView(
-                    text: _formatDate(date!),
+                  text: _formatDate(thoughtDate),
                     fontSize: 12,
                     color: Colors.grey[600],
                   ),
-                ],
               ],
             ),
           ),
@@ -194,7 +205,85 @@ class BuildUserInfo extends ConsumerWidget {
               ),
             ],
           ),
+        // Show thought menu (delete, report, block)
+        if (showThoughtMenu)
+          _buildThoughtMenu(context, isOwnContent),
       ],
+    );
+  }
+
+  Widget _buildThoughtMenu(BuildContext context, bool isOwnContent) {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert, size: 20, color: AppColors.metalBlack),
+      onSelected: (value) {
+        switch (value) {
+          case 'delete':
+            onDeleteThought?.call();
+            break;
+          case 'report':
+            onReportThought?.call();
+            break;
+          case 'block':
+            onBlockUser?.call();
+            break;
+        }
+      },
+      itemBuilder: (context) {
+        final items = <PopupMenuEntry<String>>[];
+
+        // Delete option (only for own thoughts)
+        if (isOwnContent && onDeleteThought != null) {
+          items.add(
+            const PopupMenuItem(
+              value: 'delete',
+              child: Row(
+                children: [
+                  Icon(Icons.delete_outline, size: 20, color: Colors.red),
+                  Gap(12),
+                  Text(
+                    'Delete Thought',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Report option (only for others' thoughts)
+        if (!isOwnContent && onReportThought != null) {
+          items.add(
+            const PopupMenuItem(
+              value: 'report',
+              child: Row(
+                children: [
+                  Icon(Icons.flag_outlined, size: 20, color: Colors.orange),
+                  Gap(12),
+                  Text('Report Thought'),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Block user option (only for others' thoughts)
+        if (!isOwnContent && onBlockUser != null) {
+          items.add(
+            const PopupMenuItem(
+              value: 'block',
+              child: Row(
+                children: [
+                  Icon(Icons.block, size: 20, color: Colors.red),
+                  Gap(12),
+                  Text('Block User'),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return items;
+      },
     );
   }
 

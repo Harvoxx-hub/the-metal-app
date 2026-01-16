@@ -5,11 +5,21 @@ abstract class CommunityRepositoryAbstract {
   Future<BaseState<List<CommunityDto>>> getCommunities({
     String? type,
     String? category,
+    String? search,
     int page = 1,
     int limit = 20,
   });
 
   Future<BaseState<CommunityDto>> getCommunityById(String id);
+
+  Future<BaseState<CommunityDetailsDto>> getCommunityDetails(String id);
+
+  Future<BaseState<List<CommunityMemberDto>>> getCommunityMembers(
+    String communityId, {
+    int page = 1,
+    int limit = 50,
+    String? role,
+  });
 
   Future<BaseState<CommunityDto>> createCommunity(CreateCommunityDto request);
 

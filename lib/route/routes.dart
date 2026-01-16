@@ -24,6 +24,8 @@ import 'package:metal/presentation/views/settings/edit_preferences_view.dart';
 import 'package:metal/presentation/views/chat/chat_window_view.dart';
 import 'package:metal/presentation/views/dashboard/dashboard_view.dart';
 import 'package:metal/presentation/views/thought/create_thought_screen.dart';
+import 'package:metal/presentation/views/thought/thought_detail_view.dart';
+import 'package:metal/presentation/views/community/community_detail_view.dart';
 
 // New Clean Architecture Connection views
 import 'package:metal/presentation/views/connection/connection_list_screen.dart';
@@ -89,6 +91,7 @@ class AppRoutes {
   static const String delete = '/deletePage';
   static const String postThought = '/postThought';
   static const String thoughtDetails = '/thoughtDetails';
+  static const String communityDetails = '/communityDetails';
   static const String workEmail = '/work-email';
   // Dashboard tab indices
   static const int homeTab = 0;
@@ -251,15 +254,38 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const DeleteAccountView());
 
       case postThought:
+        final communityMetadata = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-          builder: (_) => const CreateThoughtScreen(),
-        );
-      // TODO: Re-implement thoughtDetails in new architecture
-      case thoughtDetails:
-        return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            body: Center(child: Text('Feature coming soon')),
+          builder: (_) => CreateThoughtScreen(
+            communityMetadata: communityMetadata,
           ),
+        );
+      case thoughtDetails:
+        // Handle arguments: can be String (thoughtId) or Map with thoughtId and optional commentId
+        final args = settings.arguments;
+        String thoughtId;
+        String? targetCommentId;
+        
+        if (args is String) {
+          thoughtId = args;
+        } else if (args is Map<String, dynamic>) {
+          thoughtId = args['thoughtId'] as String? ?? '';
+          targetCommentId = args['commentId'] as String?;
+        } else {
+          thoughtId = '';
+        }
+        
+        return MaterialPageRoute(
+          builder: (_) => ThoughtDetailView(
+            thoughtId: thoughtId,
+            targetCommentId: targetCommentId,
+          ),
+        );
+      case communityDetails:
+        final args = settings.arguments;
+        final communityId = args is String ? args : (args as Map<String, dynamic>?)?['communityId'] as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => CommunityDetailView(communityId: communityId),
         );
       case workEmail:
         return MaterialPageRoute(

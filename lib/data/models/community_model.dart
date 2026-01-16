@@ -1,4 +1,5 @@
 import 'package:metal/domain/entities/community_dto.dart';
+import 'package:metal/data/models/thought_model.dart';
 
 /// Community response model from API
 class CommunityModel {
@@ -207,42 +208,84 @@ class CreateCommunityRequestModel {
   }
 }
 
+/// Community details response model (includes community + recent posts)
+class CommunityDetailsModel {
+  final CommunityModel community;
+  final List<ThoughtModel> recentPosts;
+
+  CommunityDetailsModel({
+    required this.community,
+    required this.recentPosts,
+  });
+
+  factory CommunityDetailsModel.fromJson(Map<String, dynamic> json) {
+    return CommunityDetailsModel(
+      community: CommunityModel.fromJson(
+        json['community'] as Map<String, dynamic>,
+      ),
+      recentPosts: (json['recentPosts'] as List<dynamic>?)
+              ?.map((post) {
+                // Backend returns posts with author field, need to map to ThoughtModel structure
+                final postData = post as Map<String, dynamic>;
+                // Ensure the post has the required ThoughtModel structure
+                return ThoughtModel.fromJson(postData);
+              })
+              .toList() ??
+          [],
+    );
+  }
+
+  /// Convert to domain DTO
+  CommunityDetailsDto toDomain() {
+    return CommunityDetailsDto(
+      community: community.toDomain(),
+      recentPosts: recentPosts.map((post) => post.toDomain()).toList(),
+    );
+  }
+}
+
 /// Community member response model
 class CommunityMemberModel {
-  final String communityId;
   final String userId;
-  final String userName;
-  final String? userProfilePhoto;
+  final String? username;
+  final String? fullname;
+  final String? profilePhoto;
   final String role;
+  final bool isVerified;
+  final String? metal;
   final String joinedAt;
 
   CommunityMemberModel({
-    required this.communityId,
     required this.userId,
-    required this.userName,
-    this.userProfilePhoto,
+    this.username,
+    this.fullname,
+    this.profilePhoto,
     required this.role,
+    this.isVerified = false,
+    this.metal,
     required this.joinedAt,
   });
 
   factory CommunityMemberModel.fromJson(Map<String, dynamic> json) {
     return CommunityMemberModel(
-      communityId: json['communityId'] as String,
       userId: json['userId'] as String,
-      userName: json['userName'] as String,
-      userProfilePhoto: json['userProfilePhoto'] as String?,
+      username: json['username'] as String?,
+      fullname: json['fullname'] as String?,
+      profilePhoto: json['profilePhoto'] as String?,
       role: json['role'] as String? ?? 'member',
+      isVerified: json['isVerified'] as bool? ?? false,
+      metal: json['metal'] as String?,
       joinedAt: json['joinedAt'] as String,
     );
   }
 
   /// Convert to domain DTO
-  CommunityMemberDto toDomain() {
+  CommunityMemberDto toDomain(String communityId) {
     return CommunityMemberDto(
       communityId: communityId,
       userId: userId,
-      userName: userName,
-      userProfilePhoto: userProfilePhoto,
+      userName: username ?? fullname ?? 'Unknown',
+      userProfilePhoto: profilePhoto,
       role: _parseMemberRole(role),
       joinedAt: DateTime.parse(joinedAt),
     );
@@ -259,5 +302,33 @@ class CommunityMemberModel {
       default:
         return CommunityMemberRole.member;
     }
+  }
+}
+
+/// Community members list response model
+class CommunityMembersListModel {
+  final List<CommunityMemberModel> members;
+  final PaginationInfo? pagination;
+
+  CommunityMembersListModel({
+    required this.members,
+    this.pagination,
+  });
+
+  factory CommunityMembersListModel.fromJson(Map<String, dynamic> json) {
+    return CommunityMembersListModel(
+      members: (json['members'] as List<dynamic>?)
+              ?.map((m) => CommunityMemberModel.fromJson(m as Map<String, dynamic>))
+              .toList() ??
+          [],
+      pagination: json['pagination'] != null
+          ? PaginationInfo.fromJson(json['pagination'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  /// Convert to domain DTOs
+  List<CommunityMemberDto> toDomain(String communityId) {
+    return members.map((m) => m.toDomain(communityId)).toList();
   }
 }

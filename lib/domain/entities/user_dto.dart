@@ -41,6 +41,17 @@ class UserDto extends BaseEntity {
   final bool? isConnected;
   final String? connectionId;
   final String? connectedOn;
+  final String? connectionStatus;
+  // Melt status fields
+  final String?
+      meltStatus; // 'connected', 'pending_outgoing', 'pending_incoming', 'none', 'mutual'
+  final String? meltRequestId;
+  final String? meltRequestCreatedAt;
+  // Anonymous and unmelt fields
+  final bool? isAnonymous;
+  final bool? canUnmelt;
+  final String? initiatorId;
+  final String? receiverId;
 
   const UserDto({
     required this.id,
@@ -77,6 +88,14 @@ class UserDto extends BaseEntity {
     this.isConnected,
     this.connectionId,
     this.connectedOn,
+    this.connectionStatus,
+    this.meltStatus,
+    this.meltRequestId,
+    this.meltRequestCreatedAt,
+    this.isAnonymous,
+    this.canUnmelt,
+    this.initiatorId,
+    this.receiverId,
   });
 
   UserDto copyWith({
@@ -114,6 +133,14 @@ class UserDto extends BaseEntity {
     bool? isConnected,
     String? connectionId,
     String? connectedOn,
+    String? connectionStatus,
+    String? meltStatus,
+    String? meltRequestId,
+    String? meltRequestCreatedAt,
+    bool? isAnonymous,
+    bool? canUnmelt,
+    String? initiatorId,
+    String? receiverId,
   }) {
     return UserDto(
       id: id ?? this.id,
@@ -150,6 +177,14 @@ class UserDto extends BaseEntity {
       isConnected: isConnected ?? this.isConnected,
       connectionId: connectionId ?? this.connectionId,
       connectedOn: connectedOn ?? this.connectedOn,
+      connectionStatus: connectionStatus ?? this.connectionStatus,
+      meltStatus: meltStatus ?? this.meltStatus,
+      meltRequestId: meltRequestId ?? this.meltRequestId,
+      meltRequestCreatedAt: meltRequestCreatedAt ?? this.meltRequestCreatedAt,
+      isAnonymous: isAnonymous ?? this.isAnonymous,
+      canUnmelt: canUnmelt ?? this.canUnmelt,
+      initiatorId: initiatorId ?? this.initiatorId,
+      receiverId: receiverId ?? this.receiverId,
     );
   }
 }

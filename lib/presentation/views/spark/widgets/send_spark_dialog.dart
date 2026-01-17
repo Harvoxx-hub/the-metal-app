@@ -14,7 +14,12 @@ import 'package:metal/widgets/text_views.dart';
 
 /// Dialog for sending sparks to another user
 class SendSparkDialog extends ConsumerStatefulWidget {
-  const SendSparkDialog({super.key});
+  final UserDto? preSelectedUser;
+  
+  const SendSparkDialog({
+    super.key,
+    this.preSelectedUser,
+  });
 
   @override
   ConsumerState<SendSparkDialog> createState() => _SendSparkDialogState();
@@ -33,6 +38,14 @@ class _SendSparkDialogState extends ConsumerState<SendSparkDialog> {
   void initState() {
     super.initState();
     _usernameController.addListener(_onUsernameChanged);
+    
+    // If a user is pre-selected, set it up
+    if (widget.preSelectedUser != null) {
+      selectedUser = widget.preSelectedUser;
+      selectedUserId = widget.preSelectedUser!.id;
+      _usernameController.text = widget.preSelectedUser!.username ?? 
+                                 widget.preSelectedUser!.fullname ?? '';
+    }
   }
 
   @override
@@ -103,15 +116,21 @@ class _SendSparkDialogState extends ConsumerState<SendSparkDialog> {
               EditFormField(
                 controller: _usernameController,
                 hint: "Search username",
+                enabled: widget.preSelectedUser == null, // Disable if user is pre-selected
                 validator: (value) {
+                  if (widget.preSelectedUser != null) {
+                    return null; // Skip validation if user is pre-selected
+                  }
                   if (value == null || value.isEmpty) {
                     return "Please enter a username";
                   }
                   return null;
                 },
               ),
-              // Show search results
-              if (_usernameController.text.isNotEmpty && selectedUserId == null)
+              // Show search results only if no user is pre-selected
+              if (widget.preSelectedUser == null && 
+                  _usernameController.text.isNotEmpty && 
+                  selectedUserId == null)
                 _buildUserSearchResults(userSearchState),
               const Gap(16),
               // Amount field

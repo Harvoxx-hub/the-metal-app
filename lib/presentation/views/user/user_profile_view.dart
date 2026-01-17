@@ -13,6 +13,7 @@ import 'package:metal/presentation/views/user/widgets/user_thoughts_tab.dart';
 import 'package:metal/presentation/views/user/widgets/user_details_tab.dart';
 import 'package:metal/presentation/views/connection/widgets/metal_details_tab.dart';
 import 'package:metal/presentation/views/dashboard/widgets/complete.profile.dialog.dart';
+import 'package:metal/presentation/views/spark/widgets/send_spark_dialog.dart';
 import 'package:metal/presentation/widgets/profile/profile_header.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
@@ -61,15 +62,8 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
     final profileViewModel =
         ref.read(userProfileViewModelProvider(widget.userId).notifier);
 
-    // Watch melt status for connection management
-    final meltStatusState = ref.watch(meltStatusProvider(widget.userId));
+    // Watch melt action state for melt operations
     final meltActionState = ref.watch(meltActionProvider);
-
-    // Get connection details from melt status (for profile display)
-    final meltStatus = meltStatusState.status;
-    final connectionId = meltStatus?.connectionId;
-    final connectedOn = meltStatus?.connectedOn;
-    final isAnonymous = meltStatus?.isAnonymous ?? true;
 
     // Get connection count for melt limit check (only watch when needed)
     final connectionState = ref.watch(connectionViewModelProvider);
@@ -94,8 +88,8 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
     // Listen for successful melt action
     ref.listen<MeltActionState>(meltActionProvider, (prev, current) async {
       if (current.isSuccess && prev?.isLoading == true) {
-        // Refresh melt status and connections
-        ref.invalidate(meltStatusProvider(widget.userId));
+        // Refresh user profile to get updated connection/melt status
+        profileViewModel.refresh();
         ref.read(connectionViewModelProvider.notifier).refresh();
 
         // If melt resulted in a connection, navigate to meltMetal route
@@ -140,15 +134,19 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
     final metalId =
         user.metal ?? 'default'; // Metal type for profile photo display
 
+    // Determine profile picture: show user photo only if connected AND not anonymous
+    // Otherwise show melt picture (when anonymous or not connected)
+    final shouldShowProfilePhoto =
+        (user.isConnected == true) && (user.isAnonymous == false);
+    final profileUrl = shouldShowProfilePhoto ? user.profilePhoto : null;
+
     return BaseScreen(
       Header: 'Metal Profile',
       appBarState: AppBarState.BackWithHeader,
       body: ProfileHeader(
         eye: false,
         metalId: metalId,
-        profileUrl: meltStatusState.isConnected && !isAnonymous
-            ? user.profilePhoto
-            : (!meltStatusState.isConnected ? user.profilePhoto : null),
+        profileUrl: profileUrl,
         child: Padding(
           padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
           child: Container(
@@ -166,7 +164,6 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
                 _buildUserInfoSection(user),
                 const Gap(20),
                 _buildMeltActionSection(
-                  meltStatusState,
                   meltActionState,
                   connectionState.connections.length,
                   user,
@@ -198,10 +195,10 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
                         title: 'Metal Details',
                         child: _buildDetailsTab(
                           user: user,
-                          isConnected: meltStatusState.isConnected,
-                          connectionId: connectionId ?? '',
-                          connectedOn: connectedOn ?? '',
-                          isAnonymous: isAnonymous,
+                          isConnected: user.isConnected ?? false,
+                          connectionId: user.connectionId ?? '',
+                          connectedOn: user.connectedOn ?? '',
+                          isAnonymous: user.isAnonymous ?? true,
                         ),
                       ),
                     ],
@@ -217,6 +214,20 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
 
   /// Build user info section with username in light pink box and location
   Widget _buildUserInfoSection(user) {
+    // Build location text from city and country
+    String locationText = '';
+    if (user.location != null) {
+      final parts = <String>[];
+      if (user.location!.city != null && user.location!.city!.isNotEmpty) {
+        parts.add(user.location!.city!);
+      }
+      if (user.location!.country != null &&
+          user.location!.country!.isNotEmpty) {
+        parts.add(user.location!.country!);
+      }
+      locationText = parts.join(', ');
+    }
+
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: ShapeDecoration(
@@ -233,13 +244,15 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
             fontSize: 16,
             color: AppColors.metalBrownColourForText,
           ),
-          const Gap(5),
-          TextView(
-            text: user.location?.address ?? '',
-            fontWeight: FontWeight.w400,
-            fontSize: 14,
-            color: AppColors.metalBrownColourForText,
-          ),
+          if (locationText.isNotEmpty) ...[
+            const Gap(5),
+            TextView(
+              text: locationText,
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: AppColors.metalBrownColourForText,
+            ),
+          ],
         ],
       ),
     );
@@ -247,7 +260,6 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
 
   /// Build melt action section with status-based buttons
   Widget _buildMeltActionSection(
-    MeltStatusState meltStatusState,
     MeltActionState meltActionState,
     int connectionCount,
     user,
@@ -262,27 +274,24 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
       return const SizedBox.shrink();
     }
 
-    // Pending state - show disabled melt button
-    if (meltStatusState.isPending) {
-      return PlainButton(
-        loading: meltActionState.isLoading,
-        onPressed: () {},
-        fontSize: 15,
-        color: AppColors.metalPinkColour40,
-        buttonText: "Melt",
-      );
-    }
-
-    // Connected state - show Message button
-    // Note: Send Spark is handled through the Sparks tab in dashboard
-    if (meltStatusState.isConnected) {
+    // Connected state - show "Send Spark" and "Message" buttons
+    if (user.isConnected == true) {
       return Row(
         children: [
           Expanded(
+            child: BaseButton(
+              loading: false,
+              onPressed: () => _handleSendSparkAction(user),
+              fontSize: 15,
+              buttonText: "Send Spark",
+            ),
+          ),
+          const Gap(12),
+          Expanded(
             child: OutilineButton(
               onPressed: () {
-                final connectionId = meltStatusState.status?.connectionId;
-                if (connectionId != null) {
+                final connectionId = user.connectionId;
+                if (connectionId != null && connectionId.isNotEmpty) {
                   Navigator.pushNamed(
                     context,
                     AppRoutes.chatWindowView,
@@ -298,7 +307,21 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
       );
     }
 
-    // No connection - show Melt and Message buttons
+    // Not connected - check melt status
+    final meltStatus = user.meltStatus ?? 'none';
+
+    // Pending outgoing melt request - show "Melt pending" (disabled)
+    if (meltStatus == 'pending_outgoing') {
+      return PlainButton(
+        loading: false,
+        onPressed: () {},
+        fontSize: 15,
+        color: AppColors.metalPinkColour40,
+        buttonText: "Melt pending",
+      );
+    }
+
+    // No connection or pending incoming - show Melt and Message buttons
     return Row(
       children: [
         Expanded(
@@ -346,6 +369,21 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
         builder: (context) => CustomDialog(content: _meltLimitDialog()),
       );
     }
+  }
+
+  /// Handle send spark action
+  void _handleSendSparkAction(user) {
+    // Show send spark dialog with pre-selected user
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CustomDialog(
+          content: SendSparkDialog(
+            preSelectedUser: user,
+          ),
+        );
+      },
+    );
   }
 
   /// Handle message action

@@ -46,6 +46,17 @@ class UserModel {
   final bool? isConnected;
   final String? connectionId;
   final String? connectedOn;
+  final String? connectionStatus;
+  // Melt status fields
+  final String?
+      meltStatus; // 'connected', 'pending_outgoing', 'pending_incoming', 'none', 'mutual'
+  final String? meltRequestId;
+  final String? meltRequestCreatedAt;
+  // Anonymous and unmelt fields
+  final bool? isAnonymous;
+  final bool? canUnmelt;
+  final String? initiatorId;
+  final String? receiverId;
 
   UserModel({
     required this.id,
@@ -85,6 +96,14 @@ class UserModel {
     this.isConnected,
     this.connectionId,
     this.connectedOn,
+    this.connectionStatus,
+    this.meltStatus,
+    this.meltRequestId,
+    this.meltRequestCreatedAt,
+    this.isAnonymous,
+    this.canUnmelt,
+    this.initiatorId,
+    this.receiverId,
   });
 
   /// Create from API JSON response
@@ -158,6 +177,14 @@ class UserModel {
       isConnected: json['isConnected'] as bool?,
       connectionId: json['connectionId'] as String?,
       connectedOn: json['connectedOn'] as String?,
+      connectionStatus: json['connectionStatus'] as String?,
+      meltStatus: json['meltStatus'] as String?,
+      meltRequestId: json['meltRequestId'] as String?,
+      meltRequestCreatedAt: json['meltRequestCreatedAt'] as String?,
+      isAnonymous: json['isAnonymous'] as bool?,
+      canUnmelt: json['canUnmelt'] as bool?,
+      initiatorId: json['initiatorId'] as String?,
+      receiverId: json['receiverId'] as String?,
     );
   }
 
@@ -198,6 +225,14 @@ class UserModel {
       isConnected: isConnected,
       connectionId: connectionId,
       connectedOn: connectedOn,
+      connectionStatus: connectionStatus,
+      meltStatus: meltStatus,
+      meltRequestId: meltRequestId,
+      meltRequestCreatedAt: meltRequestCreatedAt,
+      isAnonymous: isAnonymous,
+      canUnmelt: canUnmelt,
+      initiatorId: initiatorId,
+      receiverId: receiverId,
     );
   }
 
@@ -230,6 +265,15 @@ class UserModel {
       if (isConnected != null) 'isConnected': isConnected,
       if (connectionId != null) 'connectionId': connectionId,
       if (connectedOn != null) 'connectedOn': connectedOn,
+      if (connectionStatus != null) 'connectionStatus': connectionStatus,
+      if (meltStatus != null) 'meltStatus': meltStatus,
+      if (meltRequestId != null) 'meltRequestId': meltRequestId,
+      if (meltRequestCreatedAt != null)
+        'meltRequestCreatedAt': meltRequestCreatedAt,
+      if (isAnonymous != null) 'isAnonymous': isAnonymous,
+      if (canUnmelt != null) 'canUnmelt': canUnmelt,
+      if (initiatorId != null) 'initiatorId': initiatorId,
+      if (receiverId != null) 'receiverId': receiverId,
     };
   }
 }

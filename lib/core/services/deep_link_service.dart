@@ -280,21 +280,14 @@ class DeepLinkService {
       (route) => false,
     );
 
-    Navigator.pushNamedAndRemoveUntil(
-      _context!,
-      AppRoutes.myMeltedUser,
-      (route) => false,
-      arguments: {"metalId": userId},
-    );
-
-    // Navigate to user profile after dashboard is loaded
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Navigate to user profile
+    if (_context != null) {
       Navigator.pushNamed(
         _context!,
-        AppRoutes.myMeltedUser,
-        arguments: {"metalId": userId},
+        AppRoutes.userProfile,
+        arguments: userId,
       );
-    });
+    }
   }
 
   /// Navigate to community profile

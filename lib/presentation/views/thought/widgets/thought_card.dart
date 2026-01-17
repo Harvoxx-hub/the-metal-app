@@ -348,13 +348,11 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           children: [
             IconButton(
               onPressed: () {
-                if (thoughtModel.userId != userdata?.id) {
-                  Navigator.pushNamed(
-                    context,
-                    AppRoutes.myMeltedUser,
-                    arguments: {"metalId": thoughtModel.userId},
-                  );
-                }
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.userProfile,
+                  arguments: thoughtModel.userId,
+                );
               },
               icon: SvgPicture.asset(
                 Assets.icons.thoughtProfile.path,

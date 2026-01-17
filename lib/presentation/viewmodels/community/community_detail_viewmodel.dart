@@ -78,7 +78,8 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
         state = state.copyWith(
           isLoading: false,
           isError: true,
-          errorMessage: result.errorMessage ?? 'Failed to load community details',
+          errorMessage:
+              result.errorMessage ?? 'Failed to load community details',
         );
       }
     }
@@ -93,6 +94,7 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
 
     if (mounted) {
       if (result.isSuccess) {
+        // Optimistically update local state
         final updatedCommunity = state.community?.copyWith(
           isJoined: true,
           memberCount: (state.community?.memberCount ?? 0) + 1,
@@ -101,6 +103,9 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
           isJoining: false,
           community: updatedCommunity,
         );
+
+        // Reload from backend to get fresh state (including correct isJoined status)
+        await loadCommunityDetails(communityId);
       } else {
         state = state.copyWith(
           isJoining: false,
@@ -120,6 +125,7 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
 
     if (mounted) {
       if (result.isSuccess) {
+        // Optimistically update local state
         final updatedCommunity = state.community?.copyWith(
           isJoined: false,
           memberCount: (state.community?.memberCount ?? 0) - 1,
@@ -128,6 +134,9 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
           isLeaving: false,
           community: updatedCommunity,
         );
+
+        // Reload from backend to get fresh state (including correct isJoined status)
+        await loadCommunityDetails(communityId);
       } else {
         state = state.copyWith(
           isLeaving: false,
@@ -158,9 +167,26 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
         state = state.copyWith(
           isLoadingMembers: false,
           isError: true,
-          errorMessage: result.errorMessage ?? 'Failed to load community members',
+          errorMessage:
+              result.errorMessage ?? 'Failed to load community members',
         );
       }
+    }
+  }
+
+  /// Refresh all data for the community details page
+  Future<void> refreshAll(String communityId) async {
+    // Reload community details first (includes posts)
+    await loadCommunityDetails(communityId);
+    // Then reload members
+    await loadCommunityMembers(communityId);
+  }
+
+  /// Add a new post to the list (optimistic update)
+  void addPost(ThoughtDto post) {
+    if (mounted) {
+      final updatedPosts = [post, ...state.posts];
+      state = state.copyWith(posts: updatedPosts);
     }
   }
 }

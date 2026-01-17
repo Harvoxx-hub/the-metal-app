@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
- 
+
 import 'package:metal/presentation/views/settings/delete_account_view.dart';
-import 'package:camera/camera.dart';
 
 // New Clean Architecture views
 import 'package:metal/presentation/views/splash/splash_view.dart';
@@ -26,11 +25,11 @@ import 'package:metal/presentation/views/dashboard/dashboard_view.dart';
 import 'package:metal/presentation/views/thought/create_thought_screen.dart';
 import 'package:metal/presentation/views/thought/thought_detail_view.dart';
 import 'package:metal/presentation/views/community/community_detail_view.dart';
+import 'package:metal/presentation/views/user/user_profile_view.dart';
 
 // New Clean Architecture Connection views
 import 'package:metal/presentation/views/connection/connection_list_screen.dart';
-import 'package:metal/presentation/views/connection/connection_detail_screen.dart';
- 
+
 // Notification view
 import 'package:metal/presentation/views/notification/notification_view.dart';
 
@@ -42,7 +41,6 @@ import 'package:metal/presentation/views/settings/blocked_users_view.dart';
 // import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
 // import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 
- 
 class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
@@ -73,11 +71,9 @@ class AppRoutes {
   static const String pushMetal = '/pushMetal';
   static const String blockedUser = '/blockedUser';
   static const String notificationPage = '/notificationPage';
-  static const String userProfilePage = '/userProfilePage';
   static const String upgradePage = '/upgradePage';
   static const String makePayment = '/makePayment';
   static const String myMeltedMetals = '/myMeltedMetals';
-  static const String myMeltedUser = '/myMeltedUser';
   static const String sendSpark = '/sendSpark';
   static const String buySpark = '/buySpark';
   static const String referEarn = '/referEarn';
@@ -92,6 +88,7 @@ class AppRoutes {
   static const String postThought = '/postThought';
   static const String thoughtDetails = '/thoughtDetails';
   static const String communityDetails = '/communityDetails';
+  static const String userProfile = '/userProfile';
   static const String workEmail = '/work-email';
   // Dashboard tab indices
   static const int homeTab = 0;
@@ -199,22 +196,11 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const BlockedUsersView());
       case notificationPage:
         return MaterialPageRoute(builder: (_) => const NotificationView());
-      case userProfilePage:
-        return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            body: Center(child: Text('Feature migrated to connections')),
-          ),
-        );
       // case upgradePage:
       //   return MaterialPageRoute(builder: (_) => const UpgradePage());
-     
+
       case myMeltedMetals:
         return MaterialPageRoute(builder: (_) => const ConnectionListScreen());
-      case myMeltedUser:
-        return MaterialPageRoute(
-            builder: (_) => ConnectionDetailScreen(
-                  metalDetails: settings.arguments as Map<String, dynamic>,
-                ));
 
       case meltMetal:
         return MaterialPageRoute(
@@ -249,7 +235,7 @@ class AppRoutes {
                 ));
       // Phone number and email update pages have been removed
       // TODO: Re-implement these in Clean Architecture when needed
-      
+
       case delete:
         return MaterialPageRoute(builder: (_) => const DeleteAccountView());
 
@@ -265,7 +251,7 @@ class AppRoutes {
         final args = settings.arguments;
         String thoughtId;
         String? targetCommentId;
-        
+
         if (args is String) {
           thoughtId = args;
         } else if (args is Map<String, dynamic>) {
@@ -274,7 +260,7 @@ class AppRoutes {
         } else {
           thoughtId = '';
         }
-        
+
         return MaterialPageRoute(
           builder: (_) => ThoughtDetailView(
             thoughtId: thoughtId,
@@ -283,9 +269,19 @@ class AppRoutes {
         );
       case communityDetails:
         final args = settings.arguments;
-        final communityId = args is String ? args : (args as Map<String, dynamic>?)?['communityId'] as String? ?? '';
+        final communityId = args is String
+            ? args
+            : (args as Map<String, dynamic>?)?['communityId'] as String? ?? '';
         return MaterialPageRoute(
           builder: (_) => CommunityDetailView(communityId: communityId),
+        );
+      case userProfile:
+        final args = settings.arguments;
+        final userId = args is String
+            ? args
+            : (args as Map<String, dynamic>?)?['userId'] as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => UserProfileView(userId: userId),
         );
       case workEmail:
         return MaterialPageRoute(

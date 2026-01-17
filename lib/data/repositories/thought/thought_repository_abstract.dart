@@ -9,9 +9,11 @@ abstract class ThoughtRepositoryAbstract {
   // ============ Thought Methods ============
 
   /// Get thoughts feed (paginated)
+  /// [userId] - Optional filter to get thoughts by a specific user
   Future<BaseState<ThoughtsResponseDto>> getThoughts({
     int limit = 20,
     String? cursor,
+    String? userId,
   });
 
   /// Get a single thought by ID

@@ -37,6 +37,10 @@ class UserDto extends BaseEntity {
   final UserExtraDataModel? extraData;
   final String? createdAt;
   final String? updatedAt;
+  // Connection status fields (when viewing other users)
+  final bool? isConnected;
+  final String? connectionId;
+  final String? connectedOn;
 
   const UserDto({
     required this.id,
@@ -70,6 +74,9 @@ class UserDto extends BaseEntity {
     this.extraData,
     this.createdAt,
     this.updatedAt,
+    this.isConnected,
+    this.connectionId,
+    this.connectedOn,
   });
 
   UserDto copyWith({
@@ -104,6 +111,9 @@ class UserDto extends BaseEntity {
     UserExtraDataModel? extraData,
     String? createdAt,
     String? updatedAt,
+    bool? isConnected,
+    String? connectionId,
+    String? connectedOn,
   }) {
     return UserDto(
       id: id ?? this.id,
@@ -137,6 +147,9 @@ class UserDto extends BaseEntity {
       extraData: extraData ?? this.extraData,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isConnected: isConnected ?? this.isConnected,
+      connectionId: connectionId ?? this.connectionId,
+      connectedOn: connectedOn ?? this.connectedOn,
     );
   }
 }

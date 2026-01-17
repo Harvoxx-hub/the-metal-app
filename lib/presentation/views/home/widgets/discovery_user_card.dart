@@ -39,8 +39,8 @@ class DiscoveryUserCard extends ConsumerWidget {
         onTap: () {
           Navigator.pushNamed(
             context,
-            AppRoutes.myMeltedUser,
-            arguments: {"metalId": user.id},
+            AppRoutes.userProfile,
+            arguments: user.id,
           );
         },
         child: Container(

@@ -49,8 +49,8 @@ class ConnectionCard extends ConsumerWidget {
         } else {
           Navigator.pushNamed(
             context,
-            AppRoutes.myMeltedUser,
-            arguments: {"metalId": otherUserId},
+            AppRoutes.userProfile,
+            arguments: otherUserId,
           );
         }
       },

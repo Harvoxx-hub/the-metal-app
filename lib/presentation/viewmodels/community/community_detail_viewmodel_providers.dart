@@ -7,7 +7,11 @@ final communityDetailViewModelProvider = StateNotifierProvider.family
   (ref, communityId) {
     final repository = ref.watch(communityRepositoryProvider);
     final viewModel = CommunityDetailViewModel(repository: repository);
+    
+    // Load initial data
     viewModel.loadCommunityDetails(communityId);
+    viewModel.loadCommunityMembers(communityId);
+    
     return viewModel;
   },
 );

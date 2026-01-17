@@ -14,13 +14,16 @@ class ThoughtRemoteDataSource {
   // ============ Thought Methods ============
 
   /// Get thoughts feed with pagination
+  /// [userId] - Optional filter to get thoughts by a specific user
   Future<ThoughtsResponseModel> getThoughts({
     int limit = 20,
     String? cursor,
+    String? userId,
   }) async {
     final queryParams = <String, dynamic>{
       'limit': limit,
       if (cursor != null) 'cursor': cursor,
+      if (userId != null) 'userId': userId,
     };
 
     final response = await _client.get(

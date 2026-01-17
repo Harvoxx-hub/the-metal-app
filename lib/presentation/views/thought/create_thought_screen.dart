@@ -117,8 +117,10 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
               }
             },
           ),
-          title: const TextView(
-            text: 'Create Thought',
+          title: TextView(
+            text: widget.communityMetadata != null
+                ? 'Post to ${widget.communityMetadata!['communityName'] ?? 'Community'}'
+                : 'Create Thought',
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: AppColors.metalBlack,
@@ -148,6 +150,39 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Community indicator (if posting to community)
+                      if (widget.communityMetadata != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: AppColors.metalPinkColour.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppColors.metalPinkColour.withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.group,
+                                size: 20,
+                                color: AppColors.metalPinkColour,
+                              ),
+                              const Gap(8),
+                              Expanded(
+                                child: TextView(
+                                  text: 'Posting to ${widget.communityMetadata!['communityName'] ?? 'Community'}',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.metalPinkColour,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       // Text input section
                       ThoughtTextInput(
                         controller: _textController,
@@ -159,6 +194,9 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
                           });
                         },
                         maxLength: 1000,
+                        hintText: widget.communityMetadata != null
+                            ? 'Share your thoughts with the community...'
+                            : "What's on your mind?",
                       ),
                       const Gap(16),
                       // Audio section

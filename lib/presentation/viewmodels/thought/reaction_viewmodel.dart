@@ -19,7 +19,8 @@ class ReactionViewState {
 
   factory ReactionViewState.initial() => const ReactionViewState();
 
-  factory ReactionViewState.loading() => const ReactionViewState(isLoading: true);
+  factory ReactionViewState.loading() =>
+      const ReactionViewState(isLoading: true);
 
   factory ReactionViewState.success(List<ReactionDto> reactions) =>
       ReactionViewState(reactions: reactions);
@@ -57,14 +58,18 @@ class ReactionViewModel extends StateNotifier<ReactionViewState> {
 
   /// Load reactions for the thought
   Future<void> loadReactions() async {
+    if (!mounted) return;
     state = ReactionViewState.loading();
 
     final result = await _repository.getReactions(thoughtId);
 
+    if (!mounted) return;
+
     if (result.isSuccess && result.data != null) {
       state = ReactionViewState.success(result.data!.reactions);
     } else if (result.isError) {
-      state = ReactionViewState.error(result.errorMessage ?? 'Failed to load reactions');
+      state = ReactionViewState.error(
+          result.errorMessage ?? 'Failed to load reactions');
     } else {
       state = ReactionViewState.success([]);
     }
@@ -74,10 +79,14 @@ class ReactionViewModel extends StateNotifier<ReactionViewState> {
   /// If user already has a reaction with the same emoji, it will be removed
   /// If user has a different emoji, it will be updated
   Future<void> addReaction(String emoji) async {
+    if (!mounted) return;
+
     final result = await _repository.addReaction(
       thoughtId: thoughtId,
       emoji: emoji,
     );
+
+    if (!mounted) return;
 
     if (result.isSuccess && result.data != null) {
       // Reload reactions to get the updated list

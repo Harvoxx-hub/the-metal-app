@@ -7,6 +7,7 @@ class ThoughtTextInput extends StatelessWidget {
   final FocusNode focusNode;
   final ValueChanged<String> onChanged;
   final int maxLength;
+  final String? hintText;
 
   const ThoughtTextInput({
     super.key,
@@ -14,6 +15,7 @@ class ThoughtTextInput extends StatelessWidget {
     required this.focusNode,
     required this.onChanged,
     this.maxLength = 1000,
+    this.hintText,
   });
 
   @override
@@ -37,14 +39,14 @@ class ThoughtTextInput extends StatelessWidget {
           color: AppColors.metalBlack,
           height: 1.5,
         ),
-        decoration: const InputDecoration(
-          hintText: "What's on your mind?",
-          hintStyle: TextStyle(
+        decoration: InputDecoration(
+          hintText: hintText ?? "What's on your mind?",
+          hintStyle: const TextStyle(
             color: Colors.grey,
             fontSize: 16,
           ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.all(16),
+          contentPadding: const EdgeInsets.all(16),
           counterText: '', // Hide default counter, we'll show custom one
         ),
       ),

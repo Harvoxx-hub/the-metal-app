@@ -3,230 +3,265 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
-import 'package:metal/data/models/user_model.dart';
-import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
+import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/presentation/viewmodels/user/user_profile_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
-import 'package:metal/presentation/views/dashboard/widgets/complete.profile.dialog.dart';
 import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
 import 'package:metal/presentation/viewmodels/connection/melt_viewmodel.dart';
-// TODO: Re-implement user fetching in new architecture (GET /api/v1/users/{userId})
-// import 'package:metal/features/thought/provider/get.user.notifier.dart';
-import 'package:metal/presentation/views/connection/widgets/metal_details_tab.dart';
 import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
-// TODO: Re-implement user-specific thought tab in new architecture
-// import 'package:metal/features/profile/presentation/tab.screen/thought.tab.dart';
+import 'package:metal/presentation/views/user/widgets/user_thoughts_tab.dart';
+import 'package:metal/presentation/views/user/widgets/user_details_tab.dart';
+import 'package:metal/presentation/views/connection/widgets/metal_details_tab.dart';
+import 'package:metal/presentation/views/dashboard/widgets/complete.profile.dialog.dart';
 import 'package:metal/presentation/widgets/profile/profile_header.dart';
-import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/button/outiline.button.dart';
 import 'package:metal/widgets/button/plain.button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
+import 'package:metal/widgets/state.handler/error.state.dart';
+import 'package:metal/widgets/state.handler/loading.state.dart';
 import 'package:metal/widgets/tab/base.tab.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:metal/route/routes.dart';
+import 'package:metal/gen/assets.gen.dart';
 
-/// Screen displaying details of a connection/melt
-class ConnectionDetailScreen extends ConsumerStatefulWidget {
-  const ConnectionDetailScreen({super.key, required this.metalDetails});
+/// Metal Profile View
+///
+/// Centralized screen for viewing any user's profile with connection/melt relationship management.
+/// Shows:
+/// - User's public profile information
+/// - Thoughts feed
+/// - Connection/melt status and actions (Melt, Send Spark, Message)
+/// - Connection details (when connected)
+///
+/// Accessed from:
+/// - Connection cards (from connections list)
+/// - Thought cards (clicking on any user's profile)
+/// - Melted metals list
+/// - Anywhere a user profile needs to be viewed
+class UserProfileView extends ConsumerStatefulWidget {
+  final String userId;
 
-  final Map<String, dynamic> metalDetails;
-
-  static const name = 'connectionDetailPage';
-  static const route = name;
+  const UserProfileView({
+    super.key,
+    required this.userId,
+  });
 
   @override
-  ConsumerState<ConnectionDetailScreen> createState() =>
-      _ConnectionDetailScreenState();
+  ConsumerState<UserProfileView> createState() => _UserProfileViewState();
 }
 
-class _ConnectionDetailScreenState
-    extends ConsumerState<ConnectionDetailScreen> {
-  UserModel? userData;
+class _UserProfileViewState extends ConsumerState<UserProfileView> {
   bool _hasShownBlockedDialog = false;
-
-  String get metalId => widget.metalDetails["metalId"] ?? '';
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userDto = ref.watch(userStateProvider).user;
-      if (userDto != null) {
-        userData = UserModel(
-          id: userDto.id,
-          email: userDto.email,
-          completedProfile: userDto.profileUpdated,
-        );
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    // Watch melt status using the new API-based provider
-    final meltStatusState = ref.watch(meltStatusProvider(metalId));
+    final profileState = ref.watch(userProfileViewModelProvider(widget.userId));
+    final profileViewModel =
+        ref.read(userProfileViewModelProvider(widget.userId).notifier);
+
+    // Watch melt status for connection management
+    final meltStatusState = ref.watch(meltStatusProvider(widget.userId));
     final meltActionState = ref.watch(meltActionProvider);
 
-    // Get connection from the centralized connection list
-    final connectionState = ref.watch(connectionViewModelProvider);
-    final connection = ref.read(connectionViewModelProvider.notifier)
-        .getConnectionByUserId(metalId);
+    // Get connection details from melt status (for profile display)
+    final meltStatus = meltStatusState.status;
+    final connectionId = meltStatus?.connectionId;
+    final connectedOn = meltStatus?.connectedOn;
+    final isAnonymous = meltStatus?.isAnonymous ?? true;
 
-    // TODO: Get user data using new architecture
-    // final userState = ref.watch(getUserProvider(metalId));
-    final userState = null; // Temporary placeholder
+    // Get connection count for melt limit check (only watch when needed)
+    final connectionState = ref.watch(connectionViewModelProvider);
+
+    // Get current user data for profile completion check
+    final currentUserDto = ref.watch(userStateProvider).user;
 
     // Check if the user is blocked
     final blockedUsersState = ref.watch(blockedUsersViewModelProvider);
     final blockedUsers = blockedUsersState.blockedUsers;
-    final isUserBlocked =
-        blockedUsers.any((blockedUser) => blockedUser.userId == metalId);
+    final isUserBlocked = blockedUsers.any(
+      (blockedUser) => blockedUser.userId == widget.userId,
+    );
 
     // Show non-dismissible blocked user dialog if user is blocked
-    if (isUserBlocked && userState.data != null && !_hasShownBlockedDialog) {
+    if (isUserBlocked && profileState.user != null && !_hasShownBlockedDialog) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showNonDismissibleBlockedDialog(context, userState.data!);
+        _showNonDismissibleBlockedDialog(context, profileState.user!);
       });
     }
 
-    // Listen for successful melt action to navigate
+    // Listen for successful melt action
     ref.listen<MeltActionState>(meltActionProvider, (prev, current) async {
       if (current.isSuccess && prev?.isLoading == true) {
+        // Refresh melt status and connections
+        ref.invalidate(meltStatusProvider(widget.userId));
+        ref.read(connectionViewModelProvider.notifier).refresh();
+
         // If melt resulted in a connection, navigate to meltMetal route
         if (current.response?.status == 'connected') {
           Navigator.pushNamed(
             context,
             AppRoutes.meltMetal,
-            arguments: metalId,
+            arguments: widget.userId,
           );
         }
-        // Refresh melt status and connections
-        ref.invalidate(meltStatusProvider(metalId));
-        ref.read(connectionViewModelProvider.notifier).refresh();
       }
     });
 
+    if (profileState.isLoading && profileState.user == null) {
+      return BaseScreen(
+        Header: 'Metal Profile',
+        appBarState: AppBarState.BackWithHeader,
+        body: const LoadingState(),
+      );
+    }
+
+    if (profileState.isError && profileState.user == null) {
+      return BaseScreen(
+        Header: 'Metal Profile',
+        appBarState: AppBarState.BackWithHeader,
+        body: ErrorState(
+          text: profileState.errorMessage ?? 'Failed to load user profile',
+          retry: () => profileViewModel.refresh(),
+        ),
+      );
+    }
+
+    if (profileState.user == null) {
+      return BaseScreen(
+        Header: 'Metal Profile',
+        appBarState: AppBarState.BackWithHeader,
+        body: const Center(child: TextView(text: 'User not found')),
+      );
+    }
+
+    final user = profileState.user!;
+    final metalId =
+        user.metal ?? 'default'; // Metal type for profile photo display
+
     return BaseScreen(
-      Header: "Metal Profile",
-      body: userState.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : userState.isError
-              ? Padding(
-                  padding: const EdgeInsets.all(40.0),
-                  child: _buildErrorSection(
-                    userState.errorMessage.toString(),
-                    () {}, // TODO: Implement refresh with new user provider
-                  ),
-                )
-              : ProfileHeader(
-                  eye: false,
-                  metalId: userState.data!.metal!,
-                  profileUrl: connection != null
-                      ? connection.isAnonymous
-                          ? null
-                          : userState.data!.profilePhoto
-                      : null,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
-                    child: Container(
-                      padding: const EdgeInsets.only(top: 122),
-                      decoration: const BoxDecoration(
-                        color: AppColors.metalWhite,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(35),
-                          topRight: Radius.circular(35),
+      Header: 'Metal Profile',
+      appBarState: AppBarState.BackWithHeader,
+      body: ProfileHeader(
+        eye: false,
+        metalId: metalId,
+        profileUrl: meltStatusState.isConnected && !isAnonymous
+            ? user.profilePhoto
+            : (!meltStatusState.isConnected ? user.profilePhoto : null),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 110, left: 20, right: 20),
+          child: Container(
+            padding: const EdgeInsets.only(top: 122),
+            decoration: const BoxDecoration(
+              color: AppColors.metalWhite,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(35),
+                topRight: Radius.circular(35),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildUserInfoSection(user),
+                const Gap(20),
+                _buildMeltActionSection(
+                  meltStatusState,
+                  meltActionState,
+                  connectionState.connections.length,
+                  user,
+                  currentUserDto,
+                ),
+                const Gap(10),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height - 500,
+                  child: BaseTab(
+                    tabs: [
+                      BaseTabModel(
+                        title: 'Metal Thought',
+                        child: UserThoughtsTab(
+                          userId: widget.userId,
+                          thoughts: profileState.thoughts,
+                          isLoading: profileState.isLoadingThoughts,
+                          hasMore: profileState.hasMoreThoughts,
+                          onLoadMore: ({bool isLoadMore = false}) {
+                            if (isLoadMore) {
+                              profileViewModel.loadMoreThoughts();
+                            } else {
+                              profileViewModel.loadUserThoughts();
+                            }
+                          },
+                          onRefresh: profileViewModel.refresh,
                         ),
                       ),
-                      child: Column(
-                        children: [
-                          _buildUserInfoSection(userState.data!),
-                          const Gap(20),
-                          _buildMeltActionSection(
-                            meltStatusState,
-                            meltActionState,
-                            context,
-                            connectionState.connections.length,
-                            userState.data,
-                          ),
-                          const Gap(10),
-                          BaseTab(
-                            tabs: [
-                              BaseTabModel(
-                                // TODO: Implement user-specific thought feed
-                                child: Center(
-                                  child: TextView(
-                                    text: 'User thoughts coming soon',
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                title: 'Metal Thought',
-                              ),
-                              BaseTabModel(
-                                child: MetalDetailsTabNew(
-                                  connectedOn: connection?.connectedOn ?? '',
-                                  connectionId: connection?.id ?? '',
-                                  isConnected: meltStatusState.isConnected,
-                                  userModel: userState.data ?? UserModel(id: '', email: ''),
-                                  isAnonymous: connection?.isAnonymous ?? true,
-                                ),
-                                title: 'Metal Details',
-                              ),
-                            ],
-                          ),
-                        ],
+                      BaseTabModel(
+                        title: 'Metal Details',
+                        child: _buildDetailsTab(
+                          user: user,
+                          isConnected: meltStatusState.isConnected,
+                          connectionId: connectionId ?? '',
+                          connectedOn: connectedOn ?? '',
+                          isAnonymous: isAnonymous,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
-    );
-  }
-
-  Widget _buildUserInfoSection(UserModel user) {
-    final getMetalProperties = ref.watch(metalPropertiesProvider);
-
-    return GestureDetector(
-      onTap: () {
-        if (getMetalProperties.data?.metals != null) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) => CustomDialog(
-              content: _buildMetalDialog(user: user),
+              ],
             ),
-          );
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: ShapeDecoration(
-          color: const Color(0x0CD9197B),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-        ),
-        child: Column(
-          children: [
-            TextView(
-              text: "@${user.username} ",
-              fontWeight: FontWeight.bold,
-            ),
-            const Gap(5),
-            TextView(
-              text: user.location?.address ?? "",
-              fontWeight: FontWeight.w400,
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
+  /// Build user info section with username in light pink box and location
+  Widget _buildUserInfoSection(user) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: ShapeDecoration(
+        color: const Color(0x0CD9197B),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+      ),
+      child: Column(
+        children: [
+          TextView(
+            text: '@${user.username ?? user.fullname ?? 'Unknown'}',
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: AppColors.metalBrownColourForText,
+          ),
+          const Gap(5),
+          TextView(
+            text: user.location?.address ?? '',
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+            color: AppColors.metalBrownColourForText,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build melt action section with status-based buttons
   Widget _buildMeltActionSection(
     MeltStatusState meltStatusState,
     MeltActionState meltActionState,
-    BuildContext context,
     int connectionCount,
-    UserModel? recipient,
+    user,
+    currentUserDto,
   ) {
+    // Check if viewing own profile
+    final isOwnProfile =
+        currentUserDto != null && currentUserDto.id == widget.userId;
+
+    // If viewing own profile, don't show action buttons
+    if (isOwnProfile) {
+      return const SizedBox.shrink();
+    }
+
     // Pending state - show disabled melt button
     if (meltStatusState.isPending) {
       return PlainButton(
@@ -238,24 +273,11 @@ class _ConnectionDetailScreenState
       );
     }
 
-    // Connected state - show Send Spark and Message buttons
+    // Connected state - show Message button
+    // Note: Send Spark is handled through the Sparks tab in dashboard
     if (meltStatusState.isConnected) {
       return Row(
         children: [
-          Expanded(
-            child: BaseButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(
-                  context,
-                  AppRoutes.sendSpark,
-                  arguments: recipient,
-                );
-              },
-              fontSize: 15,
-              buttonText: "Send Spark",
-            ),
-          ),
-          const Gap(30),
           Expanded(
             child: OutilineButton(
               onPressed: () {
@@ -282,7 +304,11 @@ class _ConnectionDetailScreenState
         Expanded(
           child: BaseButton(
             loading: meltActionState.isLoading,
-            onPressed: () => _handleMeltAction(connectionCount, recipient),
+            onPressed: () => _handleMeltAction(
+              connectionCount,
+              user,
+              currentUserDto,
+            ),
             fontSize: 15,
             buttonText: "Melt",
           ),
@@ -290,7 +316,7 @@ class _ConnectionDetailScreenState
         const Gap(12),
         Expanded(
           child: OutilineButton(
-            onPressed: () => _handleMessageAction(recipient),
+            onPressed: () => _handleMessageAction(user),
             fontSize: 15,
             buttonText: "Message",
           ),
@@ -299,32 +325,36 @@ class _ConnectionDetailScreenState
     );
   }
 
-  void _handleMeltAction(int connectionCount, UserModel? recipient) {
-    if (userData != null && !(userData!.completedProfile ?? false)) {
+  /// Handle melt action
+  void _handleMeltAction(
+    int connectionCount,
+    user,
+    currentUserDto,
+  ) {
+    if (currentUserDto != null && !(currentUserDto.profileUpdated ?? false)) {
       showDialog(
         context: context,
-        builder: (BuildContext context) {
+        builder: (context) {
           return const CustomDialog(content: ComplecteProfileDialog());
         },
       );
     } else if (connectionCount <= 10) {
-      ref.read(meltActionProvider.notifier).meltUser(metalId);
+      ref.read(meltActionProvider.notifier).meltUser(widget.userId);
     } else {
       showDialog(
         context: context,
-        builder: (BuildContext context) =>
-            CustomDialog(content: _meltLimitDialog()),
+        builder: (context) => CustomDialog(content: _meltLimitDialog()),
       );
     }
   }
 
-  Future<void> _handleMessageAction(UserModel? recipient) async {
-    final currentUserId = userData?.id;
-    final recipientId = recipient?.id;
+  /// Handle message action
+  Future<void> _handleMessageAction(user) async {
+    final currentUserId = ref.read(userStateProvider).user?.id;
 
-    if (currentUserId == null || recipientId == null) return;
+    if (currentUserId == null) return;
 
-    if (currentUserId == recipientId) {
+    if (currentUserId == widget.userId) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -375,7 +405,7 @@ class _ConnectionDetailScreenState
     try {
       // Create melt request using new architecture
       final meltViewModel = ref.read(meltActionProvider.notifier);
-      final success = await meltViewModel.meltUser(recipientId);
+      final success = await meltViewModel.meltUser(widget.userId);
 
       if (!success) {
         throw Exception('Failed to create connection');
@@ -420,74 +450,30 @@ class _ConnectionDetailScreenState
     }
   }
 
-  Widget _buildErrorSection(String errorMessage, VoidCallback onRetry) {
-    return Center(
-      child: Column(
-        children: [
-          const Gap(10),
-          Assets.gifs.error.image(),
-          const Gap(30),
-          const TextView(
-            text: "Error",
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-          const Gap(10),
-          const TextView(
-            text: "Connection Could not be made",
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-          ),
-          const Gap(10),
-          OutilineButton(
-            buttonText: "Try Again",
-            onPressed: onRetry,
-          ),
-        ],
-      ),
-    );
+  /// Build details tab - shows MetalDetailsTabNew if connected, otherwise UserDetailsTab
+  Widget _buildDetailsTab({
+    required user,
+    required bool isConnected,
+    required String connectionId,
+    required String connectedOn,
+    required bool isAnonymous,
+  }) {
+    // If connected, show MetalDetailsTabNew with connection details
+    if (isConnected && connectionId.isNotEmpty) {
+      return MetalDetailsTabNew(
+        connectedOn: connectedOn,
+        connectionId: connectionId,
+        isConnected: isConnected,
+        user: user,
+        isAnonymous: isAnonymous,
+      );
+    }
+
+    // Otherwise show regular UserDetailsTab
+    return UserDetailsTab(user: user);
   }
 
-  Widget _buildMetalDialog({required UserModel user}) {
-    final getMetalProperties = ref.watch(metalPropertiesProvider);
-
-    final metal = getMetalProperties.data!.metals!.firstWhere(
-      (element) => element.id == user.metal,
-      orElse: () => getMetalProperties.data!.metals![0],
-    );
-
-    return Column(
-      children: [
-        const Gap(38),
-        SvgPicture.asset(
-          Assets.icons.meltedMetalsSmileyXEyes.path,
-          height: 45,
-          width: 45,
-        ),
-        const Gap(15),
-        TextView(
-          text: metal.title,
-          fontSize: 20,
-          fontWeight: FontWeight.w800,
-        ),
-        const Gap(8),
-        TextView(
-          text: metal.desc,
-          maxLines: 3,
-          textAlign: TextAlign.center,
-        ),
-        const Gap(38),
-        TextView(
-          text: "Cancel",
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          onTap: () => Navigator.pop(context),
-        ),
-        const Gap(21),
-      ],
-    );
-  }
-
+  /// Melt limit dialog
   Widget _meltLimitDialog() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -524,8 +510,8 @@ class _ConnectionDetailScreenState
     );
   }
 
-  void _showNonDismissibleBlockedDialog(
-      BuildContext context, UserModel blockedUser) {
+  /// Show non-dismissible blocked user dialog
+  void _showNonDismissibleBlockedDialog(context, user) {
     if (_hasShownBlockedDialog) return;
     _hasShownBlockedDialog = true;
 
@@ -555,7 +541,7 @@ class _ConnectionDetailScreenState
               const Gap(16),
               TextView(
                 text:
-                    "You have blocked @${blockedUser.username ?? 'this user'}",
+                    "You have blocked @${user.username ?? user.fullname ?? 'this user'}",
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
                 textAlign: TextAlign.center,
@@ -591,7 +577,7 @@ class _ConnectionDetailScreenState
                       onPressed: () async {
                         await ref
                             .read(blockedUsersViewModelProvider.notifier)
-                            .unblockUser(userId: metalId);
+                            .unblockUser(userId: widget.userId);
                         Navigator.of(context).pop();
                         setState(() {
                           _hasShownBlockedDialog = false;

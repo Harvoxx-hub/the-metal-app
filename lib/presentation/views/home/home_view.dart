@@ -248,8 +248,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
     // Direct messaging can be implemented later
     Navigator.pushNamed(
       context,
-      AppRoutes.myMeltedUser,
-      arguments: {"metalId": user.id},
+      AppRoutes.userProfile,
+      arguments: user.id,
     );
   }
 

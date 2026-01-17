@@ -125,8 +125,8 @@ class BuildUserInfo extends ConsumerWidget {
             if (!isOwnContent) {
               Navigator.pushNamed(
                 context,
-                AppRoutes.myMeltedUser,
-                arguments: {"metalId": userId},
+                AppRoutes.userProfile,
+                arguments: userId,
               );
             }
           },
@@ -143,8 +143,8 @@ class BuildUserInfo extends ConsumerWidget {
               if (!isOwnContent) {
                 Navigator.pushNamed(
                   context,
-                  AppRoutes.myMeltedUser,
-                  arguments: {"metalId": userId},
+                  AppRoutes.userProfile,
+                  arguments: userId,
                 );
               }
             },

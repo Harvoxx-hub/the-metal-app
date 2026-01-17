@@ -38,12 +38,18 @@ class CommunityModel {
   });
 
   factory CommunityModel.fromJson(Map<String, dynamic> json) {
+    // Backend returns 'isMember' but we use 'isJoined' in the model
+    // Support both for backward compatibility
+    final isJoined = json['isJoined'] as bool? ?? 
+                     json['isMember'] as bool? ?? 
+                     false;
+    
     return CommunityModel(
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
-      bannerImage: json['bannerImage'] as String?,
-      creatorId: json['creatorId'] as String,
+      bannerImage: json['bannerImage'] as String? ?? json['coverUrl'] as String?,
+      creatorId: json['creatorId'] as String? ?? json['createdBy'] as String? ?? '',
       creatorName: json['creatorName'] as String? ?? 'Unknown',
       creatorProfilePhoto: json['creatorProfilePhoto'] as String?,
       memberCount: json['memberCount'] as int? ?? 0,
@@ -52,7 +58,7 @@ class CommunityModel {
       isPublic: json['isPublic'] as bool? ?? true,
       tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? [],
       rules: json['rules'] as String?,
-      isJoined: json['isJoined'] as bool? ?? false,
+      isJoined: isJoined,
       createdAt: json['createdAt'] as String,
     );
   }

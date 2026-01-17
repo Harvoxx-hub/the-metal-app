@@ -4,7 +4,6 @@ import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/thought_dto.dart';
 import 'package:metal/domain/entities/comment_dto.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
-import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/widgets/build_user_info.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -15,6 +14,9 @@ import 'package:metal/presentation/viewmodels/thought/comment_viewmodel.dart';
 import 'package:metal/presentation/views/thought/widgets/comment_item_widget.dart';
 import 'package:metal/data/datasources/remote/remote_data_source_providers.dart';
 import 'package:metal/domain/entities/report_dto.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:metal/core/services/deep_link_service.dart';
+import 'package:metal/route/routes.dart';
 
 /// Thought Detail View
 /// Displays a single thought with full content and comments below
@@ -370,7 +372,6 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
   }
 
   Widget _buildActionsRow(ThoughtDto thought) {
-    final userdata = ref.watch(userStateProvider).user;
     final commentsState = ref.watch(commentViewModelProvider(thought.id));
     final commentCount = commentsState.comments.length;
 
@@ -379,10 +380,11 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
         // Profile button
         IconButton(
           onPressed: () {
-            if (thought.userId != userdata?.id) {
-              // Navigate to user profile
-              // TODO: Implement navigation
-            }
+            Navigator.pushNamed(
+              context,
+              AppRoutes.userProfile,
+              arguments: thought.userId,
+            );
           },
           icon: const Icon(Icons.person_outline, size: 24),
         ),
@@ -409,9 +411,7 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
 
         // Share button
         IconButton(
-          onPressed: () {
-            // TODO: Implement share
-          },
+          onPressed: () => _showShareOptions(context, thought),
           icon: const Icon(Icons.share_outlined, size: 24),
         ),
 
@@ -957,6 +957,119 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
             ),
           );
         }
+      }
+    }
+  }
+
+  /// Show share options bottom sheet
+  void _showShareOptions(BuildContext context, ThoughtDto thought) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.repeat),
+                title: const Text('Repost'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  // Create repost via API
+                  final repository = ref.read(thoughtRepositoryProvider);
+                  final result = await repository.createThought(
+                    content: '',
+                    type: 'repost',
+                    originalThoughtId: thought.id,
+                  );
+
+                  if (mounted) {
+                    if (result.isSuccess) {
+                      // Refresh the feed
+                      ref.read(thoughtFeedViewModelProvider.notifier).refresh();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Thought reposted successfully'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content:
+                              Text(result.errorMessage ?? 'Failed to repost'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.ios_share),
+                title: const Text('Share externally'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _shareExternally(thought);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Share thought externally
+  Future<void> _shareExternally(ThoughtDto thought) async {
+    try {
+      // Generate deep link URL
+      final shareUrl = DeepLinkService.generateThoughtUrl(thought.id);
+
+      // Build share text depending on type
+      final author = thought.authorMetadata?.authorName ?? '';
+      final baseText = author.isNotEmpty
+          ? '${thought.content}\n— ${author}'
+          : thought.content;
+
+      String shareText = '';
+
+      if (thought.type == 'voice') {
+        // For voice thoughts, share the caption if available, otherwise generic message
+        shareText = baseText.isNotEmpty
+            ? '$baseText\n\nListen to this voice thought on Metal: $shareUrl'
+            : 'Check out this voice thought on Metal: $shareUrl';
+      } else if (thought.type == 'repost') {
+        // For reposts, share the original content with attribution
+        shareText = baseText.isNotEmpty
+            ? '$baseText\n\nShared on Metal: $shareUrl'
+            : 'Check out this reposted thought on Metal: $shareUrl';
+      } else {
+        // For regular text thoughts
+        shareText = baseText.isNotEmpty
+            ? '$baseText\n\nShared on Metal: $shareUrl'
+            : 'Check out this thought on Metal: $shareUrl';
+      }
+
+      // Add community context if applicable
+      if (thought.communityMetadata != null) {
+        shareText +=
+            '\n\nPosted in: ${thought.communityMetadata!.communityName}';
+      }
+
+      // Share with the generated text and URL
+      await Share.share(shareText);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to share: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }

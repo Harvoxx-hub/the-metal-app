@@ -22,11 +22,27 @@ class CommunityPostsTab extends ConsumerWidget {
       communityDetailViewModelProvider(communityId),
     );
 
-    final posts = detailState.posts.isNotEmpty ? detailState.posts : initialPosts;
+    // Always use the state posts if available, otherwise fall back to initialPosts
+    final posts = detailState.posts.isNotEmpty 
+        ? detailState.posts 
+        : initialPosts;
 
     if (posts.isEmpty) {
-      return const EmptyState(
-        text: 'No posts yet\nBe the first to share something in this community!',
+      return RefreshIndicator(
+        onRefresh: () async {
+          await ref
+              .read(communityDetailViewModelProvider(communityId).notifier)
+              .refreshAll(communityId);
+        },
+        child: const SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: 300,
+            child: EmptyState(
+              text: 'No posts yet\nBe the first to share something in this community!',
+            ),
+          ),
+        ),
       );
     }
 
@@ -34,7 +50,7 @@ class CommunityPostsTab extends ConsumerWidget {
       onRefresh: () async {
         await ref
             .read(communityDetailViewModelProvider(communityId).notifier)
-            .loadCommunityDetails(communityId);
+            .refreshAll(communityId);
       },
       child: ListView.builder(
         padding: const EdgeInsets.all(16),

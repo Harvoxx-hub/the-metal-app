@@ -207,8 +207,8 @@ class ChatAppBar extends ConsumerWidget {
   void _viewProfile(BuildContext context) {
     Navigator.pushNamed(
       context,
-      AppRoutes.userProfilePage,
-      arguments: otherUser,
+      AppRoutes.userProfile,
+      arguments: otherUser.id,
     );
   }
 

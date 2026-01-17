@@ -227,12 +227,20 @@ class NotificationNavigationService {
       Map<String, dynamic>? data, BuildContext context) async {
     final metadata = _parseMetadata(data);
     final thoughtId = metadata?['thoughtId'] ?? data?['thoughtId'] as String?;
+    final communityId = metadata?['communityId'] ?? data?['communityId'] as String?;
 
     if (thoughtId != null && thoughtId.isNotEmpty) {
       // Navigate to thought details
       await _navigateToThoughtDetails(data, context);
+    } else if (communityId != null && communityId.isNotEmpty) {
+      // Navigate to community details
+      await _safeNavigate(
+        context,
+        AppRoutes.communityDetails,
+        communityId,
+        _navigateToHome,
+      );
     } else {
-      // TODO: Add community profile route when community feature is migrated
       await _navigateToHome(context);
     }
   }
@@ -240,7 +248,18 @@ class NotificationNavigationService {
   /// Navigate to community (community profile)
   Future<void> _navigateToCommunity(
       Map<String, dynamic>? data, BuildContext context) async {
-    // TODO: Add community profile route when community feature is migrated
-    await _navigateToHome(context);
+    final metadata = _parseMetadata(data);
+    final communityId = metadata?['communityId'] ?? data?['communityId'] as String?;
+
+    if (communityId != null && communityId.isNotEmpty) {
+      await _safeNavigate(
+        context,
+        AppRoutes.communityDetails,
+        communityId,
+        _navigateToHome,
+      );
+    } else {
+      await _navigateToHome(context);
+    }
   }
 }

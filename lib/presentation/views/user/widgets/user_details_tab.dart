@@ -1,0 +1,149 @@
+import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:metal/domain/entities/user_dto.dart';
+import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/widgets/text_views.dart';
+
+/// User Details Tab - displays user information
+class UserDetailsTab extends StatelessWidget {
+  final UserDto user;
+
+  const UserDetailsTab({
+    super.key,
+    required this.user,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // About section
+          if (user.bio != null && user.bio!.isNotEmpty) ...[
+            _buildSection(
+              title: 'About',
+              child: TextView(
+                text: user.bio!,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: AppColors.metalBrownColourForText,
+              ),
+            ),
+            const Gap(24),
+          ],
+
+          // Basic Info
+          _buildSection(
+            title: 'Basic Information',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (user.gender != null) ...[
+                  _buildInfoRow('Gender', user.gender!),
+                  const Gap(12),
+                ],
+                if (user.dob != null && user.dob!.isNotEmpty) ...[
+                  _buildInfoRow('Age', _calculateAgeFromString(user.dob!)),
+                  const Gap(12),
+                ],
+                if (user.location?.address != null) ...[
+                  _buildInfoRow('Location', user.location!.address!),
+                  const Gap(12),
+                ],
+                if (user.metal != null) ...[
+                  _buildInfoRow('Metal', user.metal!),
+                  const Gap(12),
+                ],
+              ],
+            ),
+          ),
+
+          // Preferences (if available)
+          if (user.connectionOption != null && user.connectionOption!.isNotEmpty) ...[
+            const Gap(24),
+            _buildSection(
+              title: 'Connection Preferences',
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: user.connectionOption!
+                    .map((option) => Chip(
+                          label: TextView(
+                            text: option,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          backgroundColor: AppColors.metalPinkColour.withOpacity(0.1),
+                          side: BorderSide(
+                            color: AppColors.metalPinkColour.withOpacity(0.3),
+                          ),
+                        ))
+                    .toList(),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required Widget child,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextView(
+          text: title,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: AppColors.metalBrownColourForText,
+        ),
+        const Gap(12),
+        child,
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 100,
+          child: TextView(
+            text: label,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppColors.metalBrownColourForText.withOpacity(0.7),
+          ),
+        ),
+        Expanded(
+          child: TextView(
+            text: value,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: AppColors.metalBrownColourForText,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _calculateAgeFromString(String dobString) {
+    try {
+      final dob = DateTime.parse(dobString);
+      final now = DateTime.now();
+      int age = now.year - dob.year;
+      if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
+        age--;
+      }
+      return '$age years old';
+    } catch (e) {
+      return 'Age not available';
+    }
+  }
+}

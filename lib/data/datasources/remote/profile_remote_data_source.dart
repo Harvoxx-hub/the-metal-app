@@ -48,6 +48,7 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       if (response.data is Map<String, dynamic>) {
         final data = response.data as Map<String, dynamic>;
         if (data['success'] == true && data['data'] != null) {
+          // The API now returns user data directly with connection status included
           return data['data'] as Map<String, dynamic>;
         }
         throw Exception(data['message'] ?? 'Failed to get user by ID');
@@ -272,4 +273,3 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
     }
   }
 }
-

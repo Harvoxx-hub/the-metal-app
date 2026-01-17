@@ -42,6 +42,10 @@ class UserModel {
   final UserSubscriptionModel? subscription;
   final String? createdAt;
   final String? updatedAt;
+  // Connection status fields (when viewing other users)
+  final bool? isConnected;
+  final String? connectionId;
+  final String? connectedOn;
 
   UserModel({
     required this.id,
@@ -78,6 +82,9 @@ class UserModel {
     this.subscription,
     this.createdAt,
     this.updatedAt,
+    this.isConnected,
+    this.connectionId,
+    this.connectedOn,
   });
 
   /// Create from API JSON response
@@ -148,6 +155,9 @@ class UserModel {
           : null,
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
+      isConnected: json['isConnected'] as bool?,
+      connectionId: json['connectionId'] as String?,
+      connectedOn: json['connectedOn'] as String?,
     );
   }
 
@@ -185,6 +195,9 @@ class UserModel {
       extraData: extraData,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      isConnected: isConnected,
+      connectionId: connectionId,
+      connectedOn: connectedOn,
     );
   }
 
@@ -214,6 +227,9 @@ class UserModel {
       if (preferences != null) 'preferences': preferences!.toJson(),
       if (extraData != null) 'extraData': extraData!.toJson(),
       if (subscription != null) 'subscription': subscription!.toJson(),
+      if (isConnected != null) 'isConnected': isConnected,
+      if (connectionId != null) 'connectionId': connectionId,
+      if (connectedOn != null) 'connectedOn': connectedOn,
     };
   }
 }

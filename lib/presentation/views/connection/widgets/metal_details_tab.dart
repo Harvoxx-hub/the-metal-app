@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/data/models/user_model.dart';
+import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
 import 'package:metal/presentation/widgets/settings/edit_field.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -17,13 +17,13 @@ class MetalDetailsTabNew extends ConsumerStatefulWidget {
   const MetalDetailsTabNew({
     super.key,
     required this.isConnected,
-    required this.userModel,
+    required this.user,
     required this.connectionId,
     required this.connectedOn,
     this.isAnonymous = true,
   });
 
-  final UserModel userModel;
+  final UserDto user;
   final bool isConnected;
   final String connectionId;
   final String connectedOn;
@@ -43,12 +43,12 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
           children: [
             // View Profile
             EditField(
-              text: "Go to ${widget.userModel.username} metal profile",
+              text: "Go to ${widget.user.username ?? 'User'} metal profile",
               onTap: () {
                 Navigator.pushNamed(
                   context,
-                  AppRoutes.userProfilePage,
-                  arguments: widget.userModel,
+                  AppRoutes.userProfile,
+                  arguments: widget.user.id,
                 );
               },
               floatingLabel: "View profile",
@@ -65,7 +65,7 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
               // De-melt option
               EditField(
                 text:
-                    "De-melt ${widget.userModel.username} from your metal list",
+                    "De-melt ${widget.user.username ?? 'User'} from your metal list",
                 floatingLabel: "Remove from my list of metals",
                 suffixIcon: SvgPicture.asset(
                   Assets.icons.meltedMetalsTrash01.path,
@@ -89,7 +89,7 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
                 const Gap(20),
                 EditField(
                   text:
-                      "Un-melt ${widget.userModel.username} from your metal list",
+                      "Un-melt ${widget.user.username ?? 'User'} from your metal list",
                   floatingLabel: "Un-metals",
                   suffixIcon: SvgPicture.asset(
                     Assets.icons.meltedMetalsTrash01.path,
@@ -106,7 +106,7 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
             const Gap(20),
             // Block option
             EditField(
-              text: "Block ${widget.userModel.username} from reaching you",
+              text: "Block ${widget.user.username ?? 'User'} from reaching you",
               floatingLabel: "Block from viewing my profile",
               onTap: () {
                 showDialog(
@@ -141,7 +141,7 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
         ),
         const Gap(15),
         TextView(
-          text: "Block ${widget.userModel.username}",
+          text: "Block ${widget.user.username ?? 'User'}",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
@@ -155,15 +155,14 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
         ),
         const Gap(38),
         BaseButton(
-          buttonText: "Block ${widget.userModel.username}",
+          buttonText: "Block ${widget.user.username ?? 'User'}",
           onPressed: () {
-            final username = widget.userModel.username;
-            if (username == null) return;
+            final username = widget.user.username ?? 'User';
 
             Navigator.pop(context);
             showBlockReasonDialog(
               context,
-              userId: widget.userModel.id,
+              userId: widget.user.id,
               username: username,
             );
           },
@@ -191,7 +190,7 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
         ),
         const Gap(15),
         TextView(
-          text: "De-melt ${widget.userModel.username}",
+          text: "De-melt ${widget.user.username ?? 'User'}",
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
@@ -205,11 +204,11 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
         ),
         const Gap(38),
         BaseButton(
-          buttonText: "De-melt ${widget.userModel.username}",
+          buttonText: "De-melt ${widget.user.username ?? 'User'}",
           onPressed: () async {
             final success = await ref
                 .read(meltActionProvider.notifier)
-                .unmeltUser(widget.userModel.id);
+                .unmeltUser(widget.user.id);
 
             if (!mounted) return;
 
@@ -259,7 +258,7 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
             ),
             const Gap(15),
             TextView(
-              text: "Un-melt ${widget.userModel.username}",
+              text: "Un-melt ${widget.user.username ?? 'User'}",
               fontSize: 20,
               fontWeight: FontWeight.w700,
             ),

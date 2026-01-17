@@ -21,11 +21,13 @@ class ThoughtRepository implements ThoughtRepositoryAbstract {
   Future<BaseState<ThoughtsResponseDto>> getThoughts({
     int limit = 20,
     String? cursor,
+    String? userId,
   }) async {
     try {
       final response = await _remoteDataSource.getThoughts(
         limit: limit,
         cursor: cursor,
+        userId: userId,
       );
 
       // Convert models to DTOs

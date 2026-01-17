@@ -60,12 +60,10 @@ class _BaseTabiewState extends State<BaseTab>
           ),
         ),
         const Gap(24),
-        Center(
+        Expanded(
           child: [
             for (final tab in widget.tabs)
-              SizedBox(
-                child: tab.child,
-              ),
+              tab.child,
           ][_tabController.index],
         ),
       ],

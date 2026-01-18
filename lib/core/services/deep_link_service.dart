@@ -163,6 +163,17 @@ class DeepLinkService {
           );
         }
         break;
+      case 'meetup':
+        if (contentId.isNotEmpty) {
+          _navigateToMeetup(contentId);
+        } else {
+          Navigator.pushNamedAndRemoveUntil(
+            _context!,
+            AppRoutes.dashboardPage,
+            (route) => false,
+          );
+        }
+        break;
       default:
         print('DeepLinkService: Unknown content type: $contentType');
         Navigator.pushNamedAndRemoveUntil(
@@ -212,6 +223,19 @@ class DeepLinkService {
           _navigateToCommunity(communityId);
         } else {
           // Invalid community URL - navigate to dashboard
+          Navigator.pushNamedAndRemoveUntil(
+            _context!,
+            AppRoutes.dashboardPage,
+            (route) => false,
+          );
+        }
+        break;
+      case 'meetup':
+        if (pathSegments.length > 1) {
+          final meetupId = pathSegments[1];
+          _navigateToMeetup(meetupId);
+        } else {
+          // Invalid meetup URL - navigate to dashboard
           Navigator.pushNamedAndRemoveUntil(
             _context!,
             AppRoutes.dashboardPage,
@@ -337,6 +361,33 @@ class DeepLinkService {
   /// Generate shareable URL for a community
   static String generateCommunityUrl(String communityId) {
     return 'https://metal-ad87d.web.app/community/$communityId';
+  }
+
+  /// Navigate to meetup details page
+  void _navigateToMeetup(String meetupId) {
+    if (_context == null) return;
+
+    Navigator.pushNamedAndRemoveUntil(
+      _context!,
+      AppRoutes.dashboardPage,
+      (route) => false,
+    );
+
+    // Navigate to meetup details after dashboard is loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_context != null) {
+        Navigator.pushNamed(
+          _context!,
+          AppRoutes.meetupDetails,
+          arguments: meetupId,
+        );
+      }
+    });
+  }
+
+  /// Generate shareable URL for a meetup
+  static String generateMeetupUrl(String meetupId) {
+    return 'https://metal-ad87d.web.app/meetup/$meetupId';
   }
 
   /// Dispose resources

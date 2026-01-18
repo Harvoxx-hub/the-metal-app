@@ -65,6 +65,18 @@ class NotificationNavigationService {
         // Navigate to referral page or profile
         await _navigateToReferral(context);
         return;
+      case NotificationType.meetupCreated:
+      case NotificationType.meetupInvite:
+      case NotificationType.meetupReminder:
+      case NotificationType.meetupRsvpUpdate:
+      case NotificationType.meetupCapacityReached:
+        // Navigate to meetup details
+        if (notification.relatedId != null) {
+          await _navigateToMeetup({'meetupId': notification.relatedId}, context);
+        } else {
+          await _navigateToHome(context);
+        }
+        return;
       default:
         // Use push type mapping for other types
         final pushType = _mapNotificationTypeToPushType(notification.type);
@@ -111,6 +123,13 @@ class NotificationNavigationService {
       case PushType.thought_reminder:
         await _navigateToPostThought(context);
         break;
+      case PushType.meetup_created:
+      case PushType.meetup_invite:
+      case PushType.meetup_reminder:
+      case PushType.meetup_rsvp_update:
+      case PushType.meetup_capacity_reached:
+        await _navigateToMeetup(data, context);
+        break;
     }
   }
 
@@ -135,6 +154,16 @@ class NotificationNavigationService {
         return PushType.message; // Navigate to chat
       case NotificationType.comment:
         return PushType.comment; // Navigate to thought details
+      case NotificationType.meetupCreated:
+        return PushType.meetup_created; // Navigate to meetup details
+      case NotificationType.meetupInvite:
+        return PushType.meetup_invite; // Navigate to meetup details
+      case NotificationType.meetupReminder:
+        return PushType.meetup_reminder; // Navigate to meetup details
+      case NotificationType.meetupRsvpUpdate:
+        return PushType.meetup_rsvp_update; // Navigate to meetup details
+      case NotificationType.meetupCapacityReached:
+        return PushType.meetup_capacity_reached; // Navigate to meetup details
       case NotificationType.system:
         return null; // Navigate to home
     }
@@ -319,5 +348,23 @@ class NotificationNavigationService {
       null,
       _navigateToHome,
     );
+  }
+
+  /// Navigate to meetup details
+  Future<void> _navigateToMeetup(
+      Map<String, dynamic>? data, BuildContext context) async {
+    final metadata = _parseMetadata(data);
+    final meetupId = metadata?['meetupId'] ?? data?['meetupId'] as String?;
+
+    if (meetupId != null && meetupId.isNotEmpty) {
+      await _safeNavigate(
+        context,
+        AppRoutes.meetupDetails,
+        meetupId,
+        _navigateToHome,
+      );
+    } else {
+      await _navigateToHome(context);
+    }
   }
 }

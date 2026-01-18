@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/domain/entities/prompt_dto.dart';
+import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/prompt/prompt_providers.dart';
 import 'package:metal/presentation/viewmodels/prompt/prompt_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/prompt/question_selection_view.dart';
 import 'package:metal/presentation/views/prompt/widgets/prompt_answer_card.dart';
+import 'package:metal/presentation/views/profile/profile_setup_constants.dart';
+import 'package:metal/presentation/widgets/profile_setup_header.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
+import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/state.handler/loading.state.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -16,7 +22,17 @@ import 'package:metal/widgets/text_views.dart';
 /// Prompt Creation View
 /// Main UI for creating and editing user prompts
 class PromptCreationView extends ConsumerStatefulWidget {
-  const PromptCreationView({super.key});
+  /// Optional callback when prompts are completed (for auth flow)
+  final VoidCallback? onComplete;
+
+  /// Whether this is part of the auth flow (shows continue button)
+  final bool isAuthFlow;
+
+  const PromptCreationView({
+    super.key,
+    this.onComplete,
+    this.isAuthFlow = false,
+  });
 
   @override
   ConsumerState<PromptCreationView> createState() => _PromptCreationViewState();
@@ -123,6 +139,16 @@ class _PromptCreationViewState extends ConsumerState<PromptCreationView> {
   Widget build(BuildContext context) {
     final state = ref.watch(promptViewModelProvider);
     final currentUser = ref.watch(currentUserProvider);
+
+    if (widget.isAuthFlow) {
+      return BaseScreen(
+        bgImage: Assets.images.bg2.path,
+        appBarEnabled: false,
+        Header: AppStrings.createProfile,
+        authFlow: true,
+        body: _buildAuthFlowBody(state, currentUser),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.metalWhite,
@@ -275,8 +301,152 @@ class _PromptCreationViewState extends ConsumerState<PromptCreationView> {
                 enabled: true,
               ),
             ),
+
+            // Continue button for auth flow
+            if (widget.isAuthFlow && _userPrompts.length >= 3)
+              Padding(
+                padding: const EdgeInsets.only(top: 24, bottom: 16),
+                child: BaseButton(
+                  buttonText: 'Continue',
+                  onPressed: () {
+                    // Save prompts before continuing
+                    _savePromptsImmediately().then((_) {
+                      widget.onComplete?.call();
+                    });
+                  },
+                  enabled: _userPrompts.length >= 3 &&
+                      _userPrompts.every((p) => p.answer.trim().isNotEmpty),
+                ),
+              ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildAuthFlowBody(PromptState state, currentUser) {
+    // Show loading state
+    if (state.isLoading && !_hasInitialized) {
+      return const LoadingState();
+    }
+
+    // Show error state
+    if (state.isError && state.questions.isEmpty && !_hasInitialized) {
+      return ErrorState(
+        text: state.errorMessage ?? 'Failed to load questions',
+        retry: () {
+          ref.read(promptViewModelProvider.notifier).loadQuestions();
+        },
+      );
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          CreateProfileHeader2(
+            path: Assets.images.aboutYou.path,
+            title: 'Create Your Prompts',
+            subtitle:
+                'Select at least 3 questions and share your answers to help others know you better',
+          ),
+          Gap(ProfileSetupConstants.gapLarge),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: ProfileSetupConstants.horizontalPadding,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Minimum requirement info
+                if (_userPrompts.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: _userPrompts.length >= 3
+                          ? Colors.green[50]
+                          : Colors.orange[50],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          _userPrompts.length >= 3
+                              ? Icons.check_circle
+                              : Icons.info,
+                          color: _userPrompts.length >= 3
+                              ? Colors.green
+                              : Colors.orange,
+                          size: 20,
+                        ),
+                        const Gap(8),
+                        Expanded(
+                          child: TextView(
+                            text:
+                                '${_userPrompts.length}/3 prompts (minimum required)',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: _userPrompts.length >= 3
+                                ? Colors.green[700]
+                                : Colors.orange[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Prompt cards
+                ...List.generate(_userPrompts.length, (index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: PromptAnswerCard(
+                      prompt: _userPrompts[index],
+                      onAnswerChanged: (answer) =>
+                          _onAnswerChanged(index, answer),
+                      onDelete: () => _onDeletePrompt(index),
+                    ),
+                  );
+                }),
+
+                // Add question button
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: BaseButton(
+                    buttonText: 'Add Question',
+                    onPressed: _navigateToQuestionSelection,
+                    leftIcon: const Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    enabled: true,
+                  ),
+                ),
+
+                // Continue button for auth flow
+                if (_userPrompts.length >= 3)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 16),
+                    child: BaseButton(
+                      buttonText: AppStrings.nextButton,
+                      onPressed: () async {
+                        // Validate all prompts have answers
+                        if (!_userPrompts
+                            .every((p) => p.answer.trim().isNotEmpty)) {
+                          return;
+                        }
+                        // Save prompts before continuing
+                        await _savePromptsImmediately();
+                        widget.onComplete?.call();
+                      },
+                      enabled: _userPrompts.length >= 3 &&
+                          _userPrompts.every((p) => p.answer.trim().isNotEmpty),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -16,6 +16,12 @@ enum NotificationType {
   // Other
   message, // When someone sends you a message
   comment, // When someone comments on your thought
+  // Meetup
+  meetupCreated, // When meetup is created and broadcast
+  meetupInvite, // When user is invited to a meetup
+  meetupReminder, // Reminder notifications for upcoming meetups
+  meetupRsvpUpdate, // When someone accepts/rejects (for creator)
+  meetupCapacityReached, // When event reaches capacity
   system; // System notifications
 
   String get value {
@@ -40,6 +46,16 @@ enum NotificationType {
         return 'message';
       case NotificationType.comment:
         return 'comment';
+      case NotificationType.meetupCreated:
+        return 'meetup_created';
+      case NotificationType.meetupInvite:
+        return 'meetup_invite';
+      case NotificationType.meetupReminder:
+        return 'meetup_reminder';
+      case NotificationType.meetupRsvpUpdate:
+        return 'meetup_rsvp_update';
+      case NotificationType.meetupCapacityReached:
+        return 'meetup_capacity_reached';
       case NotificationType.system:
         return 'system';
     }
@@ -71,6 +87,16 @@ enum NotificationType {
         return NotificationType.message;
       case 'comment':
         return NotificationType.comment;
+      case 'meetup_created':
+        return NotificationType.meetupCreated;
+      case 'meetup_invite':
+        return NotificationType.meetupInvite;
+      case 'meetup_reminder':
+        return NotificationType.meetupReminder;
+      case 'meetup_rsvp_update':
+        return NotificationType.meetupRsvpUpdate;
+      case 'meetup_capacity_reached':
+        return NotificationType.meetupCapacityReached;
       case 'system':
         return NotificationType.system;
       default:

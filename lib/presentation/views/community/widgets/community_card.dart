@@ -49,6 +49,7 @@ class CommunityCard extends StatelessWidget {
         ),
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           if (community.bannerImage != null)
             ClipRRect(
@@ -104,44 +105,48 @@ class CommunityCard extends StatelessWidget {
                 ),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
                 Row(
                   children: [
                     Expanded(
                       child: TextView(
                         text: community.name,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: AppColors.metalBrownColourForText,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const Gap(8),
+                    const Gap(4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                       decoration: BoxDecoration(
                         color: community.isPublic
                             ? AppColors.metalPinkColour.withOpacity(0.1)
                             : AppColors.metalGray,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             community.isPublic ? Icons.public : Icons.lock,
-                            size: 14,
+                            size: 12,
                             color: community.isPublic
                                 ? AppColors.metalPinkColour
                                 : AppColors.metalBrownColourForText,
                           ),
-                          const Gap(4),
+                          const Gap(2),
                           TextView(
                             text: community.isPublic ? 'Public' : 'Private',
-                            fontSize: 10,
+                            fontSize: 9,
                             fontWeight: FontWeight.w500,
                             color: community.isPublic
                                 ? AppColors.metalPinkColour
@@ -152,14 +157,16 @@ class CommunityCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Gap(8),
-                TextView(
-                  text: community.description,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: AppColors.metalBrownColourForText,
-                  maxLines: 2,
-                  textOverflow: TextOverflow.ellipsis,
+                const Gap(6),
+                Expanded(
+                  child: TextView(
+                    text: community.description,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.metalBrownColourForText,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 const Gap(12),
                 Row(

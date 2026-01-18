@@ -8,6 +8,7 @@ import 'package:metal/data/datasources/remote/feedback_remote_data_source.dart';
 import 'package:metal/data/datasources/remote/referral_remote_data_source.dart';
 import 'package:metal/data/datasources/remote/report_remote_data_source.dart';
 import 'package:metal/data/datasources/remote/metal_remote_data_source.dart';
+import 'package:metal/data/datasources/remote/meetup_remote_data_source.dart';
 
 /// Auth Remote Data Source Provider
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
@@ -49,4 +50,9 @@ final reportRemoteDataSourceProvider = Provider<ReportRemoteDataSource>((ref) {
 /// Metal Remote Data Source Provider
 final metalRemoteDataSourceProvider = Provider<MetalRemoteDataSource>((ref) {
   return MetalRemoteDataSource(ref.read(dioClientProvider));
+});
+
+/// Meetup Remote Data Source Provider
+final meetupRemoteDataSourceProvider = Provider<MeetupRemoteDataSource>((ref) {
+  return MeetupRemoteDataSource(ref.read(dioClientProvider));
 });

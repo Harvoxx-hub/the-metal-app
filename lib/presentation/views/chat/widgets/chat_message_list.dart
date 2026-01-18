@@ -256,15 +256,25 @@ class _MessageBubbleState extends State<_MessageBubble>
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: widget.isMe
-                        ? const Color(0xFFE8E8E8)
-                        : const Color(0xFFF5E6F5),
+                    color: widget.message.isPromptReactionMessage
+                        ? (widget.isMe
+                            ? AppColors.metalPinkColour.withOpacity(0.15)
+                            : AppColors.metalPinkColour.withOpacity(0.1))
+                        : (widget.isMe
+                            ? const Color(0xFFE8E8E8)
+                            : const Color(0xFFF5E6F5)),
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(18),
                       topRight: const Radius.circular(18),
                       bottomLeft: Radius.circular(widget.isMe ? 18 : 4),
                       bottomRight: Radius.circular(widget.isMe ? 4 : 18),
                     ),
+                    border: widget.message.isPromptReactionMessage
+                        ? Border.all(
+                            color: AppColors.metalPinkColour.withOpacity(0.3),
+                            width: 1.5,
+                          )
+                        : null,
                   ),
                   child: _buildMessageContent(),
                 ),
@@ -311,6 +321,11 @@ class _MessageBubbleState extends State<_MessageBubble>
       );
     }
 
+    // Handle prompt reaction message type
+    if (widget.message.isPromptReactionMessage) {
+      return _buildPromptReactionMessage();
+    }
+
     // Handle unmelt message type
     if (widget.message.isUnmelt) {
       return _buildUnmeltMessage();
@@ -320,6 +335,93 @@ class _MessageBubbleState extends State<_MessageBubble>
       text: widget.message.message,
       fontSize: 14,
       color: Colors.black87,
+    );
+  }
+
+  /// Build the prompt reaction message UI
+  Widget _buildPromptReactionMessage() {
+    final questionText = widget.message.promptQuestionText ?? '';
+    final answerText = widget.message.promptAnswer ?? '';
+    final comment = widget.message.comment;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header with icon and label
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.metalPinkColour.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.auto_awesome,
+                size: 16,
+                color: AppColors.metalPinkColour,
+              ),
+            ),
+            const Gap(8),
+            const TextView(
+              text: 'Prompt Reaction',
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ],
+        ),
+        const Gap(12),
+        
+        // Prompt question
+        if (questionText.isNotEmpty) ...[
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextView(
+                  text: questionText,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+                if (answerText.isNotEmpty) ...[
+                  const Gap(6),
+                  TextView(
+                    text: '\u201C$answerText\u201D',
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.black54,
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const Gap(12),
+        ],
+        
+        // Comment (if provided)
+        if (comment != null && comment.isNotEmpty) ...[
+          TextView(
+            text: comment,
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ] else if (questionText.isEmpty && answerText.isEmpty) ...[
+          // Fallback to message text if structured data is missing
+          TextView(
+            text: widget.message.message,
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ],
+      ],
     );
   }
 

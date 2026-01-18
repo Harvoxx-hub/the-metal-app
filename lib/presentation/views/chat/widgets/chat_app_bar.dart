@@ -108,40 +108,40 @@ class ChatAppBar extends ConsumerWidget {
             ),
           ),
           // Video call icon
-          GestureDetector(
-            onTap: () {
-              // TODO: Implement video call
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Assets.icons.chatsWindowactiveVideoRecorder.svg(
-                width: 28,
-                height: 28,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.metalBlack,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-          ),
-          const Gap(4),
+          // GestureDetector(
+          //   onTap: () {
+          //     // TODO: Implement video call
+          //   },
+          //   child: Padding(
+          //     padding: const EdgeInsets.all(8.0),
+          //     child: Assets.icons.chatsWindowactiveVideoRecorder.svg(
+          //       width: 28,
+          //       height: 28,
+          //       colorFilter: const ColorFilter.mode(
+          //         AppColors.metalBlack,
+          //         BlendMode.srcIn,
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // const Gap(4),
           // Phone call icon
-          GestureDetector(
-            onTap: () {
-              // TODO: Implement audio call
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Assets.icons.profilePhone.svg(
-                width: 24,
-                height: 24,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.metalBlack,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () {
+          //     // TODO: Implement audio call
+          //   },
+          //   child: Padding(
+          //     padding: const EdgeInsets.all(8.0),
+          //     child: Assets.icons.profilePhone.svg(
+          //       width: 24,
+          //       height: 24,
+          //       colorFilter: const ColorFilter.mode(
+          //         AppColors.metalBlack,
+          //         BlendMode.srcIn,
+          //       ),
+          //     ),
+          //   ),
+          // ),
           // Three-dot menu
           PopupMenuButton<String>(
             color: AppColors.metalWhite,

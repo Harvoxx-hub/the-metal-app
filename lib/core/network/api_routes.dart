@@ -160,4 +160,12 @@ class ApiRoutes {
   // Prompt endpoints
   static const String promptQuestions = '/prompts/questions'; // GET - get all questions
   static const String promptUser = '/prompts/user'; // GET /prompts/user/:userId, POST - save prompts
+
+  // Meetup endpoints
+  static const String meetups = '/meetups'; // GET - get meetups list, POST - create meetup
+  static const String meetupById = '/meetups'; // GET/PUT/DELETE /meetups/:id
+  static const String meetupRsvp = '/meetups'; // POST /meetups/:id/rsvp
+  static const String meetupInvite = '/meetups'; // POST /meetups/:id/invite
+  static const String meetupAttendees = '/meetups'; // GET /meetups/:id/attendees
+  static const String meetupBroadcast = '/meetups'; // POST /meetups/:id/broadcast
 }

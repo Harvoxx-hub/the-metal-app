@@ -61,88 +61,123 @@ class DiscoveryUserCard extends ConsumerWidget {
     final prompts = _prompts;
 
     return Container(
-        color: Colors.grey.withOpacity(0.1),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: Column(children: [
-          Expanded(
-              child: SingleChildScrollView(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              // Metal image at top
-              _buildMetalImage(ref),
-
-              // User info section
-              const Gap(16),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildUsernameWithDetails(ref),
-                    const Gap(12),
-                    if (user.bio != null && user.bio!.isNotEmpty) _buildBio(),
-                    const Gap(12),
-                  ],
-                ),
-              ),
-              const Gap(12),
-              // First prompt
-              if (prompts.isNotEmpty) _buildPrompt(prompts.first, context),
-              const Gap(12),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionHeader("Passions"),
-                    const SizedBox(height: 12),
-                    _buildPassions(),
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
-              const Gap(12),
-              // Other prompts (middle prompts, excluding first and last)
-              if (prompts.length > 2)
-                ...prompts.sublist(1, prompts.length - 1).map((prompt) {
-                  return Column(
+      color: Colors.grey.withOpacity(0.1),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      child: Stack(
+        children: [
+          // Scrollable content
+          Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildPrompt(prompt, context),
-                      const SizedBox(height: 24),
-                    ],
-                  );
-                }),
+                      // Metal image at top
+                      _buildMetalImage(ref),
 
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionHeader("What you are looking for"),
-                    const SizedBox(height: 12),
-                    _buildConnectionOptions(),
-                    const SizedBox(height: 24),
-                  ],
+                      // User info section
+                      const Gap(16),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildUsernameWithDetails(ref),
+                            const Gap(12),
+                            if (user.bio != null && user.bio!.isNotEmpty)
+                              _buildBio(),
+                            const Gap(12),
+                          ],
+                        ),
+                      ),
+                      const Gap(12),
+                      // First prompt
+                      if (prompts.isNotEmpty)
+                        _buildPrompt(prompts.first, context),
+                      const Gap(12),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader("Passions"),
+                            const SizedBox(height: 12),
+                            _buildPassions(),
+                            const SizedBox(height: 24),
+                          ],
+                        ),
+                      ),
+                      const Gap(12),
+                      // Other prompts (middle prompts, excluding first and last)
+                      if (prompts.length > 2)
+                        ...prompts.sublist(1, prompts.length - 1).map((prompt) {
+                          return Column(
+                            children: [
+                              _buildPrompt(prompt, context),
+                              const SizedBox(height: 24),
+                            ],
+                          );
+                        }),
+
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader("What you are looking for"),
+                            const SizedBox(height: 12),
+                            _buildConnectionOptions(),
+                            const SizedBox(height: 24),
+                          ],
+                        ),
+                      ),
+                      const Gap(12),
+                      // Last prompt
+                      if (prompts.length > 1)
+                        _buildPrompt(prompts.last, context),
+                    ],
+                  ),
                 ),
               ),
-              const Gap(12),
-              // Last prompt
-              if (prompts.length > 1) _buildPrompt(prompts.last, context),
-            ]),
-          )),
-        ]));
+            ],
+          ),
+          // Like and Reject buttons positioned at top left
+          Positioned(
+            bottom: 24,
+            left: 0,
+            right: 0,
+            child: Row(
+              children: [
+                _buildActionButton(
+                  icon: Icons.close,
+                  color: Colors.red,
+                  onTap: onPass,
+                ),
+                Spacer(),
+                _buildActionButton(
+                  icon: Icons.favorite,
+                  color: Colors.green,
+                  onTap: onLike,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildMetalImage(WidgetRef ref) {
@@ -175,7 +210,8 @@ class DiscoveryUserCard extends ConsumerWidget {
             ),
             child: CachedNetworkImage(
               imageUrl: metal.img,
-              fit: BoxFit.cover,
+              fit: BoxFit.fitHeight,
+              height: 270,
               placeholder: (context, url) => _buildDefaultBackground(),
               errorWidget: (context, url, error) => _buildDefaultBackground(),
             ),

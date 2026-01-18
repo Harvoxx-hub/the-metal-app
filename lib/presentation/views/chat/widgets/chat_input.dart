@@ -359,22 +359,22 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Game button
-                        GestureDetector(
-                          onTap: () {
-                            // TODO: Implement game picker
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Assets.icons.chatsEmptyStateGamingPad01.svg(
-                              width: 28,
-                              height: 28,
-                              colorFilter: ColorFilter.mode(
-                                Colors.grey[700]!,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                        ),
+                        // GestureDetector(
+                        //   onTap: () {
+                        //     // TODO: Implement game picker
+                        //   },
+                        //   child: Padding(
+                        //     padding: const EdgeInsets.all(8.0),
+                        //     child: Assets.icons.chatsEmptyStateGamingPad01.svg(
+                        //       width: 28,
+                        //       height: 28,
+                        //       colorFilter: ColorFilter.mode(
+                        //         Colors.grey[700]!,
+                        //         BlendMode.srcIn,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         // Mic button
                         GestureDetector(
                           onTap: _startRecording,

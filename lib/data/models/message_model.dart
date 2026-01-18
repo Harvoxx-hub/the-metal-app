@@ -15,6 +15,10 @@ class MessageModel {
   final String? replyToSenderId;
   final String? replyToMessageType;
   final String? unmeltStatus; // 'pending', 'approved', 'rejected' for unmelt messages
+  final bool? isPromptReaction;
+  final String? promptQuestionText;
+  final String? promptAnswer;
+  final String? comment;
 
   MessageModel({
     required this.id,
@@ -29,6 +33,10 @@ class MessageModel {
     this.replyToSenderId,
     this.replyToMessageType,
     this.unmeltStatus,
+    this.isPromptReaction,
+    this.promptQuestionText,
+    this.promptAnswer,
+    this.comment,
   });
 
   /// Create from API JSON response
@@ -56,6 +64,10 @@ class MessageModel {
         replyToSenderId: json['replyToSenderId'] as String?,
         replyToMessageType: json['replyToMessageType'] as String?,
         unmeltStatus: json['unmeltStatus'] as String?,
+        isPromptReaction: json['isPromptReaction'] as bool?,
+        promptQuestionText: json['promptQuestionText'] as String?,
+        promptAnswer: json['promptAnswer'] as String?,
+        comment: json['comment'] as String?,
       );
     }
     
@@ -72,6 +84,10 @@ class MessageModel {
       replyToSenderId: json['replyToSenderId'] as String?,
       replyToMessageType: json['replyToMessageType'] as String?,
       unmeltStatus: json['unmeltStatus'] as String?,
+      isPromptReaction: json['isPromptReaction'] as bool?,
+      promptQuestionText: json['promptQuestionText'] as String?,
+      promptAnswer: json['promptAnswer'] as String?,
+      comment: json['comment'] as String?,
     );
   }
 
@@ -90,6 +106,10 @@ class MessageModel {
       replyToSenderId: replyToSenderId,
       replyToMessageType: replyToMessageType,
       unmeltStatus: unmeltStatus,
+      isPromptReaction: isPromptReaction,
+      promptQuestionText: promptQuestionText,
+      promptAnswer: promptAnswer,
+      comment: comment,
     );
   }
 

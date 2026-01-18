@@ -46,7 +46,7 @@ class _MoreAboutYouViewState extends ConsumerState<MoreAboutYouView> {
       ref: ref,
       step: ProfileSetupStep.moreAboutYou,
       stepData: stepData,
-      nextRoute: AppRoutes.connectionOptionsPage,
+      nextRoute: AppRoutes.promptCreationPage,
       mounted: mounted,
     );
   }

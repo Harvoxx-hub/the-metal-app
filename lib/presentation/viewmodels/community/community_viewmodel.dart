@@ -174,4 +174,15 @@ class CommunityViewModel extends StateNotifier<CommunityState> {
       );
     }
   }
+
+  Future<bool> createCommunity(CreateCommunityDto request) async {
+    final result = await _repository.createCommunity(request);
+
+    if (mounted && result.isSuccess) {
+      // Reload communities to include the newly created one
+      await loadCommunities(refresh: true);
+      return true;
+    }
+    return false;
+  }
 }

@@ -6,7 +6,8 @@ enum MessageType {
   text,
   audio,
   unmelt,
-  calls;
+  calls,
+  promptReaction;
 
   /// Convert string to MessageType
   static MessageType fromString(String value) {
@@ -20,6 +21,8 @@ enum MessageType {
         return MessageType.unmelt;
       case 'calls':
         return MessageType.calls;
+      case 'prompt_reaction':
+        return MessageType.promptReaction;
       default:
         return MessageType.text;
     }
@@ -36,6 +39,8 @@ enum MessageType {
         return 'un_melt';
       case MessageType.calls:
         return 'calls';
+      case MessageType.promptReaction:
+        return 'prompt_reaction';
     }
   }
 }
@@ -87,6 +92,12 @@ class MessageDto extends BaseEntity {
   // Unmelt data (for unmelt message type)
   final String? unmeltStatus; // 'pending', 'approved', 'rejected'
 
+  // Prompt reaction data (for prompt_reaction message type)
+  final bool? isPromptReaction;
+  final String? promptQuestionText;
+  final String? promptAnswer;
+  final String? comment;
+
   const MessageDto({
     required this.id,
     required this.message,
@@ -101,6 +112,10 @@ class MessageDto extends BaseEntity {
     this.replyToSenderId,
     this.replyToMessageType,
     this.unmeltStatus,
+    this.isPromptReaction,
+    this.promptQuestionText,
+    this.promptAnswer,
+    this.comment,
   });
 
   /// Check if this message is a reply to another message
@@ -151,6 +166,10 @@ class MessageDto extends BaseEntity {
   /// Check if this is a call message
   bool get isCall => type == MessageType.calls;
 
+  /// Check if this is a prompt reaction message
+  bool get isPromptReactionMessage => 
+      type == MessageType.promptReaction || isPromptReaction == true;
+
   /// Check if the message is still sending
   bool get isSending => state == MessageState.sending;
 
@@ -172,6 +191,10 @@ class MessageDto extends BaseEntity {
     String? replyToSenderId,
     String? replyToMessageType,
     String? unmeltStatus,
+    bool? isPromptReaction,
+    String? promptQuestionText,
+    String? promptAnswer,
+    String? comment,
   }) {
     return MessageDto(
       id: id ?? this.id,
@@ -187,6 +210,10 @@ class MessageDto extends BaseEntity {
       replyToSenderId: replyToSenderId ?? this.replyToSenderId,
       replyToMessageType: replyToMessageType ?? this.replyToMessageType,
       unmeltStatus: unmeltStatus ?? this.unmeltStatus,
+      isPromptReaction: isPromptReaction ?? this.isPromptReaction,
+      promptQuestionText: promptQuestionText ?? this.promptQuestionText,
+      promptAnswer: promptAnswer ?? this.promptAnswer,
+      comment: comment ?? this.comment,
     );
   }
 

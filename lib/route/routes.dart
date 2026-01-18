@@ -15,6 +15,7 @@ import 'package:metal/presentation/views/profile/choose_metal_view.dart';
 import 'package:metal/presentation/views/profile/passions_view.dart';
 import 'package:metal/presentation/views/profile/about_you_view.dart';
 import 'package:metal/presentation/views/profile/more_about_you_view.dart';
+import 'package:metal/presentation/views/prompt/prompt_creation_view.dart';
 import 'package:metal/presentation/views/profile/connection_options_view.dart';
 import 'package:metal/presentation/views/profile/preferences_view.dart';
 import 'package:metal/presentation/views/settings/settings_view.dart';
@@ -25,7 +26,10 @@ import 'package:metal/presentation/views/dashboard/dashboard_view.dart';
 import 'package:metal/presentation/views/thought/create_thought_screen.dart';
 import 'package:metal/presentation/views/thought/thought_detail_view.dart';
 import 'package:metal/presentation/views/community/community_detail_view.dart';
+import 'package:metal/presentation/views/community/create_community_screen.dart';
 import 'package:metal/presentation/views/user/user_profile_view.dart';
+import 'package:metal/presentation/views/meetup/create_meetup_screen.dart';
+import 'package:metal/presentation/views/meetup/meetup_detail_view.dart';
 
 // New Clean Architecture Connection views
 import 'package:metal/presentation/views/connection/connection_list_screen.dart';
@@ -59,6 +63,7 @@ class AppRoutes {
   static const String preferenceMetalPage = '/preferenceMetalPage';
   static const String passionsPage = '/passionsPage';
   static const String moreAboutYouPage = '/moreAboutYouPage';
+  static const String promptCreationPage = '/promptCreationPage';
   static const String connectionOptionsPage = '/connectionOptionsPage';
   static const String chooseYourMetalPage = '/chooseYourMetalPage';
   static const String aboutYouPage = '/aboutYouPage';
@@ -89,8 +94,11 @@ class AppRoutes {
   static const String postThought = '/postThought';
   static const String thoughtDetails = '/thoughtDetails';
   static const String communityDetails = '/communityDetails';
+  static const String createCommunity = '/createCommunity';
   static const String userProfile = '/userProfile';
   static const String workEmail = '/work-email';
+  static const String meetupDetails = '/meetupDetails';
+  static const String createMeetup = '/createMeetup';
   // Dashboard tab indices
   static const int homeTab = 0;
   static const int thoughtsTab = 1;
@@ -168,6 +176,16 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const AboutYouView());
       case MoreAboutYouView.route:
         return MaterialPageRoute(builder: (_) => const MoreAboutYouView());
+      case promptCreationPage:
+        return MaterialPageRoute(
+          builder: (_) => PromptCreationView(
+            isAuthFlow: true,
+            onComplete: () {
+              // Navigate to connection options after prompts are created
+              Navigator.pushReplacementNamed(_, AppRoutes.connectionOptionsPage);
+            },
+          ),
+        );
       case ConnectionOptionsView.route:
         return MaterialPageRoute(builder: (_) => const ConnectionOptionsView());
       case PreferencesView.route:
@@ -295,6 +313,10 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => CommunityDetailView(communityId: communityId),
         );
+      case createCommunity:
+        return MaterialPageRoute(
+          builder: (_) => const CreateCommunityScreen(),
+        );
       case userProfile:
         final args = settings.arguments;
         final userId = args is String
@@ -308,6 +330,22 @@ class AppRoutes {
           builder: (_) => const Scaffold(
             body: Center(child: Text('Work email verification coming soon')),
           ),
+        );
+      case createMeetup:
+        final args = settings.arguments;
+        final communityId = args is String
+            ? args
+            : (args as Map<String, dynamic>?)?['communityId'] as String?;
+        return MaterialPageRoute(
+          builder: (_) => CreateMeetupScreen(communityId: communityId),
+        );
+      case meetupDetails:
+        final args = settings.arguments;
+        final meetupId = args is String
+            ? args
+            : (args as Map<String, dynamic>?)?['meetupId'] as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => MeetupDetailView(meetupId: meetupId),
         );
       default:
         return MaterialPageRoute(

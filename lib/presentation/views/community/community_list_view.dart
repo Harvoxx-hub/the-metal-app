@@ -8,6 +8,7 @@ import 'package:metal/presentation/viewmodels/community/community_viewmodel.dart
 import 'package:metal/presentation/viewmodels/community/community_viewmodel_providers.dart';
 import 'package:metal/presentation/views/community/widgets/community_card.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/state.handler/loading.state.dart';
@@ -105,20 +106,54 @@ class _CommunityListViewState extends ConsumerState<CommunityListView> {
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: EditFormField(
-        controller: _searchController,
-        label: 'Search communities',
-        hint: 'Search by name, description, or category',
-        keyboardType: TextInputType.text,
-        autoValidate: false,
-        prefixWidget: SvgPicture.asset(
-          Assets.icons.chatsSearch.path,
-          height: 20,
-          width: 20,
-        ),
-        radius: 12,
-        fillColor: AppColors.metalTabBg,
-        isFilled: true,
+      child: Row(
+        children: [
+          Expanded(
+            child: EditFormField(
+              controller: _searchController,
+              label: 'Search communities',
+              hint: 'Search by name, description, or category',
+              keyboardType: TextInputType.text,
+              autoValidate: false,
+              prefixWidget: SvgPicture.asset(
+                Assets.icons.chatsSearch.path,
+                height: 20,
+                width: 20,
+              ),
+              radius: 12,
+              fillColor: AppColors.metalTabBg,
+              isFilled: true,
+            ),
+          ),
+          const Gap(8),
+          GestureDetector(
+            onTap: () async {
+              final result = await Navigator.pushNamed(
+                context,
+                AppRoutes.createCommunity,
+              );
+              // Refresh communities if a new one was created
+              if (result == true) {
+                ref
+                    .read(communityViewModelProvider.notifier)
+                    .loadCommunities(refresh: true);
+              }
+            },
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.metalPinkColour,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -176,22 +211,25 @@ class _CommunityListViewState extends ConsumerState<CommunityListView> {
       onRefresh: () => ref
           .read(communityViewModelProvider.notifier)
           .loadCommunities(refresh: true),
-      child: ListView.builder(
-        padding: const EdgeInsets.only(bottom: 16),
+      child: GridView.builder(
+        padding: const EdgeInsets.all(8),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 0.75,
+        ),
         itemCount: communities.length,
         itemBuilder: (context, index) {
           final community = communities[index];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: CommunityCard(
-              community: community,
-              onJoin: () => ref
-                  .read(communityViewModelProvider.notifier)
-                  .joinCommunity(community.id),
-              onLeave: () => ref
-                  .read(communityViewModelProvider.notifier)
-                  .leaveCommunity(community.id),
-            ),
+          return CommunityCard(
+            community: community,
+            onJoin: () => ref
+                .read(communityViewModelProvider.notifier)
+                .joinCommunity(community.id),
+            onLeave: () => ref
+                .read(communityViewModelProvider.notifier)
+                .leaveCommunity(community.id),
           );
         },
       ),

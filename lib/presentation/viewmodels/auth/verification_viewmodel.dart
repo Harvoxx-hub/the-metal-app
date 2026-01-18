@@ -53,7 +53,7 @@ class VerificationViewModel extends BaseViewModel<void> {
   }
 
   void _startResendTimer() {
-    _remainingSeconds = 60;
+    _remainingSeconds = 120; // 2 minutes to match backend cooldown
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds > 0) {

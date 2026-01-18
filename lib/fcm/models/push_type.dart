@@ -12,6 +12,11 @@ enum PushType {
   comment_reaction('comment_reaction'),
   community_post('community_post'),
   community_join('community_join'),
+  meetup_created('meetup_created'),
+  meetup_invite('meetup_invite'),
+  meetup_reminder('meetup_reminder'),
+  meetup_rsvp_update('meetup_rsvp_update'),
+  meetup_capacity_reached('meetup_capacity_reached'),
   unknown('unknown'),
   follow('follow');
 

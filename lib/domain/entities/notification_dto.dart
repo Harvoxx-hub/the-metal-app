@@ -1,24 +1,45 @@
 /// Notification type enumeration
 enum NotificationType {
-  match,
-  message,
-  like,
-  comment,
-  spark,
-  system;
+  // Profile interactions
+  like, // When someone likes your profile
+  superlike, // When someone superlikes your profile
+  // Melt/Connection
+  match, // When you melt with someone (mutual connection)
+  meltRequest, // When someone sends you a melt request
+  // Unmelt
+  unmetalRequested, // When someone requested to get unmetal (reveal identities)
+  unmetalAccepted, // When a user accepts your unmetal request
+  // Sparks
+  spark, // When someone sends you a spark
+  // Referral
+  referral, // When someone uses your referral code to join
+  // Other
+  message, // When someone sends you a message
+  comment, // When someone comments on your thought
+  system; // System notifications
 
   String get value {
     switch (this) {
-      case NotificationType.match:
-        return 'match';
-      case NotificationType.message:
-        return 'message';
       case NotificationType.like:
         return 'like';
-      case NotificationType.comment:
-        return 'comment';
+      case NotificationType.superlike:
+        return 'superlike';
+      case NotificationType.match:
+        return 'match';
+      case NotificationType.meltRequest:
+        return 'melt_request';
+      case NotificationType.unmetalRequested:
+        return 'unmetal_requested';
+      case NotificationType.unmetalAccepted:
+        return 'unmetal_accepted';
       case NotificationType.spark:
         return 'spark';
+      case NotificationType.referral:
+        return 'referral';
+      case NotificationType.message:
+        return 'message';
+      case NotificationType.comment:
+        return 'comment';
       case NotificationType.system:
         return 'system';
     }
@@ -26,16 +47,30 @@ enum NotificationType {
 
   static NotificationType fromString(String value) {
     switch (value.toLowerCase()) {
-      case 'match':
-        return NotificationType.match;
-      case 'message':
-        return NotificationType.message;
       case 'like':
         return NotificationType.like;
-      case 'comment':
-        return NotificationType.comment;
+      case 'superlike':
+      case 'super_like':
+        return NotificationType.superlike;
+      case 'match':
+        return NotificationType.match;
+      case 'melt_request':
+      case 'meltrequest':
+        return NotificationType.meltRequest;
+      case 'unmetal_requested':
+      case 'unmetalrequested':
+        return NotificationType.unmetalRequested;
+      case 'unmetal_accepted':
+      case 'unmetalaccepted':
+        return NotificationType.unmetalAccepted;
       case 'spark':
         return NotificationType.spark;
+      case 'referral':
+        return NotificationType.referral;
+      case 'message':
+        return NotificationType.message;
+      case 'comment':
+        return NotificationType.comment;
       case 'system':
         return NotificationType.system;
       default:
@@ -122,39 +157,64 @@ class NotificationsResponseDto {
 
 /// Notification settings DTO
 class NotificationSettingsDto {
-  final bool matchNotifications;
-  final bool messageNotifications;
   final bool likeNotifications;
-  final bool commentNotifications;
+  final bool superlikeNotifications;
+  final bool matchNotifications;
+  final bool meltRequestNotifications;
+  final bool unmetalRequestedNotifications;
+  final bool unmetalAcceptedNotifications;
   final bool sparkNotifications;
+  final bool referralNotifications;
+  final bool messageNotifications;
+  final bool commentNotifications;
   final bool emailNotifications;
   final bool pushNotifications;
 
   NotificationSettingsDto({
-    required this.matchNotifications,
-    required this.messageNotifications,
     required this.likeNotifications,
-    required this.commentNotifications,
+    required this.superlikeNotifications,
+    required this.matchNotifications,
+    required this.meltRequestNotifications,
+    required this.unmetalRequestedNotifications,
+    required this.unmetalAcceptedNotifications,
     required this.sparkNotifications,
+    required this.referralNotifications,
+    required this.messageNotifications,
+    required this.commentNotifications,
     required this.emailNotifications,
     required this.pushNotifications,
   });
 
   NotificationSettingsDto copyWith({
-    bool? matchNotifications,
-    bool? messageNotifications,
     bool? likeNotifications,
-    bool? commentNotifications,
+    bool? superlikeNotifications,
+    bool? matchNotifications,
+    bool? meltRequestNotifications,
+    bool? unmetalRequestedNotifications,
+    bool? unmetalAcceptedNotifications,
     bool? sparkNotifications,
+    bool? referralNotifications,
+    bool? messageNotifications,
+    bool? commentNotifications,
     bool? emailNotifications,
     bool? pushNotifications,
   }) {
     return NotificationSettingsDto(
-      matchNotifications: matchNotifications ?? this.matchNotifications,
-      messageNotifications: messageNotifications ?? this.messageNotifications,
       likeNotifications: likeNotifications ?? this.likeNotifications,
-      commentNotifications: commentNotifications ?? this.commentNotifications,
+      superlikeNotifications:
+          superlikeNotifications ?? this.superlikeNotifications,
+      matchNotifications: matchNotifications ?? this.matchNotifications,
+      meltRequestNotifications:
+          meltRequestNotifications ?? this.meltRequestNotifications,
+      unmetalRequestedNotifications:
+          unmetalRequestedNotifications ?? this.unmetalRequestedNotifications,
+      unmetalAcceptedNotifications:
+          unmetalAcceptedNotifications ?? this.unmetalAcceptedNotifications,
       sparkNotifications: sparkNotifications ?? this.sparkNotifications,
+      referralNotifications:
+          referralNotifications ?? this.referralNotifications,
+      messageNotifications: messageNotifications ?? this.messageNotifications,
+      commentNotifications: commentNotifications ?? this.commentNotifications,
       emailNotifications: emailNotifications ?? this.emailNotifications,
       pushNotifications: pushNotifications ?? this.pushNotifications,
     );
@@ -162,11 +222,16 @@ class NotificationSettingsDto {
 
   Map<String, dynamic> toJson() {
     return {
-      'matchNotifications': matchNotifications,
-      'messageNotifications': messageNotifications,
       'likeNotifications': likeNotifications,
-      'commentNotifications': commentNotifications,
+      'superlikeNotifications': superlikeNotifications,
+      'matchNotifications': matchNotifications,
+      'meltRequestNotifications': meltRequestNotifications,
+      'unmetalRequestedNotifications': unmetalRequestedNotifications,
+      'unmetalAcceptedNotifications': unmetalAcceptedNotifications,
       'sparkNotifications': sparkNotifications,
+      'referralNotifications': referralNotifications,
+      'messageNotifications': messageNotifications,
+      'commentNotifications': commentNotifications,
       'emailNotifications': emailNotifications,
       'pushNotifications': pushNotifications,
     };

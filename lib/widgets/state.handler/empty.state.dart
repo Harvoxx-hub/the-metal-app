@@ -13,10 +13,10 @@ class EmptyState extends StatelessWidget {
       children: [
         Image.asset(
           Assets.gifs.empty.path,
-          height: 250,
-          width: 250,
+          height: 200,
+          // width: 200,
         ),
-        const Gap(46),
+        
         TextView(
           textAlign: TextAlign.center,
           fontSize: 14,

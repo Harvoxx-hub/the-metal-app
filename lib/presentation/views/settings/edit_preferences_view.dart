@@ -12,7 +12,6 @@ import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/widgets/settings/edit_field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/agree.click.dart';
-import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/dropdown/metal.dropdown.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -31,10 +30,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
   List<String>? selectedEthnicity;
   List<String>? selectedEducation;
   String? selectedDemography;
-  double maximumDistance = 50.0;
-  bool enableDistanceFilter = true;
   bool noSpecialPreference = false;
-  bool _isLoading = false;
   bool _hasLoadedPreferences = false;
 
   void _loadCurrentPreferences() {
@@ -58,13 +54,6 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
           (selectedEducation?.isEmpty ?? true);
     }
 
-    // Load maximum distance
-    if (user?.distance != null) {
-      final distanceStr = user!.distance!.replaceAll(RegExp(r'[^0-9.]'), '');
-      maximumDistance = double.tryParse(distanceStr) ?? 50.0;
-    }
-
-    enableDistanceFilter = user?.enableDistanceFilter ?? true;
     _hasLoadedPreferences = true;
   }
 
@@ -212,6 +201,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                         setState(() {
                           selectedDemography = newValue;
                         });
+                        _pushPreferences();
                       },
                       floatingLabel: "Demographics",
                       hint: "Please Select",
@@ -221,9 +211,6 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                         width: 24,
                       ),
                     ),
-                    const Gap(20),
-                    // Maximum Distance
-                    _buildDistanceSection(),
                     const Gap(20),
                     // Connect with
                     EditField(
@@ -254,11 +241,6 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                     const Gap(30),
                     // Other Preferences
                     _buildOtherPreferencesSection(metalProperties),
-                    const Gap(30),
-                    BaseButton(
-                      buttonText: _isLoading ? "Saving..." : "Save Preferences",
-                      onPressed: _isLoading ? null : _savePreferences,
-                    ),
                     const Gap(20),
                   ],
                 ),
@@ -270,112 +252,27 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
     );
   }
 
-  Widget _buildDistanceSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const TextView(
-              text: "Maximum Distance",
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: AppColors.metalBrownColourForText,
-            ),
-            Row(
-              children: [
-                TextView(
-                  text: enableDistanceFilter ? "Enabled" : "Disabled",
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: enableDistanceFilter
-                      ? AppColors.metalPinkColour
-                      : Colors.grey,
-                ),
-                const SizedBox(width: 8),
-                Switch(
-                  value: enableDistanceFilter,
-                  onChanged: (value) {
-                    setState(() {
-                      enableDistanceFilter = value;
-                    });
-                  },
-                  activeColor: AppColors.metalPinkColour,
-                ),
-              ],
-            ),
-          ],
-        ),
-        const Gap(8),
-        AbsorbPointer(
-          absorbing: !enableDistanceFilter,
-          child: Opacity(
-            opacity: enableDistanceFilter ? 1.0 : 0.5,
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
-              decoration: BoxDecoration(
-                color: AppColors.metalTabBg,
-                borderRadius: BorderRadius.circular(15),
-                border:
-                    Border.all(color: AppColors.metalButtonStroke, width: 1.0),
-              ),
-              child: Column(
-                children: [
-                  Theme(
-                    data: Theme.of(context).copyWith(
-                      sliderTheme: SliderThemeData(
-                        trackHeight: 4.0,
-                        activeTrackColor: AppColors.metalPinkColour,
-                        inactiveTrackColor: AppColors.metalButtonStroke,
-                        thumbColor: AppColors.metalPinkColour,
-                        overlayColor: AppColors.metalPinkColour40,
-                        thumbShape: const RoundSliderThumbShape(
-                            enabledThumbRadius: 12.0),
-                        overlayShape:
-                            const RoundSliderOverlayShape(overlayRadius: 20.0),
-                      ),
-                    ),
-                    child: Slider(
-                      value: maximumDistance,
-                      min: 1,
-                      max: 100,
-                      divisions: 99,
-                      label: '${maximumDistance.round()} km',
-                      activeColor: AppColors.metalPinkColour,
-                      inactiveColor: AppColors.metalButtonStroke,
-                      onChanged: (newValue) {
-                        setState(() {
-                          maximumDistance = newValue;
-                        });
-                      },
-                    ),
-                  ),
-                  const Gap(8),
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppColors.metalPinkColour40,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: TextView(
-                        text: '${maximumDistance.round()} km',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.metalPinkColour,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+  Future<void> _pushPreferences() async {
+    final preferences = UserPreferencesModel(
+      ageRange: _formatAgeRange(selectedAgeRange),
+      religion: noSpecialPreference ? null : _joinAndClean(selectedReligion),
+      demography: selectedDemography,
+      education:
+          noSpecialPreference ? null : _joinAndClean(selectedEducation),
+      ethnicity:
+          noSpecialPreference ? null : _joinAndClean(selectedEthnicity),
     );
+    final ok = await ref
+        .read(userStateProvider.notifier)
+        .updateUserField(field: 'preferences', value: preferences.toJson());
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to update preferences'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   Widget _buildAgeRangeSection() {
@@ -442,6 +339,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                       selectedAgeRange = newRange;
                     });
                   },
+                  onChangeEnd: (_) => _pushPreferences(),
                 ),
               ),
               const Gap(12),
@@ -514,6 +412,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                 selectedEducation = null;
               }
             });
+            _pushPreferences();
           },
         ),
         const Gap(16),
@@ -534,6 +433,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                 setState(() {
                   selectedReligion = newValue;
                 });
+                _pushPreferences();
               },
               floatingLabel: "Religion",
               hint: "Please Select",
@@ -553,6 +453,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                 setState(() {
                   selectedEthnicity = newValue;
                 });
+                _pushPreferences();
               },
               floatingLabel: "Ethnicity",
               hint: "Please Select",
@@ -576,6 +477,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                 setState(() {
                   selectedEducation = newValue;
                 });
+                _pushPreferences();
               },
               floatingLabel: "Education",
               hint: "Please Select",
@@ -589,53 +491,6 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
         ),
       ],
     );
-  }
-
-  Future<void> _savePreferences() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final preferences = UserPreferencesModel(
-        ageRange: _formatAgeRange(selectedAgeRange),
-        religion: noSpecialPreference ? null : _joinAndClean(selectedReligion),
-        demography: selectedDemography,
-        education:
-            noSpecialPreference ? null : _joinAndClean(selectedEducation),
-        ethnicity:
-            noSpecialPreference ? null : _joinAndClean(selectedEthnicity),
-      );
-
-      await _updateUser('preferences', preferences.toJson());
-      await _updateUser('distance', '${maximumDistance.round()} km');
-      await _updateUser('enableDistanceFilter', enableDistanceFilter);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Preferences saved successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint('Error saving preferences: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to save preferences: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
   }
 
   /// Update user field via single source of truth (userStateProvider)

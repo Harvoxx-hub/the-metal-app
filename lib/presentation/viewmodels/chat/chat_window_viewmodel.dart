@@ -223,7 +223,8 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
     final message = MessageDto(
       id: tempId,
       message: text.trim(),
-      senderId: currentUserId ?? '', // Set current user ID for correct positioning
+      senderId:
+          currentUserId ?? '', // Set current user ID for correct positioning
       type: MessageType.text,
       timestamp: DateTime.now(),
       state: MessageState.sending,
@@ -242,7 +243,8 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
     final message = MessageDto(
       id: tempId,
       message: 'Voice message',
-      senderId: currentUserId ?? '', // Set current user ID for correct positioning
+      senderId:
+          currentUserId ?? '', // Set current user ID for correct positioning
       type: MessageType.audio,
       content: audioUrl,
       timestamp: DateTime.now(),
@@ -567,12 +569,19 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
 
   /// Start polling as fallback if WebSocket fails
   void _startPollingFallback() {
-    if (_isPollingEnabled) return;
+    if (!mounted || _isPollingEnabled) return;
     _isPollingEnabled = true;
 
     _pollingTimer = Timer.periodic(
       ChatConstants.pollingInterval,
-      (_) => _pollNewMessages(),
+      (_) {
+        // Check mounted before polling
+        if (!mounted || !_isPollingEnabled) {
+          stopPolling();
+          return;
+        }
+        _pollNewMessages();
+      },
     );
   }
 
@@ -590,7 +599,10 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
 
   /// Poll for new messages (fallback)
   Future<void> _pollNewMessages() async {
-    if (!_isPollingEnabled || state.messages.isEmpty) return;
+    // Check mounted before accessing state
+    if (!mounted || !_isPollingEnabled) return;
+
+    if (state.messages.isEmpty) return;
 
     final lastMessageId = state.messages.last.id;
 
@@ -599,7 +611,10 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
       sinceMessageId: lastMessageId,
     ));
 
-    if (mounted && result.isSuccess && result.data != null) {
+    // Check mounted again after async operation
+    if (!mounted) return;
+
+    if (result.isSuccess && result.data != null) {
       final newMessages = result.data!;
       if (newMessages.isNotEmpty) {
         // Filter out messages we already have
@@ -608,12 +623,17 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
             newMessages.where((m) => !existingIds.contains(m.id)).toList();
 
         if (uniqueNewMessages.isNotEmpty) {
+          // Final mounted check before updating state
+          if (!mounted) return;
+
           state = state.copyWith(
             messages: [...state.messages, ...uniqueNewMessages],
           );
 
           // Mark new messages as read
-          _markAllAsRead();
+          if (mounted) {
+            _markAllAsRead();
+          }
         }
       }
     }
@@ -621,6 +641,8 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
 
   /// Mark all messages as read
   Future<void> _markAllAsRead() async {
+    if (!mounted) return;
+
     await _markAllMessagesReadUseCase(MarkAllMessagesReadParams(
       connectionId: connectionId,
     ));

@@ -107,31 +107,46 @@ class NotificationsResponseModel {
 
 /// Notification settings model
 class NotificationSettingsModel {
-  final bool matchNotifications;
-  final bool messageNotifications;
   final bool likeNotifications;
-  final bool commentNotifications;
+  final bool superlikeNotifications;
+  final bool matchNotifications;
+  final bool meltRequestNotifications;
+  final bool unmetalRequestedNotifications;
+  final bool unmetalAcceptedNotifications;
   final bool sparkNotifications;
+  final bool referralNotifications;
+  final bool messageNotifications;
+  final bool commentNotifications;
   final bool emailNotifications;
   final bool pushNotifications;
 
   NotificationSettingsModel({
-    required this.matchNotifications,
-    required this.messageNotifications,
     required this.likeNotifications,
-    required this.commentNotifications,
+    required this.superlikeNotifications,
+    required this.matchNotifications,
+    required this.meltRequestNotifications,
+    required this.unmetalRequestedNotifications,
+    required this.unmetalAcceptedNotifications,
     required this.sparkNotifications,
+    required this.referralNotifications,
+    required this.messageNotifications,
+    required this.commentNotifications,
     required this.emailNotifications,
     required this.pushNotifications,
   });
 
   factory NotificationSettingsModel.fromJson(Map<String, dynamic> json) {
     return NotificationSettingsModel(
-      matchNotifications: json['matchNotifications'] as bool? ?? true,
-      messageNotifications: json['messageNotifications'] as bool? ?? true,
       likeNotifications: json['likeNotifications'] as bool? ?? true,
-      commentNotifications: json['commentNotifications'] as bool? ?? true,
+      superlikeNotifications: json['superlikeNotifications'] as bool? ?? true,
+      matchNotifications: json['matchNotifications'] as bool? ?? true,
+      meltRequestNotifications: json['meltRequestNotifications'] as bool? ?? true,
+      unmetalRequestedNotifications: json['unmetalRequestedNotifications'] as bool? ?? true,
+      unmetalAcceptedNotifications: json['unmetalAcceptedNotifications'] as bool? ?? true,
       sparkNotifications: json['sparkNotifications'] as bool? ?? true,
+      referralNotifications: json['referralNotifications'] as bool? ?? true,
+      messageNotifications: json['messageNotifications'] as bool? ?? true,
+      commentNotifications: json['commentNotifications'] as bool? ?? true,
       emailNotifications: json['emailNotifications'] as bool? ?? false,
       pushNotifications: json['pushNotifications'] as bool? ?? true,
     );
@@ -139,11 +154,16 @@ class NotificationSettingsModel {
 
   NotificationSettingsDto toDomain() {
     return NotificationSettingsDto(
-      matchNotifications: matchNotifications,
-      messageNotifications: messageNotifications,
       likeNotifications: likeNotifications,
-      commentNotifications: commentNotifications,
+      superlikeNotifications: superlikeNotifications,
+      matchNotifications: matchNotifications,
+      meltRequestNotifications: meltRequestNotifications,
+      unmetalRequestedNotifications: unmetalRequestedNotifications,
+      unmetalAcceptedNotifications: unmetalAcceptedNotifications,
       sparkNotifications: sparkNotifications,
+      referralNotifications: referralNotifications,
+      messageNotifications: messageNotifications,
+      commentNotifications: commentNotifications,
       emailNotifications: emailNotifications,
       pushNotifications: pushNotifications,
     );

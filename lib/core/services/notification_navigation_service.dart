@@ -41,9 +41,35 @@ class NotificationNavigationService {
     if (!context.mounted) return;
 
     final data = notification.data;
-    final pushType = _mapNotificationTypeToPushType(notification.type);
-
-    await _handleNavigation(pushType, data, context);
+    
+    // Handle notification types that need special navigation
+    switch (notification.type) {
+      case NotificationType.like:
+      case NotificationType.superlike:
+        // Navigate to sender's profile
+        if (notification.senderId != null) {
+          await _navigateToUserProfile(notification.senderId!, context);
+        } else {
+          await _navigateToHome(context);
+        }
+        return;
+      case NotificationType.meltRequest:
+        // Navigate to sender's profile or pending melt requests
+        if (notification.senderId != null) {
+          await _navigateToUserProfile(notification.senderId!, context);
+        } else {
+          await _navigateToHome(context);
+        }
+        return;
+      case NotificationType.referral:
+        // Navigate to referral page or profile
+        await _navigateToReferral(context);
+        return;
+      default:
+        // Use push type mapping for other types
+        final pushType = _mapNotificationTypeToPushType(notification.type);
+        await _handleNavigation(pushType, data, context);
+    }
   }
 
   /// Centralized navigation handler
@@ -91,18 +117,26 @@ class NotificationNavigationService {
   /// Map NotificationType to PushType
   PushType? _mapNotificationTypeToPushType(NotificationType type) {
     switch (type) {
-      case NotificationType.message:
-        return PushType.message;
-      case NotificationType.match:
-        return PushType.new_connection;
       case NotificationType.like:
-        return PushType.reaction_added;
-      case NotificationType.comment:
-        return PushType.comment;
+      case NotificationType.superlike:
+        return PushType.reaction_added; // Navigate to profile or discovery
+      case NotificationType.match:
+        return PushType.new_connection; // Navigate to melt screen
+      case NotificationType.meltRequest:
+        return PushType.new_connection; // Navigate to user profile or pending requests
+      case NotificationType.unmetalRequested:
+      case NotificationType.unmetalAccepted:
+        return PushType.unmetal_request; // Navigate to chat
       case NotificationType.spark:
-        return PushType.sparks_transaction;
+        return PushType.sparks_transaction; // Navigate to sparks page
+      case NotificationType.referral:
+        return null; // Navigate to referral/profile page
+      case NotificationType.message:
+        return PushType.message; // Navigate to chat
+      case NotificationType.comment:
+        return PushType.comment; // Navigate to thought details
       case NotificationType.system:
-        return null;
+        return null; // Navigate to home
     }
   }
 
@@ -261,5 +295,29 @@ class NotificationNavigationService {
     } else {
       await _navigateToHome(context);
     }
+  }
+
+  /// Navigate to user profile
+  Future<void> _navigateToUserProfile(String userId, BuildContext context) async {
+    if (userId.isNotEmpty) {
+      await _safeNavigate(
+        context,
+        AppRoutes.userProfile,
+        userId,
+        _navigateToHome,
+      );
+    } else {
+      await _navigateToHome(context);
+    }
+  }
+
+  /// Navigate to referral page
+  Future<void> _navigateToReferral(BuildContext context) async {
+    await _safeNavigate(
+      context,
+      AppRoutes.referEarn,
+      null,
+      _navigateToHome,
+    );
   }
 }

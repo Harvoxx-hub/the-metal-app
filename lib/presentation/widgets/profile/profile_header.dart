@@ -4,6 +4,7 @@ import 'package:metal/core/utils/image_picker_util.dart';
 // AppbarBackground widget removed - using inline widget instead
 import 'package:metal/presentation/viewmodels/profile/profile_photo_viewmodel.dart';
 import 'package:metal/widgets/profile.photo.dart';
+import 'package:metal/res/colors/cr_colors.dart';
 
 class ProfileHeader extends ConsumerWidget {
   const ProfileHeader({
@@ -28,7 +29,7 @@ class ProfileHeader extends ConsumerWidget {
     return SingleChildScrollView(
       child: Stack(
         children: [
-          // Background gradient for profile header
+          // Background gradient for profile header - using brand color
           Container(
             height: 200,
             decoration: BoxDecoration(
@@ -36,8 +37,8 @@ class ProfileHeader extends ConsumerWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Theme.of(context).primaryColor,
-                  Theme.of(context).primaryColor.withOpacity(0.7),
+                  AppColors.metalPinkColour,
+                  AppColors.metalPinkColour.withOpacity(0.7),
                 ],
               ),
             ),

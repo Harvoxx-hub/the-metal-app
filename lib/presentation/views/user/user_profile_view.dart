@@ -92,12 +92,17 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
         profileViewModel.refresh();
         ref.read(connectionViewModelProvider.notifier).refresh();
 
-        // If melt resulted in a connection, navigate to meltMetal route
-        if (current.response?.status == 'connected') {
+        // If melt resulted in a connection (mutual melt), navigate to meltMetal route
+        if (current.response?.status == 'connected' &&
+            current.response?.mutual == true) {
+          // Pass both userId and connectionId to the melt screen
           Navigator.pushNamed(
             context,
             AppRoutes.meltMetal,
-            arguments: widget.userId,
+            arguments: {
+              'userId': widget.userId,
+              'connectionId': current.response?.connectionId,
+            },
           );
         }
       }

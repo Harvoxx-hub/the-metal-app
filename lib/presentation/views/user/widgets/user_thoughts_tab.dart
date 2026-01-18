@@ -65,7 +65,7 @@ class _UserThoughtsTabState extends ConsumerState<UserThoughtsTab> {
         child: const SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(),
           child: SizedBox(
-            height: 300,
+     
             child: EmptyState(
               text: 'No thoughts yet\nThis user hasn\'t posted anything yet.',
             ),

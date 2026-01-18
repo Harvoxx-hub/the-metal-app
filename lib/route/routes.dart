@@ -29,6 +29,7 @@ import 'package:metal/presentation/views/user/user_profile_view.dart';
 
 // New Clean Architecture Connection views
 import 'package:metal/presentation/views/connection/connection_list_screen.dart';
+import 'package:metal/presentation/views/connection/melt_screen.dart';
 
 // Notification view
 import 'package:metal/presentation/views/notification/notification_view.dart';
@@ -203,9 +204,28 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const ConnectionListScreen());
 
       case meltMetal:
+        final args = settings.arguments;
+        String? userId;
+        String? connectionId;
+        
+        if (args is String) {
+          userId = args;
+        } else if (args is Map) {
+          userId = args['userId'] as String?;
+          connectionId = args['connectionId'] as String?;
+        }
+        
+        if (userId != null && userId.isNotEmpty) {
+          return MaterialPageRoute(
+            builder: (_) => MeltScreen(
+              userId: userId!,
+              connectionId: connectionId,
+            ),
+          );
+        }
         return MaterialPageRoute(
           builder: (_) => const Scaffold(
-            body: Center(child: Text('Melt feature coming soon')),
+            body: Center(child: Text('Invalid user ID')),
           ),
         );
       case makePayment:

@@ -2,6 +2,7 @@ import 'package:metal/data/models/user_extra_data_model.dart';
 import 'package:metal/data/models/user_location_model.dart';
 import 'package:metal/data/models/user_preferences_model.dart';
 import 'package:metal/domain/entities/base_entity.dart';
+import 'package:metal/domain/entities/prompt_dto.dart';
 
 /// User domain entity (DTO)
 /// This represents the user in the domain layer
@@ -35,6 +36,7 @@ class UserDto extends BaseEntity {
   final UserLocationModel? location;
   final UserPreferencesModel? preferences;
   final UserExtraDataModel? extraData;
+  final List<UserPromptDto>? prompts;
   final String? createdAt;
   final String? updatedAt;
   // Connection status fields (when viewing other users)
@@ -83,6 +85,7 @@ class UserDto extends BaseEntity {
     this.location,
     this.preferences,
     this.extraData,
+    this.prompts,
     this.createdAt,
     this.updatedAt,
     this.isConnected,
@@ -128,6 +131,7 @@ class UserDto extends BaseEntity {
     UserLocationModel? location,
     UserPreferencesModel? preferences,
     UserExtraDataModel? extraData,
+    List<UserPromptDto>? prompts,
     String? createdAt,
     String? updatedAt,
     bool? isConnected,
@@ -172,6 +176,7 @@ class UserDto extends BaseEntity {
       location: location ?? this.location,
       preferences: preferences ?? this.preferences,
       extraData: extraData ?? this.extraData,
+      prompts: prompts ?? this.prompts,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isConnected: isConnected ?? this.isConnected,

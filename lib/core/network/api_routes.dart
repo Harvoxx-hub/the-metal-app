@@ -155,4 +155,8 @@ class ApiRoutes {
 
   // Metal endpoints
   static const String metals = '/metals'; // GET - get all metals
+
+  // Prompt endpoints
+  static const String promptQuestions = '/prompts/questions'; // GET - get all questions
+  static const String promptUser = '/prompts/user'; // GET /prompts/user/:userId, POST - save prompts
 }

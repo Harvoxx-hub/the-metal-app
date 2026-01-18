@@ -29,7 +29,7 @@ class ProfileHeader extends ConsumerWidget {
     return SingleChildScrollView(
       child: Stack(
         children: [
-          // Background gradient for profile header - using brand color
+          // Background gradient for profile header - using brand color with rounded corners
           Container(
             height: 200,
             decoration: BoxDecoration(
@@ -40,6 +40,10 @@ class ProfileHeader extends ConsumerWidget {
                   AppColors.metalPinkColour,
                   AppColors.metalPinkColour.withOpacity(0.7),
                 ],
+              ),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(35),
+                bottomRight: Radius.circular(35),
               ),
             ),
           ),

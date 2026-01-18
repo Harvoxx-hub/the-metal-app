@@ -5,7 +5,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/services/startup_service.dart';
 
 import 'package:metal/presentation/views/chat/chat_list_view.dart';
-import 'package:metal/presentation/views/settings/settings_view.dart';
+import 'package:metal/presentation/views/profile/my_profile_view.dart';
 import 'package:metal/presentation/views/spark/spark_view.dart';
 import 'package:metal/presentation/views/thought/thought_screen.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -44,7 +44,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     const ThoughtScreen(), // Updated to use new API-based thoughts with 3 tabs
     const SparkView(), // Updated to use new API-based sparks
     const ChatListView(), // Updated to use new API-based chat
-    const SettingsView(),
+    const MyProfileView(), // Profile screen with 3 tabs
   ];
 
   @override

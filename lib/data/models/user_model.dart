@@ -4,6 +4,7 @@ import 'package:metal/data/models/user_location_model.dart';
 import 'package:metal/data/models/user_preferences_model.dart';
 import 'package:metal/data/models/user_extra_data_model.dart';
 import 'package:metal/data/models/user_subscription_model.dart';
+import 'package:metal/data/models/prompt_model.dart';
 
 /// User data model (API response)
 /// Maps API response to domain entity
@@ -40,6 +41,7 @@ class UserModel {
   final UserPreferencesModel? preferences;
   final UserExtraDataModel? extraData;
   final UserSubscriptionModel? subscription;
+  final List<UserPromptModel>? prompts;
   final String? createdAt;
   final String? updatedAt;
   // Connection status fields (when viewing other users)
@@ -91,6 +93,7 @@ class UserModel {
     this.preferences,
     this.extraData,
     this.subscription,
+    this.prompts,
     this.createdAt,
     this.updatedAt,
     this.isConnected,
@@ -172,6 +175,11 @@ class UserModel {
           ? UserSubscriptionModel.fromJson(
               json['subscription'] as Map<String, dynamic>)
           : null,
+      prompts: json['prompts'] != null
+          ? (json['prompts'] as List)
+              .map((p) => UserPromptModel.fromJson(p as Map<String, dynamic>))
+              .toList()
+          : null,
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
       isConnected: json['isConnected'] as bool?,
@@ -220,6 +228,7 @@ class UserModel {
       location: location,
       preferences: preferences,
       extraData: extraData,
+      prompts: prompts?.map((p) => p.toDto()).toList(),
       createdAt: createdAt,
       updatedAt: updatedAt,
       isConnected: isConnected,

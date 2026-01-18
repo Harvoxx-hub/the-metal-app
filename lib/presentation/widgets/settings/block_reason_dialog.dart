@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/block_reason_code.dart';
 import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
@@ -192,9 +193,7 @@ class _BlockReasonDialogState extends ConsumerState<BlockReasonDialog> {
       customReason = _customReasonController.text.trim();
       if (customReason.isEmpty) {
         // Show error for empty custom reason
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please specify a reason')),
-        );
+        Fluttertoast.showToast(msg: 'Please specify a reason');
         return;
       }
     }
@@ -205,9 +204,7 @@ class _BlockReasonDialogState extends ConsumerState<BlockReasonDialog> {
       reportDetails = _reportDetailsController.text.trim();
       if (reportDetails.isEmpty) {
         // Show error for empty report details
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please provide report details')),
-        );
+        Fluttertoast.showToast(msg: 'Please provide report details');
         return;
       }
     }
@@ -240,23 +237,17 @@ class _BlockReasonDialogState extends ConsumerState<BlockReasonDialog> {
       Navigator.of(context).pop();
 
       // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isReporting
+      Fluttertoast.showToast(
+        msg: isReporting
                 ? 'User blocked and reported successfully'
                 : 'User blocked successfully',
-          ),
-        ),
       );
     } else if (mounted) {
       // Show error message
       final errorMessage =
           ref.read(blockedUsersViewModelProvider).errorMessage ??
               'Failed to block user';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
+      Fluttertoast.showToast(msg: errorMessage);
     }
   }
 }

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
@@ -425,20 +426,14 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
         .markAllAsRead();
 
     if (mounted && success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('All notifications marked as read'),
-          backgroundColor: AppColors.metalPinkColour,
-          duration: Duration(seconds: 2),
-        ),
+      Fluttertoast.showToast(
+        msg: 'All notifications marked as read',
+        toastLength: Toast.LENGTH_SHORT,
       );
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to mark all as read'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
+      Fluttertoast.showToast(
+        msg: 'Failed to mark all as read',
+        toastLength: Toast.LENGTH_SHORT,
       );
     }
   }

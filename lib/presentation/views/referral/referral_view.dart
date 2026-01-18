@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/presentation/viewmodels/referral/referral_viewmodel.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -356,9 +357,7 @@ class _ReferralViewState extends ConsumerState<ReferralView> {
 
   void _copyCode(String code) {
     Clipboard.setData(ClipboardData(text: code));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Code copied to clipboard!')),
-    );
+    Fluttertoast.showToast(msg: 'Code copied to clipboard!');
   }
 
   Future<void> _shareCode(String code) async {
@@ -371,9 +370,7 @@ class _ReferralViewState extends ConsumerState<ReferralView> {
   Future<void> _handleApplyCode() async {
     final code = _codeController.text.trim();
     if (code.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a referral code')),
-      );
+      Fluttertoast.showToast(msg: 'Please enter a referral code');
       return;
     }
 

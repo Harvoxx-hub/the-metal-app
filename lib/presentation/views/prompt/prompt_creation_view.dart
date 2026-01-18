@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/prompt_dto.dart';
 import 'package:metal/presentation/viewmodels/prompt/prompt_providers.dart';
+import 'package:metal/presentation/viewmodels/prompt/prompt_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/prompt/question_selection_view.dart';
 import 'package:metal/presentation/views/prompt/widgets/prompt_answer_card.dart';
@@ -63,7 +64,7 @@ class _PromptCreationViewState extends ConsumerState<PromptCreationView> {
       MaterialPageRoute(
         builder: (context) => QuestionSelectionView(
           selectedQuestionIds: selectedIds,
-          onQuestionAnswered: (question, answer) {
+          onQuestionAnswered: (question, answer) async {
             setState(() {
               _userPrompts.add(
                 UserPromptDto(
@@ -73,6 +74,8 @@ class _PromptCreationViewState extends ConsumerState<PromptCreationView> {
                 ),
               );
             });
+            // Auto-save when a prompt is added
+            await _autoSavePrompts();
           },
         ),
       ),
@@ -83,58 +86,37 @@ class _PromptCreationViewState extends ConsumerState<PromptCreationView> {
     setState(() {
       _userPrompts[index] = _userPrompts[index].copyWith(answer: answer);
     });
+    // Auto-save when answer is changed
+    _autoSavePrompts();
   }
 
-  void _onDeletePrompt(int index) {
+  void _onDeletePrompt(int index) async {
     setState(() {
       _userPrompts.removeAt(index);
     });
+    // Auto-save when a prompt is deleted - always save, even if list is empty
+    await _savePromptsImmediately();
   }
 
-  Future<void> _savePrompts() async {
-    // Validate minimum 3 prompts
-    if (_userPrompts.length < 3) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Minimum 3 prompts are required'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+  Future<void> _savePromptsImmediately() async {
+    // Save immediately (used for deletion or when we want to save regardless)
+    final viewModel = ref.read(promptViewModelProvider.notifier);
+    await viewModel.savePrompts(_userPrompts);
+  }
 
-    // Validate all prompts have answers
+  Future<void> _autoSavePrompts() async {
+    // Skip auto-save if there are no prompts or if any are incomplete
+    if (_userPrompts.isEmpty) return;
+
+    // Validate all prompts have answers before saving
     for (final prompt in _userPrompts) {
       if (prompt.answer.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('All prompts must have answers'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
+        return; // Don't save if any prompt is incomplete
       }
     }
 
     final viewModel = ref.read(promptViewModelProvider.notifier);
     await viewModel.savePrompts(_userPrompts);
-
-    final state = ref.read(promptViewModelProvider);
-    if (state.isSuccess) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Prompts saved successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } else if (state.isError) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.errorMessage ?? 'Failed to save prompts'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
 
   @override
@@ -142,6 +124,28 @@ class _PromptCreationViewState extends ConsumerState<PromptCreationView> {
     final state = ref.watch(promptViewModelProvider);
     final currentUser = ref.watch(currentUserProvider);
 
+    return Scaffold(
+      backgroundColor: AppColors.metalWhite,
+      appBar: AppBar(
+        backgroundColor: AppColors.metalPinkColour,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const TextView(
+          text: 'Manage Prompts',
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+        centerTitle: true,
+      ),
+      body: _buildBody(state, currentUser),
+    );
+  }
+
+  Widget _buildBody(PromptState state, currentUser) {
     // Show loading state
     if (state.isLoading && !_hasInitialized) {
       return const LoadingState();
@@ -157,23 +161,12 @@ class _PromptCreationViewState extends ConsumerState<PromptCreationView> {
       );
     }
 
-    // Initialize prompts from state if not already initialized
-    if (state.userPrompts.isNotEmpty && _userPrompts.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          _userPrompts.addAll(state.userPrompts);
-        });
-      });
-    }
-
-    final canSave = _userPrompts.length >= 3 &&
-        _userPrompts.every((p) => p.answer.trim().isNotEmpty) &&
-        !state.isSaving;
-
     return RefreshIndicator(
       onRefresh: () async {
         if (currentUser != null) {
-          await ref.read(promptViewModelProvider.notifier).refresh(currentUser.id);
+          await ref
+              .read(promptViewModelProvider.notifier)
+              .refresh(currentUser.id);
           final newState = ref.read(promptViewModelProvider);
           setState(() {
             _userPrompts.clear();
@@ -209,7 +202,8 @@ class _PromptCreationViewState extends ConsumerState<PromptCreationView> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: TextView(
-                        text: 'Select at least 3 questions and share your answers to help others know you better',
+                        text:
+                            'Select at least 3 questions and share your answers to help others know you better',
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         color: Colors.grey[600],
@@ -234,7 +228,9 @@ class _PromptCreationViewState extends ConsumerState<PromptCreationView> {
                 child: Row(
                   children: [
                     Icon(
-                      _userPrompts.length >= 3 ? Icons.check_circle : Icons.info,
+                      _userPrompts.length >= 3
+                          ? Icons.check_circle
+                          : Icons.info,
                       color: _userPrompts.length >= 3
                           ? Colors.green
                           : Colors.orange,
@@ -243,7 +239,8 @@ class _PromptCreationViewState extends ConsumerState<PromptCreationView> {
                     const Gap(8),
                     Expanded(
                       child: TextView(
-                        text: '${_userPrompts.length}/3 prompts (minimum required)',
+                        text:
+                            '${_userPrompts.length}/3 prompts (minimum required)',
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: _userPrompts.length >= 3
@@ -278,18 +275,6 @@ class _PromptCreationViewState extends ConsumerState<PromptCreationView> {
                 enabled: true,
               ),
             ),
-
-            // Save button
-            if (_userPrompts.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: BaseButton(
-                  buttonText: state.isSaving ? 'Saving...' : 'Save Prompts',
-                  onPressed: canSave ? _savePrompts : null,
-                  enabled: canSave,
-                  loading: state.isSaving,
-                ),
-              ),
           ],
         ),
       ),

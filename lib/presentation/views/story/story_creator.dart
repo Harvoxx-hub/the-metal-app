@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:metal/presentation/viewmodels/story/story_viewmodel_providers.dart';
 
@@ -38,18 +39,14 @@ class _StoryCreatorState extends ConsumerState<StoryCreator> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to pick media: $e')),
-        );
+        Fluttertoast.showToast(msg: 'Failed to pick media: $e');
       }
     }
   }
 
   Future<void> _createStory() async {
     if (_selectedFile == null || _mediaType == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a photo or video')),
-      );
+      Fluttertoast.showToast(msg: 'Please select a photo or video');
       return;
     }
 
@@ -66,16 +63,12 @@ class _StoryCreatorState extends ConsumerState<StoryCreator> {
 
     if (mounted) {
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Story created successfully!')),
-        );
+        Fluttertoast.showToast(msg: 'Story created successfully!');
         Navigator.pop(context);
       } else {
         final errorMessage =
             ref.read(storyViewModelProvider).errorMessage ?? 'Failed to create story';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
-        );
+        Fluttertoast.showToast(msg: errorMessage);
       }
     }
   }

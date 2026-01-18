@@ -51,6 +51,7 @@ class ApiRoutes {
   static const String markMessageRead = '/messages'; // PUT /messages/:id/read
   static const String markAllMessagesRead =
       '/messages'; // PUT /messages/:connectionId/read-all
+  static const String promptReaction = '/messages/prompt-reaction'; // POST - send prompt reaction
   static const String clearChat =
       '/connections'; // DELETE /connections/:id/messages
 

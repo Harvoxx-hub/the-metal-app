@@ -5,7 +5,7 @@ import 'package:metal/presentation/views/thought/widgets/thought_card.dart';
 import 'package:metal/presentation/viewmodels/user/user_profile_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
-import 'package:metal/presentation/views/prompt/prompt_creation_view.dart';
+import 'package:metal/presentation/views/prompt/prompt_display_view.dart';
 import 'package:metal/presentation/widgets/profile/profile_header.dart';
 import 'package:metal/presentation/widgets/settings/edit_field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -192,9 +192,9 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
     );
   }
 
-  /// Prompt Tab - Prompt Creation View
+  /// Prompt Tab - Read-only Prompt Display View
   Widget _buildPromptTab() {
-    return const PromptCreationView();
+    return const PromptDisplayView();
   }
 
   /// Personal Tab - Shows list of personal settings and options

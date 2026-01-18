@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/domain/entities/user_dto.dart';
@@ -248,12 +249,7 @@ class _SendSparkDialogState extends ConsumerState<SendSparkDialog> {
   Future<void> _handleSendSparks() async {
     if (!_formKey.currentState!.validate()) return;
     if (selectedUserId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please select a recipient"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      Fluttertoast.showToast(msg: "Please select a recipient");
       return;
     }
 
@@ -270,23 +266,13 @@ class _SendSparkDialogState extends ConsumerState<SendSparkDialog> {
 
     if (mounted) {
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Successfully sent $amount sparks to @${selectedUser?.username ?? 'user'}",
-            ),
-            backgroundColor: Colors.green,
-          ),
+        Fluttertoast.showToast(
+          msg: "Successfully sent $amount sparks to @${selectedUser?.username ?? 'user'}",
         );
         Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              ref.read(sparkViewModelProvider).errorMessage ?? "Failed to send sparks",
-            ),
-            backgroundColor: Colors.red,
-          ),
+        Fluttertoast.showToast(
+          msg: ref.read(sparkViewModelProvider).errorMessage ?? "Failed to send sparks",
         );
       }
     }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/domain/entities/message_dto.dart';
@@ -286,16 +287,10 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
 
       if (mounted) {
         if (result.isSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                action == 'approve'
+          Fluttertoast.showToast(
+            msg: action == 'approve'
                     ? 'Identities revealed! You can now see each other\'s photos.'
                     : 'Unmelt request declined.',
-              ),
-              backgroundColor:
-                  action == 'approve' ? Colors.green : Colors.orange,
-            ),
           );
 
           // Refresh messages to update the unmelt message status
@@ -303,23 +298,14 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
               .read(chatWindowViewModelProvider(connectionId).notifier)
               .loadMessages();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                  result.errorMessage ?? 'Failed to process unmelt action'),
-              backgroundColor: Colors.red,
-            ),
+          Fluttertoast.showToast(
+            msg: result.errorMessage ?? 'Failed to process unmelt action',
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        Fluttertoast.showToast(msg: 'Error: $e');
       }
     }
   }

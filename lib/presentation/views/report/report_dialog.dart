@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/data/repositories/report/report_repository_providers.dart';
 import 'package:metal/domain/entities/report_dto.dart';
@@ -144,31 +145,16 @@ class _ReportUserDialogState extends ConsumerState<ReportUserDialog> {
       if (mounted) {
         if (result.isSuccess) {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Report submitted successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          Fluttertoast.showToast(msg: 'Report submitted successfully');
         } else {
           setState(() => _isSubmitting = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(result.errorMessage ?? 'Failed to submit report'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          Fluttertoast.showToast(msg: result.errorMessage ?? 'Failed to submit report');
         }
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isSubmitting = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        Fluttertoast.showToast(msg: 'Error: $e');
       }
     }
   }
@@ -323,31 +309,16 @@ class _ReportContentDialogState extends ConsumerState<ReportContentDialog> {
       if (mounted) {
         if (result.isSuccess) {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Report submitted successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          Fluttertoast.showToast(msg: 'Report submitted successfully');
         } else {
           setState(() => _isSubmitting = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(result.errorMessage ?? 'Failed to submit report'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          Fluttertoast.showToast(msg: result.errorMessage ?? 'Failed to submit report');
         }
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isSubmitting = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        Fluttertoast.showToast(msg: 'Error: $e');
       }
     }
   }

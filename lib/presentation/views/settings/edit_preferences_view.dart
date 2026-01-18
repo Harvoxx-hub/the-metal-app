@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
@@ -266,12 +267,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
         .read(userStateProvider.notifier)
         .updateUserField(field: 'preferences', value: preferences.toJson());
     if (!ok && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to update preferences'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      Fluttertoast.showToast(msg: 'Failed to update preferences');
     }
   }
 

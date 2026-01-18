@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:dio/dio.dart';
 import 'package:metal/core/di/provider_setup.dart';
@@ -133,9 +134,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
     } catch (e) {
       print('Error uploading audio: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to send voice message')),
-        );
+        Fluttertoast.showToast(msg: 'Failed to send voice message');
       }
     } finally {
       setState(() {

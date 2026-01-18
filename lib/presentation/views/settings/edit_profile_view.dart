@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
@@ -206,12 +207,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
 
     if (!success && mounted) {
       final errorMessage = ref.read(userStateProvider).errorMessage;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage ?? 'Failed to update profile'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      Fluttertoast.showToast(msg: errorMessage ?? 'Failed to update profile');
     }
   }
 }

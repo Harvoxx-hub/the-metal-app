@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/domain/entities/message_dto.dart';
@@ -498,21 +499,17 @@ class _MessageBubbleState extends State<_MessageBubble>
   void _copyMessage(BuildContext context) {
     final textToCopy = widget.message.message.trim();
     if (textToCopy.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No text to copy'),
-          duration: Duration(seconds: 2),
-        ),
+      Fluttertoast.showToast(
+        msg: 'No text to copy',
+        toastLength: Toast.LENGTH_SHORT,
       );
       return;
     }
 
     Clipboard.setData(ClipboardData(text: textToCopy));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Message copied to clipboard'),
-        duration: Duration(seconds: 2),
-      ),
+    Fluttertoast.showToast(
+      msg: 'Message copied to clipboard',
+      toastLength: Toast.LENGTH_SHORT,
     );
   }
 

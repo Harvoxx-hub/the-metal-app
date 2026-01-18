@@ -5,6 +5,7 @@ import 'package:metal/domain/entities/prompt_dto.dart';
 import 'package:metal/presentation/viewmodels/prompt/prompt_providers.dart';
 import 'package:metal/presentation/viewmodels/prompt/prompt_viewmodel.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/state.handler/loading.state.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
@@ -28,8 +29,7 @@ class QuestionSelectionView extends ConsumerStatefulWidget {
       _QuestionSelectionViewState();
 }
 
-class _QuestionSelectionViewState
-    extends ConsumerState<QuestionSelectionView> {
+class _QuestionSelectionViewState extends ConsumerState<QuestionSelectionView> {
   @override
   void initState() {
     super.initState();
@@ -44,61 +44,103 @@ class _QuestionSelectionViewState
 
   void _showAnswerDialog(PromptQuestionDto question) {
     final answerController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      barrierDismissible: true,
+      builder: (context) => Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        title: TextView(
-          text: question.text,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: AppColors.metalBrownColourForText,
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Gap(16),
-              EditFormField(
-                controller: answerController,
-                label: 'Your answer',
-                hint: 'Enter your answer...',
-                keyboardType: TextInputType.multiline,
-                maxLines: 4,
-                minLines: 2,
-                radius: 12,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.metalWhite,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10.0,
+                offset: Offset(0.0, 10.0),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final answer = answerController.text.trim();
-              if (answer.isNotEmpty) {
-                widget.onQuestionAnswered(question, answer);
-                Navigator.pop(context);
-                Navigator.pop(context); // Close selection page too
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.metalPinkColour,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Question title
+                  TextView(
+                    text: question.text,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.metalBrownColourForText,
+                  ),
+                  const Gap(24),
+                  // Answer input
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: EditFormField(
+                        controller: answerController,
+                        label: 'Your answer',
+                        hint: 'Enter your answer...',
+                        keyboardType: TextInputType.multiline,
+                        maxLines: 4,
+                        minLines: 3,
+                        radius: 12,
+                      ),
+                    ),
+                  ),
+                  const Gap(24),
+                  // Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                        ),
+                        child: TextView(
+                          text: 'Cancel',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      const Gap(12),
+                      BaseButton(
+                        buttonText: 'Add',
+                        onPressed: () {
+                          final answer = answerController.text.trim();
+                          if (answer.isNotEmpty) {
+                            widget.onQuestionAnswered(question, answer);
+                            Navigator.pop(context);
+                            Navigator.pop(context); // Close selection page too
+                          }
+                        },
+                        enabled: true,
+                        width: 200, // Let Row determine width when used in Row
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            child: const Text('Add'),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -172,9 +214,7 @@ class _QuestionSelectionViewState
         final isSelected = widget.selectedQuestionIds.contains(question.id);
 
         return GestureDetector(
-          onTap: isSelected
-              ? null
-              : () => _showAnswerDialog(question),
+          onTap: isSelected ? null : () => _showAnswerDialog(question),
           child: Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(16),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/presentation/viewmodels/settings/delete_account_viewmodel.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -288,12 +289,7 @@ class _DeleteAccountViewState extends ConsumerState<DeleteAccountView> {
 
       if (success) {
         // Account deleted successfully - navigate to login screen
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Account deleted successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        Fluttertoast.showToast(msg: 'Account deleted successfully');
 
         // Navigate to login screen and clear navigation stack
         Navigator.of(context).pushNamedAndRemoveUntil(

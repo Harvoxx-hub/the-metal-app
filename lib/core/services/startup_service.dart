@@ -4,6 +4,7 @@ import 'package:metal/core/managers/location_manager.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/presentation/views/dashboard/widgets/new_update_dialog.dart';
+import 'package:metal/presentation/views/dashboard/widgets/prompt_reminder_dialog.dart';
 import 'package:metal/presentation/views/dashboard/widgets/thought_reminder_dialog.dart';
 import 'package:metal/presentation/views/dashboard/widgets/verification.dialog.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
@@ -83,6 +84,10 @@ class StartupService {
         );
         await prefs.setBool('hasSeenThoughtReminder', true);
       }
+
+      // Check and show prompt reminder if user has less than 3 prompts
+      // Keep showing until they have at least 3 prompts
+      await _checkAndShowPromptReminder(context, userData);
     }
   }
 
@@ -103,6 +108,28 @@ class StartupService {
       await showDialog(
         context: context,
         builder: (_) => const CustomDialog(content: VerificationDialog()),
+      );
+    }
+  }
+
+  /// Check if user has less than 3 prompts and show reminder dialog
+  /// Keep showing until they complete at least 3 prompts
+  Future<void> _checkAndShowPromptReminder(
+    BuildContext context,
+    UserDto userData,
+  ) async {
+    if (!context.mounted) return;
+
+    final promptCount = userData.prompts?.length ?? 0;
+
+    // Show dialog if user has less than 3 prompts
+    if (promptCount < 3) {
+      await showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) => CustomDialog(
+          content: PromptReminderDialog(currentPromptCount: promptCount),
+        ),
       );
     }
   }

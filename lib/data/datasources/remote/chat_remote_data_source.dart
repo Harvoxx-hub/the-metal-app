@@ -152,6 +152,34 @@ class ChatRemoteDataSource {
     throw Exception(response.data?['error'] ?? 'Failed to send message');
   }
 
+  /// Send a prompt reaction (reply to user's prompt)
+  Future<Map<String, dynamic>> sendPromptReaction({
+    required String recipientId,
+    required String promptQuestionText,
+    required String promptAnswer,
+    String? comment,
+  }) async {
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.promptReaction),
+      data: {
+        'recipientId': recipientId,
+        'promptQuestionText': promptQuestionText,
+        'promptAnswer': promptAnswer,
+        if (comment != null && comment.isNotEmpty) 'comment': comment,
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.data != null) {
+        final data =
+            response.data['data'] as Map<String, dynamic>? ?? response.data;
+        return data;
+      }
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to send prompt reaction');
+  }
+
   /// Upload and send an audio message
   Future<MessageModel> sendAudioMessage({
     required String connectionId,

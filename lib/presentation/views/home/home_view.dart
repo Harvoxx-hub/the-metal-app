@@ -128,7 +128,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
     if (state.isError && (state.data == null || state.data!.isEmpty)) {
       final errorMessage = state.errorMessage ?? "";
-      
+
       // Check if error is related to location
       if (errorMessage.contains("Location data required") ||
           errorMessage.toLowerCase().contains("location")) {
@@ -221,25 +221,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   Widget _buildSwipeStack(List<DiscoveryUserDto> users) {
-    final notifier = ref.read(homeViewModelProvider.notifier);
-
-    return Stack(
-      children: users.asMap().entries.map((entry) {
-        final user = entry.value;
-
-        return Positioned.fill(
-          child: Transform.scale(
-            scale: 1.0,
-            child: DiscoveryUserCard(
-              user: user,
-              onLike: () => notifier.likeUser(user.id),
-              onPass: () => notifier.passUser(user.id),
-              onSuperLike: () => notifier.superLikeUser(user.id),
-              onMessage: () => _handleDirectMessage(user),
-            ),
-          ),
-        );
-      }).toList(),
+    return _UserCardView(
+      users: users,
+      onLike: (userId) =>
+          ref.read(homeViewModelProvider.notifier).likeUser(userId),
+      onPass: (userId) =>
+          ref.read(homeViewModelProvider.notifier).passUser(userId),
     );
   }
 
@@ -288,3 +275,55 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 }
 
+/// View for displaying a single user card with navigation
+class _UserCardView extends StatefulWidget {
+  final List<DiscoveryUserDto> users;
+  final Function(String) onLike;
+  final Function(String) onPass;
+
+  const _UserCardView({
+    required this.users,
+    required this.onLike,
+    required this.onPass,
+  });
+
+  @override
+  State<_UserCardView> createState() => _UserCardViewState();
+}
+
+class _UserCardViewState extends State<_UserCardView> {
+  int _currentIndex = 0;
+
+  void _moveToNext() {
+    if (_currentIndex < widget.users.length - 1) {
+      setState(() {
+        _currentIndex++;
+      });
+    }
+  }
+
+  void _handleAction(VoidCallback action) {
+    action();
+    // Move to next user after action
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        _moveToNext();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.users.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final currentUser = widget.users[_currentIndex];
+
+    return DiscoveryUserCard(
+      user: currentUser,
+      onLike: () => _handleAction(() => widget.onLike(currentUser.id)),
+      onPass: () => _handleAction(() => widget.onPass(currentUser.id)),
+    );
+  }
+}

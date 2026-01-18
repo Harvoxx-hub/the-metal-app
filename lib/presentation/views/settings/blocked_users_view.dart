@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -258,20 +259,10 @@ class BlockedUsersView extends ConsumerWidget {
 
       if (context.mounted) {
         if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('User unblocked successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          Fluttertoast.showToast(msg: 'User unblocked successfully');
         } else {
           final errorMessage = ref.read(blockedUsersViewModelProvider).errorMessage;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage ?? 'Failed to unblock user'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          Fluttertoast.showToast(msg: errorMessage ?? 'Failed to unblock user');
         }
       }
     }

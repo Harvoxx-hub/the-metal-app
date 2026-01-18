@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/image_picker_util.dart';
@@ -355,9 +356,7 @@ class ChatAppBar extends ConsumerWidget {
 
     // Show loading indicator if already uploading
     if (photoState.isUploading) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Upload in progress...')),
-      );
+      Fluttertoast.showToast(msg: 'Upload in progress...');
       return;
     }
 
@@ -370,21 +369,11 @@ class ChatAppBar extends ConsumerWidget {
       (previous, next) {
         if (previous?.isUploading == true && !next.isUploading) {
           if (next.successMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(next.successMessage!),
-                backgroundColor: Colors.green,
-              ),
-            );
+            Fluttertoast.showToast(msg: next.successMessage!);
             // Clear the success message
             ref.read(profilePhotoViewModelProvider.notifier).clearMessages();
           } else if (next.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(next.errorMessage!),
-                backgroundColor: Colors.red,
-              ),
-            );
+            Fluttertoast.showToast(msg: next.errorMessage!);
             // Clear the error message
             ref.read(profilePhotoViewModelProvider.notifier).clearMessages();
           }
@@ -396,9 +385,7 @@ class ChatAppBar extends ConsumerWidget {
   /// Request to unmelt (reveal identities) - sends an unmelt request
   Future<void> _requestUnmelt(BuildContext context, WidgetRef ref) async {
     // Show loading indicator
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sending unmelt request...')),
-    );
+    Fluttertoast.showToast(msg: 'Sending unmelt request...');
 
     try {
       final repository = ref.read(connectionRepositoryProvider);
@@ -406,33 +393,14 @@ class ChatAppBar extends ConsumerWidget {
 
       if (context.mounted) {
         if (result.isSuccess) {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Unmelt request sent! Waiting for approval.'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          Fluttertoast.showToast(msg: 'Unmelt request sent! Waiting for approval.');
         } else {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content:
-                  Text(result.errorMessage ?? 'Failed to send unmelt request'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          Fluttertoast.showToast(msg: result.errorMessage ?? 'Failed to send unmelt request');
         }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        Fluttertoast.showToast(msg: 'Error: $e');
       }
     }
   }
@@ -461,9 +429,7 @@ class ChatAppBar extends ConsumerWidget {
 
   void _clearChat(BuildContext context) {
     // TODO: Implement clear chat functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Chat cleared')),
-    );
+    Fluttertoast.showToast(msg: 'Chat cleared');
   }
 
   void _handleUnblock(BuildContext context) {
@@ -488,8 +454,6 @@ class ChatAppBar extends ConsumerWidget {
 
   void _performUnblock(BuildContext context) {
     // TODO: Implement unblock functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('User unblocked')),
-    );
+    Fluttertoast.showToast(msg: 'User unblocked');
   }
 }

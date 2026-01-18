@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'dart:async';
 import 'dart:io';
@@ -838,19 +839,9 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
 
       if (mounted) {
         if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Thought deleted successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          Fluttertoast.showToast(msg: 'Thought deleted successfully');
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to delete thought'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          Fluttertoast.showToast(msg: 'Failed to delete thought');
         }
       }
     }
@@ -865,12 +856,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
 
     if (result != null && mounted) {
       // Report submitted
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Thank you for reporting. We will review this thought.'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      Fluttertoast.showToast(msg: 'Thank you for reporting. We will review this thought.');
     }
   }
 
@@ -917,23 +903,13 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
         await profileDataSource.blockUser(userId: thoughtModel.userId);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('User blocked successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          Fluttertoast.showToast(msg: 'User blocked successfully');
           // Remove thought from feed
           ref.read(thoughtFeedViewModelProvider.notifier).removeThought(thoughtModel.id);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to block user: ${e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          Fluttertoast.showToast(msg: 'Failed to block user: ${e.toString()}');
         }
       }
     }
@@ -1080,12 +1056,7 @@ class _ReportThoughtDialogState extends ConsumerState<_ReportThoughtDialog> {
         setState(() {
           _isSubmitting = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to submit report: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        Fluttertoast.showToast(msg: 'Failed to submit report: ${e.toString()}');
       }
     }
   }

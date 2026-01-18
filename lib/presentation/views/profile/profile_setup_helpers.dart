@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/presentation/viewmodels/profile/profile_setup_viewmodel.dart';
@@ -52,22 +53,12 @@ class ProfileSetupHelpers {
 
   /// Show validation error snackbar
   static void showValidationError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: ProfileSetupConstants.errorBackgroundColor,
-      ),
-    );
+    Fluttertoast.showToast(msg: message);
   }
 
   /// Show warning snackbar
   static void showWarning(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: ProfileSetupConstants.warningBackgroundColor,
-      ),
-    );
+    Fluttertoast.showToast(msg: message);
   }
 
   /// Handle step save and navigation

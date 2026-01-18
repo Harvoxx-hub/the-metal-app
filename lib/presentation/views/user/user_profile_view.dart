@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
@@ -399,12 +400,7 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
 
     if (currentUserId == widget.userId) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('You cannot message yourself'),
-            backgroundColor: Colors.orange,
-          ),
-        );
+        Fluttertoast.showToast(msg: 'You cannot message yourself');
       }
       return;
     }
@@ -481,14 +477,9 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
       }
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Failed to open chat: ${e.toString().replaceAll('Exception: ', '')}',
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
+      Fluttertoast.showToast(
+        msg: 'Failed to open chat: ${e.toString().replaceAll('Exception: ', '')}',
+        toastLength: Toast.LENGTH_LONG,
       );
     }
   }

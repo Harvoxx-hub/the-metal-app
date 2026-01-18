@@ -1,3 +1,5 @@
+import 'package:metal/domain/entities/prompt_dto.dart';
+
 /// Discovery User DTO
 /// Simplified user entity for discovery/swipe cards
 /// Contains only the data needed for the swipe interface
@@ -18,6 +20,7 @@ class DiscoveryUserDto {
   final bool isOnline;
   final String? lastActive;
   final double? distance; // Calculated distance in km
+  final List<UserPromptDto>? prompts;
 
   const DiscoveryUserDto({
     required this.id,
@@ -36,6 +39,7 @@ class DiscoveryUserDto {
     this.isOnline = false,
     this.lastActive,
     this.distance,
+    this.prompts,
   });
 
   factory DiscoveryUserDto.fromJson(Map<String, dynamic> json) {
@@ -58,6 +62,9 @@ class DiscoveryUserDto {
       isOnline: json['isOnline'] as bool? ?? false,
       lastActive: json['lastActive'] as String?,
       distance: (json['distance'] as num?)?.toDouble(),
+      prompts: (json['prompts'] as List<dynamic>?)
+          ?.map((item) => UserPromptDto.fromJson(item as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -79,7 +86,41 @@ class DiscoveryUserDto {
       'isOnline': isOnline,
       'lastActive': lastActive,
       'distance': distance,
+      'prompts': prompts?.map((p) => p.toJson()).toList(),
     };
+  }
+
+  /// Calculate age from date of birth
+  int? get age {
+    if (dob == null) return null;
+    try {
+      DateTime birthDate;
+      if (dob!.contains('/')) {
+        // DD/MM/YYYY format
+        final parts = dob!.split('/');
+        if (parts.length == 3) {
+          birthDate = DateTime(
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
+          );
+        } else {
+          return null;
+        }
+      } else {
+        // ISO format
+        birthDate = DateTime.parse(dob!);
+      }
+      final now = DateTime.now();
+      int age = now.year - birthDate.year;
+      if (now.month < birthDate.month ||
+          (now.month == birthDate.month && now.day < birthDate.day)) {
+        age--;
+      }
+      return age;
+    } catch (e) {
+      return null;
+    }
   }
 }
 

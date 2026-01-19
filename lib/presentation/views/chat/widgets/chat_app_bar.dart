@@ -4,8 +4,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/image_picker_util.dart';
+import 'package:metal/data/repositories/chat/chat_repository_providers.dart';
+import 'package:metal/data/repositories/profile/profile_repository_providers.dart';
 import 'package:metal/domain/entities/message_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/presentation/viewmodels/chat/chat_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
 import 'package:metal/presentation/viewmodels/profile/profile_photo_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
@@ -222,10 +225,10 @@ class ChatAppBar extends ConsumerWidget {
         _handleUnmelt(context, ref);
         break;
       case 'clear_chat':
-        _showClearChatDialog(context);
+        _showClearChatDialog(context, ref);
         break;
       case 'unblock':
-        _handleUnblock(context);
+        _handleUnblock(context, ref);
         break;
     }
   }
@@ -393,9 +396,11 @@ class ChatAppBar extends ConsumerWidget {
 
       if (context.mounted) {
         if (result.isSuccess) {
-          Fluttertoast.showToast(msg: 'Unmelt request sent! Waiting for approval.');
+          Fluttertoast.showToast(
+              msg: 'Unmelt request sent! Waiting for approval.');
         } else {
-          Fluttertoast.showToast(msg: result.errorMessage ?? 'Failed to send unmelt request');
+          Fluttertoast.showToast(
+              msg: result.errorMessage ?? 'Failed to send unmelt request');
         }
       }
     } catch (e) {
@@ -405,7 +410,7 @@ class ChatAppBar extends ConsumerWidget {
     }
   }
 
-  void _showClearChatDialog(BuildContext context) {
+  void _showClearChatDialog(BuildContext context, WidgetRef ref) {
     MetalDialog.show(
       context: context,
       title: 'Clear chat',
@@ -422,17 +427,37 @@ class ChatAppBar extends ConsumerWidget {
       primaryButtonColor: AppColors.metalRed,
       onPrimaryPressed: () {
         Navigator.pop(context);
-        _clearChat(context);
+        _clearChat(context, ref);
       },
     );
   }
 
-  void _clearChat(BuildContext context) {
-    // TODO: Implement clear chat functionality
-    Fluttertoast.showToast(msg: 'Chat cleared');
+  Future<void> _clearChat(BuildContext context, WidgetRef ref) async {
+    try {
+      final chatRepository = ref.read(chatRepositoryProvider);
+      final result = await chatRepository.clearChat(connection.id);
+
+      if (context.mounted) {
+        if (result.isSuccess) {
+          // Refresh messages to clear the list
+          ref
+              .read(chatWindowViewModelProvider(connection.id).notifier)
+              .refresh();
+          Fluttertoast.showToast(msg: 'Chat cleared successfully');
+        } else {
+          Fluttertoast.showToast(
+            msg: result.errorMessage ?? 'Failed to clear chat',
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Fluttertoast.showToast(msg: 'Error clearing chat: $e');
+      }
+    }
   }
 
-  void _handleUnblock(BuildContext context) {
+  void _handleUnblock(BuildContext context, WidgetRef ref) {
     MetalDialog.show(
       context: context,
       title: 'Unblock user',
@@ -447,13 +472,35 @@ class ChatAppBar extends ConsumerWidget {
       primaryButtonText: 'Unblock',
       onPrimaryPressed: () {
         Navigator.pop(context);
-        _performUnblock(context);
+        _performUnblock(context, ref);
       },
     );
   }
 
-  void _performUnblock(BuildContext context) {
-    // TODO: Implement unblock functionality
-    Fluttertoast.showToast(msg: 'User unblocked');
+  Future<void> _performUnblock(BuildContext context, WidgetRef ref) async {
+    try {
+      final profileRepository = ref.read(profileRepositoryProvider);
+      final result = await profileRepository.unblockUser(
+        userId: otherUser.id,
+      );
+
+      if (context.mounted) {
+        if (result.isSuccess) {
+          Fluttertoast.showToast(msg: 'User unblocked successfully');
+          // Refresh chat list to update connection status
+          ref.invalidate(chatListViewModelProvider);
+          // Navigate back after successful unblock
+          Navigator.pop(context);
+        } else {
+          Fluttertoast.showToast(
+            msg: result.errorMessage ?? 'Failed to unblock user',
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Fluttertoast.showToast(msg: 'Error unblocking user: $e');
+      }
+    }
   }
 }

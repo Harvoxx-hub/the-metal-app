@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
  
-import 'package:metal/fcm/fcm_client.dart';
+import 'package:metal/core/services/shorebird_update_service.dart';
 
 /// Handles app lifecycle events for presence management and notifications.
 ///
@@ -40,6 +40,9 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         _lastResumedTime = now;
+        
+        // Check for Shorebird updates when app resumes
+        _checkForShorebirdUpdates();
   
         break;
 
@@ -65,6 +68,36 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
         // That's why we rely on RTDB .onDisconnect() as the primary mechanism
        
         break;
+    }
+  }
+
+  /// Check for Shorebird OTA updates when app resumes
+  /// Only checks if app has been in background for at least 30 seconds
+  void _checkForShorebirdUpdates() async {
+    try {
+      // Only check for updates if app was in background for a reasonable time
+      // This avoids excessive checks on quick app switches
+      if (_lastResumedTime != null) {
+        final timeSinceLastResume = DateTime.now().difference(_lastResumedTime!);
+        if (timeSinceLastResume.inSeconds < 30) {
+          // Skip if app was only briefly in background
+          return;
+        }
+      }
+
+      // Check for updates in background (non-blocking)
+      ShorebirdUpdateService.instance.checkForUpdates().then((hasUpdate) {
+        if (hasUpdate) {
+          print('Shorebird: New patch available, downloading in background...');
+          // Download will happen automatically if auto_update is enabled
+          // Otherwise, we can trigger it here if needed
+          ShorebirdUpdateService.instance.downloadAndApplyPatch();
+        }
+      }).catchError((e) {
+        print('Shorebird: Error during update check on resume: $e');
+      });
+    } catch (e) {
+      print('Shorebird: Error setting up update check: $e');
     }
   }
  }

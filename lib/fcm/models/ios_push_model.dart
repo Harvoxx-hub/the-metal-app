@@ -1,4 +1,4 @@
-// todo starter: update iOS push model
+// iOS push notification model
 import 'push_type.dart';
 
 class IOSPushModel {

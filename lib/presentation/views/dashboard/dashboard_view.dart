@@ -94,14 +94,10 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   }
 
   /// Build FAB for thought screen
+  /// Note: FAB is now handled by ThoughtScreen itself based on current tab
   Widget? _buildFAB() {
-    if (_currentIndex != 1) return null;
-
-    return FloatingActionButton(
-      backgroundColor: const Color(0xFFD2128B),
-      onPressed: () => Navigator.pushNamed(context, AppRoutes.postThought),
-      child: const Icon(Icons.add, color: Colors.white),
-    );
+    // FAB is handled inside ThoughtScreen for tab-specific actions
+    return null;
   }
 
   /// Build bottom navigation bar
@@ -117,7 +113,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
         _buildNavItem(
           icon: Assets.images.inactiveHome.path,
           activeIcon: Assets.images.activeHome.path,
-          label:  "Home",
+          label: "Home",
         ),
         _buildNavItem(
           iconWidget: Assets.icons.tought.svg(

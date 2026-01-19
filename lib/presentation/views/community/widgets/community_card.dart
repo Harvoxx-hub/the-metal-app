@@ -48,188 +48,203 @@ class CommunityCard extends StatelessWidget {
           ],
         ),
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (community.bannerImage != null)
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              child: CachedNetworkImage(
-                imageUrl: community.bannerImage!,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (community.bannerImage != null)
+              ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
+                child: CachedNetworkImage(
+                  imageUrl: community.bannerImage!,
+                  height: 140,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorWidget: (_, __, ___) => Container(
+                    height: 140,
+                    color: AppColors.metalGray,
+                    child: const Center(
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: AppColors.metalBrownColourForText,
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                  placeholder: (context, url) => Container(
+                    height: 140,
+                    color: AppColors.metalGray,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.metalPinkColour,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Container(
                 height: 140,
                 width: double.infinity,
-                fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => Container(
-                  height: 140,
-                  color: AppColors.metalGray,
-                  child: const Center(
-                    child: Icon(
-                      Icons.image_not_supported,
-                      color: AppColors.metalBrownColourForText,
-                      size: 40,
-                    ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.metalPinkColour.withOpacity(0.3),
+                      AppColors.metalPinkColour.withOpacity(0.1),
+                    ],
                   ),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
                 ),
-                placeholder: (context, url) => Container(
-                  height: 140,
-                  color: AppColors.metalGray,
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: AppColors.metalPinkColour,
-                    ),
+                child: const Center(
+                  child: Icon(
+                    Icons.group,
+                    size: 50,
+                    color: AppColors.metalPinkColour,
                   ),
                 ),
               ),
-            )
-          else
-            Container(
-              height: 140,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.metalPinkColour.withOpacity(0.3),
-                    AppColors.metalPinkColour.withOpacity(0.1),
-                  ],
-                ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.group,
-                  size: 50,
-                  color: AppColors.metalPinkColour,
-                ),
-              ),
-            ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                Row(
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: TextView(
-                        text: community.name,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.metalBrownColourForText,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const Gap(4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: community.isPublic
-                            ? AppColors.metalPinkColour.withOpacity(0.1)
-                            : AppColors.metalGray,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            community.isPublic ? Icons.public : Icons.lock,
-                            size: 12,
-                            color: community.isPublic
-                                ? AppColors.metalPinkColour
-                                : AppColors.metalBrownColourForText,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextView(
+                            text: community.name,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.metalBrownColourForText,
+                            maxLines: 1,
+                            textOverflow: TextOverflow.ellipsis,
                           ),
-                          const Gap(2),
-                          TextView(
-                            text: community.isPublic ? 'Public' : 'Private',
-                            fontSize: 9,
-                            fontWeight: FontWeight.w500,
+                        ),
+                        const Gap(4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 3),
+                          decoration: BoxDecoration(
                             color: community.isPublic
-                                ? AppColors.metalPinkColour
-                                : AppColors.metalBrownColourForText,
+                                ? AppColors.metalPinkColour.withOpacity(0.1)
+                                : AppColors.metalGray,
+                            borderRadius: BorderRadius.circular(6),
                           ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const Gap(6),
-                Expanded(
-                  child: TextView(
-                    text: community.description,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.metalBrownColourForText,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const Gap(12),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.people,
-                      size: 16,
-                      color: AppColors.metalPinkColour,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                community.isPublic ? Icons.public : Icons.lock,
+                                size: 12,
+                                color: community.isPublic
+                                    ? AppColors.metalPinkColour
+                                    : AppColors.metalBrownColourForText,
+                              ),
+                              const Gap(2),
+                              TextView(
+                                text: community.isPublic ? 'Public' : 'Private',
+                                fontSize: 9,
+                                fontWeight: FontWeight.w500,
+                                color: community.isPublic
+                                    ? AppColors.metalPinkColour
+                                    : AppColors.metalBrownColourForText,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     const Gap(6),
-                    TextView(
-                      text: '${community.memberCount} ${community.memberCount == 1 ? 'member' : 'members'}',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.metalBrownColourForText,
-                    ),
-                    if (community.category != null) ...[
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.metalTabBg,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: TextView(
-                          text: community.category!,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.metalBrownColourForText,
-                        ),
+                    Expanded(
+                      child: TextView(
+                        text: community.description,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.metalBrownColourForText,
+                        maxLines: 2,
+                        textOverflow: TextOverflow.ellipsis,
                       ),
-                    ],
+                    ),
+                    const Gap(8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.people,
+                          size: 14,
+                          color: AppColors.metalPinkColour,
+                        ),
+                        const Gap(4),
+                        Expanded(
+                          child: TextView(
+                            text:
+                                '${community.memberCount} ${community.memberCount == 1 ? 'member' : 'members'}',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.metalBrownColourForText,
+                            maxLines: 1,
+                            textOverflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (community.category != null) ...[
+                          const Gap(4),
+                          Flexible(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: AppColors.metalTabBg,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: TextView(
+                                text: community.category!,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.metalBrownColourForText,
+                                maxLines: 1,
+                                textOverflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const Gap(8),
+                    // GestureDetector(
+                    //   onTap: () {
+                    //     // Handle button tap and prevent parent GestureDetector from firing
+                    //     if (community.isJoined) {
+                    //       onLeave();
+                    //     } else {
+                    //       onJoin();
+                    //     }
+                    //   },
+                    //   behavior: HitTestBehavior.opaque,
+                    //   child: BaseButton(
+                    //     buttonText: community.isJoined ? 'Leave' : 'Join',
+                    //     onPressed: () {
+                    //       // This will be handled by the GestureDetector above
+                    //     },
+                    //     height: 36,
+                    //     width: double.infinity,
+                    //     radius: 10,
+                    //     fontSize: 13,
+                    //     fontWeight: FontWeight.w600,
+                    //     enabled: true,
+                    //   ),
+                    // ),
+                
                   ],
                 ),
-                const Gap(16),
-                GestureDetector(
-                  onTap: () {
-                    // Handle button tap and prevent parent GestureDetector from firing
-                    if (community.isJoined) {
-                      onLeave();
-                    } else {
-                      onJoin();
-                    }
-                  },
-                  behavior: HitTestBehavior.opaque,
-                  child: BaseButton(
-                    buttonText: community.isJoined ? 'Leave' : 'Join',
-                    onPressed: () {
-                      // This will be handled by the GestureDetector above
-                    },
-                    height: 44,
-                    width: double.infinity,
-                    radius: 12,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    enabled: true,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }

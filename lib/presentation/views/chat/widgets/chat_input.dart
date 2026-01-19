@@ -10,6 +10,8 @@ import 'package:metal/core/utils/permission_helper.dart';
 import 'package:metal/domain/entities/message_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_viewmodel_providers.dart';
+import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/chat/widgets/voice_recording_widget.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -39,6 +41,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
   bool _isComposing = false;
   bool _isRecording = false;
   bool _isUploadingAudio = false;
+  bool _isMelting = false;
 
   @override
   void dispose() {
@@ -446,7 +449,89 @@ class _ChatInputState extends ConsumerState<ChatInput> {
     );
   }
 
+  Future<void> _handleMeltAction() async {
+    if (_isMelting) return;
+
+    final currentUser = ref.read(currentUserProvider);
+    if (currentUser?.id == null) {
+      Fluttertoast.showToast(
+        msg: 'Unable to identify current user',
+        backgroundColor: Colors.red,
+      );
+      return;
+    }
+
+    // Get recipient ID from connection
+    final recipientId = widget.connection.otherUser?.id ??
+        widget.connection.getOtherUserId(currentUser!.id);
+
+    if (recipientId == null || recipientId.isEmpty) {
+      Fluttertoast.showToast(
+        msg: 'Unable to identify recipient user',
+        backgroundColor: Colors.red,
+      );
+      return;
+    }
+
+    setState(() {
+      _isMelting = true;
+    });
+
+    try {
+      final meltViewModel = ref.read(meltActionProvider.notifier);
+      final success = await meltViewModel.meltUser(recipientId);
+
+      if (mounted) {
+        if (success) {
+          final meltState = ref.read(meltActionProvider);
+          final response = meltState.response;
+
+          // Check if it's a mutual melt (connection established)
+          if (response?.status == 'connected' || response?.mutual == true) {
+            Fluttertoast.showToast(
+              msg: "It's a match! You can now chat 🔥",
+              backgroundColor: Colors.green,
+              toastLength: Toast.LENGTH_LONG,
+            );
+          } else {
+            Fluttertoast.showToast(
+              msg: 'Melt request sent! Waiting for response...',
+              backgroundColor: Colors.green,
+            );
+          }
+
+          // Refresh connection state to update melt status
+          // This will trigger a rebuild and update canSend status
+          ref.invalidate(connectionDetailProvider(widget.connectionId));
+          ref.read(connectionViewModelProvider.notifier).refresh();
+        } else {
+          final errorMessage = ref.read(meltActionProvider).errorMessage ??
+              'Failed to send melt request';
+          Fluttertoast.showToast(
+            msg: errorMessage,
+            backgroundColor: Colors.red,
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Fluttertoast.showToast(
+          msg: 'An error occurred: ${e.toString()}',
+          backgroundColor: Colors.red,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isMelting = false;
+        });
+      }
+    }
+  }
+
   Widget _buildMeltToReplyButton() {
+    final meltState = ref.watch(meltActionProvider);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -463,31 +548,56 @@ class _ChatInputState extends ConsumerState<ChatInput> {
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () {
-              // TODO: Implement melt action
-            },
+            onPressed:
+                (_isMelting || meltState.isLoading) ? null : _handleMeltAction,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.metalPinkColour,
+              backgroundColor: (_isMelting || meltState.isLoading)
+                  ? Colors.grey
+                  : AppColors.metalPinkColour,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+              disabledBackgroundColor: Colors.grey.shade300,
             ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.favorite, size: 20),
-                Gap(8),
-                Text(
-                  'Melt & Reply',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+            child: (_isMelting || meltState.isLoading)
+                ? const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                      Gap(8),
+                      Text(
+                        'Melting...',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  )
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.favorite, size: 20),
+                      Gap(8),
+                      Text(
+                        'Melt & Reply',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

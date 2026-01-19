@@ -4,9 +4,12 @@ import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:metal/data/repositories/notification/notification_repository_providers.dart';
 import 'package:metal/fcm/local_notifications.dart';
 import 'package:metal/fcm/models/push_type.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:metal/core/services/notification_navigation_service.dart';
 import 'package:metal/main.dart';
@@ -179,13 +182,66 @@ class FCMClient {
     }
   }
 
-  /// Update FCM token in backend
+  /// Update FCM token in backend (called automatically on token refresh)
+  /// This method stores the token but doesn't register it until user is authenticated
   Future<void> _updateFCMToken(String token) async {
     try {
-      // TODO: Implement proper token update once you know the correct provider
-      print('FCM token updated: $token');
+      // Store token in SharedPreferences for later registration
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('fcm_token', token);
+      await prefs.setString('fcm_token_updated_at', DateTime.now().toIso8601String());
+      print('FCM token stored: $token');
     } catch (e) {
-      print('Error updating FCM token: $e');
+      print('Error storing FCM token: $e');
+    }
+  }
+
+  /// Register FCM token with backend (call this after user authentication)
+  /// Uses Riverpod providers to access notification repository
+  Future<void> registerTokenWithBackend(WidgetRef ref) async {
+    try {
+      // Get stored token
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('fcm_token') ?? await _firebaseMessaging.getToken();
+      
+      if (token == null) {
+        print('No FCM token available to register');
+        return;
+      }
+
+      // Get platform
+      final platform = Platform.isIOS ? 'ios' : 'android';
+
+      // Get app version
+      final packageInfo = await PackageInfo.fromPlatform();
+      final appVersion = '${packageInfo.version}+${packageInfo.buildNumber}';
+
+      // Register via notification repository
+      final repository = ref.read(notificationRepositoryProvider);
+      final result = await repository.registerDevice(
+        deviceToken: token,
+        platform: platform,
+        appVersion: appVersion,
+      );
+
+      if (result.isSuccess) {
+        print('FCM token registered successfully with backend');
+      } else {
+        print('Failed to register FCM token: ${result.errorMessage}');
+      }
+    } catch (e) {
+      print('Error registering FCM token with backend: $e');
+    }
+  }
+
+  /// Get current FCM token
+  Future<String?> getCurrentToken() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('fcm_token') ?? await _firebaseMessaging.getToken();
+    } catch (e) {
+      print('Error getting FCM token: $e');
+      return null;
     }
   }
 

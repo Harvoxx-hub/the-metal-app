@@ -29,7 +29,8 @@ class MeetupRepository implements MeetupRepositoryAbstract {
         communityId: communityId,
       );
 
-      final meetupDtos = response.meetups.map((model) => model.toDomain()).toList();
+      final meetupDtos =
+          response.meetups.map((model) => model.toDomain()).toList();
 
       return BaseState.success(MeetupsResponseDto(
         meetups: meetupDtos,
@@ -84,7 +85,7 @@ class MeetupRepository implements MeetupRepositoryAbstract {
   Future<BaseState<void>> deleteMeetup(String meetupId) async {
     try {
       await _remoteDataSource.deleteMeetup(meetupId);
-      return  BaseState.success(null);
+      return BaseState.success(null);
     } catch (e) {
       return ErrorHandler.handleError<void>(e);
     }
@@ -120,7 +121,7 @@ class MeetupRepository implements MeetupRepositoryAbstract {
         meetupId: meetupId,
         usernames: usernames,
       );
-      return  BaseState.success(null);
+      return BaseState.success(null);
     } catch (e) {
       return ErrorHandler.handleError<void>(e);
     }
@@ -139,7 +140,8 @@ class MeetupRepository implements MeetupRepositoryAbstract {
         filterByPreferences: filterByPreferences,
       );
 
-      final attendeeDtos = response.attendees.map((model) => model.toDomain()).toList();
+      final attendeeDtos =
+          response.attendees.map((model) => model.toDomain()).toList();
 
       return BaseState.success(MeetupAttendeesResponseDto(
         attendees: attendeeDtos,
@@ -154,7 +156,7 @@ class MeetupRepository implements MeetupRepositoryAbstract {
   Future<BaseState<void>> broadcastMeetup(String meetupId) async {
     try {
       await _remoteDataSource.broadcastMeetup(meetupId);
-      return  BaseState.success(null);
+      return BaseState.success(null);
     } catch (e) {
       return ErrorHandler.handleError<void>(e);
     }

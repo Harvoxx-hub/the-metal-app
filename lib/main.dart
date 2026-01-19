@@ -14,6 +14,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:metal/fcm/fcm_client.dart';
+import 'package:metal/core/services/shorebird_update_service.dart';
 
 import 'package:metal/core/services/deep_link_service.dart';
 import 'package:metal/core/di/provider_setup.dart';
@@ -65,6 +66,16 @@ void main() async {
     // Continue app startup even if FCM fails
   }
 
+  // Initialize Shorebird Code Push for OTA updates
+  // With auto_update enabled in shorebird.yaml, patches will be automatically downloaded
+  try {
+    // Check for updates in the background on app start
+    await ShorebirdUpdateService.instance.checkForUpdates();
+  } catch (e) {
+    print('Shorebird initialization/update check failed: $e');
+    // Continue app startup even if Shorebird fails
+  }
+
   // Initialize SharedPreferences eagerly before app starts
   final sharedPreferences = await SharedPreferences.getInstance();
 
@@ -83,10 +94,7 @@ void main() async {
     ),
   );
 
-  // Initialize deep link service
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    DeepLinkService.instance.initialize(navKey.currentContext!);
-  });
+  // Deep link service will be initialized in MyApp widget where we have access to providers
 }
 
 class MyApp extends ConsumerStatefulWidget {
@@ -111,6 +119,15 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       } catch (e) {
         print('iOS media permissions request failed: $e');
       }
+      
+      // Initialize deep link service with dependencies
+      final secureStorage = ref.read(secureStorageHelperProvider);
+      final sharedPrefs = ref.read(sharedPrefsHelperProvider);
+      DeepLinkService.instance.initialize(
+        navKey.currentContext!,
+        secureStorage: secureStorage,
+        sharedPrefs: sharedPrefs,
+      );
     });
   }
 

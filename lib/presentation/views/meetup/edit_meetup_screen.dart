@@ -4,41 +4,55 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:metal/domain/entities/meetup_dto.dart';
-import 'package:metal/presentation/viewmodels/meetup/create_meetup_viewmodel.dart';
-import 'package:metal/presentation/views/settings/edit_preferences_view.dart';
-import 'package:metal/presentation/views/meetup/widgets/community_multi_select_dialog.dart';
-import 'package:metal/data/models/user_preferences_model.dart';
+import 'package:metal/presentation/viewmodels/meetup/meetup_detail_viewmodel.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
-/// Create Meetup Screen
-class CreateMeetupScreen extends ConsumerStatefulWidget {
-  final String? communityId;
+/// Edit Meetup Screen
+class EditMeetupScreen extends ConsumerStatefulWidget {
+  final String meetupId;
+  final MeetupDto meetup;
 
-  const CreateMeetupScreen({
+  const EditMeetupScreen({
     super.key,
-    this.communityId,
+    required this.meetupId,
+    required this.meetup,
   });
 
   @override
-  ConsumerState<CreateMeetupScreen> createState() => _CreateMeetupScreenState();
+  ConsumerState<EditMeetupScreen> createState() => _EditMeetupScreenState();
 }
 
-class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
+class _EditMeetupScreenState extends ConsumerState<EditMeetupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _eventNameController = TextEditingController();
-  final _placeUrlController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  late final TextEditingController _eventNameController;
+  late final TextEditingController _placeUrlController;
+  late final TextEditingController _descriptionController;
   
-  DateTime? _selectedDate;
-  TimeOfDay? _selectedTime;
-  int _maxParticipants = 10;
-  String _broadcastType = 'all'; // 'all', 'preferences', 'communities'
-  int _broadcastRadius = 97;
-  List<String> _selectedCommunityIds = [];
-  UserPreferencesModel? _preferences;
+  late DateTime? _selectedDate;
+  late TimeOfDay? _selectedTime;
+  late int _maxParticipants;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-populate fields with existing meetup data
+    _eventNameController = TextEditingController(text: widget.meetup.eventName);
+    _placeUrlController = TextEditingController(text: widget.meetup.placeUrl);
+    _descriptionController = TextEditingController(text: widget.meetup.description ?? '');
+    
+    // Parse existing date and time
+    _selectedDate = widget.meetup.eventDateTime;
+    final timeParts = widget.meetup.time.split(':');
+    _selectedTime = TimeOfDay(
+      hour: int.parse(timeParts[0]),
+      minute: int.parse(timeParts[1]),
+    );
+    
+    _maxParticipants = widget.meetup.maxParticipants;
+  }
 
   @override
   void dispose() {
@@ -52,7 +66,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: now.add(const Duration(days: 1)),
+      initialDate: _selectedDate ?? now.add(const Duration(days: 1)),
       firstDate: now,
       lastDate: DateTime(now.year + 1),
     );
@@ -66,7 +80,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
   Future<void> _selectTime() async {
     final picked = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: _selectedTime ?? TimeOfDay.now(),
     );
     if (picked != null) {
       setState(() {
@@ -75,37 +89,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
     }
   }
 
-  Future<void> _selectPreferences() async {
-    // Reuse preferences view logic
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const EditPreferencesView(),
-      ),
-    );
-
-    if (result != null && result is UserPreferencesModel) {
-      setState(() {
-        _preferences = result;
-      });
-    }
-  }
-
-
-  Future<void> _showCommunitySelection() async {
-    final selectedIds = await CommunityMultiSelectDialog.show(
-      context,
-      initiallySelectedIds: _selectedCommunityIds,
-    );
-
-    if (selectedIds != null) {
-      setState(() {
-        _selectedCommunityIds = selectedIds;
-      });
-    }
-  }
-
-  Future<void> _createMeetup() async {
+  Future<void> _updateMeetup() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -139,7 +123,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
     });
 
     try {
-      final createData = CreateMeetupDto(
+      final updateData = UpdateMeetupDto(
         eventName: _eventNameController.text.trim(),
         date: DateFormat('yyyy-MM-dd').format(_selectedDate!),
         time: '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}',
@@ -148,25 +132,18 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
             ? null
             : _descriptionController.text.trim(),
         maxParticipants: _maxParticipants,
-        broadcastType: _broadcastType,
-        broadcastRadius: _broadcastRadius,
-        selectedCommunityIds: _broadcastType == 'communities'
-            ? _selectedCommunityIds
-            : [],
-        preferences: _broadcastType == 'preferences' ? _preferences : null,
-        communityId: widget.communityId,
       );
 
-      final viewModel = ref.read(createMeetupViewModelProvider.notifier);
-      final success = await viewModel.createMeetup(createData);
+      final viewModel = ref.read(meetupDetailViewModelProvider(widget.meetupId).notifier);
+      final success = await viewModel.updateMeetup(widget.meetupId, updateData);
 
       if (mounted) {
         if (success) {
-          Fluttertoast.showToast(msg: 'Meetup created successfully!');
+          Fluttertoast.showToast(msg: 'Meetup updated successfully!');
           Navigator.pop(context, true);
         } else {
-          final error = ref.read(createMeetupViewModelProvider).errorMessage;
-          Fluttertoast.showToast(msg: error ?? 'Failed to create meetup');
+          final state = ref.read(meetupDetailViewModelProvider(widget.meetupId));
+          Fluttertoast.showToast(msg: state.errorMessage ?? 'Failed to update meetup');
         }
       }
     } catch (e) {
@@ -184,8 +161,6 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModelState = ref.watch(createMeetupViewModelProvider);
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -196,14 +171,14 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const TextView(
-          text: 'Create Meetup',
+          text: 'Edit Meetup',
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.metalBlack,
         ),
         centerTitle: true,
         actions: [
-          if (_isLoading || viewModelState.isLoading)
+          if (_isLoading)
             const Padding(
               padding: EdgeInsets.all(16.0),
               child: SizedBox(
@@ -214,9 +189,9 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
             )
           else
             TextButton(
-              onPressed: _createMeetup,
+              onPressed: _updateMeetup,
               child: const TextView(
-                text: 'Create',
+                text: 'Save',
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.metalPinkColour,
@@ -340,9 +315,9 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
                   const Gap(8),
                   Slider(
                     value: _maxParticipants.toDouble(),
-                    min: 1,
+                    min: widget.meetup.acceptedCount.toDouble(), // Can't go below current accepted count
                     max: 10,
-                    divisions: 9,
+                    divisions: (10 - widget.meetup.acceptedCount).toInt(),
                     label: _maxParticipants.toString(),
                     activeColor: AppColors.metalPinkColour,
                     onChanged: (value) {
@@ -351,6 +326,15 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
                       });
                     },
                   ),
+                  if (widget.meetup.acceptedCount > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: TextView(
+                        text: 'Note: ${widget.meetup.acceptedCount} people have already accepted',
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
                 ],
               ),
               const Gap(16),
@@ -388,106 +372,6 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
                   return null;
                 },
               ),
-              const Gap(16),
-
-              // Broadcast Section
-              const TextView(
-                text: 'Broadcast Settings',
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.metalBlack,
-              ),
-              const Gap(12),
-
-              // Broadcast Type
-              DropdownButtonFormField<String>(
-                value: _broadcastType,
-                decoration: InputDecoration(
-                  labelText: 'Broadcast To',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'all', child: Text('All Users')),
-                  DropdownMenuItem(
-                      value: 'preferences', child: Text('By Preferences')),
-                  DropdownMenuItem(
-                      value: 'communities', child: Text('Communities')),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _broadcastType = value ?? 'all';
-                  });
-                },
-              ),
-              const Gap(12),
-
-              // Broadcast Radius
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextView(
-                    text: 'Radius: $_broadcastRadius km',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.metalBlack,
-                  ),
-                  const Gap(8),
-                  Slider(
-                    value: _broadcastRadius.toDouble(),
-                    min: 1,
-                    max: 97,
-                    divisions: 96,
-                    label: '$_broadcastRadius km',
-                    activeColor: AppColors.metalPinkColour,
-                    onChanged: (value) {
-                      setState(() {
-                        _broadcastRadius = value.toInt();
-                      });
-                    },
-                  ),
-                ],
-              ),
-              const Gap(12),
-
-              // Preferences button (if broadcast type is preferences)
-              if (_broadcastType == 'preferences')
-                OutlinedButton.icon(
-                  onPressed: _selectPreferences,
-                  icon: const Icon(Icons.tune, size: 18),
-                  label: const TextView(
-                    text: 'Set Preferences',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.all(12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-
-              // Community selection (if broadcast type is communities)
-              if (_broadcastType == 'communities')
-                OutlinedButton.icon(
-                  onPressed: _showCommunitySelection,
-                  icon: const Icon(Icons.group, size: 18),
-                  label: TextView(
-                    text: _selectedCommunityIds.isEmpty
-                        ? 'Select Communities'
-                        : '${_selectedCommunityIds.length} Communities Selected',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.all(12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
 
               const Gap(32),
             ],
@@ -497,4 +381,3 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
     );
   }
 }
-

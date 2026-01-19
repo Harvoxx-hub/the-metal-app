@@ -32,7 +32,7 @@ if (keystorePropertiesFile.exists()) {
  
 android {
     namespace "com.bwh.metal_app"
-    compileSdkVersion 35
+    compileSdk 36
     ndkVersion  "27.0.12077973"
 
     compileOptions {
@@ -139,5 +139,7 @@ dependencies {
     // implementation 'com.heytap.msp:push:2.0.6'
     implementation platform('com.google.firebase:firebase-bom:31.0.2')
     implementation 'com.google.firebase:firebase-analytics'
-    implementation 'im.zego:zpns-fcm:2.8.0' //ZPNs package for Google FCM push
+    // TODO: Uncomment when video calling is implemented and ZEGO repository credentials are configured
+    // ZEGO dependency requires authenticated access to Heytap Maven repository
+    // implementation 'im.zego:zpns-fcm:2.8.0' //ZPNs package for Google FCM push
 }

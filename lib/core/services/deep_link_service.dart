@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:app_links/app_links.dart';
  
 import 'package:metal/route/routes.dart';
+import 'package:metal/core/storage/secure_storage_helper.dart';
+import 'package:metal/core/storage/shared_prefs_helper.dart';
 
 /// Service to handle deep links and universal links
 class DeepLinkService {
@@ -13,11 +15,23 @@ class DeepLinkService {
   StreamSubscription? _linkSubscription;
   BuildContext? _context;
   final AppLinks _appLinks = AppLinks();
+  SecureStorageHelper? _secureStorage;
+  SharedPrefsHelper? _sharedPrefs;
+  
+  static const String _pendingUriKey = 'pending_deep_link_uri';
 
   /// Initialize deep link handling
-  void initialize(BuildContext context) {
+  void initialize(
+    BuildContext context, {
+    SecureStorageHelper? secureStorage,
+    SharedPrefsHelper? sharedPrefs,
+  }) {
     _context = context;
+    _secureStorage = secureStorage;
+    _sharedPrefs = sharedPrefs;
     _initAppLinks();
+    // Process any pending links from previous session
+    _processPendingLinks();
   }
 
   /// Initialize app_links for handling incoming links
@@ -51,16 +65,56 @@ class DeepLinkService {
       return;
     }
 
+    // Check authentication before handling deep link
+    _checkAuthAndNavigate(uri);
+  }
+  
+  /// Check authentication and navigate accordingly
+  Future<void> _checkAuthAndNavigate(Uri uri) async {
+    final isAuthenticated = await _isUserAuthenticated();
+    
+    if (!isAuthenticated) {
+      print('DeepLinkService: User not authenticated, storing link and redirecting to login');
+      await _storePendingUri(uri);
+      if (_context != null && _context!.mounted) {
+        Navigator.pushNamedAndRemoveUntil(
+          _context!,
+          AppRoutes.login,
+          (route) => false,
+        );
+      }
+      return;
+    }
+
+    // User is authenticated, proceed with navigation
     try {
       _navigateFromUri(uri);
     } catch (e) {
       print('DeepLinkService: Error handling URI: $e');
       // Fallback: navigate to dashboard
-      Navigator.pushNamedAndRemoveUntil(
-        _context!,
-        AppRoutes.dashboardPage,
-        (route) => false,
-      );
+      if (_context != null && _context!.mounted) {
+        Navigator.pushNamedAndRemoveUntil(
+          _context!,
+          AppRoutes.dashboardPage,
+          (route) => false,
+        );
+      }
+    }
+  }
+  
+  /// Check if user is authenticated by checking for auth token
+  Future<bool> _isUserAuthenticated() async {
+    if (_secureStorage == null) {
+      print('DeepLinkService: SecureStorage not available, assuming not authenticated');
+      return false;
+    }
+    
+    try {
+      final token = await _secureStorage!.getString('auth_token');
+      return token != null && token.isNotEmpty;
+    } catch (e) {
+      print('DeepLinkService: Error checking authentication: $e');
+      return false;
     }
   }
 
@@ -262,18 +316,6 @@ class DeepLinkService {
     }
 
     print('DeepLinkService: Navigating to thought: $thoughtId');
-    //TODO: check of users is logged in 
-    // Check if user is authenticated
- final user = null;
-    if (user == null) {
-      print('DeepLinkService: User not authenticated, redirecting to login');
-      Navigator.pushNamedAndRemoveUntil(
-        _context!,
-        AppRoutes.login,
-        (route) => false,
-      );
-      return;
-    }
 
     // Use a more robust navigation approach
     // First navigate to dashboard, then to thought details
@@ -285,7 +327,7 @@ class DeepLinkService {
 
     // Navigate to thought details after dashboard is loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_context != null) {
+      if (_context != null && _context!.mounted) {
         Navigator.pushNamed(
           _context!,
           AppRoutes.thoughtDetails,
@@ -304,14 +346,16 @@ class DeepLinkService {
       (route) => false,
     );
 
-    // Navigate to user profile
-    if (_context != null) {
-      Navigator.pushNamed(
-        _context!,
-        AppRoutes.userProfile,
-        arguments: userId,
-      );
-    }
+    // Navigate to user profile after dashboard is loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_context != null && _context!.mounted) {
+        Navigator.pushNamed(
+          _context!,
+          AppRoutes.userProfile,
+          arguments: userId,
+        );
+      }
+    });
   }
 
   /// Navigate to community profile
@@ -324,28 +368,77 @@ class DeepLinkService {
       (route) => false,
     );
 
-    // Navigate to community profile after dashboard is loaded
+    // Navigate to community details after dashboard is loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Note: You'll need to implement community navigation
-      // Navigator.pushNamed(
-      //   _context!,
-      //   AppRoutes.communityProfile,
-      //   arguments: communityId,
-      // );
+      if (_context != null && _context!.mounted) {
+        Navigator.pushNamed(
+          _context!,
+          AppRoutes.communityDetails,
+          arguments: communityId,
+        );
+      }
     });
   }
 
   /// Store pending URI for later processing
-  void _storePendingUri(Uri uri) {
-    // Store in SharedPreferences for persistence across app restarts
-    // This is a simplified version - you might want to use SharedPreferences
-    print('DeepLinkService: Storing pending URI: $uri');
+  Future<void> _storePendingUri(Uri uri) async {
+    if (_sharedPrefs == null) {
+      print('DeepLinkService: SharedPrefs not available, cannot store pending URI');
+      return;
+    }
+    
+    try {
+      await _sharedPrefs!.setString(_pendingUriKey, uri.toString());
+      print('DeepLinkService: Stored pending URI: $uri');
+    } catch (e) {
+      print('DeepLinkService: Error storing pending URI: $e');
+    }
   }
 
   /// Process any pending links when context becomes available
-  void processPendingLinks() {
-    // Process any stored pending links
-    // This would read from SharedPreferences and process them
+  Future<bool> _processPendingLinks() async {
+    if (_sharedPrefs == null || _context == null) {
+      return false;
+    }
+    
+    try {
+      final pendingUriString = _sharedPrefs!.getString(_pendingUriKey);
+      if (pendingUriString != null && pendingUriString.isNotEmpty) {
+        final uri = Uri.parse(pendingUriString);
+        print('DeepLinkService: Processing pending URI: $uri');
+        
+        // Clear the pending URI
+        await _sharedPrefs!.remove(_pendingUriKey);
+        
+        // User is now authenticated, proceed with navigation
+        try {
+          _navigateFromUri(uri);
+          return true; // Pending link was processed
+        } catch (e) {
+          print('DeepLinkService: Error navigating from pending URI: $e');
+          // Fallback: navigate to dashboard
+          if (_context != null && _context!.mounted) {
+            Navigator.pushNamedAndRemoveUntil(
+              _context!,
+              AppRoutes.dashboardPage,
+              (route) => false,
+            );
+          }
+          return true; // Still processed, even if navigation failed
+        }
+      }
+      return false; // No pending link
+    } catch (e) {
+      print('DeepLinkService: Error processing pending links: $e');
+      return false;
+    }
+  }
+  
+  /// Process pending links after successful login
+  /// Call this method after user successfully logs in
+  /// Returns true if a pending link was processed, false otherwise
+  Future<bool> processPendingLinks() async {
+    return await _processPendingLinks();
   }
 
   /// Generate shareable URL for a thought
@@ -375,7 +468,7 @@ class DeepLinkService {
 
     // Navigate to meetup details after dashboard is loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_context != null) {
+      if (_context != null && _context!.mounted) {
         Navigator.pushNamed(
           _context!,
           AppRoutes.meetupDetails,

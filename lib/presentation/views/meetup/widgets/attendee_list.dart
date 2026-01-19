@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/meetup_dto.dart';
-import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text_views.dart';
 
 /// Attendee List Widget
@@ -16,9 +14,6 @@ class AttendeeList extends ConsumerStatefulWidget {
   final Function(String status) onStatusChanged;
   final bool filterByPreferences;
   final Function() onToggleFilter;
-  final String meetupId;
-  final Function(List<String> usernames) onInviteUsers;
-  final bool isCreator;
 
   const AttendeeList({
     super.key,
@@ -28,9 +23,6 @@ class AttendeeList extends ConsumerStatefulWidget {
     required this.onStatusChanged,
     required this.filterByPreferences,
     required this.onToggleFilter,
-    required this.meetupId,
-    required this.onInviteUsers,
-    required this.isCreator,
   });
 
   @override
@@ -55,30 +47,18 @@ class _AttendeeListState extends ConsumerState<AttendeeList> {
                 fontWeight: FontWeight.w600,
                 color: AppColors.metalBlack,
               ),
-              Row(
-                children: [
-                  // Filter by preferences toggle
-                  IconButton(
-                    icon: Icon(
-                      widget.filterByPreferences
-                          ? Icons.filter_list
-                          : Icons.filter_list_outlined,
+              // Filter by preferences toggle
+              IconButton(
+                icon: Icon(
+                  widget.filterByPreferences
+                      ? Icons.filter_list
+                      : Icons.filter_list_outlined,
                       color: widget.filterByPreferences
                           ? AppColors.metalPinkColour
-                          : Colors.grey,
-                    ),
-                    onPressed: widget.onToggleFilter,
-                    tooltip: 'Filter by preferences',
-                  ),
-                  // Invite button (if creator)
-                  if (widget.isCreator)
-                    IconButton(
-                      icon: const Icon(Icons.person_add),
-                      color: AppColors.metalPinkColour,
-                      onPressed: _showInviteDialog,
-                      tooltip: 'Invite users',
-                    ),
-                ],
+                          : AppColors.metalBrownColourForText,
+                ),
+                onPressed: widget.onToggleFilter,
+                tooltip: 'Filter by preferences',
               ),
             ],
           ),
@@ -87,7 +67,7 @@ class _AttendeeListState extends ConsumerState<AttendeeList> {
           // Status tabs
           Container(
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: AppColors.metalGray,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -114,13 +94,13 @@ class _AttendeeListState extends ConsumerState<AttendeeList> {
               padding: const EdgeInsets.all(32),
               child: Center(
                 child: TextView(
-                  text: widget.currentStatus == 'accepted'
-                      ? 'No accepted attendees yet'
-                      : widget.currentStatus == 'maybe'
-                          ? 'No maybe responses yet'
-                          : 'No attendees yet',
-                  fontSize: 14,
-                  color: Colors.grey,
+                    text: widget.currentStatus == 'accepted'
+                        ? 'No accepted attendees yet'
+                        : widget.currentStatus == 'maybe'
+                            ? 'No maybe responses yet'
+                            : 'No attendees yet',
+                    fontSize: 14,
+                    color: AppColors.metalBrownColourForText,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -156,7 +136,7 @@ class _AttendeeListState extends ConsumerState<AttendeeList> {
               text: label,
               fontSize: 14,
               fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-              color: isActive ? Colors.white : Colors.grey.shade700,
+              color: isActive ? Colors.white : AppColors.metalBrownColourForText,
             ),
           ),
         ),
@@ -202,11 +182,11 @@ class _AttendeeListState extends ConsumerState<AttendeeList> {
                   color: AppColors.metalBlack,
                 ),
                 const Gap(4),
-                TextView(
-                  text: 'Responded ${_formatResponseTime(attendee.respondedAt)}',
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+                    TextView(
+                      text: 'Responded ${_formatResponseTime(attendee.respondedAt)}',
+                      fontSize: 12,
+                      color: AppColors.metalBrownColourForText,
+                    ),
               ],
             ),
           ),
@@ -261,143 +241,5 @@ class _AttendeeListState extends ConsumerState<AttendeeList> {
     }
   }
 
-  void _showInviteDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => _InviteUserDialog(
-        onUsersSelected: widget.onInviteUsers,
-      ),
-    );
-  }
 }
 
-/// Invite User Dialog for Meetup Detail
-class _InviteUserDialog extends ConsumerStatefulWidget {
-  final Function(List<String> usernames) onUsersSelected;
-
-  const _InviteUserDialog({
-    required this.onUsersSelected,
-  });
-
-  @override
-  ConsumerState<_InviteUserDialog> createState() => _InviteUserDialogState();
-}
-
-class _InviteUserDialogState extends ConsumerState<_InviteUserDialog> {
-  final TextEditingController _usernameController = TextEditingController();
-  final Set<String> _selectedUsernames = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _usernameController.addListener(_onUsernameChanged);
-  }
-
-  @override
-  void dispose() {
-    _usernameController.removeListener(_onUsernameChanged);
-    _usernameController.dispose();
-    super.dispose();
-  }
-
-  void _onUsernameChanged() {
-    if (_usernameController.text.isNotEmpty) {
-      ref
-          .read(getUserByNameProvider.notifier)
-          .getUserByquery(query: _usernameController.text);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final userSearchState = ref.watch(getUserByNameProvider);
-
-    return Dialog(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 600),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const TextView(
-              text: 'Invite Users',
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-            const Gap(16),
-            EditFormField(
-              controller: _usernameController,
-              hint: 'Search username',
-              label: '',
-            ),
-            const Gap(8),
-            if (_usernameController.text.isNotEmpty &&
-                userSearchState.data != null &&
-                userSearchState.data!.isNotEmpty)
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: userSearchState.data!.length,
-                  itemBuilder: (context, index) {
-                    final user = userSearchState.data![index];
-                    final isSelected = _selectedUsernames.contains(user.username);
-
-                    return CheckboxListTile(
-                      title: Text('@${user.username ?? 'Unknown'}'),
-                      value: isSelected,
-                      onChanged: (value) {
-                        setState(() {
-                          if (value == true) {
-                            if (user.username != null) {
-                              _selectedUsernames.add(user.username!);
-                            }
-                          } else {
-                            _selectedUsernames.remove(user.username);
-                          }
-                        });
-                      },
-                    );
-                  },
-                ),
-              ),
-            if (_selectedUsernames.isNotEmpty) ...[
-              const Gap(8),
-              Wrap(
-                spacing: 8,
-                children: _selectedUsernames.map((username) {
-                  return Chip(
-                    label: Text('@$username'),
-                    onDeleted: () {
-                      setState(() {
-                        _selectedUsernames.remove(username);
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-            ],
-            const Gap(16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: _selectedUsernames.isEmpty
-                      ? null
-                      : () {
-                          widget.onUsersSelected(_selectedUsernames.toList());
-                          Navigator.pop(context);
-                        },
-                  child: const Text('Invite'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

@@ -69,15 +69,15 @@ class NotificationRepository implements NotificationRepositoryAbstract {
 
   @override
   Future<BaseState<void>> registerDevice({
-    required String fcmToken,
-    String? deviceId,
-    String? deviceType,
+    required String deviceToken,
+    required String platform,
+    String? appVersion,
   }) async {
     try {
       await _remoteDataSource.registerDevice(
-        fcmToken: fcmToken,
-        deviceId: deviceId,
-        deviceType: deviceType,
+        deviceToken: deviceToken,
+        platform: platform,
+        appVersion: appVersion,
       );
       return BaseState.success(null);
     } catch (e) {

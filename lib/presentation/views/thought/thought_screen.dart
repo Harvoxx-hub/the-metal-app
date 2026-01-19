@@ -7,11 +7,13 @@ import 'package:metal/presentation/views/community/community_list_view.dart';
 import 'package:metal/presentation/views/meetup/meetup_list_view.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_feed_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
+import 'package:metal/presentation/viewmodels/meetup/meetup_viewmodel.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/shimmer/feed_shimmer_widget.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:metal/route/routes.dart';
 
 /// New Thought Screen with 3 tabs: Thoughts, Community, Link Up
 class ThoughtScreen extends ConsumerStatefulWidget {
@@ -29,34 +31,80 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(_onTabChanged);
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
   }
 
+  void _onTabChanged() {
+    setState(() {
+      // Rebuild to update FAB based on current tab
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildHeader(),
-        const Gap(8),
-        _buildTabBar(),
-        const Gap(8),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildThoughtsTab(),
-              _buildCommunityTab(),
-              _buildLinkUpTab(),
-            ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          _buildHeader(),
+          const Gap(8),
+          _buildTabBar(),
+          const Gap(8),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildThoughtsTab(),
+                _buildCommunityTab(),
+                _buildLinkUpTab(),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
+      floatingActionButton: _buildFAB(),
     );
+  }
+
+  Widget? _buildFAB() {
+    final currentTab = _tabController.index;
+
+    switch (currentTab) {
+      case 0: // Thoughts tab
+        return FloatingActionButton(
+          backgroundColor: AppColors.metalPinkColour,
+          onPressed: () => Navigator.pushNamed(context, AppRoutes.postThought),
+          child: const Icon(Icons.add, color: Colors.white),
+        );
+      case 1: // Community tab
+        return FloatingActionButton(
+          backgroundColor: AppColors.metalPinkColour,
+          onPressed: () =>
+              Navigator.pushNamed(context, AppRoutes.createCommunity),
+          child: const Icon(Icons.add, color: Colors.white),
+        );
+      case 2: // Link Up tab
+        return FloatingActionButton(
+          backgroundColor: AppColors.metalPinkColour,
+          onPressed: () => Navigator.pushNamed(context, AppRoutes.createMeetup)
+              .then((result) {
+            if (result == true) {
+              // Refresh meetups after creation
+              ref.read(meetupFeedViewModelProvider.notifier).refresh();
+            }
+          }),
+          child: const Icon(Icons.add, color: Colors.white),
+        );
+      default:
+        return null;
+    }
   }
 
   Widget _buildHeader() {
@@ -167,8 +215,8 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
       },
       child: ListView.builder(
         padding: EdgeInsets.zero,
-        itemCount:
-            feedState.thoughts.length + (feedState.isLoadingMore ? 1 : 0), // StoryView commented out
+        itemCount: feedState.thoughts.length +
+            (feedState.isLoadingMore ? 1 : 0), // StoryView commented out
         itemBuilder: (context, index) {
           // First item is StoryView
           // if (index == 0) {
@@ -191,10 +239,12 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
           }
 
           // Thought cards
-          final thoughtIndex = index; // StoryView commented out, no adjustment needed
+          final thoughtIndex =
+              index; // StoryView commented out, no adjustment needed
           final thought = feedState.thoughts[thoughtIndex];
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 16),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 16),
             child: ThoughtCard(
               thoughtModel: thought,
             ),

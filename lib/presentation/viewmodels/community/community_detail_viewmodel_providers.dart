@@ -9,8 +9,8 @@ final communityDetailViewModelProvider = StateNotifierProvider.family
     final viewModel = CommunityDetailViewModel(repository: repository);
     
     // Load initial data
+    // loadCommunityDetails will conditionally load members if user is a member
     viewModel.loadCommunityDetails(communityId);
-    viewModel.loadCommunityMembers(communityId);
     
     return viewModel;
   },

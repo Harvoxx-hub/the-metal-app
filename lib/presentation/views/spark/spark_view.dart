@@ -4,7 +4,6 @@ import 'package:gap/gap.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/spark/spark_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
-import 'package:metal/presentation/views/spark/widgets/send_spark_dialog.dart';
 import 'package:metal/presentation/views/spark/widgets/spark_transaction_tile.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
@@ -247,9 +246,6 @@ class SparkView extends ConsumerWidget {
   }
 
   void _showSendSparkDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => const SendSparkDialog(),
-    );
+    Navigator.pushNamed(context, AppRoutes.sendSpark);
   }
 }

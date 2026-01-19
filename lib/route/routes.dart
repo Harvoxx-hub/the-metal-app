@@ -45,6 +45,9 @@ import 'package:metal/presentation/views/settings/blocked_users_view.dart';
 // Spark features migrated to lib/presentation/views/spark/
 // import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
 // import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
+import 'package:metal/presentation/views/spark/send_spark_screen.dart';
+import 'package:metal/presentation/views/referral/referral_view.dart';
+import 'package:metal/domain/entities/user_dto.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -182,7 +185,8 @@ class AppRoutes {
             isAuthFlow: true,
             onComplete: () {
               // Navigate to connection options after prompts are created
-              Navigator.pushReplacementNamed(_, AppRoutes.connectionOptionsPage);
+              Navigator.pushReplacementNamed(
+                  _, AppRoutes.connectionOptionsPage);
             },
           ),
         );
@@ -225,14 +229,14 @@ class AppRoutes {
         final args = settings.arguments;
         String? userId;
         String? connectionId;
-        
+
         if (args is String) {
           userId = args;
         } else if (args is Map) {
           userId = args['userId'] as String?;
           connectionId = args['connectionId'] as String?;
         }
-        
+
         if (userId != null && userId.isNotEmpty) {
           return MaterialPageRoute(
             builder: (_) => MeltScreen(
@@ -254,6 +258,11 @@ class AppRoutes {
         );
       // Spark features moved to new architecture - use spark tab in dashboard
       case sendSpark:
+        final args = settings.arguments;
+        final preSelectedUser = args is UserDto ? args : null;
+        return MaterialPageRoute(
+          builder: (_) => SendSparkScreen(preSelectedUser: preSelectedUser),
+        );
       case buySpark:
         return MaterialPageRoute(
           builder: (_) => const Scaffold(
@@ -262,9 +271,7 @@ class AppRoutes {
         );
       case referEarn:
         return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            body: Center(child: Text('Refer & Earn feature coming soon')),
-          ),
+          builder: (_) => const ReferralView(),
         );
       case chatWindowView:
         return MaterialPageRoute(

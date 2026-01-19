@@ -29,13 +29,16 @@ class MeetupCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          color: AppColors.metalWhite,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppColors.metalButtonStroke,
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.shade100,
-              blurRadius: 4,
+              color: AppColors.metalBlack.withOpacity(0.05),
+              blurRadius: 8,
               offset: const Offset(0, 2),
             ),
           ],
@@ -84,13 +87,13 @@ class MeetupCard extends StatelessWidget {
             // Date and time
             Row(
               children: [
-                Icon(Icons.calendar_today, size: 16, color: Colors.grey.shade600),
+                Icon(Icons.calendar_today, size: 16, color: AppColors.metalBrownColourForText),
                 const Gap(8),
                 TextView(
                   text: _formatDateTime(),
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
-                  color: Colors.grey.shade700,
+                  color: AppColors.metalBrownColourForText,
                 ),
               ],
             ),
@@ -98,13 +101,13 @@ class MeetupCard extends StatelessWidget {
             // Capacity
             Row(
               children: [
-                Icon(Icons.people, size: 16, color: Colors.grey.shade600),
+                Icon(Icons.people, size: 16, color: AppColors.metalBrownColourForText),
                 const Gap(8),
                 TextView(
                   text: '${meetup.acceptedCount}/${meetup.maxParticipants} accepted',
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
-                  color: Colors.grey.shade700,
+                  color: AppColors.metalBrownColourForText,
                 ),
               ],
             ),
@@ -114,7 +117,7 @@ class MeetupCard extends StatelessWidget {
                 text: meetup.description!,
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
-                color: Colors.grey.shade600,
+                color: AppColors.metalBrownColourForText,
                 maxLines: 2,
               ),
             ],
@@ -129,7 +132,7 @@ class MeetupCard extends StatelessWidget {
     String text;
 
     if (meetup.isPast) {
-      color = Colors.grey;
+      color = AppColors.metalBrownColourForText;
       text = 'Past Event';
     } else if (meetup.isClosed || meetup.isFull) {
       color = Colors.orange;

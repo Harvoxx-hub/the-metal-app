@@ -7,7 +7,6 @@ import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/presentation/views/meetup/widgets/meetup_card.dart';
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/route/routes.dart';
 
 /// Meetup List View
 /// Shows list of meetups in the Link Up tab
@@ -32,72 +31,53 @@ class _MeetupListViewState extends ConsumerState<MeetupListView> {
   Widget build(BuildContext context) {
     final feedState = ref.watch(meetupFeedViewModelProvider);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          // Filter toggle
-          if (feedState.meetups.isNotEmpty)
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton.icon(
-                    onPressed: () {
-                      ref
-                          .read(meetupFeedViewModelProvider.notifier)
-                          .toggleFilterByPreferences();
-                    },
-                    icon: Icon(
-                      feedState.filterByPreferences
-                          ? Icons.filter_list
-                          : Icons.filter_list_outlined,
-                      color: feedState.filterByPreferences
-                          ? AppColors.metalPinkColour
-                          : Colors.grey,
-                    ),
-                    label: TextView(
-                      text: 'Filter by preferences',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: feedState.filterByPreferences
-                          ? AppColors.metalPinkColour
-                          : Colors.grey,
-                    ),
+    // Remove Scaffold since FAB is now handled by parent ThoughtScreen
+    return Column(
+      children: [
+        // Filter toggle
+        if (feedState.meetups.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(
+                  onPressed: () {
+                    ref
+                        .read(meetupFeedViewModelProvider.notifier)
+                        .toggleFilterByPreferences();
+                  },
+                  icon: Icon(
+                    feedState.filterByPreferences
+                        ? Icons.filter_list
+                        : Icons.filter_list_outlined,
+                    color: feedState.filterByPreferences
+                        ? AppColors.metalPinkColour
+                        : Colors.grey,
                   ),
-                ],
-              ),
-            ),
-          // Meetup list
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () async {
-                await ref.read(meetupFeedViewModelProvider.notifier).refresh();
-              },
-              child: _buildContent(feedState),
+                  label: TextView(
+                    text: 'Filter by preferences',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: feedState.filterByPreferences
+                        ? AppColors.metalPinkColour
+                        : Colors.grey,
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _navigateToCreateMeetup,
-        backgroundColor: AppColors.metalPinkColour,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+        // Meetup list
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await ref.read(meetupFeedViewModelProvider.notifier).refresh();
+            },
+            child: _buildContent(feedState),
+          ),
+        ),
+      ],
     );
-  }
-
-  void _navigateToCreateMeetup() {
-    Navigator.pushNamed(
-      context,
-      AppRoutes.createMeetup,
-    ).then((result) {
-      if (result == true) {
-        // Refresh meetups after creation
-        ref.read(meetupFeedViewModelProvider.notifier).refresh();
-      }
-    });
   }
 
   Widget _buildContent(MeetupFeedState feedState) {

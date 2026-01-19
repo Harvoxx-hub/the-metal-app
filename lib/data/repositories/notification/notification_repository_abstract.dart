@@ -18,8 +18,8 @@ abstract class NotificationRepositoryAbstract {
   });
 
   Future<BaseState<void>> registerDevice({
-    required String fcmToken,
-    String? deviceId,
-    String? deviceType,
+    required String deviceToken,
+    required String platform,
+    String? appVersion,
   });
 }

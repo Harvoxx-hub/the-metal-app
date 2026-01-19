@@ -8,6 +8,7 @@ import 'package:metal/domain/entities/meetup_dto.dart';
 import 'package:metal/presentation/viewmodels/meetup/meetup_detail_viewmodel.dart';
 import 'package:metal/presentation/views/meetup/widgets/rsvp_section.dart';
 import 'package:metal/presentation/views/meetup/widgets/attendee_list.dart';
+import 'package:metal/presentation/views/meetup/edit_meetup_screen.dart';
 import 'package:metal/core/services/deep_link_service.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -101,8 +102,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
               if (value == 'delete') {
                 _handleDelete(viewModel);
               } else if (value == 'edit') {
-                // TODO: Navigate to edit screen
-                Fluttertoast.showToast(msg: 'Edit feature coming soon');
+                _handleEdit(state.meetup!);
               }
             },
           ),
@@ -174,9 +174,6 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
               onStatusChanged: (status) => viewModel.setAttendeeStatus(status),
               filterByPreferences: state.filterByPreferences,
               onToggleFilter: () => viewModel.toggleFilterByPreferences(),
-              meetupId: widget.meetupId,
-              onInviteUsers: (usernames) => _handleInviteUsers(viewModel, usernames),
-              isCreator: viewModel.isCreator,
             ),
             
             const Gap(32),
@@ -255,7 +252,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
                     TextView(
                       text: '${DateFormat('MMM dd, yyyy').format(meetup.createdAt)} at ${DateFormat('hh:mm a').format(meetup.createdAt)}',
                       fontSize: 12,
-                      color: Colors.grey,
+                      color: AppColors.metalBrownColourForText,
                     ),
                   ],
                 ),
@@ -272,7 +269,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     String text;
 
     if (meetup.isPast) {
-      color = Colors.grey;
+      color = AppColors.metalBrownColourForText;
       text = 'Past Event';
     } else if (meetup.isClosed || meetup.isFull) {
       color = Colors.orange;
@@ -306,7 +303,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
           // Date and Time
           Row(
             children: [
-              const Icon(Icons.calendar_today, size: 20, color: Colors.grey),
+              const Icon(Icons.calendar_today, size: 20, color: AppColors.metalBrownColourForText),
               const Gap(12),
               Expanded(
                 child: Column(
@@ -315,7 +312,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
                     TextView(
                       text: 'Date & Time',
                       fontSize: 12,
-                      color: Colors.grey,
+                      color: AppColors.metalBrownColourForText,
                     ),
                     const Gap(4),
                     TextView(
@@ -334,7 +331,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
           // Capacity
           Row(
             children: [
-              const Icon(Icons.people, size: 20, color: Colors.grey),
+              const Icon(Icons.people, size: 20, color: AppColors.metalBrownColourForText),
               const Gap(12),
               Expanded(
                 child: Column(
@@ -343,7 +340,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
                     TextView(
                       text: 'Capacity',
                       fontSize: 12,
-                      color: Colors.grey,
+                      color: AppColors.metalBrownColourForText,
                     ),
                     const Gap(4),
                     TextView(
@@ -370,7 +367,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
         children: [
           Row(
             children: [
-              const Icon(Icons.location_on, size: 20, color: Colors.grey),
+              const Icon(Icons.location_on, size: 20, color: AppColors.metalBrownColourForText),
               const Gap(12),
               Expanded(
                 child: Column(
@@ -379,7 +376,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
                     TextView(
                       text: 'Location',
                       fontSize: 12,
-                      color: Colors.grey,
+                      color: AppColors.metalBrownColourForText,
                     ),
                     const Gap(4),
                     GestureDetector(
@@ -420,7 +417,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
           TextView(
             text: meetup.description!,
             fontSize: 14,
-            color: Colors.grey.shade700,
+            color: AppColors.metalBrownColourForText,
           ),
         ],
       ),
@@ -467,16 +464,6 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     }
   }
 
-  Future<void> _handleInviteUsers(MeetupDetailViewModel viewModel, List<String> usernames) async {
-    final success = await viewModel.inviteUsers(widget.meetupId, usernames);
-    if (mounted) {
-      if (success) {
-        Fluttertoast.showToast(msg: 'Users invited successfully!');
-      } else {
-        Fluttertoast.showToast(msg: 'Failed to invite users');
-      }
-    }
-  }
 
   Future<void> _handleDelete(MeetupDetailViewModel viewModel) async {
     final confirm = await showDialog<bool>(
@@ -518,5 +505,23 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     final text = 'Join me for ${meetup.eventName} on ${DateFormat('MMM dd, yyyy').format(meetup.eventDateTime)} at ${meetup.time}! $url';
 
     await Share.share(text);
+  }
+
+  Future<void> _handleEdit(MeetupDto meetup) async {
+    final viewModel = ref.read(meetupDetailViewModelProvider(widget.meetupId).notifier);
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditMeetupScreen(
+          meetupId: widget.meetupId,
+          meetup: meetup,
+        ),
+      ),
+    );
+
+    // Refresh meetup if it was updated
+    if (result == true && mounted) {
+      await viewModel.refresh(widget.meetupId);
+    }
   }
 }

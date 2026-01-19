@@ -14,7 +14,6 @@ import 'package:metal/presentation/views/user/widgets/user_thoughts_tab.dart';
 import 'package:metal/presentation/views/user/widgets/user_details_tab.dart';
 import 'package:metal/presentation/views/connection/widgets/metal_details_tab.dart';
 import 'package:metal/presentation/views/dashboard/widgets/complete.profile.dialog.dart';
-import 'package:metal/presentation/views/spark/widgets/send_spark_dialog.dart';
 import 'package:metal/presentation/widgets/profile/profile_header.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
@@ -379,16 +378,11 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
 
   /// Handle send spark action
   void _handleSendSparkAction(user) {
-    // Show send spark dialog with pre-selected user
-    showDialog(
-      context: context,
-      builder: (context) {
-        return CustomDialog(
-          content: SendSparkDialog(
-            preSelectedUser: user,
-          ),
-        );
-      },
+    // Navigate to send spark screen with pre-selected user
+    Navigator.pushNamed(
+      context,
+      AppRoutes.sendSpark,
+      arguments: user,
     );
   }
 

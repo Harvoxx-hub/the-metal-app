@@ -1,8 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
-import 'package:metal/core/di/provider_setup.dart';
-import 'package:metal/core/network/api_routes.dart';
-import 'package:metal/core/network/dio_client.dart';
+import 'package:metal/data/datasources/remote/media_remote_data_source_provider.dart';
+import 'package:metal/data/datasources/remote/media_remote_data_source.dart';
 import 'package:metal/data/repositories/thought/thought_repository_abstract.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
 import 'dart:io';
@@ -66,13 +64,13 @@ class CreateThoughtState {
 /// Create Thought ViewModel
 class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
   final ThoughtRepositoryAbstract _repository;
-  final DioClient _dioClient;
+  final MediaRemoteDataSource _mediaDataSource;
 
   CreateThoughtViewModel({
     required ThoughtRepositoryAbstract repository,
-    required DioClient dioClient,
+    required MediaRemoteDataSource mediaDataSource,
   })  : _repository = repository,
-        _dioClient = dioClient,
+        _mediaDataSource = mediaDataSource,
         super(const CreateThoughtState());
 
   void updateText(String text) {
@@ -97,55 +95,20 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
     );
   }
 
-  /// Upload audio file to Firebase Storage
+  /// Upload audio file using MediaRemoteDataSource (Clean Architecture)
   Future<String?> _uploadAudio(String filePath) async {
     try {
       final file = File(filePath);
-      final fileSize = await file.length();
-
-      // Get upload URL from backend
-      final uploadUrlResponse = await _dioClient.post(
-        ApiRoutes.buildPath(ApiRoutes.mediaUpload),
-        data: {
-          'mediaType': 'audio',
-          'purpose': 'thought',
-          'contentType': 'audio/aac',
-          'fileSize': fileSize,
-        },
+      
+      // Use MediaRemoteDataSource to handle upload (follows Clean Architecture)
+      final publicUrl = await _mediaDataSource.uploadMedia(
+        file: file,
+        mediaType: MediaType.audio,
+        purpose: MediaPurpose.thought,
+        contentType: 'audio/aac',
       );
-
-      if (uploadUrlResponse.statusCode == 200) {
-        final responseData = uploadUrlResponse.data['data'] ?? uploadUrlResponse.data;
-        final uploadUrl = responseData['uploadUrl'] as String;
-        final downloadUrl = responseData['downloadUrl'] as String;
-        final makePublic = responseData['makePublic'] as bool? ?? false;
-        final backendFilePath = responseData['filePath'] as String?;
-
-        // Upload file
-        final fileBytes = await file.readAsBytes();
-        final uploadResponse = await Dio().put(
-          uploadUrl,
-          data: fileBytes,
-          options: Options(headers: {'Content-Type': 'audio/aac'}),
-        );
-
-        if (uploadResponse.statusCode == 200) {
-          // Make file public if needed
-          if (makePublic && backendFilePath != null && backendFilePath.isNotEmpty) {
-            try {
-              await _dioClient.post(
-                ApiRoutes.buildPath(ApiRoutes.mediaMakePublic),
-                data: {'filePath': backendFilePath},
-              );
-            } catch (e) {
-              print('Warning: Failed to make file public: $e');
-              // Continue anyway - signed URL will work
-            }
-          }
-          return downloadUrl;
-        }
-      }
-      return null;
+      
+      return publicUrl;
     } catch (e) {
       print('Error uploading audio: $e');
       return null;
@@ -229,7 +192,10 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
 final createThoughtViewModelProvider =
     StateNotifierProvider<CreateThoughtViewModel, CreateThoughtState>((ref) {
   final repository = ref.watch(thoughtRepositoryProvider);
-  final dioClient = ref.watch(dioClientProvider);
-  return CreateThoughtViewModel(repository: repository, dioClient: dioClient);
+  final mediaDataSource = ref.watch(mediaRemoteDataSourceProvider);
+  return CreateThoughtViewModel(
+    repository: repository,
+    mediaDataSource: mediaDataSource,
+  );
 });
 

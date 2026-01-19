@@ -3,14 +3,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/presentation/viewmodels/referral/referral_viewmodel.dart';
+import 'package:metal/presentation/viewmodels/spark/spark_viewmodel.dart';
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/widgets/button/plain.button.dart';
+import 'package:metal/route/routes.dart';
+import 'package:metal/widgets/button/base_button.dart';
+import 'package:metal/widgets/button/outiline.button.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:share_plus/share_plus.dart';
 
 /// Referral View (Refer & Earn)
-/// Displays user's referral code, stats, and history
+/// Displays user's referral code, balance, and referral actions
 class ReferralView extends ConsumerStatefulWidget {
   static const String route = '/referral';
 
@@ -21,136 +25,169 @@ class ReferralView extends ConsumerStatefulWidget {
 }
 
 class _ReferralViewState extends ConsumerState<ReferralView> {
-  final _codeController = TextEditingController();
-
   @override
-  void dispose() {
-    _codeController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    // Load referral info when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(referralViewModelProvider.notifier).loadReferralInfo();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(referralViewModelProvider);
+    final referralState = ref.watch(referralViewModelProvider);
+    final sparkState = ref.watch(sparkViewModelProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Refer & Earn'),
-        centerTitle: true,
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await ref.read(referralViewModelProvider.notifier).loadReferralInfo();
+      backgroundColor: AppColors.metalWhite,
+      appBar: CustomAppBar(
+        appBarState: AppBarState.BackWithHeader,
+        headerText: "Refer & Earn",
+        appBarEnabled: true,
+        onBackButtonPressed: () => Navigator.pop(context),
+        onHamburgerPressed: () {},
+        onSkipButtonPressed: () {},
+        onNotificationPressed: () {
+          Navigator.pushNamed(context, AppRoutes.notificationPage);
         },
-        child: state.isLoading && state.referralInfo == null
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(24),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Sparks Balance Card - Pink
+            _buildBalanceCard(sparkState.balance.toString()),
+            
+            const Gap(24),
+            
+            // Main Content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildHeader(),
+                    // Redeem a Referral Code Button
+                    OutilineButton(
+                      buttonText: "Redeem a Referral Code",
+                      onPressed: () => _showRedeemDialog(context, referralState),
+                      width: double.infinity,
+                    ),
+                    
                     const Gap(24),
-                    if (state.referralInfo != null) ...[
-                      _buildReferralCodeCard(state.referralInfo!.referralCode),
-                      const Gap(24),
-                      _buildStatsCards(state.referralInfo!),
-                      const Gap(24),
-                      _buildApplyCodeSection(state),
-                      const Gap(24),
-                      _buildHistorySection(state.referralInfo!),
-                    ],
-                    if (state.errorMessage != null) ...[
-                      _buildErrorMessage(state.errorMessage!),
-                      const Gap(16),
-                    ],
+                    
+                    // Your Referral Code Box
+                    if (referralState.referralInfo != null)
+                      _buildReferralCodeBox(referralState.referralInfo!.referralCode),
+                    
+                    const Gap(16),
+                    
+                    // Instructional Text
+                    const TextView(
+                      text: "Share your code with friends to earn bonus sparks!",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.metalBrownColourForText,
+                      textAlign: TextAlign.center,
+                    ),
+                    
+                    const Gap(32),
+                    
+                    // Invite to Metal Button (Gradient)
+                    BaseButton(
+                      buttonText: "Invite to Metal",
+                      onPressed: referralState.referralInfo != null
+                          ? () => _shareCode(referralState.referralInfo!.referralCode)
+                          : null,
+                      width: double.infinity,
+                      enabled: referralState.referralInfo != null,
+                    ),
+                    
+                    const Gap(16),
+                    
+                    // Copy invite Code Button
+                    OutilineButton(
+                      buttonText: "Copy invite Code",
+                      onPressed: referralState.referralInfo != null
+                          ? () => _copyCode(referralState.referralInfo!.referralCode)
+                          : null,
+                      width: double.infinity,
+                      enabled: referralState.referralInfo != null,
+                    ),
+                    
+                    const Gap(32),
                   ],
                 ),
               ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Column(
-      children: [
-        const Icon(
-          Icons.card_giftcard,
-          size: 80,
-          color: AppColors.metalPinkColour,
-        ),
-        const Gap(16),
-        const TextView(
-          text: 'Refer Friends & Earn Sparks',
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          textAlign: TextAlign.center,
-        ),
-        const Gap(8),
-        TextView(
-          text: 'Share your code and earn sparks when friends sign up!',
-          fontSize: 14,
-          color: Colors.grey[600],
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildReferralCodeCard(String code) {
+  Widget _buildBalanceCard(String balance) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.metalPinkColour.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppColors.metalPinkColour,
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const TextView(
-            text: 'Your Referral Code',
-            fontSize: 14,
-            color: Colors.white70,
+          const Row(
+            children: [
+              TextView(
+                text: "Sparks Balance ",
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.metalWhite,
+              ),
+              Text(
+                "✨",
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
           ),
-          const Gap(8),
+          const Gap(12),
           TextView(
-            text: code,
-            fontSize: 32,
+            text: balance,
+            fontSize: 48,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AppColors.metalWhite,
           ),
           const Gap(16),
+          // Refer & Earn button in bottom left
           Row(
             children: [
-              Expanded(
-                child: PlainButton(
-                  buttonText: 'Copy Code',
-                  color: Colors.white,
-                  textColor: AppColors.metalPinkColour,
-                  leftIcon: const Icon(Icons.copy, size: 18),
-                  onPressed: () => _copyCode(code),
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFFFA500), // Orange
+                      Color(0xFFFFD700), // Yellow/Gold
+                    ],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.share,
+                  color: AppColors.metalWhite,
+                  size: 24,
                 ),
               ),
               const Gap(12),
-              Expanded(
-                child: PlainButton(
-                  buttonText: 'Share',
-                  color: Colors.white,
-                  textColor: AppColors.metalPinkColour,
-                  leftIcon: const Icon(Icons.share, size: 18),
-                  onPressed: () => _shareCode(code),
-                ),
+              const TextView(
+                text: "Refer & Earn",
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.metalWhite,
               ),
             ],
           ),
@@ -159,198 +196,91 @@ class _ReferralViewState extends ConsumerState<ReferralView> {
     );
   }
 
-  Widget _buildStatsCards(referralInfo) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(
-            'Referrals',
-            '${referralInfo.referralCount}',
-            Icons.people,
-            Colors.blue,
-          ),
-        ),
-        const Gap(12),
-        Expanded(
-          child: _buildStatCard(
-            'Sparks Earned',
-            '${referralInfo.sparksEarned}',
-            Icons.bolt,
-            Colors.orange,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildReferralCodeBox(String code) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey[200],
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 32),
-          const Gap(8),
-          TextView(
-            text: value,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+          const TextView(
+            text: "Your Referral Code",
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppColors.metalBrownColourForText,
           ),
-          const Gap(4),
-          TextView(
-            text: label,
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildApplyCodeSection(ReferralState state) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const TextView(
-          text: 'Have a Referral Code?',
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-        const Gap(12),
-        Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: _codeController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter code',
-                  prefixIcon: Icon(Icons.vpn_key_outlined),
-                ),
-              ),
-            ),
-            const Gap(12),
-            PlainButton(
-              buttonText: 'Apply',
-              loading: state.isApplying,
-              width: 100,
-              onPressed: state.isApplying ? null : _handleApplyCode,
-            ),
-          ],
-        ),
-        if (state.successMessage != null) ...[
           const Gap(12),
-          _buildSuccessMessage(state.successMessage!),
+          TextView(
+            text: code,
+            fontSize: 36,
+            fontWeight: FontWeight.bold,
+            color: AppColors.metalBrownColourForText,
+          ),
         ],
-      ],
+      ),
     );
   }
 
-  Widget _buildHistorySection(referralInfo) {
-    if (referralInfo.history.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          children: [
-            Icon(Icons.history, size: 60, color: Colors.grey[400]),
-            const Gap(16),
-            TextView(
-              text: 'No referrals yet',
-              fontSize: 16,
-              color: Colors.grey[600],
-            ),
-            const Gap(8),
-            TextView(
-              text: 'Share your code to start earning!',
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const TextView(
-          text: 'Referral History',
+  void _showRedeemDialog(BuildContext context, ReferralState state) {
+    final codeController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const TextView(
+          text: "Redeem Referral Code",
           fontSize: 18,
           fontWeight: FontWeight.bold,
         ),
-        const Gap(12),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: referralInfo.history.length,
-          itemBuilder: (context, index) {
-            final item = referralInfo.history[index];
-            return Card(
-              margin: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                leading: const CircleAvatar(
-                  child: Icon(Icons.person),
-                ),
-                title: TextView(
-                  text: item.referredUserName ?? 'User',
-                  fontWeight: FontWeight.w600,
-                ),
-                subtitle: TextView(
-                  text: _formatDate(item.createdAt),
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.bolt, color: Colors.orange, size: 16),
-                    const Gap(4),
-                    TextView(
-                      text: '+${item.sparksAwarded}',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+        content: TextField(
+          controller: codeController,
+          decoration: const InputDecoration(
+            hintText: "Enter referral code",
+            border: OutlineInputBorder(),
+          ),
         ),
-      ],
-    );
-  }
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const TextView(
+              text: "Cancel",
+              fontSize: 14,
+              color: AppColors.metalPinkColour,
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final code = codeController.text.trim();
+              if (code.isEmpty) {
+                Fluttertoast.showToast(msg: 'Please enter a referral code');
+                return;
+              }
 
-  Widget _buildErrorMessage(String message) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.red[50],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.red[200]!),
-      ),
-      child: TextView(
-        text: message,
-        fontSize: 14,
-        color: Colors.red[700],
-      ),
-    );
-  }
+              final success = await ref
+                  .read(referralViewModelProvider.notifier)
+                  .applyReferralCode(code);
 
-  Widget _buildSuccessMessage(String message) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.green[50],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.green[200]!),
-      ),
-      child: TextView(
-        text: message,
-        fontSize: 14,
-        color: Colors.green[700],
+              if (mounted) {
+                Navigator.pop(context);
+                if (success) {
+                  Fluttertoast.showToast(msg: 'Referral code applied successfully!');
+                } else {
+                  Fluttertoast.showToast(
+                    msg: state.errorMessage ?? 'Failed to apply referral code',
+                  );
+                }
+              }
+            },
+            child: const TextView(
+              text: "Redeem",
+              fontSize: 14,
+              color: AppColors.metalPinkColour,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -365,25 +295,5 @@ class _ReferralViewState extends ConsumerState<ReferralView> {
       'Join me on Metal! Use my referral code $code when signing up to earn bonus sparks!',
       subject: 'Join Metal with my referral code',
     );
-  }
-
-  Future<void> _handleApplyCode() async {
-    final code = _codeController.text.trim();
-    if (code.isEmpty) {
-      Fluttertoast.showToast(msg: 'Please enter a referral code');
-      return;
-    }
-
-    final success = await ref
-        .read(referralViewModelProvider.notifier)
-        .applyReferralCode(code);
-
-    if (success) {
-      _codeController.clear();
-    }
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 }

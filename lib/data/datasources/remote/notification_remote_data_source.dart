@@ -144,17 +144,17 @@ class NotificationRemoteDataSource extends BaseRemoteDataSource {
 
   /// Register FCM device token for push notifications
   Future<void> registerDevice({
-    required String fcmToken,
-    String? deviceId,
-    String? deviceType,
+    required String deviceToken,
+    required String platform,
+    String? appVersion,
   }) async {
     try {
       final response = await dioClient.post(
         ApiRoutes.buildPath(ApiRoutes.notificationDevices),
         data: {
-          'fcmToken': fcmToken,
-          if (deviceId != null) 'deviceId': deviceId,
-          if (deviceType != null) 'deviceType': deviceType,
+          'deviceToken': deviceToken,
+          'platform': platform,
+          if (appVersion != null) 'appVersion': appVersion,
         },
       );
 

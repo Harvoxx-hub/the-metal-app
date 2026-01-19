@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/services/deep_link_service.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/domain/entities/user_dto.dart';
@@ -57,22 +58,30 @@ class _LoginViewState extends ConsumerState<LoginView> {
     // Set user in global state
     ref.read(userStateProvider.notifier).setUser(user);
 
-    // Navigate based on user state
-    if (user.emailVerified == false) {
-      // User needs email verification - just pass email
-      Navigator.pushReplacementNamed(
-        context,
-        AppRoutes.verificationPage,
-        arguments: user.email,
-      );
-    } else {
-      // User is verified, go to dashboard or welcome based on profile completion
-      Navigator.pushReplacementNamed(
-        context,
-        user.profileUpdated == true
-            ? AppRoutes.dashboardPage
-            : AppRoutes.welcomePage,
-      );
+    // Process any pending deep links before navigation
+    // This will handle navigation to the deep link target if one exists
+    final hasPendingLink = await DeepLinkService.instance.processPendingLinks();
+    
+    // If a pending link was processed, it will handle navigation
+    // Otherwise, proceed with normal post-login navigation
+    if (!hasPendingLink) {
+      // Navigate based on user state
+      if (user.emailVerified == false) {
+        // User needs email verification - just pass email
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.verificationPage,
+          arguments: user.email,
+        );
+      } else {
+        // User is verified, go to dashboard or welcome based on profile completion
+        Navigator.pushReplacementNamed(
+          context,
+          user.profileUpdated == true
+              ? AppRoutes.dashboardPage
+              : AppRoutes.welcomePage,
+        );
+      }
     }
   }
 

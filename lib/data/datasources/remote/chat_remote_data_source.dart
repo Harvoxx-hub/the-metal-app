@@ -55,7 +55,7 @@ class ChatRemoteDataSource {
   /// Clear chat history for a connection
   Future<void> clearChat(String connectionId) async {
     final response = await _client.delete(
-      '${ApiRoutes.buildPath(ApiRoutes.clearChat)}/$connectionId/clear',
+      '${ApiRoutes.buildPath(ApiRoutes.clearChat)}/$connectionId/messages',
     );
 
     if (response.statusCode != 200) {

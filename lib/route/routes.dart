@@ -172,12 +172,16 @@ class AppRoutes {
       case BasicInfoView.route:
         return MaterialPageRoute(builder: (_) => const BasicInfoView());
       case ChooseMetalView.route:
+      case chooseYourMetalPage:
         return MaterialPageRoute(builder: (_) => const ChooseMetalView());
       case PassionsView.route:
+      case passionsPage:
         return MaterialPageRoute(builder: (_) => const PassionsView());
       case AboutYouView.route:
+      case aboutYouPage:
         return MaterialPageRoute(builder: (_) => const AboutYouView());
       case MoreAboutYouView.route:
+      case moreAboutYouPage:
         return MaterialPageRoute(builder: (_) => const MoreAboutYouView());
       case promptCreationPage:
         return MaterialPageRoute(
@@ -191,8 +195,10 @@ class AppRoutes {
           ),
         );
       case ConnectionOptionsView.route:
+      case connectionOptionsPage:
         return MaterialPageRoute(builder: (_) => const ConnectionOptionsView());
       case PreferencesView.route:
+      case preferenceMetalPage:
         return MaterialPageRoute(builder: (_) => const PreferencesView());
 
       case dashboardPage:

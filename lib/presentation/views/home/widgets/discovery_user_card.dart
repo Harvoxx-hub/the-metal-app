@@ -24,36 +24,9 @@ class DiscoveryUserCard extends ConsumerWidget {
     this.onPass,
   });
 
-  /// Get prompts - use dummy prompts if user doesn't have any
+  /// Get prompts - only return actual user prompts, no dummy data
   List<UserPromptDto> get _prompts {
-    if (user.prompts != null && user.prompts!.isNotEmpty) {
-      return user.prompts!;
-    }
-    return _getDummyPrompts();
-  }
-
-  /// Generate dummy prompts for testing
-  List<UserPromptDto> _getDummyPrompts() {
-    return [
-      const UserPromptDto(
-        questionId: '1',
-        questionText: "I'll fall for you if...",
-        answer:
-            "You can make me laugh even on my worst days and appreciate the little things in life.",
-      ),
-      const UserPromptDto(
-        questionId: '2',
-        questionText: "My simple pleasures",
-        answer:
-            "Morning coffee, sunset walks, good books, and deep conversations.",
-      ),
-      const UserPromptDto(
-        questionId: '3',
-        questionText: "I'm looking for",
-        answer:
-            "Someone genuine who values connection over perfection. Let's build something real together.",
-      ),
-    ];
+    return user.prompts ?? [];
   }
 
   @override

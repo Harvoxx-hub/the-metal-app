@@ -52,7 +52,7 @@ class _ConnectionOptionsViewState extends ConsumerState<ConnectionOptionsView> {
     }
 
     final stepData = {
-      'connectWith': _selectedOptions.join(","),
+      'connectionOption': _selectedOptions.join(","),
     };
 
     await ProfileSetupHelpers.saveStepAndNavigate(

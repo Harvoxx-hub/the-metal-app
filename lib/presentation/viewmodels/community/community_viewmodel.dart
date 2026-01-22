@@ -154,24 +154,44 @@ class CommunityViewModel extends StateNotifier<CommunityState> {
     final result = await _repository.leaveCommunity(communityId);
 
     if (mounted && result.isSuccess) {
-      final updatedCommunities = state.communities.map((c) {
-        if (c.id == communityId) {
-          return c.copyWith(isJoined: false, memberCount: c.memberCount - 1);
-        }
-        return c;
-      }).toList();
+      final responseData = result.data;
+      final wasDeleted = responseData?['deleted'] == true;
 
-      final updatedFiltered = state.filteredCommunities.map((c) {
-        if (c.id == communityId) {
-          return c.copyWith(isJoined: false, memberCount: c.memberCount - 1);
-        }
-        return c;
-      }).toList();
+      if (wasDeleted) {
+        // Community was deleted - remove it from the list
+        final updatedCommunities = state.communities
+            .where((c) => c.id != communityId)
+            .toList();
 
-      state = state.copyWith(
-        communities: updatedCommunities,
-        filteredCommunities: updatedFiltered,
-      );
+        final updatedFiltered = state.filteredCommunities
+            .where((c) => c.id != communityId)
+            .toList();
+
+        state = state.copyWith(
+          communities: updatedCommunities,
+          filteredCommunities: updatedFiltered,
+        );
+      } else {
+        // Regular leave - just update the community status
+        final updatedCommunities = state.communities.map((c) {
+          if (c.id == communityId) {
+            return c.copyWith(isJoined: false, memberCount: c.memberCount - 1);
+          }
+          return c;
+        }).toList();
+
+        final updatedFiltered = state.filteredCommunities.map((c) {
+          if (c.id == communityId) {
+            return c.copyWith(isJoined: false, memberCount: c.memberCount - 1);
+          }
+          return c;
+        }).toList();
+
+        state = state.copyWith(
+          communities: updatedCommunities,
+          filteredCommunities: updatedFiltered,
+        );
+      }
     }
   }
 

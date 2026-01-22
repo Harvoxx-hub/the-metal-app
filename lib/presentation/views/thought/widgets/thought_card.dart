@@ -26,9 +26,12 @@ import 'package:metal/widgets/read_more_text.dart';
 import 'package:metal/presentation/views/thought/widgets/comment_bottom_sheet.dart';
 import 'package:metal/presentation/views/thought/widgets/reaction_section.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
+import 'package:metal/presentation/viewmodels/thought/reaction_viewmodel.dart';
 import 'package:metal/data/datasources/remote/remote_data_source_providers.dart';
 import 'package:metal/domain/entities/report_dto.dart';
- 
+import 'package:metal/domain/entities/reaction_dto.dart';
+import 'package:metal/res/res.dart';
+
 import 'package:share_plus/share_plus.dart';
 import 'package:metal/core/services/deep_link_service.dart';
 
@@ -48,6 +51,7 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
   late ThoughtDto thoughtModel;
   ThoughtDto? originalThought;
   bool isLoadingRepost = false;
+  bool _showReactions = false;
 
   final PlayerController _waveformController = PlayerController();
 
@@ -248,160 +252,239 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
   }
 
   Widget _buildThoughtCard(BuildContext context, String thoughtId) {
-    final userdata = ref.watch(userStateProvider).user;
     final commentsState = ref.watch(commentViewModelProvider(thoughtId));
     final commentCount = commentsState.comments.length;
+    final reactionState = ref.watch(reactionViewModelProvider(thoughtId));
+    final reactions = reactionState.reactions;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        if (thoughtModel.type == 'repost') ...[
-          TextView(
-            text:
-                'Reposted by ${thoughtModel.authorMetadata?.authorName ?? ''}',
-            fontSize: 12,
-            color: Colors.grey[700],
+    return Stack(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(10.0),
           ),
-          _buildRepostCard(context),
-          const Gap(10),
-        ] else ...[
-          BuildUserInfo(
-            userId: thoughtModel.userId,
-            thought: thoughtModel,
-            showThoughtMenu: true,
-            onDeleteThought: () => _handleDeleteThought(context),
-            onReportThought: () => _handleReportThought(context),
-            onBlockUser: () => _handleBlockUser(context),
-          ),
-          const Gap(10),
-          // Community tag if this is a community post
-          if (thoughtModel.communityMetadata != null) ...[
-            /// get community from id from community provider
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (thoughtModel.type == 'repost') ...[
+              TextView(
+                text:
+                    'Reposted by ${thoughtModel.authorMetadata?.authorName ?? ''}',
+                fontSize: 12,
+                color: Colors.grey[700],
+              ),
+              _buildRepostCard(context),
+              const Gap(10),
+            ] else ...[
+              BuildUserInfo(
+                userId: thoughtModel.userId,
+                thought: thoughtModel,
+                showThoughtMenu: true,
+                onDeleteThought: () => _handleDeleteThought(context),
+                onReportThought: () => _handleReportThought(context),
+                onBlockUser: () => _handleBlockUser(context),
+              ),
+              const Gap(10),
+              // Community tag if this is a community post
+              if (thoughtModel.communityMetadata != null) ...[
+                /// get community from id from community provider
 
-            GestureDetector(
-              // onTap: () {
-              //   Navigator.pushNamed(
-              //     context,
-              //     Communi.communityDetails,
-              //     arguments: thoughtModel.communityMetadata!.communityId,
-              //   );
-              // },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.metalPinkColour.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppColors.metalPinkColour.withOpacity(0.3),
-                    width: 1,
+                GestureDetector(
+                  // onTap: () {
+                  //   Navigator.pushNamed(
+                  //     context,
+                  //     Communi.communityDetails,
+                  //     arguments: thoughtModel.communityMetadata!.communityId,
+                  //   );
+                  // },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.metalPinkColour.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.metalPinkColour.withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.group,
+                          size: 14,
+                          color: AppColors.metalPinkColour,
+                        ),
+                        const Gap(4),
+                        TextView(
+                          text:
+                              'Posted in: ${thoughtModel.communityMetadata!.communityName}',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.metalPinkColour,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.group,
-                      size: 14,
-                      color: AppColors.metalPinkColour,
-                    ),
-                    const Gap(4),
-                    TextView(
-                      text:
-                          'Posted in: ${thoughtModel.communityMetadata!.communityName}',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.metalPinkColour,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const Gap(8),
-          ],
-          if (thoughtModel.type == 'voice') ...[
-            _buildVoicePlayer(context, thoughtModel),
-            if (thoughtModel.content.isNotEmpty) ...[
-              const Gap(6),
-              TextView(text: thoughtModel.content),
-            ],
-            const Gap(4),
-          ] else ...[
-            ReadMoreText(
-              text: thoughtModel.content,
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.thoughtDetails,
-                  arguments: thoughtModel.id,
-                );
-              },
-            ),
-          ],
-        ],
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            IconButton(
-              onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.userProfile,
-                  arguments: thoughtModel.userId,
-                );
-              },
-              icon: SvgPicture.asset(
-                Assets.icons.thoughtProfile.path,
-                height: 24,
-                width: 24,
-              ),
-            ),
-            Row(
-              children: [
-                IconButton(
-                  icon: SvgPicture.asset(
-                    Assets.icons.thoughComment.path,
-                    height: 24,
-                    width: 24,
-                  ),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (context) =>
-                          CommentBottomSheet(thought: thoughtModel),
+                const Gap(8),
+              ],
+              if (thoughtModel.type == 'voice') ...[
+                _buildVoicePlayer(context, thoughtModel),
+                if (thoughtModel.content.isNotEmpty) ...[
+                  const Gap(6),
+                  TextView(text: thoughtModel.content),
+                ],
+                const Gap(4),
+              ] else ...[
+                ReadMoreText(
+                  text: thoughtModel.content,
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.thoughtDetails,
+                      arguments: thoughtModel.id,
                     );
                   },
                 ),
-                TextView(
-                  text: commentCount.toString(),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+              ],
+            ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.userProfile,
+                      arguments: thoughtModel.userId,
+                    );
+                  },
+                  icon: SvgPicture.asset(
+                    Assets.icons.thoughtProfile.path,
+                    height: 24,
+                    width: 24,
+                  ),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: SvgPicture.asset(
+                        Assets.icons.thoughComment.path,
+                        height: 24,
+                        width: 24,
+                      ),
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) =>
+                              CommentBottomSheet(thought: thoughtModel),
+                        );
+                      },
+                    ),
+                    TextView(
+                      text: commentCount.toString(),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ],
+                ),
+                IconButton(
+                  tooltip: 'Share',
+                  onPressed: () {
+                    _showShareOptions(context);
+                  },
+                  icon: const Icon(Icons.ios_share),
+                ),
+                Expanded(
+                  child: ReactionSection(
+                    thoughtId: thoughtModel.id,
+                    onToggleReactions: () {
+                      setState(() {
+                        _showReactions = !_showReactions;
+                      });
+                    },
+                  ),
                 ),
               ],
             ),
-            IconButton(
-              tooltip: 'Share',
-              onPressed: () {
-                _showShareOptions(context);
-              },
-              icon: const Icon(Icons.ios_share),
-            ),
-            Expanded(
-              child: ReactionSection(
-                thoughtId: thoughtModel.id,
-              ),
+          ]),
+        ),
+        if (_showReactions) _buildReactionsSelector(reactions, thoughtId),
+      ],
+    );
+  }
+
+  Widget _buildReactionsSelector(
+      List<ReactionDto> reactions, String thoughtId) {
+    return Positioned(
+      bottom: 20,
+      left: 20,
+      right: 20,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: AppColors.metalTabBg,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-      ]),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: _buildReactionIcons(reactions, thoughtId),
+        ),
+      ),
     );
+  }
+
+  List<Widget> _buildReactionIcons(
+      List<ReactionDto> reactions, String thoughtId) {
+    final userdata = ref.watch(userStateProvider).user;
+    final userReaction = userdata?.id != null
+        ? reactions
+            .where((reaction) => reaction.userId == userdata!.id)
+            .firstOrNull
+        : null;
+
+    final emojis = ["😍", "👍", "😂", "😢", "😡"];
+    return emojis.map((emoji) {
+      final isCurrentReaction = userReaction?.emoji == emoji;
+      return GestureDetector(
+        onTap: () async {
+          final viewModel =
+              ref.read(reactionViewModelProvider(thoughtId).notifier);
+          await viewModel.addReaction(emoji);
+
+          setState(() {
+            _showReactions = false;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: isCurrentReaction
+              ? BoxDecoration(
+                  color: AppColors.metalPinkColour.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                )
+              : null,
+          child: TextView(
+            text: emoji,
+            fontSize: 24,
+          ),
+        ),
+      );
+    }).toList();
   }
 
   Widget _buildRepostCard(BuildContext context) {
@@ -806,7 +889,8 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           fontWeight: FontWeight.w600,
         ),
         content: const TextView(
-          text: 'Are you sure you want to delete this thought? This action cannot be undone.',
+          text:
+              'Are you sure you want to delete this thought? This action cannot be undone.',
           fontSize: 14,
         ),
         actions: [
@@ -856,7 +940,8 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
 
     if (result != null && mounted) {
       // Report submitted
-      Fluttertoast.showToast(msg: 'Thank you for reporting. We will review this thought.');
+      Fluttertoast.showToast(
+          msg: 'Thank you for reporting. We will review this thought.');
     }
   }
 
@@ -870,7 +955,8 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           fontWeight: FontWeight.w600,
         ),
         content: TextView(
-          text: 'Are you sure you want to block ${thoughtModel.authorMetadata?.authorName ?? "this user"}? You will no longer see their thoughts or be able to interact with them.',
+          text:
+              'Are you sure you want to block ${thoughtModel.authorMetadata?.authorName ?? "this user"}? You will no longer see their thoughts or be able to interact with them.',
           fontSize: 14,
         ),
         actions: [
@@ -905,7 +991,9 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
         if (mounted) {
           Fluttertoast.showToast(msg: 'User blocked successfully');
           // Remove thought from feed
-          ref.read(thoughtFeedViewModelProvider.notifier).removeThought(thoughtModel.id);
+          ref
+              .read(thoughtFeedViewModelProvider.notifier)
+              .removeThought(thoughtModel.id);
         }
       } catch (e) {
         if (mounted) {
@@ -923,7 +1011,8 @@ class _ReportThoughtDialog extends ConsumerStatefulWidget {
   const _ReportThoughtDialog({required this.thoughtId});
 
   @override
-  ConsumerState<_ReportThoughtDialog> createState() => _ReportThoughtDialogState();
+  ConsumerState<_ReportThoughtDialog> createState() =>
+      _ReportThoughtDialogState();
 }
 
 class _ReportThoughtDialogState extends ConsumerState<_ReportThoughtDialog> {
@@ -966,16 +1055,16 @@ class _ReportThoughtDialogState extends ConsumerState<_ReportThoughtDialog> {
             ),
             const Gap(12),
             ..._reportReasons.map((reason) => RadioListTile<String>(
-              title: TextView(text: reason, fontSize: 14),
-              value: reason,
-              groupValue: selectedReason,
-              onChanged: (value) {
-                setState(() {
-                  selectedReason = value;
-                });
-              },
-              contentPadding: EdgeInsets.zero,
-            )),
+                  title: TextView(text: reason, fontSize: 14),
+                  value: reason,
+                  groupValue: selectedReason,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedReason = value;
+                    });
+                  },
+                  contentPadding: EdgeInsets.zero,
+                )),
             if (selectedReason == 'Other') ...[
               const Gap(12),
               TextField(

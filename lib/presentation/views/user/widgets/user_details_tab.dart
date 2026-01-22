@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/user_dto.dart';
+import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
 /// User Details Tab - displays user information
-class UserDetailsTab extends StatelessWidget {
+class UserDetailsTab extends ConsumerWidget {
   final UserDto user;
 
   const UserDetailsTab({
@@ -14,7 +16,7 @@ class UserDetailsTab extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -53,7 +55,7 @@ class UserDetailsTab extends StatelessWidget {
                   const Gap(12),
                 ],
                 if (user.metal != null) ...[
-                  _buildInfoRow('Metal', user.metal!),
+                  _buildMetalInfoRow(ref),
                   const Gap(12),
                 ],
               ],
@@ -173,6 +175,28 @@ class UserDetailsTab extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildMetalInfoRow(WidgetRef ref) {
+    final metalProperties = ref.watch(metalPropertiesProvider);
+
+    String metalName = user.metal!; // Fallback to ID if name not found
+
+    if (!metalProperties.isLoading && metalProperties.data?.metals != null) {
+      final metals = metalProperties.data!.metals!;
+      if (metals.isNotEmpty && user.metal != null) {
+        try {
+          final metal = metals.firstWhere(
+            (element) => element.id == user.metal,
+          );
+          metalName = metal.title;
+        } catch (e) {
+          // Metal not found, keep the ID as fallback
+        }
+      }
+    }
+
+    return _buildInfoRow('Metal', metalName);
   }
 
   String _calculateAgeFromString(String dobString) {

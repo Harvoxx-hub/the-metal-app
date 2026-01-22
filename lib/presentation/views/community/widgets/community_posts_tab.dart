@@ -28,7 +28,9 @@ class CommunityPostsTab extends ConsumerWidget {
         : initialPosts;
 
     if (posts.isEmpty) {
-      return RefreshIndicator(
+      return Center(
+        child: 
+       RefreshIndicator(
         onRefresh: () async {
           await ref
               .read(communityDetailViewModelProvider(communityId).notifier)
@@ -43,7 +45,7 @@ class CommunityPostsTab extends ConsumerWidget {
             ),
           ),
         ),
-      );
+      ));
     }
 
     return RefreshIndicator(

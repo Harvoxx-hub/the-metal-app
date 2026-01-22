@@ -136,7 +136,7 @@ class _MeltScreenState extends ConsumerState<MeltScreen>
                     opacity: _fadeAnimation,
                     child: TextView(
                       text: otherUser != null
-                          ? "You and @${otherUser.username ?? 'User'} just melted"
+                          ? "You and @${otherUser.username ?? otherUser.fullname ?? 'User'} just melted"
                           : "You just melted",
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
@@ -161,7 +161,7 @@ class _MeltScreenState extends ConsumerState<MeltScreen>
                               _buildUserCircle(
                                 user: currentUser,
                                 label:
-                                    "You: @${currentUser?.username ?? 'User'}",
+                                    "You: @${currentUser?.username ?? currentUser?.fullname ?? 'User'}",
                                 isCurrentUser: true,
                               ),
                               const SizedBox(
@@ -169,7 +169,8 @@ class _MeltScreenState extends ConsumerState<MeltScreen>
                               // Other user
                               _buildUserCircle(
                                 user: otherUser,
-                                label: "@${otherUser?.username ?? 'User'}",
+                                label:
+                                    "@${otherUser?.username ?? otherUser?.fullname ?? 'User'}",
                                 isCurrentUser: false,
                               ),
                             ],

@@ -230,53 +230,24 @@ class _HomeViewState extends ConsumerState<HomeView> {
     );
   }
 
-  void _handleDirectMessage(DiscoveryUserDto user) {
-    // Navigate to user profile for now
-    // Direct messaging can be implemented later
-    Navigator.pushNamed(
-      context,
-      AppRoutes.userProfile,
-      arguments: user.id,
-    );
-  }
-
   void _showMatchDialog(SwipeResultDto result) {
     // Clear the result first
     ref.read(homeViewModelProvider.notifier).clearLastSwipeResult();
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("It's a Match! 🎉"),
-        content: const Text(
-          "You and this person liked each other! Start a conversation now.",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Later"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              if (result.connectionId != null) {
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.chatWindowView,
-                  arguments: result.connectionId,
-                );
-              }
-            },
-            child: const Text("Say Hi!"),
-          ),
-        ],
-      ),
+    // Navigate to the melt screen instead of showing a dialog
+    Navigator.pushNamed(
+      context,
+      AppRoutes.meltMetal,
+      arguments: {
+        'userId': result.targetUserId,
+        'connectionId': result.connectionId,
+      },
     );
   }
 }
 
 /// View for displaying a single user card with navigation
-class _UserCardView extends StatefulWidget {
+class _UserCardView extends ConsumerStatefulWidget {
   final List<DiscoveryUserDto> users;
   final Function(String) onLike;
   final Function(String) onPass;
@@ -288,94 +259,30 @@ class _UserCardView extends StatefulWidget {
   });
 
   @override
-  State<_UserCardView> createState() => _UserCardViewState();
+  ConsumerState<_UserCardView> createState() => _UserCardViewState();
 }
 
-class _UserCardViewState extends State<_UserCardView> {
-  int _currentIndex = 0;
-  bool _isProcessingAction = false;
+class _UserCardViewState extends ConsumerState<_UserCardView> {
+  bool _isProcessing = false;
 
-  void _moveToNext() {
-    if (_currentIndex < widget.users.length - 1) {
-      setState(() {
-        _currentIndex++;
-        _isProcessingAction = false;
+  Future<void> _handleAction(Future<void> Function() action) async {
+    if (_isProcessing) return;
+
+    setState(() {
+      _isProcessing = true;
+    });
+
+    try {
+      await action();
+    } finally {
+      // Reset after a short delay to allow viewmodel to update
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (mounted) {
+          setState(() {
+            _isProcessing = false;
+          });
+        }
       });
-    } else {
-      // No more users, reset processing flag
-      if (mounted) {
-        setState(() {
-          _isProcessingAction = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _handleLike(String userId) async {
-    // Prevent multiple simultaneous actions
-    if (_isProcessingAction) return;
-    
-    setState(() {
-      _isProcessingAction = true;
-    });
-
-    try {
-      // Execute the action with the captured userId
-      await widget.onLike(userId);
-      
-      // Move to next user after action completes
-      if (mounted) {
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) {
-            _moveToNext();
-          }
-        });
-      }
-    } catch (e) {
-      // On error, reset processing flag
-      if (mounted) {
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) {
-            setState(() {
-              _isProcessingAction = false;
-            });
-          }
-        });
-      }
-    }
-  }
-
-  Future<void> _handlePass(String userId) async {
-    // Prevent multiple simultaneous actions
-    if (_isProcessingAction) return;
-    
-    setState(() {
-      _isProcessingAction = true;
-    });
-
-    try {
-      // Execute the action with the captured userId
-      await widget.onPass(userId);
-      
-      // Move to next user after action completes
-      if (mounted) {
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) {
-            _moveToNext();
-          }
-        });
-      }
-    } catch (e) {
-      // On error, reset processing flag
-      if (mounted) {
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) {
-            setState(() {
-              _isProcessingAction = false;
-            });
-          }
-        });
-      }
     }
   }
 
@@ -385,23 +292,18 @@ class _UserCardViewState extends State<_UserCardView> {
       return const SizedBox.shrink();
     }
 
-    // Ensure index is within bounds
-    if (_currentIndex >= widget.users.length) {
-      return const SizedBox.shrink();
-    }
-
-    final currentUser = widget.users[_currentIndex];
-    // Capture the user ID to prevent closure issues when state changes
+    // Always show the first user - viewmodel removes users after swipe
+    final currentUser = widget.users.first;
     final currentUserId = currentUser.id;
 
     return DiscoveryUserCard(
       user: currentUser,
-      onLike: _isProcessingAction 
-          ? null 
-          : () => _handleLike(currentUserId),
-      onPass: _isProcessingAction 
-          ? null 
-          : () => _handlePass(currentUserId),
+      onLike: _isProcessing
+          ? null
+          : () => _handleAction(() => widget.onLike(currentUserId)),
+      onPass: _isProcessing
+          ? null
+          : () => _handleAction(() => widget.onPass(currentUserId)),
     );
   }
 }

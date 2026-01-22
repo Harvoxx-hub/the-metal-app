@@ -8,6 +8,7 @@ import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/res/res.dart';
+import 'package:metal/route/routes.dart';
 
 class CommentReactionSection extends ConsumerStatefulWidget {
   final String thoughtId;
@@ -155,6 +156,13 @@ class _CommentReactionSectionState
               itemBuilder: (context, index) {
                 final reaction = reactions[index];
                 return ListTile(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.userProfile,
+                      arguments: reaction.userId,
+                    );
+                  },
                   leading: ProfilePhoto(
                     verfly: false,
                     size: 40,

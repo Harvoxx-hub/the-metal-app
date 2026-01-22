@@ -100,12 +100,13 @@ class CommunityRepository implements CommunityRepositoryAbstract {
   }
 
   @override
-  Future<BaseState<void>> leaveCommunity(String communityId) async {
+  Future<BaseState<Map<String, dynamic>?>> leaveCommunity(String communityId) async {
     try {
-      await _remoteDataSource.leaveCommunity(communityId);
-      return BaseState.success(null);
+      final result = await _remoteDataSource.leaveCommunity(communityId);
+      // Return the result map so viewmodel can check if community was deleted
+      return BaseState.success(result);
     } catch (e) {
-      return ErrorHandler.handleError<void>(e);
+      return ErrorHandler.handleError<Map<String, dynamic>?>(e);
     }
   }
 }

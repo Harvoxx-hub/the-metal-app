@@ -124,7 +124,7 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
       );
       // Force a full refresh to get the latest posts
       await viewModel.refreshAll(widget.communityId);
-      
+
       // Ensure we're on the Posts tab to see the new post
       if (_tabController.index != 0) {
         _tabController.animateTo(0);
@@ -134,7 +134,7 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
 
   Widget _buildAppBar(BuildContext context, community) {
     return SliverAppBar(
-      expandedHeight: 280,
+      expandedHeight: 300,
       floating: false,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
@@ -222,13 +222,30 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
                       const Spacer(),
                       BaseButton(
                         buttonText: community.isJoined ? 'Leave' : 'Join',
-                        onPressed: () {
+                        onPressed: () async {
                           final viewModel = ref.read(
                             communityDetailViewModelProvider(widget.communityId)
                                 .notifier,
                           );
                           if (community.isJoined) {
-                            viewModel.leaveCommunity(widget.communityId);
+                            final result = await viewModel
+                                .leaveCommunity(widget.communityId);
+                            // Check if community was deleted (admin left)
+                            if (result != null && result['deleted'] == true) {
+                              if (mounted) {
+                                // Show success message
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Community and all posts have been deleted',
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                                // Navigate back
+                                Navigator.pop(context);
+                              }
+                            }
                           } else {
                             viewModel.joinCommunity(widget.communityId);
                           }

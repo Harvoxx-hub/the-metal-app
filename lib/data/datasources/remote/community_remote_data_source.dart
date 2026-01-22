@@ -1,7 +1,6 @@
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/network/dio_client.dart';
 import 'package:metal/data/models/community_model.dart';
-import 'package:metal/data/models/thought_model.dart';
 
 /// Remote data source for community operations
 class CommunityRemoteDataSource {
@@ -59,7 +58,8 @@ class CommunityRemoteDataSource {
       data: request.toJson(),
     );
 
-    if (response.statusCode == 200 && response.data != null) {
+    // Accept both 200 and 201 status codes (201 Created is standard for POST)
+    if ((response.statusCode == 200 || response.statusCode == 201) && response.data != null) {
       final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
       return CommunityModel.fromJson(data);
     }
@@ -79,7 +79,8 @@ class CommunityRemoteDataSource {
   }
 
   /// Leave a community
-  Future<void> leaveCommunity(String communityId) async {
+  /// Returns a map with 'deleted' or 'left' flag to indicate if community was deleted
+  Future<Map<String, dynamic>> leaveCommunity(String communityId) async {
     final response = await _client.delete(
       '${ApiRoutes.buildPath(ApiRoutes.communityLeave)}/$communityId/leave',
     );
@@ -87,6 +88,10 @@ class CommunityRemoteDataSource {
     if (response.statusCode != 200) {
       throw Exception(response.data?['error'] ?? 'Failed to leave community');
     }
+
+    // Return the response data which includes 'deleted' or 'left' flag
+    final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+    return data as Map<String, dynamic>;
   }
 
   /// Get community members

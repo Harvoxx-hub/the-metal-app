@@ -57,7 +57,7 @@ class CommunityModel {
       category: json['category'] as String?,
       isPublic: json['isPublic'] as bool? ?? true,
       tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? [],
-      rules: json['rules'] as String?,
+      rules: _parseRules(json['rules']),
       isJoined: isJoined,
       createdAt: json['createdAt'] as String,
     );
@@ -97,6 +97,18 @@ class CommunityModel {
       default:
         return CommunityType.general;
     }
+  }
+
+  /// Parse rules field - backend may return as List or String
+  static String? _parseRules(dynamic rules) {
+    if (rules == null) return null;
+    if (rules is String) return rules;
+    if (rules is List) {
+      // Join array of rules into a string (e.g., for display)
+      final rulesList = rules.map((e) => e.toString()).where((e) => e.isNotEmpty).toList();
+      return rulesList.isEmpty ? null : rulesList.join('\n');
+    }
+    return rules.toString();
   }
 }
 

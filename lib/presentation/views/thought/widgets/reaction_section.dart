@@ -7,15 +7,16 @@ import 'package:metal/presentation/viewmodels/thought/reaction_viewmodel.dart';
 import 'package:metal/presentation/views/thought/widgets/reaction_list_tile.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:metal/res/res.dart';
 
 class ReactionSection extends ConsumerStatefulWidget {
   final String thoughtId;
   final GlobalKey? reactionKey;
+  final VoidCallback? onToggleReactions;
   const ReactionSection({
     Key? key,
     required this.thoughtId,
     this.reactionKey,
+    this.onToggleReactions,
   }) : super(key: key);
 
   @override
@@ -23,34 +24,18 @@ class ReactionSection extends ConsumerStatefulWidget {
 }
 
 class _ReactionSectionState extends ConsumerState<ReactionSection> {
-  bool _showReactions = false;
-
-  void _toggleReactions() {
-    setState(() {
-      _showReactions = !_showReactions;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final reactionState = ref.watch(reactionViewModelProvider(widget.thoughtId));
     final reactions = reactionState.reactions;
     final userdata = ref.watch(userStateProvider).user;
 
-    return Stack(
+    return Row(
       children: [
-        SizedBox(
-          height: _showReactions ? 100 : 60,
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: _toggleReactions,
-                child: _buildReactionDisplay(reactions, userdata?.id),
-              ),
-            ],
-          ),
+        GestureDetector(
+          onTap: widget.onToggleReactions ?? () {},
+          child: _buildReactionDisplay(reactions, userdata?.id),
         ),
-        if (_showReactions) _buildReactionsSelector(reactions),
       ],
     );
   }
@@ -61,7 +46,7 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
         key: widget.reactionKey,
         children: [
           IconButton(
-            onPressed: _toggleReactions,
+            onPressed: widget.onToggleReactions ?? () {},
             icon: const Icon(Icons.favorite_border),
           ),
           const TextView(
@@ -99,7 +84,7 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
           )
         else
           IconButton(
-            onPressed: _toggleReactions,
+            onPressed: widget.onToggleReactions ?? () {},
             icon: const Icon(Icons.favorite_border),
           ),
         GestureDetector(
@@ -190,60 +175,4 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
     );
   }
 
-  Widget _buildReactionsSelector(List<ReactionDto> reactions) {
-    return Positioned(
-      bottom: 40,
-      left: 20,
-      right: 20,
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: AppColors.metalTabBg,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: _buildReactionIcons(reactions),
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _buildReactionIcons(List<ReactionDto> reactions) {
-    final userdata = ref.watch(userStateProvider).user;
-    final userReaction = userdata?.id != null
-        ? reactions
-            .where((reaction) => reaction.userId == userdata!.id)
-            .firstOrNull
-        : null;
-
-    final emojis = ["😍", "👍", "😂", "😢", "😡"];
-    return emojis.map((emoji) {
-      final isCurrentReaction = userReaction?.emoji == emoji;
-      return GestureDetector(
-        onTap: () async {
-          final viewModel =
-              ref.read(reactionViewModelProvider(widget.thoughtId).notifier);
-          await viewModel.addReaction(emoji);
-
-          setState(() {
-            _showReactions = false;
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.all(4),
-          decoration: isCurrentReaction
-              ? BoxDecoration(
-                  color: AppColors.metalPinkColour.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                )
-              : null,
-          child: TextView(
-            text: emoji,
-            fontSize: 24,
-          ),
-        ),
-      );
-    }).toList();
-  }
 }

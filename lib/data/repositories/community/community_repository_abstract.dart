@@ -25,5 +25,7 @@ abstract class CommunityRepositoryAbstract {
 
   Future<BaseState<void>> joinCommunity(String communityId);
 
-  Future<BaseState<void>> leaveCommunity(String communityId);
+  /// Leave a community
+  /// Returns a Map with 'deleted' or 'left' flag if successful
+  Future<BaseState<Map<String, dynamic>?>> leaveCommunity(String communityId);
 }

@@ -122,35 +122,47 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
     }
   }
 
-  Future<void> leaveCommunity(String communityId) async {
-    if (state.isLeaving) return;
+  Future<Map<String, dynamic>?> leaveCommunity(String communityId) async {
+    if (state.isLeaving) return null;
 
     state = state.copyWith(isLeaving: true);
 
     final result = await _repository.leaveCommunity(communityId);
 
     if (mounted) {
-      if (result.isSuccess) {
-        // Optimistically update local state
-        final updatedCommunity = state.community?.copyWith(
-          isJoined: false,
-          memberCount: (state.community?.memberCount ?? 0) - 1,
-        );
-        state = state.copyWith(
-          isLeaving: false,
-          community: updatedCommunity,
-        );
+      if (result.isSuccess && result.data != null) {
+        final responseData = result.data!;
+        final wasDeleted = responseData['deleted'] == true;
 
-        // Reload from backend to get fresh state (including correct isJoined status)
-        await loadCommunityDetails(communityId);
+        if (wasDeleted) {
+          // Community was deleted - return the response data
+          state = state.copyWith(isLeaving: false);
+          return responseData;
+        } else {
+          // Regular leave - update local state
+          final updatedCommunity = state.community?.copyWith(
+            isJoined: false,
+            memberCount: (state.community?.memberCount ?? 0) - 1,
+          );
+          state = state.copyWith(
+            isLeaving: false,
+            community: updatedCommunity,
+          );
+
+          // Reload from backend to get fresh state
+          await loadCommunityDetails(communityId);
+          return responseData;
+        }
       } else {
         state = state.copyWith(
           isLeaving: false,
           isError: true,
           errorMessage: result.errorMessage ?? 'Failed to leave community',
         );
+        return null;
       }
     }
+    return null;
   }
 
   Future<void> loadCommunityMembers(String communityId, {String? role}) async {

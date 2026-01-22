@@ -114,7 +114,8 @@ enum MediaPurpose {
   profile('profile'),
   thought('thought'),
   message('message'),
-  story('story');
+  story('story'),
+  community('community');
 
   final String value;
   const MediaPurpose(this.value);

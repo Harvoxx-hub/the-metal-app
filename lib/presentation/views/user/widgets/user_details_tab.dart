@@ -22,20 +22,6 @@ class UserDetailsTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // About section
-          if (user.bio != null && user.bio!.isNotEmpty) ...[
-            _buildSection(
-              title: 'About',
-              child: TextView(
-                text: user.bio!,
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: AppColors.metalBrownColourForText,
-              ),
-            ),
-            const Gap(24),
-          ],
-
           // Basic Info
           _buildSection(
             title: 'Basic Information',
@@ -83,48 +69,6 @@ class UserDetailsTab extends ConsumerWidget {
                           ),
                         ))
                     .toList(),
-              ),
-            ),
-          ],
-
-          // Prompts (if available)
-          if (user.prompts != null && user.prompts!.isNotEmpty) ...[
-            const Gap(24),
-            _buildSection(
-              title: 'Prompts',
-              child: Column(
-                children: user.prompts!.map((prompt) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.metalButtonStroke,
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextView(
-                          text: prompt.questionText,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.metalBrownColourForText,
-                        ),
-                        const Gap(12),
-                        TextView(
-                          text: prompt.answer,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.metalBrownColourForText,
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
               ),
             ),
           ],

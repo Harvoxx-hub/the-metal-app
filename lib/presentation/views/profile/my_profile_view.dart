@@ -5,7 +5,7 @@ import 'package:metal/presentation/views/thought/widgets/thought_card.dart';
 import 'package:metal/presentation/viewmodels/user/user_profile_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
-import 'package:metal/presentation/views/prompt/prompt_display_view.dart';
+ 
 import 'package:metal/presentation/widgets/profile/profile_header.dart';
 import 'package:metal/presentation/widgets/settings/edit_field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -14,7 +14,7 @@ import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/loading.state.dart';
 import 'package:metal/widgets/text_views.dart';
 
-/// My Profile View with 3 tabs: Thoughts, Prompt, Personal
+/// My Profile View with 3 tabs: Thoughts, Personal
 class MyProfileView extends ConsumerStatefulWidget {
   const MyProfileView({super.key});
 
@@ -82,7 +82,7 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
                   controller: _tabController,
                   children: [
                     _buildThoughtsTab(profileState, profileViewModel),
-                    _buildPromptTab(),
+             
                     _buildPersonalTab(),
                   ],
                 ),
@@ -121,7 +121,7 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
         dividerColor: Colors.transparent,
         tabs: const [
           Tab(text: 'Thoughts'),
-          Tab(text: 'Prompt'),
+    
           Tab(text: 'Personal'),
         ],
       ),
@@ -192,10 +192,7 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
     );
   }
 
-  /// Prompt Tab - Read-only Prompt Display View
-  Widget _buildPromptTab() {
-    return const PromptDisplayView();
-  }
+ 
 
   /// Personal Tab - Shows list of personal settings and options
   Widget _buildPersonalTab() {

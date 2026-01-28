@@ -16,6 +16,7 @@ import 'package:metal/widgets/agree.click.dart';
 import 'package:metal/widgets/dropdown/metal.dropdown.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:metal/presentation/views/prompt/prompt_creation_view.dart';
 
 class EditPreferencesView extends ConsumerStatefulWidget {
   const EditPreferencesView({super.key});
@@ -236,6 +237,9 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                         _updateUser('connectionOption', connectionOption);
                       },
                     ),
+                    const Gap(20),
+                    // Manage Prompts Section
+                    _buildManagePromptsSection(user),
                     const Gap(20),
                     // Age range
                     _buildAgeRangeSection(),
@@ -486,6 +490,138 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildManagePromptsSection(UserDto? user) {
+    final prompts = user?.prompts ?? [];
+    final promptCount = prompts.length;
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.metalTabBg,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: AppColors.metalButtonStroke, width: 1.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const TextView(
+                    text: "Manage Prompts",
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.metalBrownColourForText,
+                  ),
+                  const Gap(4),
+                  TextView(
+                    text: promptCount >= 3
+                        ? "$promptCount prompts selected"
+                        : "$promptCount of 3 minimum prompts",
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: promptCount >= 3
+                        ? AppColors.metalBrownColourForText.withOpacity(0.7)
+                        : AppColors.metalPinkColour,
+                  ),
+                ],
+              ),
+              TextButton(
+                onPressed: () async {
+                  // Navigate to prompt editing and wait for return
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PromptCreationView(
+                        isAuthFlow: false,
+                      ),
+                    ),
+                  );
+                  
+                  // Refresh user data to get latest prompts
+                  if (mounted) {
+                    await ref.read(userStateProvider.notifier).fetchAndSetUser();
+                  }
+                },
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  backgroundColor: AppColors.metalPinkColour,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const TextView(
+                  text: "Edit",
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.metalWhite,
+                ),
+              ),
+            ],
+          ),
+          if (prompts.isNotEmpty) ...[
+            const Gap(12),
+            const Divider(height: 1),
+            const Gap(12),
+            ...prompts.take(3).map((prompt) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppColors.metalButtonStroke,
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextView(
+                      text: prompt.questionText,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.metalBrownColourForText,
+                    ),
+                    const Gap(6),
+                    TextView(
+                      text: prompt.answer,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.metalBrownColourForText.withOpacity(0.7),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            if (prompts.length > 3)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: TextView(
+                  text: "+${prompts.length - 3} more prompt${prompts.length - 3 > 1 ? 's' : ''}",
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.metalPinkColour,
+                ),
+              ),
+          ] else ...[
+            const Gap(8),
+            TextView(
+              text: "Add prompts to express yourself better",
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              color: AppColors.metalBrownColourForText.withOpacity(0.6),
+            ),
+          ],
+        ],
+      ),
     );
   }
 

@@ -67,13 +67,18 @@ void main() async {
   }
 
   // Initialize Shorebird Code Push for OTA updates
+  // CRITICAL: Initialize Shorebird BEFORE running the app to prevent splash screen hang
   // With auto_update enabled in shorebird.yaml, patches will be automatically downloaded
+  // but we need to wait for initialization to complete to prevent the app from getting stuck
   try {
-    // Check for updates in the background on app start
-    await ShorebirdUpdateService.instance.checkForUpdates();
+    debugPrint('Initializing Shorebird before app startup...');
+    // Initialize and wait for Shorebird to be ready
+    // This prevents the app from getting stuck on splash screen after patch application
+    await ShorebirdUpdateService.instance.initialize();
+    debugPrint('Shorebird initialization complete');
   } catch (e) {
-    print('Shorebird initialization/update check failed: $e');
-    // Continue app startup even if Shorebird fails
+    debugPrint('Shorebird initialization/update check failed: $e');
+    // Continue app startup even if Shorebird fails to prevent app from hanging
   }
 
   // Initialize SharedPreferences eagerly before app starts

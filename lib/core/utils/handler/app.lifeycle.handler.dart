@@ -86,12 +86,14 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
       }
 
       // Check for updates in background (non-blocking)
+      // Note: With auto_update enabled, patches download automatically
+      // This is just a check to log if updates are available
       ShorebirdUpdateService.instance.checkForUpdates().then((hasUpdate) {
         if (hasUpdate) {
-          print('Shorebird: New patch available, downloading in background...');
-          // Download will happen automatically if auto_update is enabled
-          // Otherwise, we can trigger it here if needed
-          ShorebirdUpdateService.instance.downloadAndApplyPatch();
+          print('Shorebird: New patch available');
+          // With auto_update enabled, the patch will download automatically
+          // We can optionally trigger manual download if auto_update is disabled
+          // ShorebirdUpdateService.instance.downloadAndApplyPatch();
         }
       }).catchError((e) {
         print('Shorebird: Error during update check on resume: $e');

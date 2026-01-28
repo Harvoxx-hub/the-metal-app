@@ -224,7 +224,10 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
     try {
       final response = await dioClient.delete(
         ApiRoutes.buildPath(ApiRoutes.deleteAccount),
-        data: {'password': password},
+        data: {
+          'password': password,
+          'confirmation': 'DELETE_MY_ACCOUNT',
+        },
       );
 
       if (response.data is Map<String, dynamic>) {

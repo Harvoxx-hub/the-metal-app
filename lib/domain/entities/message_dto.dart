@@ -167,7 +167,7 @@ class MessageDto extends BaseEntity {
   bool get isCall => type == MessageType.calls;
 
   /// Check if this is a prompt reaction message
-  bool get isPromptReactionMessage => 
+  bool get isPromptReactionMessage =>
       type == MessageType.promptReaction || isPromptReaction == true;
 
   /// Check if the message is still sending

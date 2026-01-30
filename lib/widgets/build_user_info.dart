@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/thought_dto.dart';
- 
+
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -39,7 +39,7 @@ class BuildUserInfo extends ConsumerWidget {
     final currentUser = ref.watch(userStateProvider).user;
     final isOwnContent = currentUser?.id == userId;
 
-    // Use author metadata from thought if available, otherwise fetch user
+    // Use author metadata from thought if available and matches userId
     final authorMetadata = thought.authorMetadata;
 
     if (authorMetadata != null && authorMetadata.authorId == userId) {
@@ -50,38 +50,48 @@ class BuildUserInfo extends ConsumerWidget {
         isVerified: authorMetadata.authorIsVerified ?? false,
         isOwnContent: isOwnContent,
         metalId: userId,
-        thoughtDate: thought.createdAt,
+        thoughtDate: date ?? thought.createdAt,
       );
     }
 
-    // Fallback to fetching user data if author metadata not available
-    final userState = ref.watch(userStateProvider);
+    // For comments or when author metadata doesn't match, fetch user by userId
+    final userAsync = ref.watch(getUserProvider(userId));
 
-    if (userState.isLoading) {
-      return _buildLoadingState();
-    }
+    return userAsync.when(
+      data: (baseState) {
+        if (baseState.isError || baseState.data == null) {
+          return _buildUserInfoRow(
+            context: context,
+            name: 'Anonymous',
+            profilePhoto: null,
+            isVerified: false,
+            isOwnContent: isOwnContent,
+            metalId: userId,
+            thoughtDate: date ?? thought.createdAt,
+          );
+        }
 
-    if ( userState.user == null) {
-      return _buildUserInfoRow(
+        final user = baseState.data!;
+        return _buildUserInfoRow(
+          context: context,
+          name: user.username ?? user.fullname ?? 'Anonymous',
+          profilePhoto: user.profilePhoto,
+          isVerified: user.isVerified,
+          isOwnContent: isOwnContent,
+          metalId: user.metal ?? userId,
+          thoughtDate: date ?? thought.createdAt,
+        );
+      },
+      loading: () => _buildLoadingState(),
+      error: (error, stack) => _buildUserInfoRow(
         context: context,
         name: 'Anonymous',
         profilePhoto: null,
         isVerified: false,
         isOwnContent: isOwnContent,
         metalId: userId,
-        thoughtDate: thought.createdAt,
-      );
-    }
-
-    final user = userState.user!;
-    return _buildUserInfoRow(
-      context: context,
-      name: user.username ?? user.fullname ?? 'Anonymous',
-      profilePhoto: user.profilePhoto,
-      isVerified: user.isVerified ?? false,
-      isOwnContent: isOwnContent,
-      metalId: user.metal ?? userId,
-      thoughtDate: thought.createdAt,
+        thoughtDate: date ?? thought.createdAt,
+      ),
     );
   }
 
@@ -173,12 +183,12 @@ class BuildUserInfo extends ConsumerWidget {
                   ],
                 ),
                 // Always show datetime from thought
-                  const Gap(2),
-                  TextView(
+                const Gap(2),
+                TextView(
                   text: _formatDate(thoughtDate),
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
               ],
             ),
           ),
@@ -206,8 +216,7 @@ class BuildUserInfo extends ConsumerWidget {
             ],
           ),
         // Show thought menu (delete, report, block)
-        if (showThoughtMenu)
-          _buildThoughtMenu(context, isOwnContent),
+        if (showThoughtMenu) _buildThoughtMenu(context, isOwnContent),
       ],
     );
   }

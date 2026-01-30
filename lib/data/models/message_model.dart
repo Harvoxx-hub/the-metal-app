@@ -14,7 +14,8 @@ class MessageModel {
   final String? replyToMessageText;
   final String? replyToSenderId;
   final String? replyToMessageType;
-  final String? unmeltStatus; // 'pending', 'approved', 'rejected' for unmelt messages
+  final String?
+      unmeltStatus; // 'pending', 'approved', 'rejected' for unmelt messages
   final bool? isPromptReaction;
   final String? promptQuestionText;
   final String? promptAnswer;
@@ -42,10 +43,10 @@ class MessageModel {
   /// Create from API JSON response
   factory MessageModel.fromJson(Map<String, dynamic> json) {
     // Try multiple possible ID field names
-    final messageId = json['id'] as String? ?? 
-                      json['_id'] as String? ?? 
-                      json['messageId'] as String?;
-    
+    final messageId = json['id'] as String? ??
+        json['_id'] as String? ??
+        json['messageId'] as String?;
+
     if (messageId == null || messageId.isEmpty) {
       print('Warning: Message missing ID field. JSON: $json');
       // Generate a fallback ID if missing (shouldn't happen in production)
@@ -57,7 +58,8 @@ class MessageModel {
         senderId: json['senderId'] as String? ?? '',
         type: json['type'] as String? ?? 'text',
         content: json['content'] as String?,
-        timestamp: json['timestamp'] as String? ?? DateTime.now().toIso8601String(),
+        timestamp:
+            json['timestamp'] as String? ?? DateTime.now().toIso8601String(),
         isRead: json['isRead'] as bool? ?? false,
         replyToMessageId: json['replyToMessageId'] as String?,
         replyToMessageText: json['replyToMessageText'] as String?,
@@ -70,14 +72,15 @@ class MessageModel {
         comment: json['comment'] as String?,
       );
     }
-    
+
     return MessageModel(
       id: messageId,
       message: json['message'] as String? ?? '',
       senderId: json['senderId'] as String? ?? '',
       type: json['type'] as String? ?? 'text',
       content: json['content'] as String?,
-      timestamp: json['timestamp'] as String? ?? DateTime.now().toIso8601String(),
+      timestamp:
+          json['timestamp'] as String? ?? DateTime.now().toIso8601String(),
       isRead: json['isRead'] as bool? ?? false,
       replyToMessageId: json['replyToMessageId'] as String?,
       replyToMessageText: json['replyToMessageText'] as String?,
@@ -225,8 +228,14 @@ class ConnectionModel {
   /// Create from API JSON response
   factory ConnectionModel.fromJson(Map<String, dynamic> json) {
     return ConnectionModel(
-      id: json['id'] as String? ?? json['_id'] as String? ?? json['connectionId'] as String? ?? '',
-      users: (json['users'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      id: json['id'] as String? ??
+          json['_id'] as String? ??
+          json['connectionId'] as String? ??
+          '',
+      users: (json['users'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       lastMessage: json['lastMessage'] as String?,
       lastUpdatedAt: json['lastUpdatedAt'] as String?,
       lastSenderId: json['lastSenderId'] as String?,
@@ -248,7 +257,8 @@ class ConnectionModel {
       id: id,
       users: users,
       lastMessage: lastMessage,
-      lastUpdatedAt: lastUpdatedAt != null ? DateTime.tryParse(lastUpdatedAt!) : null,
+      lastUpdatedAt:
+          lastUpdatedAt != null ? DateTime.tryParse(lastUpdatedAt!) : null,
       lastSenderId: lastSenderId,
       unreadCount: unreadCount,
       game: game,
@@ -258,7 +268,9 @@ class ConnectionModel {
       receiverId: receiverId,
       connectedOn: connectedOn != null ? DateTime.tryParse(connectedOn!) : null,
       canUnmelt: canUnmelt,
-      otherUser: otherUserData != null ? ChatUserModel.fromJson(otherUserData!).toDomain() : null,
+      otherUser: otherUserData != null
+          ? ChatUserModel.fromJson(otherUserData!).toDomain()
+          : null,
     );
   }
 
@@ -305,7 +317,8 @@ class ConnectionsResponseModel {
           .toList(),
       nextCursor: paginationJson['nextCursor'] as String?,
       hasMore: paginationJson['hasMore'] as bool? ?? false,
-      totalCount: paginationJson['totalCount'] as int? ?? connectionsJson.length,
+      totalCount:
+          paginationJson['totalCount'] as int? ?? connectionsJson.length,
     );
   }
 }

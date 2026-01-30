@@ -150,6 +150,17 @@ class _SignupViewState extends ConsumerState<SignupView> {
                         phoneNumber = phone;
                       });
                     },
+                    validator: (phone) {
+                      if (phone == null || phone.completeNumber.isEmpty) {
+                        return 'Please enter a valid phone number';
+                      }
+                      // Validate that the phone number has at least 10 digits (country code + number)
+                      final digitsOnly = phone.completeNumber.replaceAll(RegExp(r'[^\d]'), '');
+                      if (digitsOnly.length < 10) {
+                        return 'Please enter a valid phone number';
+                      }
+                      return null;
+                    },
                   ),
                   const Gap(16),
                   EditFormField(

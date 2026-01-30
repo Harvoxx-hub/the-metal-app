@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:intl_phone_field/phone_number.dart';
+import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 import '../../res/colors/cr_colors.dart';
 
@@ -8,12 +11,14 @@ class PhoneInput extends StatelessWidget {
   final String floatingLabel;
   final TextEditingController phoneController;
   final void Function(String)? onPhoneNumberChanged;
+  final FutureOr<String?>? Function(PhoneNumber?)? validator;
 
   const PhoneInput({
     super.key,
     required this.phoneController,
     this.floatingLabel = "Phone number",
     this.onPhoneNumberChanged,
+    this.validator,
   });
 
   @override
@@ -64,12 +69,30 @@ class PhoneInput extends StatelessWidget {
           initialCountryCode: 'US',
           controller: phoneController,
           flagsButtonPadding: const EdgeInsets.all(10),
+          pickerDialogStyle: PickerDialogStyle(
+            searchFieldInputDecoration: InputDecoration(
+              hintText: 'Search country',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide:
+                    const BorderSide(color: AppColors.metalButtonStroke),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: AppColors.metalPinkColour),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide:
+                    const BorderSide(color: AppColors.metalButtonStroke),
+              ),
+            ),
+          ),
           onChanged: onPhoneNumberChanged != null
               ? (phone) => onPhoneNumberChanged!(phone.completeNumber)
               : null,
-          onSubmitted: onPhoneNumberChanged != null
-              ? (phone) => onPhoneNumberChanged!(phone)
-              : null,
+          validator: validator,
         ),
       ],
     );

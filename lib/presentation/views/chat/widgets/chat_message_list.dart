@@ -373,7 +373,7 @@ class _MessageBubbleState extends State<_MessageBubble>
           ],
         ),
         const Gap(12),
-        
+
         // Prompt question
         if (questionText.isNotEmpty) ...[
           Container(
@@ -405,7 +405,7 @@ class _MessageBubbleState extends State<_MessageBubble>
           ),
           const Gap(12),
         ],
-        
+
         // Comment (if provided)
         if (comment != null && comment.isNotEmpty) ...[
           TextView(

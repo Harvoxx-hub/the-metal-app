@@ -27,7 +27,7 @@ class EditMeetupScreen extends ConsumerStatefulWidget {
 class _EditMeetupScreenState extends ConsumerState<EditMeetupScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _eventNameController;
-  late final TextEditingController _placeUrlController;
+  late final TextEditingController _placeNameController;
   late final TextEditingController _descriptionController;
   
   late DateTime? _selectedDate;
@@ -40,7 +40,7 @@ class _EditMeetupScreenState extends ConsumerState<EditMeetupScreen> {
     super.initState();
     // Pre-populate fields with existing meetup data
     _eventNameController = TextEditingController(text: widget.meetup.eventName);
-    _placeUrlController = TextEditingController(text: widget.meetup.placeUrl);
+    _placeNameController = TextEditingController(text: widget.meetup.placeName);
     _descriptionController = TextEditingController(text: widget.meetup.description ?? '');
     
     // Parse existing date and time
@@ -57,7 +57,7 @@ class _EditMeetupScreenState extends ConsumerState<EditMeetupScreen> {
   @override
   void dispose() {
     _eventNameController.dispose();
-    _placeUrlController.dispose();
+    _placeNameController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -127,7 +127,8 @@ class _EditMeetupScreenState extends ConsumerState<EditMeetupScreen> {
         eventName: _eventNameController.text.trim(),
         date: DateFormat('yyyy-MM-dd').format(_selectedDate!),
         time: '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}',
-        placeUrl: _placeUrlController.text.trim(),
+        placeName: _placeNameController.text.trim(),
+        placeLocation: widget.meetup.placeLocation,
         description: _descriptionController.text.trim().isEmpty
             ? null
             : _descriptionController.text.trim(),
@@ -339,19 +340,15 @@ class _EditMeetupScreenState extends ConsumerState<EditMeetupScreen> {
               ),
               const Gap(16),
 
-              // Place URL
+              // Place name
               EditFormField(
-                controller: _placeUrlController,
-                label: 'Place URL',
-                hint: 'Enter restaurant/venue URL (Google Maps, etc.)',
-                keyboardType: TextInputType.url,
+                controller: _placeNameController,
+                label: 'Place name',
+                hint: 'Enter venue or address name',
+                keyboardType: TextInputType.streetAddress,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Place URL is required';
-                  }
-                  final uri = Uri.tryParse(value.trim());
-                  if (uri == null || !uri.hasAbsolutePath) {
-                    return 'Please enter a valid URL';
+                    return 'Place name is required';
                   }
                   return null;
                 },

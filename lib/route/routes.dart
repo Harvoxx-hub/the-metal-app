@@ -28,7 +28,8 @@ import 'package:metal/presentation/views/thought/thought_detail_view.dart';
 import 'package:metal/presentation/views/community/community_detail_view.dart';
 import 'package:metal/presentation/views/community/create_community_screen.dart';
 import 'package:metal/presentation/views/user/user_profile_view.dart';
-import 'package:metal/presentation/views/meetup/create_meetup_screen.dart';
+import 'package:metal/presentation/views/meetup/create_linkup_screen.dart';
+import 'package:metal/presentation/views/meetup/invite_guests_screen.dart';
 import 'package:metal/presentation/views/meetup/meetup_detail_view.dart';
 
 // New Clean Architecture Connection views
@@ -47,6 +48,7 @@ import 'package:metal/presentation/views/settings/blocked_users_view.dart';
 // import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
 import 'package:metal/presentation/views/spark/send_spark_screen.dart';
 import 'package:metal/presentation/views/referral/referral_view.dart';
+import 'package:metal/presentation/views/feedback/feedback_view.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 
 class AppRoutes {
@@ -86,6 +88,7 @@ class AppRoutes {
   static const String sendSpark = '/sendSpark';
   static const String buySpark = '/buySpark';
   static const String referEarn = '/referEarn';
+  static const String feedback = '/feedback';
   static const String chatWindowView = '/chatWindowView'; // New API-based chat
   static const String updatePhoneNumberPage = '/updatePhoneNumberPage';
   static const String updateEmailPage = '/updateEmailPage';
@@ -101,7 +104,10 @@ class AppRoutes {
   static const String userProfile = '/userProfile';
   static const String workEmail = '/work-email';
   static const String meetupDetails = '/meetupDetails';
+  /// LinkUp detail (Live Event Dashboard). Same screen as meetupDetails.
+  static const String linkupDetails = '/linkupDetails';
   static const String createMeetup = '/createMeetup';
+  static const String inviteGuests = '/inviteGuests';
   // Dashboard tab indices
   static const int homeTab = 0;
   static const int thoughtsTab = 1;
@@ -279,6 +285,10 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => const ReferralView(),
         );
+      case feedback:
+        return MaterialPageRoute(
+          builder: (_) => const FeedbackView(),
+        );
       case chatWindowView:
         return MaterialPageRoute(
             builder: (_) => ChatWindowView(
@@ -350,15 +360,29 @@ class AppRoutes {
             ? args
             : (args as Map<String, dynamic>?)?['communityId'] as String?;
         return MaterialPageRoute(
-          builder: (_) => CreateMeetupScreen(communityId: communityId),
+          builder: (_) => CreateLinkupScreen(communityId: communityId),
         );
       case meetupDetails:
+      case linkupDetails:
+        // Live Event Dashboard (LinkUp detail)
         final args = settings.arguments;
         final meetupId = args is String
             ? args
             : (args as Map<String, dynamic>?)?['meetupId'] as String? ?? '';
         return MaterialPageRoute(
           builder: (_) => MeetupDetailView(meetupId: meetupId),
+        );
+      case inviteGuests:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final maxGuests = args?['maxGuests'] as int? ?? 10;
+        final initialSelectedIds = (args?['initialSelectedIds'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ?? [];
+        return MaterialPageRoute(
+          builder: (_) => InviteGuestsScreen(
+            maxGuests: maxGuests,
+            initialSelectedIds: initialSelectedIds,
+          ),
         );
       default:
         return MaterialPageRoute(

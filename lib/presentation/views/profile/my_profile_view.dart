@@ -14,7 +14,7 @@ import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/loading.state.dart';
 import 'package:metal/widgets/text_views.dart';
 
-/// My Profile View with 3 tabs: Thoughts, Personal
+/// My Profile View with 2 tabs: Thoughts, Personal
 class MyProfileView extends ConsumerStatefulWidget {
   const MyProfileView({super.key});
 
@@ -29,7 +29,7 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override

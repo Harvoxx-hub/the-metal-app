@@ -87,6 +87,11 @@ class BlockUserButton extends ConsumerWidget {
               .unblockUser(userId: userId);
 
           if (success) {
+            // Refresh the blocked users list
+            await ref
+                .read(blockedUsersViewModelProvider.notifier)
+                .refreshBlockedUsers();
+            
             if (onBlockStatusChanged != null) {
               onBlockStatusChanged!();
             }
@@ -104,6 +109,11 @@ class BlockUserButton extends ConsumerWidget {
         userId: userId,
         username: username,
       );
+
+      // Refresh the blocked users list after blocking
+      await ref
+          .read(blockedUsersViewModelProvider.notifier)
+          .refreshBlockedUsers();
 
       if (onBlockStatusChanged != null) {
         onBlockStatusChanged!();

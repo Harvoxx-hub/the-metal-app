@@ -4,7 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/presentation/views/thought/widgets/thought_card.dart';
 // import 'package:metal/presentation/views/story/story_view.dart';
 import 'package:metal/presentation/views/community/community_list_view.dart';
-import 'package:metal/presentation/views/meetup/meetup_list_view.dart';
+import 'package:metal/presentation/views/meetup/discover_linkups_view.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_feed_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
 import 'package:metal/presentation/viewmodels/meetup/meetup_viewmodel.dart';
@@ -259,8 +259,8 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
     return const CommunityListView();
   }
 
-  /// Link Up Tab - Meetup List View
+  /// Link Up Tab - Discover LinkUps (map/list toggle, filters, nearby list, empty state)
   Widget _buildLinkUpTab() {
-    return const MeetupListView();
+    return const DiscoverLinkupsView();
   }
 }

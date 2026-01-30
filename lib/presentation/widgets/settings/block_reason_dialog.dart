@@ -233,6 +233,11 @@ class _BlockReasonDialogState extends ConsumerState<BlockReasonDialog> {
         );
 
     if (success && mounted) {
+      // Refresh the blocked users list to ensure it's up to date
+      await ref
+          .read(blockedUsersViewModelProvider.notifier)
+          .refreshBlockedUsers();
+      
       // Close the dialog
       Navigator.of(context).pop();
 

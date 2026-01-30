@@ -26,14 +26,31 @@ class CommunityMembersTab extends ConsumerStatefulWidget {
 }
 
 class _CommunityMembersTabState extends ConsumerState<CommunityMembersTab> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
+    _searchController.addListener(_onSearchChanged);
     // Load members when tab is first opened
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(communityDetailViewModelProvider(widget.communityId).notifier)
           .loadCommunityMembers(widget.communityId);
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = _searchController.text.toLowerCase().trim();
     });
   }
 
@@ -58,26 +75,65 @@ class _CommunityMembersTabState extends ConsumerState<CommunityMembersTab> {
       );
     }
 
-    if (detailState.members.isEmpty) {
+    // Filter members based on search query
+    final filteredMembers = _searchQuery.isEmpty
+        ? detailState.members
+        : detailState.members.where((member) {
+            final username = member.userName.toLowerCase();
+            return username.contains(_searchQuery);
+          }).toList();
+
+    if (filteredMembers.isEmpty) {
       return EmptyState(
-        text: 'No members found',
+        text: _searchQuery.isEmpty
+            ? 'No members found'
+            : 'No members match your search',
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: () async {
-        await ref
-            .read(communityDetailViewModelProvider(widget.communityId).notifier)
-            .loadCommunityMembers(widget.communityId);
-      },
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: detailState.members.length,
-        itemBuilder: (context, index) {
-          final member = detailState.members[index];
-          return _buildMemberCard(member);
-        },
-      ),
+    return Column(
+      children: [
+        // Search bar
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search members...',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                      },
+                    )
+                  : null,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+        // Members list
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await ref
+                  .read(communityDetailViewModelProvider(widget.communityId).notifier)
+                  .loadCommunityMembers(widget.communityId);
+            },
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: filteredMembers.length,
+              itemBuilder: (context, index) {
+                final member = filteredMembers[index];
+                return _buildMemberCard(member);
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 

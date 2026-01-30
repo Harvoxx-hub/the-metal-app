@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:dio/dio.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:metal/core/di/provider_setup.dart';
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/utils/permission_helper.dart';
@@ -42,6 +43,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
   bool _isRecording = false;
   bool _isUploadingAudio = false;
   bool _isMelting = false;
+  bool _showEmojiPicker = false;
 
   @override
   void dispose() {
@@ -288,24 +290,6 @@ class _ChatInputState extends ConsumerState<ChatInput> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  // Emoji button
-                  GestureDetector(
-                    onTap: () {
-                      // TODO: Implement emoji picker
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Assets.icons.chatsWindowactiveEmojis.svg(
-                        width: 28,
-                        height: 28,
-                        colorFilter: ColorFilter.mode(
-                          Colors.grey[700]!,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Gap(8),
                   // Text input
                   Expanded(
                     child: Container(

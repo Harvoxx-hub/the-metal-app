@@ -212,7 +212,11 @@ class _CreateCommunityScreenState
           Fluttertoast.showToast(msg: 'Community created successfully!');
           Navigator.pop(context, true); // Return true to indicate success
         } else {
-          Fluttertoast.showToast(msg: 'Failed to create community');
+          final error = ref.read(communityViewModelProvider).errorMessage;
+          Fluttertoast.showToast(
+            msg: error ?? 'Failed to create community. Please try again.',
+            toastLength: Toast.LENGTH_LONG,
+          );
         }
       }
     } catch (e) {

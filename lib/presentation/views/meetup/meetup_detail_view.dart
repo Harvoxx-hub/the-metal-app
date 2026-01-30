@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:metal/core/services/deep_link_service.dart';
 import 'package:metal/domain/entities/meetup_dto.dart';
 import 'package:metal/presentation/viewmodels/meetup/meetup_detail_viewmodel.dart';
-import 'package:metal/presentation/views/meetup/widgets/rsvp_section.dart';
-import 'package:metal/presentation/views/meetup/widgets/attendee_list.dart';
 import 'package:metal/presentation/views/meetup/edit_meetup_screen.dart';
-import 'package:metal/core/services/deep_link_service.dart';
+import 'package:metal/presentation/views/meetup/widgets/rsvp_section.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Meetup Detail View
-/// Displays a single meetup with full details, RSVP options, and attendees
+/// LinkUp Detail (Live Event Dashboard)
+/// Header, LIVE DASHBOARD badge, stats cards, capacity, map, tabbed attendees, Re-Broadcast.
 class MeetupDetailView extends ConsumerStatefulWidget {
   final String meetupId;
 
@@ -54,128 +54,72 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
   PreferredSizeWidget _buildAppBar(MeetupDetailState state, MeetupDetailViewModel viewModel) {
     return AppBar(
       elevation: 0,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.metalWhite,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppColors.metalBlack),
+        icon: const Icon(Icons.arrow_back, color: AppColors.metalBrownColourForText),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const TextView(
-        text: 'Meetup',
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
-        color: AppColors.metalBlack,
-      ),
-      centerTitle: true,
+      title: null,
+      centerTitle: false,
       actions: [
-        // Share button
         IconButton(
-          icon: const Icon(Icons.share, color: AppColors.metalBlack),
+          icon: const Icon(Icons.share_outlined, color: AppColors.metalBrownColourForText),
           onPressed: () => _handleShare(state.meetup),
         ),
-        // Edit/Delete if creator
-        if (viewModel.isCreator && state.meetup != null)
-          PopupMenuButton(
-            icon: const Icon(Icons.more_vert, color: AppColors.metalBlack),
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit, size: 20),
-                    Gap(8),
-                    Text('Edit'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, size: 20, color: Colors.red),
-                    Gap(8),
-                    Text('Delete', style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
-            onSelected: (value) {
-              if (value == 'delete') {
-                _handleDelete(viewModel);
-              } else if (value == 'edit') {
-                _handleEdit(state.meetup!);
-              }
-            },
-          ),
       ],
     );
   }
 
+  static const double _paddingH = 16;
+  static const double _sectionGap = 20;
+
   Widget _buildBody(MeetupDetailState state, MeetupDetailViewModel viewModel) {
     if (state.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator.adaptive(),
-      );
+      return const Center(child: CircularProgressIndicator.adaptive());
     }
-
     if (state.isError) {
       return ErrorState(
         text: state.errorMessage ?? 'Failed to load meetup',
         retry: () => viewModel.refresh(widget.meetupId),
       );
     }
-
     if (state.meetup == null) {
-      return const EmptyState(
-        text: 'Meetup not found',
-      );
+      return const EmptyState(text: 'Meetup not found');
     }
 
     final meetup = state.meetup!;
 
     return RefreshIndicator(
-      onRefresh: () async {
-        await viewModel.refresh(widget.meetupId);
-      },
+      onRefresh: () => viewModel.refresh(widget.meetupId),
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: _paddingH),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header Section
-            _buildHeaderSection(meetup),
-            const Divider(height: 1),
-            
-            // Event Details
-            _buildEventDetails(meetup),
-            const Divider(height: 1),
-            
-            // Place Section
-            _buildPlaceSection(meetup),
-            
-            // Description Section
-            if (meetup.description != null && meetup.description!.isNotEmpty) ...[
-              const Divider(height: 1),
-              _buildDescriptionSection(meetup),
+            const Gap(8),
+            _buildPageHeader(meetup, viewModel),
+            const Gap(10),
+            _buildLiveDashboardBadge(meetup),
+            const Gap(_sectionGap),
+            _buildStatsCards(meetup),
+            const Gap(_sectionGap),
+            _buildCapacitySection(meetup),
+            const Gap(_sectionGap),
+            _buildLocationSection(meetup),
+            const Gap(_sectionGap),
+            _buildAttendeesSection(state, viewModel),
+            if (!viewModel.isCreator) ...[
+              const Gap(_sectionGap),
+              RsvpSection(
+                meetup: meetup,
+                onRsvp: (status) => _handleRsvp(viewModel, status),
+              ),
             ],
-            
-            // RSVP Section
-            const Divider(height: 1),
-            RsvpSection(
-              meetup: meetup,
-              onRsvp: (status) => _handleRsvp(viewModel, status),
-            ),
-            
-            // Attendees Section
-            const Divider(height: 1),
-            AttendeeList(
-              attendees: state.attendees,
-              isLoading: state.isLoadingAttendees,
-              currentStatus: state.attendeeStatus,
-              onStatusChanged: (status) => viewModel.setAttendeeStatus(status),
-              filterByPreferences: state.filterByPreferences,
-              onToggleFilter: () => viewModel.toggleFilterByPreferences(),
-            ),
-            
+            if (viewModel.isCreator) ...[
+              const Gap(_sectionGap),
+              _buildRebroadcastButton(meetup, viewModel),
+            ],
             const Gap(32),
           ],
         ),
@@ -183,240 +127,123 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     );
   }
 
-  Widget _buildHeaderSection(MeetupDto meetup) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Event Name
-          TextView(
+  Widget _buildPageHeader(MeetupDto meetup, MeetupDetailViewModel viewModel) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: TextView(
             text: meetup.eventName,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppColors.metalBlack,
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: AppColors.metalBrownColourForText,
           ),
-          const Gap(8),
-          
-          // Status Badge
-          Row(
-            children: [
-              _buildStatusBadge(meetup),
-              if (meetup.distance != null) ...[
-                const Gap(12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.metalPinkColour.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: TextView(
-                    text: '${meetup.distance!.toStringAsFixed(1)} km away',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.metalPinkColour,
-                  ),
-                ),
-              ],
-            ],
+        ),
+        if (viewModel.isCreator)
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: AppColors.metalBrownColourForText),
+            onPressed: () => _showSettingsMenu(meetup, viewModel),
           ),
-          
-          const Gap(16),
-          
-          // Creator Info
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: meetup.creatorPhoto != null
-                    ? NetworkImage(meetup.creatorPhoto!)
-                    : null,
-                child: meetup.creatorPhoto == null
-                    ? Text(
-                        (meetup.creatorUsername ?? 'U')[0].toUpperCase(),
-                        style: const TextStyle(fontSize: 16),
-                      )
-                    : null,
-              ),
-              const Gap(12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextView(
-                      text: 'Created by ${meetup.creatorUsername ?? 'Someone'}',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.metalBlack,
-                    ),
-                    TextView(
-                      text: '${DateFormat('MMM dd, yyyy').format(meetup.createdAt)} at ${DateFormat('hh:mm a').format(meetup.createdAt)}',
-                      fontSize: 12,
-                      color: AppColors.metalBrownColourForText,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
+      ],
+    );
+  }
+
+  void _showSettingsMenu(MeetupDto meetup, MeetupDetailViewModel viewModel) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: const Text('Edit LinkUp'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _handleEdit(meetup);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text('Delete', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _handleDelete(viewModel);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildStatusBadge(MeetupDto meetup) {
-    Color color;
-    String text;
+  Widget _buildLiveDashboardBadge(MeetupDto meetup) {
+    final isLive = !meetup.isPast && meetup.isOpen;
+    return Row(
+      children: [
+        if (isLive) ...[
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: AppColors.metalPinkColour,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const Gap(8),
+        ],
+        TextView(
+          text: isLive ? 'LIVE DASHBOARD' : (meetup.isPast ? 'PAST EVENT' : 'EVENT FULL'),
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.metalBrownColourForText.withOpacity(0.8),
+        ),
+      ],
+    );
+  }
 
-    if (meetup.isPast) {
-      color = AppColors.metalBrownColourForText;
-      text = 'Past Event';
-    } else if (meetup.isClosed || meetup.isFull) {
-      color = Colors.orange;
-      text = 'Event Full';
-    } else {
-      color = Colors.green;
-      text = 'Open';
-    }
+  Widget _buildStatsCards(MeetupDto meetup) {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildStatCard(
+            'CONFIRMED',
+            '${meetup.acceptedCount}/${meetup.maxParticipants}',
+          ),
+        ),
+        const Gap(8),
+        Expanded(
+          child: _buildStatCard('PENDING', '${meetup.maybeCount}'),
+        ),
+        const Gap(8),
+        Expanded(
+          child: _buildStatCard('REJECTED', '${meetup.rejectedCount}'),
+        ),
+      ],
+    );
+  }
 
+  Widget _buildStatCard(String label, String value) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: AppColors.metalWhite,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: AppColors.metalButtonStroke),
       ),
-      child: TextView(
-        text: text,
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: color,
-      ),
-    );
-  }
-
-  Widget _buildEventDetails(MeetupDto meetup) {
-    return Container(
-      padding: const EdgeInsets.all(16),
       child: Column(
-        children: [
-          // Date and Time
-          Row(
-            children: [
-              const Icon(Icons.calendar_today, size: 20, color: AppColors.metalBrownColourForText),
-              const Gap(12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextView(
-                      text: 'Date & Time',
-                      fontSize: 12,
-                      color: AppColors.metalBrownColourForText,
-                    ),
-                    const Gap(4),
-                    TextView(
-                      text: _formatDateTime(meetup),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.metalBlack,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const Gap(16),
-          
-          // Capacity
-          Row(
-            children: [
-              const Icon(Icons.people, size: 20, color: AppColors.metalBrownColourForText),
-              const Gap(12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextView(
-                      text: 'Capacity',
-                      fontSize: 12,
-                      color: AppColors.metalBrownColourForText,
-                    ),
-                    const Gap(4),
-                    TextView(
-                      text: '${meetup.acceptedCount} / ${meetup.maxParticipants} accepted',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.metalBlack,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPlaceSection(MeetupDto meetup) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.location_on, size: 20, color: AppColors.metalBrownColourForText),
-              const Gap(12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextView(
-                      text: 'Location',
-                      fontSize: 12,
-                      color: AppColors.metalBrownColourForText,
-                    ),
-                    const Gap(4),
-                    GestureDetector(
-                      onTap: () => _openPlaceUrl(meetup.placeUrl),
-                    child: Text(
-                      'View on Map',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.metalPinkColour,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDescriptionSection(MeetupDto meetup) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextView(
-            text: 'Description',
-            fontSize: 14,
+            text: label,
+            fontSize: 11,
             fontWeight: FontWeight.w600,
-            color: AppColors.metalBlack,
+            color: AppColors.metalBrownColourForText.withOpacity(0.7),
           ),
-          const Gap(8),
+          const Gap(6),
           TextView(
-            text: meetup.description!,
-            fontSize: 14,
+            text: value,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
             color: AppColors.metalBrownColourForText,
           ),
         ],
@@ -424,27 +251,428 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     );
   }
 
-  String _formatDateTime(MeetupDto meetup) {
-    try {
-      final dateStr = DateFormat('MMM dd, yyyy').format(meetup.eventDateTime);
-      final timeStr = meetup.time; // Already formatted as HH:MM
-      final timeOfDay = TimeOfDay(
-        hour: int.parse(timeStr.split(':')[0]),
-        minute: int.parse(timeStr.split(':')[1]),
+  Widget _buildCapacitySection(MeetupDto meetup) {
+    final pct = meetup.maxParticipants > 0
+        ? (meetup.acceptedCount / meetup.maxParticipants * 100).round()
+        : 0;
+    final remaining = (meetup.maxParticipants - meetup.acceptedCount).clamp(0, meetup.maxParticipants);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextView(
+              text: 'Capacity Reached',
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppColors.metalBrownColourForText,
+            ),
+            TextView(
+              text: '$pct%',
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppColors.metalPinkColour,
+            ),
+          ],
+        ),
+        const Gap(10),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: LinearProgressIndicator(
+            value: meetup.maxParticipants > 0 ? meetup.acceptedCount / meetup.maxParticipants : 0,
+            minHeight: 10,
+            backgroundColor: AppColors.metalTabBg,
+            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.metalPinkColour),
+          ),
+        ),
+        const Gap(8),
+        TextView(
+          text: '$remaining spot${remaining == 1 ? '' : 's'} remaining for a full house',
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          color: AppColors.metalBrownColourForText.withOpacity(0.7),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLocationSection(MeetupDto meetup) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: meetup.placeLocation != null
+                    ? GoogleMap(
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(
+                            meetup.placeLocation!.latitude,
+                            meetup.placeLocation!.longitude,
+                          ),
+                          zoom: 14,
+                        ),
+                        markers: {
+                          Marker(
+                            markerId: MarkerId(meetup.id),
+                            position: LatLng(
+                              meetup.placeLocation!.latitude,
+                              meetup.placeLocation!.longitude,
+                            ),
+                            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
+                          ),
+                        },
+                        zoomControlsEnabled: false,
+                        myLocationButtonEnabled: false,
+                      )
+                    : _buildMapPlaceholder(),
+              ),
+              Positioned(
+                left: 12,
+                bottom: 12,
+                right: 56,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.metalWhite.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.metalButtonStroke.withOpacity(0.5)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextView(
+                        text: 'LOCATION',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.metalBrownColourForText.withOpacity(0.7),
+                      ),
+                      const Gap(2),
+                      TextView(
+                        text: meetup.placeName.isNotEmpty ? meetup.placeName : 'No address',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.metalBrownColourForText,
+                        maxLines: 2,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 12,
+                bottom: 12,
+                child: Material(
+                  color: AppColors.metalPinkColour,
+                  borderRadius: BorderRadius.circular(24),
+                  child: InkWell(
+                    onTap: () => _openPlaceInMaps(meetup),
+                    borderRadius: BorderRadius.circular(24),
+                    child: const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Icon(Icons.directions, color: AppColors.metalWhite, size: 24),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _openPlaceInMaps(MeetupDto meetup) async {
+    if (meetup.placeLocation != null) {
+      final lat = meetup.placeLocation!.latitude;
+      final lng = meetup.placeLocation!.longitude;
+      final uri = Uri.parse(
+        'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
       );
-      return '$dateStr at ${timeOfDay.format(context)}';
-    } catch (e) {
-      return '${meetup.date} at ${meetup.time}';
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        Fluttertoast.showToast(msg: 'Could not open maps');
+      }
+    } else {
+      final query = Uri.encodeComponent(meetup.placeName);
+      final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$query');
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        Fluttertoast.showToast(msg: 'Could not open maps');
+      }
     }
   }
 
-  Future<void> _openPlaceUrl(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      Fluttertoast.showToast(msg: 'Could not open location URL');
-    }
+  Widget _buildMapPlaceholder() {
+    return Container(
+      color: AppColors.metalTabBg,
+      child: Center(
+        child: Icon(
+          Icons.map_outlined,
+          size: 48,
+          color: AppColors.metalButtonStroke.withOpacity(0.5),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAttendeesSection(MeetupDetailState state, MeetupDetailViewModel viewModel) {
+    final tabs = ['accepted', 'maybe', 'waitlist'];
+    final labels = ['Confirmed', 'Pending', 'Waitlist'];
+    final currentIndex = tabs.indexOf(state.attendeeStatus);
+    final effectiveIndex = currentIndex >= 0 ? currentIndex : 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: List.generate(3, (i) {
+            final isSelected = effectiveIndex == i;
+            final count = i == 0
+                ? state.meetup?.acceptedCount ?? 0
+                : i == 1
+                    ? state.meetup?.maybeCount ?? 0
+                    : 0;
+            return Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  viewModel.setAttendeeStatus(tabs[i]);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: isSelected ? AppColors.metalPinkColour : Colors.transparent,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextView(
+                        text: labels[i],
+                        fontSize: 14,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        color: isSelected
+                            ? AppColors.metalBrownColourForText
+                            : AppColors.metalBrownColourForText.withOpacity(0.6),
+                      ),
+                      if (i == 1 && count > 0) ...[
+                        const Gap(6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.metalPinkColour,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: TextView(
+                            text: '$count',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.metalWhite,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+        const Gap(16),
+        if (state.isLoadingAttendees)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Center(child: SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )),
+          )
+        else if (state.attendeeStatus == 'waitlist')
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Center(
+              child: TextView(
+                text: 'No one on waitlist',
+                fontSize: 14,
+                color: AppColors.metalBrownColourForText.withOpacity(0.7),
+              ),
+            ),
+          )
+        else if (state.attendees.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Center(
+              child: TextView(
+                text: state.attendeeStatus == 'accepted'
+                    ? 'No confirmed attendees yet'
+                    : 'No pending responses yet',
+                fontSize: 14,
+                color: AppColors.metalBrownColourForText.withOpacity(0.7),
+              ),
+            ),
+          )
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: state.attendees.length,
+            separatorBuilder: (_, __) => const Gap(12),
+            itemBuilder: (_, index) {
+              final a = state.attendees[index];
+              return _buildAttendeeItem(a);
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _buildAttendeeItem(MeetupRsvpDto attendee) {
+    final displayName = attendee.username != null && attendee.username!.isNotEmpty
+        ? attendee.username!
+        : 'User';
+    final initials = displayName.length >= 2
+        ? '${displayName[0].toUpperCase()}${displayName[1].toUpperCase()}'
+        : displayName.isNotEmpty
+            ? displayName[0].toUpperCase()
+            : 'U';
+    final statusLabel = attendee.status == 'accepted'
+        ? 'GOING'
+        : attendee.status == 'maybe'
+            ? 'MAYBE'
+            : 'NOT GOING';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+      decoration: BoxDecoration(
+        color: AppColors.metalWhite,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.metalBlack.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 24,
+            backgroundImage: attendee.userPhoto != null
+                ? NetworkImage(attendee.userPhoto!)
+                : null,
+            backgroundColor: AppColors.metalTabBg,
+            child: attendee.userPhoto == null
+                ? TextView(
+                    text: initials,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.metalBrownColourForText,
+                  )
+                : null,
+          ),
+          const Gap(12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextView(
+                  text: displayName,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.metalBrownColourForText,
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              TextView(
+                text: 'STATUS',
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: AppColors.metalBrownColourForText.withOpacity(0.6),
+              ),
+              const Gap(2),
+              TextView(
+                text: statusLabel,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: attendee.status == 'accepted'
+                    ? AppColors.metalPinkColour
+                    : AppColors.metalBrownColourForText.withOpacity(0.8),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRebroadcastButton(MeetupDto meetup, MeetupDetailViewModel viewModel) {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: Material(
+            color: AppColors.metalPinkColour,
+            borderRadius: BorderRadius.circular(24),
+            child: InkWell(
+              onTap: () async {
+                final success = await viewModel.broadcastMeetup(widget.meetupId);
+                if (mounted) {
+                  if (success) {
+                    Fluttertoast.showToast(msg: 'LinkUp re-broadcast successfully');
+                  } else {
+                    Fluttertoast.showToast(msg: 'Re-broadcast failed. Try again later.');
+                  }
+                }
+              },
+              borderRadius: BorderRadius.circular(24),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.cell_tower, color: AppColors.metalWhite, size: 22),
+                    const Gap(10),
+                    TextView(
+                      text: 'Re-Broadcast LinkUp',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.metalWhite,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        const Gap(10),
+        Center(
+          child: TextView(
+            text: 'Reach 50+ users active within ${meetup.broadcastRadius} km',
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: AppColors.metalBrownColourForText.withOpacity(0.7),
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> _handleRsvp(MeetupDetailViewModel viewModel, String status) async {

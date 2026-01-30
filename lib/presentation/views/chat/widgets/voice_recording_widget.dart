@@ -38,7 +38,8 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget> {
       ..androidEncoder = AndroidEncoder.aac
       ..androidOutputFormat = AndroidOutputFormat.mpeg4
       ..iosEncoder = IosEncoder.kAudioFormatMPEG4AAC
-      ..sampleRate = 44100;
+      ..sampleRate = 44100
+      ..bitRate = 128000; // Higher bitrate for better quality, reduces echo artifacts
 
     // Start recording asynchronously
     WidgetsBinding.instance.addPostFrameCallback((_) {

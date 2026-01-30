@@ -36,7 +36,12 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer();
+    // Configure audio player with better settings to reduce echo
+    _audioPlayer = AudioPlayer(
+      playerId: 'voice_message_player_${widget.audioUrl.hashCode}',
+    );
+    // Set player mode to reduce echo and improve quality
+    _audioPlayer.setPlayerMode(PlayerMode.lowLatency);
     _initPlayer();
   }
 

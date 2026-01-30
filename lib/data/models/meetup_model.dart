@@ -8,7 +8,7 @@ class MeetupModel {
   final String date;
   final String time;
   final String eventDateTime;
-  final String placeUrl;
+  final String placeName;
   final PlaceLocationModel? placeLocation;
   final String? description;
   final int maxParticipants;
@@ -37,7 +37,7 @@ class MeetupModel {
     required this.date,
     required this.time,
     required this.eventDateTime,
-    required this.placeUrl,
+    required this.placeName,
     this.placeLocation,
     this.description,
     required this.maxParticipants,
@@ -68,7 +68,7 @@ class MeetupModel {
       date: json['date'] as String,
       time: json['time'] as String,
       eventDateTime: json['eventDateTime'] as String,
-      placeUrl: json['placeUrl'] as String,
+      placeName: (json['placeName'] ?? json['placeUrl'] ?? '') as String,
       placeLocation: json['placeLocation'] != null
           ? PlaceLocationModel.fromJson(
               json['placeLocation'] as Map<String, dynamic>)
@@ -111,7 +111,7 @@ class MeetupModel {
       'date': date,
       'time': time,
       'eventDateTime': eventDateTime,
-      'placeUrl': placeUrl,
+      'placeName': placeName,
       if (placeLocation != null) 'placeLocation': placeLocation!.toJson(),
       if (description != null) 'description': description,
       'maxParticipants': maxParticipants,
@@ -144,7 +144,7 @@ class MeetupModel {
       date: date,
       time: time,
       eventDateTime: DateTime.parse(eventDateTime),
-      placeUrl: placeUrl,
+      placeName: placeName,
       placeLocation: placeLocation?.toDomain(),
       description: description,
       maxParticipants: maxParticipants,

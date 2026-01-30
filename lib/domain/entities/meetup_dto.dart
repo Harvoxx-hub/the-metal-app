@@ -7,7 +7,7 @@ class MeetupDto {
   final String date;
   final String time;
   final DateTime eventDateTime;
-  final String placeUrl;
+  final String placeName;
   final PlaceLocationDto? placeLocation;
   final String? description;
   final int maxParticipants;
@@ -36,7 +36,7 @@ class MeetupDto {
     required this.date,
     required this.time,
     required this.eventDateTime,
-    required this.placeUrl,
+    required this.placeName,
     this.placeLocation,
     this.description,
     required this.maxParticipants,
@@ -66,7 +66,7 @@ class MeetupDto {
     String? date,
     String? time,
     DateTime? eventDateTime,
-    String? placeUrl,
+    String? placeName,
     PlaceLocationDto? placeLocation,
     String? description,
     int? maxParticipants,
@@ -95,7 +95,7 @@ class MeetupDto {
       date: date ?? this.date,
       time: time ?? this.time,
       eventDateTime: eventDateTime ?? this.eventDateTime,
-      placeUrl: placeUrl ?? this.placeUrl,
+      placeName: placeName ?? this.placeName,
       placeLocation: placeLocation ?? this.placeLocation,
       description: description ?? this.description,
       maxParticipants: maxParticipants ?? this.maxParticipants,
@@ -176,12 +176,15 @@ class CreateMeetupDto {
   final String eventName;
   final String date;
   final String time;
-  final String placeUrl;
+  final String placeName;
+  final PlaceLocationDto? placeLocation;
   final String? description;
   final int maxParticipants;
   final String broadcastType;
   final int broadcastRadius;
   final List<String> selectedCommunityIds;
+  /// When broadcastType is 'friends', these are the connection user IDs to invite.
+  final List<String> invitedUserIds;
   final UserPreferencesModel? preferences;
   final String? communityId;
 
@@ -189,12 +192,14 @@ class CreateMeetupDto {
     required this.eventName,
     required this.date,
     required this.time,
-    required this.placeUrl,
+    required this.placeName,
+    this.placeLocation,
     this.description,
     required this.maxParticipants,
     required this.broadcastType,
     required this.broadcastRadius,
     required this.selectedCommunityIds,
+    this.invitedUserIds = const [],
     this.preferences,
     this.communityId,
   });
@@ -204,12 +209,14 @@ class CreateMeetupDto {
       'eventName': eventName,
       'date': date,
       'time': time,
-      'placeUrl': placeUrl,
+      'placeName': placeName,
+      if (placeLocation != null) 'placeLocation': placeLocation!.toJson(),
       if (description != null) 'description': description,
       'maxParticipants': maxParticipants,
       'broadcastType': broadcastType,
       'broadcastRadius': broadcastRadius,
       'selectedCommunityIds': selectedCommunityIds,
+      if (invitedUserIds.isNotEmpty) 'invitedUserIds': invitedUserIds,
       if (preferences != null) 'preferences': preferences!.toJson(),
       if (communityId != null) 'communityId': communityId,
     };
@@ -221,7 +228,8 @@ class UpdateMeetupDto {
   final String? eventName;
   final String? date;
   final String? time;
-  final String? placeUrl;
+  final String? placeName;
+  final PlaceLocationDto? placeLocation;
   final String? description;
   final int? maxParticipants;
 
@@ -229,7 +237,8 @@ class UpdateMeetupDto {
     this.eventName,
     this.date,
     this.time,
-    this.placeUrl,
+    this.placeName,
+    this.placeLocation,
     this.description,
     this.maxParticipants,
   });
@@ -239,7 +248,8 @@ class UpdateMeetupDto {
     if (eventName != null) json['eventName'] = eventName;
     if (date != null) json['date'] = date;
     if (time != null) json['time'] = time;
-    if (placeUrl != null) json['placeUrl'] = placeUrl;
+    if (placeName != null) json['placeName'] = placeName;
+    if (placeLocation != null) json['placeLocation'] = placeLocation!.toJson();
     if (description != null) json['description'] = description;
     if (maxParticipants != null) json['maxParticipants'] = maxParticipants;
     return json;

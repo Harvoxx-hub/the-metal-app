@@ -56,7 +56,7 @@ class _ReferralViewState extends ConsumerState<ReferralView> {
         child: Column(
           children: [
             // Sparks Balance Card - Pink
-            _buildBalanceCard(sparkState.balance.toString()),
+            _buildBalanceCard(sparkState.balance.toString(), referralState),
             
             const Gap(24),
             
@@ -126,7 +126,7 @@ class _ReferralViewState extends ConsumerState<ReferralView> {
     );
   }
 
-  Widget _buildBalanceCard(String balance) {
+  Widget _buildBalanceCard(String balance, ReferralState referralState) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       padding: const EdgeInsets.all(24),
@@ -159,37 +159,42 @@ class _ReferralViewState extends ConsumerState<ReferralView> {
             color: AppColors.metalWhite,
           ),
           const Gap(16),
-          // Refer & Earn button in bottom left
-          Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFFFA500), // Orange
-                      Color(0xFFFFD700), // Yellow/Gold
-                    ],
+          // Refer & Earn button in bottom left - tap to share when code available
+          GestureDetector(
+            onTap: referralState.referralInfo != null
+                ? () => _shareCode(referralState.referralInfo!.referralCode)
+                : null,
+            child: Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFFFFA500), // Orange
+                        Color(0xFFFFD700), // Yellow/Gold
+                      ],
+                    ),
+                    shape: BoxShape.circle,
                   ),
-                  shape: BoxShape.circle,
+                  child: const Icon(
+                    Icons.share,
+                    color: AppColors.metalWhite,
+                    size: 24,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.share,
+                const Gap(12),
+                const TextView(
+                  text: "Refer & Earn",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
                   color: AppColors.metalWhite,
-                  size: 24,
                 ),
-              ),
-              const Gap(12),
-              const TextView(
-                text: "Refer & Earn",
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.metalWhite,
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

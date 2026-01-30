@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/user_dto.dart';
+import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
+import 'package:metal/presentation/viewmodels/user/user_profile_viewmodel_providers.dart';
 import 'package:metal/presentation/widgets/settings/edit_field.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/button/base_button.dart';
+import 'package:metal/widgets/button/outiline.button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/presentation/widgets/settings/block_user_helper.dart';
@@ -122,8 +126,14 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
               const Gap(20),
             ],
 
+            const Gap(24),
+            // DEMELT (Unmelt / remove connection) - like unfriending
+            OutilineButton(
+              buttonText: 'DEMELT',
+              onPressed: () => _showDemeltConfirmation(context),
+              width: double.infinity,
+            ),
             const Gap(40),
-            
             // Block User Option at the bottom
             EditField(
               text: "Block ${widget.user.username ?? 'User'} from reaching you",
@@ -199,6 +209,47 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
       return '$age years';
     } catch (e) {
       return 'Age not available';
+    }
+  }
+
+  /// Show confirmation then unmelt (remove connection) from this user
+  Future<void> _showDemeltConfirmation(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Remove connection?'),
+        content: Text(
+          'If you DEMELT, you and ${widget.user.username ?? 'this user'} will no longer be connected. They will no longer see you in their connections.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('DEMELT', style: TextStyle(color: AppColors.metalRed)),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !context.mounted) return;
+    try {
+      final repository = ref.read(connectionRepositoryProvider);
+      final result = await repository.unmeltUser(widget.user.id);
+      if (!context.mounted) return;
+      if (result.isSuccess) {
+        ref.read(connectionViewModelProvider.notifier).refresh();
+        ref.read(userProfileViewModelProvider(widget.user.id).notifier).refresh();
+        Fluttertoast.showToast(msg: 'Connection removed');
+        Navigator.pop(context);
+      } else {
+        Fluttertoast.showToast(msg: result.errorMessage ?? 'Failed to remove connection');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Fluttertoast.showToast(msg: 'Failed to remove connection');
+      }
     }
   }
 

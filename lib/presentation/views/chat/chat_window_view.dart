@@ -6,6 +6,7 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/domain/entities/message_dto.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_window_viewmodel.dart';
+import 'package:metal/presentation/viewmodels/chat/chat_list_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/chat/widgets/chat_app_bar.dart';
@@ -34,12 +35,26 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    
+    // Load messages when chat window opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(chatWindowViewModelProvider(widget.connectionId).notifier).loadMessages();
+    });
   }
 
   @override
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    
+    // Mark connection as read and refresh chat list when leaving chat window
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Mark this connection as read in the chat list
+      ref.read(chatListViewModelProvider.notifier).markConnectionAsRead(widget.connectionId);
+      // Also refresh to ensure sync with backend
+      ref.read(chatListViewModelProvider.notifier).refresh();
+    });
+    
     super.dispose();
   }
 
@@ -71,6 +86,18 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
         ref.watch(chatWindowViewModelProvider(widget.connectionId));
     final connectionAsync =
         ref.watch(connectionDetailProvider(widget.connectionId));
+    
+    // Listen to chat state changes and refresh connection when messages are marked as read
+    ref.listen<ChatWindowState>(
+      chatWindowViewModelProvider(widget.connectionId),
+      (previous, current) {
+        // When messages are successfully loaded, invalidate connection to refresh unread count
+        if (current.isSuccess && previous?.isSuccess != true) {
+          // Invalidate connection detail to refresh unread count
+          ref.invalidate(connectionDetailProvider(widget.connectionId));
+        }
+      },
+    );
 
     return BaseScreen(
       appBarEnabled: false,

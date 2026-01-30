@@ -229,11 +229,8 @@ class NavDrawer extends ConsumerWidget {
               )),
             ),
             title: const TextView(text: "Let's hear from you"),
-            onTap: () => {
-              // Navigator.pushNamed(
-              //   context,
-              //   AppRoutes.feedBackPage,
-              // )
+            onTap: () {
+              Navigator.pushNamed(context, AppRoutes.feedback);
             },
           ),
           const Gap(20),

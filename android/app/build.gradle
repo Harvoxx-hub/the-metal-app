@@ -57,6 +57,8 @@ android {
         versionName flutterVersionName
         multiDexEnabled true
         consumerProguardFiles 'proguard-rules.pro'
+        // Google Maps API key: add GOOGLE_MAPS_API_KEY=your_key to android/local.properties
+        manifestPlaceholders GOOGLE_MAPS_API_KEY: localProperties.getProperty('GOOGLE_MAPS_API_KEY') ?: ''
     }
 
     signingConfigs {

@@ -196,12 +196,26 @@ class CommunityViewModel extends StateNotifier<CommunityState> {
   }
 
   Future<bool> createCommunity(CreateCommunityDto request) async {
+    if (state.isLoading) return false;
+    
+    state = state.copyWith(isLoading: true, isError: false, errorMessage: null);
+    
     final result = await _repository.createCommunity(request);
 
-    if (mounted && result.isSuccess) {
-      // Reload communities to include the newly created one
-      await loadCommunities(refresh: true);
-      return true;
+    if (mounted) {
+      if (result.isSuccess) {
+        // Reload communities to include the newly created one
+        await loadCommunities(refresh: true);
+        state = state.copyWith(isLoading: false);
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          isError: true,
+          errorMessage: result.errorMessage ?? 'Failed to create community',
+        );
+        return false;
+      }
     }
     return false;
   }

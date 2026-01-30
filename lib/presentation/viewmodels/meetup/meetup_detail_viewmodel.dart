@@ -92,8 +92,7 @@ class MeetupDetailViewModel extends StateNotifier<MeetupDetailState> {
 
     if (mounted) {
       if (result.isSuccess && result.data != null) {
-        state = MeetupDetailState.success(result.data!);
-        // Load attendees
+        state = MeetupDetailState.success(result.data!).copyWith(attendeeStatus: 'accepted');
         await loadAttendees(meetupId);
       } else {
         state = MeetupDetailState.error(
@@ -170,8 +169,11 @@ class MeetupDetailViewModel extends StateNotifier<MeetupDetailState> {
   }
 
   void setAttendeeStatus(String status) {
-    state = state.copyWith(attendeeStatus: status);
-    if (state.meetup != null) {
+    state = state.copyWith(
+      attendeeStatus: status,
+      attendees: status == 'waitlist' ? [] : state.attendees,
+    );
+    if (status != 'waitlist' && state.meetup != null) {
       loadAttendees(state.meetup!.id);
     }
   }
@@ -186,6 +188,16 @@ class MeetupDetailViewModel extends StateNotifier<MeetupDetailState> {
 
   Future<void> refresh(String meetupId) async {
     await loadMeetup(meetupId);
+  }
+
+  /// Re-broadcast the meetup to reach more users (creator only). Returns true on success.
+  Future<bool> broadcastMeetup(String meetupId) async {
+    final result = await _repository.broadcastMeetup(meetupId);
+    if (result.isSuccess && mounted) {
+      await loadMeetup(meetupId);
+      return true;
+    }
+    return false;
   }
 
   bool get isCreator {

@@ -38,6 +38,9 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
       Header: AppStrings.settingsTitle,
       appBarState: AppBarState.HambugerWithHeader,
       body: SingleChildScrollView(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).padding.bottom + 20,
+        ),
         child: ProfileHeader(
           myProfile: true,
           eye: false,
@@ -130,7 +133,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                     ),
                     const Gap(20),
                     EditField(
-                      text: blocked?.length.toString() ?? "0",
+                      text: (blocked?.length ?? 0).toString(),
                       floatingLabel: "*Blocked Contacts*",
                       prefixIcon: TextView(
                         text: "View",

@@ -41,9 +41,15 @@ class _FeedbackViewState extends ConsumerState<FeedbackView> {
         title: const Text('Feedback'),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 24,
+            bottom: 24 + MediaQuery.of(context).padding.bottom,
+          ),
+          child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -90,6 +96,7 @@ class _FeedbackViewState extends ConsumerState<FeedbackView> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

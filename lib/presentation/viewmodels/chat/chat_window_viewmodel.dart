@@ -158,11 +158,18 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
           nextCursor: result.data!.nextCursor,
         );
 
-        // Mark all messages as read when opening chat
+        // Mark all messages as read when opening chat (async, don't wait)
         _markAllAsRead();
 
         // Start WebSocket connection for real-time updates
         _startWebSocket();
+        
+        // Also mark as read after a short delay to ensure messages are loaded
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            _markAllAsRead();
+          }
+        });
       } else {
         state = ChatWindowState.error(
           result.errorMessage ?? 'Failed to load messages',
@@ -643,9 +650,20 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
   Future<void> _markAllAsRead() async {
     if (!mounted) return;
 
-    await _markAllMessagesReadUseCase(MarkAllMessagesReadParams(
-      connectionId: connectionId,
-    ));
+    try {
+      final result = await _markAllMessagesReadUseCase(MarkAllMessagesReadParams(
+        connectionId: connectionId,
+      ));
+      
+      // If successful, the backend will broadcast the read status via WebSocket
+      // The chat list should refresh when it receives the update or when user returns
+      if (result.isSuccess) {
+        print('Messages marked as read for connection: $connectionId');
+      }
+    } catch (e) {
+      // Log error but don't fail - marking as read is not critical
+      print('Failed to mark messages as read: $e');
+    }
   }
 
   /// Refresh messages

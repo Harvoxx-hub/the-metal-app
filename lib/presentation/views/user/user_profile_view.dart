@@ -603,13 +603,22 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
                     child: BaseButton(
                       buttonText: "Unblock User",
                       onPressed: () async {
-                        await ref
+                        final success = await ref
                             .read(blockedUsersViewModelProvider.notifier)
                             .unblockUser(userId: widget.userId);
-                        Navigator.of(context).pop();
-                        setState(() {
-                          _hasShownBlockedDialog = false;
-                        });
+                        
+                        if (success) {
+                          // Refresh the blocked users list
+                          await ref
+                              .read(blockedUsersViewModelProvider.notifier)
+                              .refreshBlockedUsers();
+                          // Refresh the user profile to get updated status
+                          ref.read(userProfileViewModelProvider(widget.userId).notifier).refresh();
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _hasShownBlockedDialog = false;
+                          });
+                        }
                       },
                     ),
                   ),

@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:metal/core/utils/debouncer.dart';
-import 'package:metal/data/repositories/place/place_repository_providers.dart';
+import 'package:metal/core/config/map_config.dart';
 import 'package:metal/domain/entities/meetup_dto.dart';
-import 'package:metal/domain/entities/place_dto.dart';
 import 'package:metal/presentation/viewmodels/meetup/create_meetup_viewmodel.dart';
 import 'package:metal/presentation/views/meetup/invite_guests_screen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:place_picker_google/place_picker_google.dart';
 
 /// Create a LinkUp - modal screen matching the design spec.
 /// Uses project theme colors (metalPinkColour, metalBrownColourForText, etc.).
@@ -28,7 +28,6 @@ class CreateLinkupScreen extends ConsumerStatefulWidget {
 
 class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
   final _occasionController = TextEditingController();
-  final _locationController = TextEditingController();
 
   /// Event date: only dates after today (tomorrow and forward).
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
@@ -47,17 +46,9 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
   List<String> _selectedFriendIds = []; // user IDs from connection list (melted metals)
   bool _isLoading = false;
 
-  late final Debouncer _locationSearchDebouncer;
-  List<PlaceSearchResultDto> _placeSearchResults = [];
-  bool _isSearchingPlaces = false;
-  PlaceSearchResultDto? _selectedPlace;
-  final FocusNode _locationFocusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    _locationSearchDebouncer = Debouncer(milliseconds: 400);
-  }
+  /// Picked place from PlacePicker (place_picker_google).
+  String? _pickedPlaceName;
+  LatLng? _pickedPlaceLatLng;
 
   static const double _sectionGap = 24;
   static const double _fieldGap = 12;
@@ -67,63 +58,39 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
 
   @override
   void dispose() {
-    _locationSearchDebouncer.dispose();
-    _locationFocusNode.dispose();
     _occasionController.dispose();
-    _locationController.dispose();
     super.dispose();
   }
 
-  void _onLocationQueryChanged(String query) {
-    setState(() {
-      _selectedPlace = null;
-      if (query.trim().isEmpty) {
-        _placeSearchResults = [];
-        return;
-      }
-    });
-    _locationSearchDebouncer.run(() => _performPlaceSearch(query));
-  }
-
-  Future<void> _performPlaceSearch(String query) async {
-    if (query.trim().isEmpty) {
-      if (mounted)
-        setState(() {
-          _placeSearchResults = [];
-          _isSearchingPlaces = false;
-        });
+  Future<void> _openPlacePicker() async {
+    if (!MapConfig.hasGoogleMapsKey) {
+      Fluttertoast.showToast(msg: 'Map is not configured. Add a Google Maps API key.');
       return;
     }
-    if (!mounted) return;
-    setState(() => _isSearchingPlaces = true);
-    final repository = ref.read(placeRepositoryProvider);
-    final result = await repository.searchPlaces(query);
-    if (!mounted) return;
-    setState(() {
-      _isSearchingPlaces = false;
-      _placeSearchResults = result.isSuccess ? (result.data ?? []) : [];
-    });
-  }
-
-  Future<void> _onPlaceSelected(PlaceSearchResultDto place) async {
-    _locationController.text = place.displayName;
-    setState(() {
-      _selectedPlace = place;
-      _placeSearchResults = [];
-    });
-    _locationFocusNode.unfocus();
-    // Google returns predictions without lat/lng; fetch details when selected.
-    final needsDetails = place.placeId != null &&
-        place.placeId!.isNotEmpty &&
-        place.latitude == 0 &&
-        place.longitude == 0;
-    if (needsDetails) {
-      final repo = ref.read(placeRepositoryProvider);
-      final result = await repo.getPlaceDetails(place.placeId!);
-      if (!mounted) return;
-      if (result.isSuccess && result.data != null) {
-        setState(() => _selectedPlace = result.data);
-      }
+    final result = await Navigator.of(context).push<LocationResult>(
+      MaterialPageRoute<LocationResult>(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Choose location'),
+            backgroundColor: AppColors.metalWhite,
+            foregroundColor: AppColors.metalBrownColourForText,
+          ),
+          body: PlacePicker(
+            apiKey: MapConfig.googleMapsApiKey,
+            onPlacePicked: (LocationResult res) => Navigator.of(context).pop(res),
+            initialLocation: _pickedPlaceLatLng ?? const LatLng(37.7749, -122.4194),
+            searchInputDecorationConfig: const SearchInputDecorationConfig(
+              hintText: 'Search for a place',
+            ),
+          ),
+        ),
+      ),
+    );
+    if (result != null && result.latLng != null && mounted) {
+      setState(() {
+        _pickedPlaceName = result.formattedAddress ?? result.name ?? '';
+        _pickedPlaceLatLng = result.latLng;
+      });
     }
   }
 
@@ -166,25 +133,24 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
 
   bool get _canSubmit =>
       _occasionController.text.trim().isNotEmpty &&
-      _locationController.text.trim().isNotEmpty;
+      _pickedPlaceLatLng != null;
 
   Future<void> _submit() async {
     if (!_canSubmit) {
-      Fluttertoast.showToast(msg: 'Please fill occasion and location');
+      Fluttertoast.showToast(msg: 'Please fill occasion and choose a location');
       return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      final placeName = _selectedPlace?.displayName ?? _locationController.text.trim();
-      final placeLocation = _selectedPlace != null &&
-              (_selectedPlace!.latitude != 0 || _selectedPlace!.longitude != 0)
-          ? PlaceLocationDto(
-              latitude: _selectedPlace!.latitude,
-              longitude: _selectedPlace!.longitude,
-            )
-          : null;
+      final placeName = _pickedPlaceName?.trim().isNotEmpty == true
+          ? _pickedPlaceName!.trim()
+          : 'Selected location';
+      final placeLocation = PlaceLocationDto(
+        latitude: _pickedPlaceLatLng!.latitude,
+        longitude: _pickedPlaceLatLng!.longitude,
+      );
 
       final createData = CreateMeetupDto(
         eventName: _occasionController.text.trim(),
@@ -322,11 +288,13 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
   }
 
   Widget _buildLocationSearchField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _isLoading ? null : _openPlacePicker,
+        borderRadius: BorderRadius.circular(_inputRadius),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             color: AppColors.metalTabBg,
             borderRadius: BorderRadius.circular(_inputRadius),
@@ -334,100 +302,31 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
               color: AppColors.metalButtonStroke.withOpacity(0.3),
             ),
           ),
-          child: TextField(
-            controller: _locationController,
-            focusNode: _locationFocusNode,
-            onChanged: _onLocationQueryChanged,
-            onTap: () {
-              if (_locationController.text.trim().isNotEmpty &&
-                  _placeSearchResults.isEmpty &&
-                  !_isSearchingPlaces) {
-                _performPlaceSearch(_locationController.text);
-              }
-            },
-            style: const TextStyle(
-              color: AppColors.metalBrownColourForText,
-              fontSize: 16,
-            ),
-            decoration: InputDecoration(
-              hintText: 'Search for a place',
-              hintStyle: TextStyle(
-                color: AppColors.metalBrownColourForText.withOpacity(0.5),
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-              ),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
-              ),
-              suffixIcon: _isSearchingPlaces
-                  ? const Padding(
-                      padding: EdgeInsets.only(right: 12),
-                      child: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: Icon(
-                        Icons.location_on,
-                        color: AppColors.metalPinkColour,
-                        size: 24,
-                      ),
-                    ),
-              suffixIconConstraints: const BoxConstraints(
-                minWidth: 40,
-                minHeight: 40,
-              ),
-            ),
-          ),
-        ),
-        if (_placeSearchResults.isNotEmpty) ...[
-          const Gap(8),
-          Material(
-            elevation: 4,
-            borderRadius: BorderRadius.circular(_inputRadius),
-            child: Container(
-              constraints: const BoxConstraints(maxHeight: 220),
-              decoration: BoxDecoration(
-                color: AppColors.metalWhite,
-                borderRadius: BorderRadius.circular(_inputRadius),
-                border: Border.all(
-                  color: AppColors.metalButtonStroke.withOpacity(0.3),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextView(
+                  text: _pickedPlaceName?.isNotEmpty == true
+                      ? _pickedPlaceName!
+                      : 'Search for a place',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: _pickedPlaceName?.isNotEmpty == true
+                      ? AppColors.metalBrownColourForText
+                      : AppColors.metalBrownColourForText.withOpacity(0.5),
+                  maxLines: 2,
+                  textOverflow: TextOverflow.ellipsis,
                 ),
               ),
-              child: ListView.separated(
-                shrinkWrap: true,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: _placeSearchResults.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final place = _placeSearchResults[index];
-                  return ListTile(
-                    leading: Icon(
-                      Icons.place,
-                      size: 20,
-                      color: AppColors.metalPinkColour,
-                    ),
-                    title: TextView(
-                      text: place.displayName,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.metalBrownColourForText,
-                      maxLines: 2,
-                      textOverflow: TextOverflow.ellipsis,
-                    ),
-                    onTap: () => _onPlaceSelected(place),
-                  );
-                },
+              Icon(
+                Icons.location_on,
+                color: AppColors.metalPinkColour,
+                size: 24,
               ),
-            ),
+            ],
           ),
-        ],
-      ],
+        ),
+      ),
     );
   }
 
@@ -891,25 +790,4 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
       ),
     );
   }
-}
-
-class _GridPlaceholderPainter extends CustomPainter {
-  final Color color;
-
-  _GridPlaceholderPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = color;
-    const step = 24.0;
-    for (double x = 0; x < size.width; x += step) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (double y = 0; y < size.height; y += step) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -8,12 +8,9 @@ class MapConfig {
 
   /// Paste your Google Maps API key here. Also add the same key to
   /// android/local.properties and ios/Runner/Info.plist for the map widget.
-  static const String _apiKeyDirect = 'YOUR_GOOGLE_MAPS_API_KEY';
+  static const String _apiKeyDirect = 'AIzaSyBjNtkU7VcsuYqe6AglhBw7UZrjUgi23YY';
 
   /// Google Maps API key (direct or from --dart-define).
-  static const String googleMapsApiKey =
-      String.fromEnvironment('GOOGLE_MAPS_API_KEY', defaultValue: _apiKeyDirect);
-
-  static bool get hasGoogleMapsKey => googleMapsApiKey.isNotEmpty &&
-      googleMapsApiKey != 'YOUR_GOOGLE_MAPS_API_KEY';
+  static const String googleMapsApiKey = _apiKeyDirect;
+  static bool get hasGoogleMapsKey => googleMapsApiKey.isNotEmpty;
 }

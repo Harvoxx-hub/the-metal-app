@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:metal/domain/entities/meetup_dto.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
-/// Discover LinkUp event card: cover image, distance + spots badges, title, time, JOIN/REQUEST.
-/// Uses project design system (metalPinkColour, metalBrownColourForText, etc.).
-class DiscoverLinkupEventCard extends StatelessWidget {
+/// Discover LinkUp event card: cover image, distance + spots badges, title, time, JOIN/VIEW.
+/// Creators see "View" (no join); non-creators see JOIN / JOINED / FULL.
+class DiscoverLinkupEventCard extends ConsumerWidget {
   final MeetupDto meetup;
 
   const DiscoverLinkupEventCard({super.key, required this.meetup});
@@ -18,7 +20,10 @@ class DiscoverLinkupEventCard extends StatelessWidget {
   bool get _isUrgent => _spotsLeft > 0 && _spotsLeft <= 3;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(currentUserProvider);
+    final isCreator = currentUser?.id != null && meetup.creatorId == currentUser!.id;
+
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
@@ -130,7 +135,7 @@ class DiscoverLinkupEventCard extends StatelessWidget {
                     ),
                   ),
                   const Gap(12),
-                  _buildActionButton(context),
+                  _buildActionButton(context, isCreator),
                 ],
               ),
             ),
@@ -194,7 +199,24 @@ class DiscoverLinkupEventCard extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(BuildContext context) {
+  Widget _buildActionButton(BuildContext context, bool isCreator) {
+    // Creator: show "View" only — they can't join their own LinkUp; tap opens detail/dashboard.
+    if (isCreator) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.metalPinkColour.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.metalPinkColour),
+        ),
+        child: TextView(
+          text: 'View',
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: AppColors.metalPinkColour,
+        ),
+      );
+    }
     if (_isFull) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

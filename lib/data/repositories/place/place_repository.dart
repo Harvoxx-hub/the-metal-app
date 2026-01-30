@@ -23,9 +23,17 @@ class PlaceRepository implements PlaceRepositoryAbstract {
   @override
   Future<BaseState<List<PlaceSearchResultDto>>> searchPlaces(String query) async {
     try {
-      final list = _useGoogle
-          ? await _google!.searchPlaces(query)
-          : await _nominatim.searchPlaces(query);
+      if (_useGoogle) {
+        try {
+          final list = await _google!.searchPlaces(query);
+          return BaseState.success(list);
+        } catch (e) {
+          // Fallback to Nominatim when Google Places fails (e.g. REQUEST_DENIED, API not enabled)
+          final list = await _nominatim.searchPlaces(query);
+          return BaseState.success(list);
+        }
+      }
+      final list = await _nominatim.searchPlaces(query);
       return BaseState.success(list);
     } catch (e) {
       return ErrorHandler.handleError<List<PlaceSearchResultDto>>(e);
@@ -43,6 +51,17 @@ class PlaceRepository implements PlaceRepositoryAbstract {
       return BaseState.success(null);
     } catch (e) {
       return ErrorHandler.handleError<PlaceSearchResultDto?>(e);
+    }
+  }
+
+  @override
+  Future<PlaceSearchResultDto?> geocodeAddress(String address) async {
+    try {
+      if (address.trim().isEmpty) return null;
+      if (_useGoogle) return await _google!.geocodeAddress(address);
+      return null;
+    } catch (_) {
+      return null;
     }
   }
 }

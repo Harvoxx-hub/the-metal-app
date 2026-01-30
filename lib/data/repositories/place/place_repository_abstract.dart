@@ -9,4 +9,7 @@ abstract class PlaceRepositoryAbstract {
   /// Get place details (lat/lng, address) by place_id. Used when a provider
   /// (e.g. Google) returns predictions without coordinates until selected.
   Future<BaseState<PlaceSearchResultDto?>> getPlaceDetails(String placeId);
+
+  /// Geocode an address/place name to lat/lng. Use when meetup has placeName but no placeLocation.
+  Future<PlaceSearchResultDto?> geocodeAddress(String address);
 }

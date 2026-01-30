@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:metal/core/config/map_config.dart';
 import 'package:metal/domain/entities/meetup_dto.dart';
 import 'package:metal/presentation/viewmodels/meetup/meetup_viewmodel.dart';
 import 'package:metal/presentation/views/meetup/widgets/discover_linkup_event_card.dart';
@@ -11,7 +12,7 @@ import 'package:metal/widgets/shimmer/feed_shimmer_widget.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/text_views.dart';
 
-/// Discover LinkUps: Map/List toggle, map placeholder, Nearby LinkUps list, empty state.
+/// Discover LinkUps: map, Nearby LinkUps list, empty state.
 /// Uses project design system. Shown in the Link Up tab.
 class DiscoverLinkupsView extends ConsumerStatefulWidget {
   const DiscoverLinkupsView({super.key});
@@ -21,8 +22,6 @@ class DiscoverLinkupsView extends ConsumerStatefulWidget {
 }
 
 class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
-  bool _mapViewSelected = true;
-
   static const double _paddingH = 16;
   static const double _sectionGap = 16;
   static const double _mapAspectRatio = 16 / 9;
@@ -50,90 +49,12 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Gap(8),
-            _buildViewToggle(),
-            const Gap(_sectionGap),
             _buildMapSection(feedState.meetups),
             const Gap(_sectionGap),
             _buildEventsListHeader(),
             const Gap(12),
             _buildContent(feedState),
             const Gap(24),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildViewToggle() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.metalTabBg,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.metalButtonStroke.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildSegment(
-              icon: Icons.map_outlined,
-              label: 'Map view',
-              selected: _mapViewSelected,
-              onTap: () => setState(() => _mapViewSelected = true),
-            ),
-          ),
-          Expanded(
-            child: _buildSegment(
-              icon: Icons.list_rounded,
-              label: 'List view',
-              selected: !_mapViewSelected,
-              onTap: () => setState(() => _mapViewSelected = false),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSegment({
-    required IconData icon,
-    required String label,
-    required bool selected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.metalWhite : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: AppColors.metalBlack.withOpacity(0.06),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: selected ? AppColors.metalBrownColourForText : AppColors.metalPinkColour,
-            ),
-            const Gap(6),
-            TextView(
-              text: label,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: selected ? AppColors.metalBrownColourForText : AppColors.metalPinkColour,
-            ),
           ],
         ),
       ),
@@ -147,7 +68,9 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: _DiscoverMapContent(meetups: meetups),
+            child: MapConfig.hasGoogleMapsKey
+                ? _DiscoverMapContent(meetups: meetups)
+                : _buildMapPlaceholder(),
           ),
           Positioned(
             bottom: 12,
@@ -173,6 +96,19 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMapPlaceholder() {
+    return Container(
+      color: AppColors.metalTabBg,
+      child: Center(
+        child: Icon(
+          Icons.map_outlined,
+          size: 48,
+          color: AppColors.metalButtonStroke.withOpacity(0.5),
+        ),
       ),
     );
   }

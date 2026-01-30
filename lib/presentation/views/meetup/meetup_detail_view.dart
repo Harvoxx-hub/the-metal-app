@@ -5,7 +5,9 @@ import 'package:gap/gap.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:metal/core/config/map_config.dart';
 import 'package:metal/core/services/deep_link_service.dart';
+import 'package:metal/data/repositories/place/place_repository_providers.dart';
 import 'package:metal/domain/entities/meetup_dto.dart';
 import 'package:metal/presentation/viewmodels/meetup/meetup_detail_viewmodel.dart';
 import 'package:metal/presentation/views/meetup/edit_meetup_screen.dart';
@@ -31,18 +33,46 @@ class MeetupDetailView extends ConsumerStatefulWidget {
 }
 
 class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
+  /// Resolved lat/lng when meetup has placeName but no placeLocation (geocode fallback).
+  LatLng? _resolvedMapLocation;
+  String? _geocodeRequestedForMeetupId;
+
+  Future<void> _maybeGeocodePlaceName(MeetupDto meetup) async {
+    if (meetup.placeLocation != null ||
+        meetup.placeName.isEmpty ||
+        _geocodeRequestedForMeetupId == meetup.id) return;
+    _geocodeRequestedForMeetupId = meetup.id;
+    final repo = ref.read(placeRepositoryProvider);
+    final result = await repo.geocodeAddress(meetup.placeName);
+    if (!mounted) return;
+    if (result != null &&
+        result.latitude.isFinite &&
+        result.longitude.isFinite &&
+        result.latitude >= -90 &&
+        result.latitude <= 90 &&
+        result.longitude >= -180 &&
+        result.longitude <= 180) {
+      setState(() {
+        _resolvedMapLocation = LatLng(result.latitude, result.longitude);
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(meetupDetailViewModelProvider(widget.meetupId).notifier).loadMeetup(widget.meetupId);
+      ref
+          .read(meetupDetailViewModelProvider(widget.meetupId).notifier)
+          .loadMeetup(widget.meetupId);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(meetupDetailViewModelProvider(widget.meetupId));
-    final viewModel = ref.read(meetupDetailViewModelProvider(widget.meetupId).notifier);
+    final viewModel =
+        ref.read(meetupDetailViewModelProvider(widget.meetupId).notifier);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -51,19 +81,22 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(MeetupDetailState state, MeetupDetailViewModel viewModel) {
+  PreferredSizeWidget _buildAppBar(
+      MeetupDetailState state, MeetupDetailViewModel viewModel) {
     return AppBar(
       elevation: 0,
       backgroundColor: AppColors.metalWhite,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppColors.metalBrownColourForText),
+        icon: const Icon(Icons.arrow_back,
+            color: AppColors.metalBrownColourForText),
         onPressed: () => Navigator.pop(context),
       ),
       title: null,
       centerTitle: false,
       actions: [
         IconButton(
-          icon: const Icon(Icons.share_outlined, color: AppColors.metalBrownColourForText),
+          icon: const Icon(Icons.share_outlined,
+              color: AppColors.metalBrownColourForText),
           onPressed: () => _handleShare(state.meetup),
         ),
       ],
@@ -74,6 +107,9 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
   static const double _sectionGap = 20;
 
   Widget _buildBody(MeetupDetailState state, MeetupDetailViewModel viewModel) {
+    if (widget.meetupId.isEmpty) {
+      return const EmptyState(text: 'Invalid link');
+    }
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator.adaptive());
     }
@@ -100,25 +136,25 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
             const Gap(8),
             _buildPageHeader(meetup, viewModel),
             const Gap(10),
-            _buildLiveDashboardBadge(meetup),
-            const Gap(_sectionGap),
-            _buildStatsCards(meetup),
-            const Gap(_sectionGap),
-            _buildCapacitySection(meetup),
+            _buildStatusBadge(meetup, viewModel.isCreator),
             const Gap(_sectionGap),
             _buildLocationSection(meetup),
             const Gap(_sectionGap),
-            _buildAttendeesSection(state, viewModel),
-            if (!viewModel.isCreator) ...[
+            if (viewModel.isCreator) ...[
+              _buildStatsCards(meetup),
+              const Gap(_sectionGap),
+              _buildCapacitySection(meetup),
+              const Gap(_sectionGap),
+              _buildAttendeesSection(state, viewModel),
+              const Gap(_sectionGap),
+              _buildRebroadcastButton(meetup, viewModel),
+            ] else ...[
+              _buildGoingSummary(meetup),
               const Gap(_sectionGap),
               RsvpSection(
                 meetup: meetup,
                 onRsvp: (status) => _handleRsvp(viewModel, status),
               ),
-            ],
-            if (viewModel.isCreator) ...[
-              const Gap(_sectionGap),
-              _buildRebroadcastButton(meetup, viewModel),
             ],
             const Gap(32),
           ],
@@ -141,7 +177,8 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
         ),
         if (viewModel.isCreator)
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: AppColors.metalBrownColourForText),
+            icon: const Icon(Icons.settings_outlined,
+                color: AppColors.metalBrownColourForText),
             onPressed: () => _showSettingsMenu(meetup, viewModel),
           ),
       ],
@@ -177,25 +214,59 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     );
   }
 
-  Widget _buildLiveDashboardBadge(MeetupDto meetup) {
-    final isLive = !meetup.isPast && meetup.isOpen;
+  /// Creator sees LIVE DASHBOARD; others see Open / Full / Past.
+  Widget _buildStatusBadge(MeetupDto meetup, bool isCreator) {
+    if (isCreator) {
+      final isLive = !meetup.isPast && meetup.isOpen;
+      return Row(
+        children: [
+          if (isLive) ...[
+            Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: AppColors.metalPinkColour,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const Gap(8),
+          ],
+          TextView(
+            text: isLive
+                ? 'LIVE DASHBOARD'
+                : (meetup.isPast ? 'PAST EVENT' : 'EVENT FULL'),
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppColors.metalBrownColourForText.withOpacity(0.8),
+          ),
+        ],
+      );
+    }
+    final isFull = meetup.isFull;
+    String label = meetup.isPast ? 'Past event' : (isFull ? 'Full' : 'Open');
+    return TextView(
+      text: label,
+      fontSize: 12,
+      fontWeight: FontWeight.w600,
+      color: AppColors.metalBrownColourForText.withOpacity(0.8),
+    );
+  }
+
+  /// For non-creators: simple "X people going" summary.
+  Widget _buildGoingSummary(MeetupDto meetup) {
+    final going = meetup.acceptedCount;
+    final max = meetup.maxParticipants;
     return Row(
       children: [
-        if (isLive) ...[
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: AppColors.metalPinkColour,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const Gap(8),
-        ],
+        Icon(Icons.people_outline,
+            size: 18,
+            color: AppColors.metalBrownColourForText.withOpacity(0.7)),
+        const Gap(8),
         TextView(
-          text: isLive ? 'LIVE DASHBOARD' : (meetup.isPast ? 'PAST EVENT' : 'EVENT FULL'),
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
+          text:
+              '$going ${going == 1 ? 'person' : 'people'} going${max > 0 ? ' · $max spots' : ''}',
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
           color: AppColors.metalBrownColourForText.withOpacity(0.8),
         ),
       ],
@@ -255,7 +326,8 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     final pct = meetup.maxParticipants > 0
         ? (meetup.acceptedCount / meetup.maxParticipants * 100).round()
         : 0;
-    final remaining = (meetup.maxParticipants - meetup.acceptedCount).clamp(0, meetup.maxParticipants);
+    final remaining = (meetup.maxParticipants - meetup.acceptedCount)
+        .clamp(0, meetup.maxParticipants);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,15 +353,19 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
         ClipRRect(
           borderRadius: BorderRadius.circular(6),
           child: LinearProgressIndicator(
-            value: meetup.maxParticipants > 0 ? meetup.acceptedCount / meetup.maxParticipants : 0,
+            value: meetup.maxParticipants > 0
+                ? meetup.acceptedCount / meetup.maxParticipants
+                : 0,
             minHeight: 10,
             backgroundColor: AppColors.metalTabBg,
-            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.metalPinkColour),
+            valueColor:
+                const AlwaysStoppedAnimation<Color>(AppColors.metalPinkColour),
           ),
         ),
         const Gap(8),
         TextView(
-          text: '$remaining spot${remaining == 1 ? '' : 's'} remaining for a full house',
+          text:
+              '$remaining spot${remaining == 1 ? '' : 's'} remaining for a full house',
           fontSize: 12,
           fontWeight: FontWeight.w400,
           color: AppColors.metalBrownColourForText.withOpacity(0.7),
@@ -298,7 +374,32 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     );
   }
 
+  /// Effective map position: from meetup.placeLocation or from geocoded placeName.
+  LatLng? _mapPosition(MeetupDto meetup) {
+    if (meetup.placeLocation != null) {
+      final lat = meetup.placeLocation!.latitude;
+      final lng = meetup.placeLocation!.longitude;
+      if (lat.isFinite &&
+          lng.isFinite &&
+          lat >= -90 &&
+          lat <= 90 &&
+          lng >= -180 &&
+          lng <= 180) {
+        return LatLng(lat, lng);
+      }
+    }
+    return _resolvedMapLocation;
+  }
+
   Widget _buildLocationSection(MeetupDto meetup) {
+    final position = _mapPosition(meetup);
+    if (meetup.placeLocation == null &&
+        meetup.placeName.isNotEmpty &&
+        _geocodeRequestedForMeetupId != meetup.id) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _maybeGeocodePlaceName(meetup));
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -308,23 +409,18 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: meetup.placeLocation != null
+                child: position != null && MapConfig.hasGoogleMapsKey
                     ? GoogleMap(
                         initialCameraPosition: CameraPosition(
-                          target: LatLng(
-                            meetup.placeLocation!.latitude,
-                            meetup.placeLocation!.longitude,
-                          ),
+                          target: position,
                           zoom: 14,
                         ),
                         markers: {
                           Marker(
                             markerId: MarkerId(meetup.id),
-                            position: LatLng(
-                              meetup.placeLocation!.latitude,
-                              meetup.placeLocation!.longitude,
-                            ),
-                            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
+                            position: position,
+                            icon: BitmapDescriptor.defaultMarkerWithHue(
+                                BitmapDescriptor.hueRose),
                           ),
                         },
                         zoomControlsEnabled: false,
@@ -337,11 +433,13 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
                 bottom: 12,
                 right: 56,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: AppColors.metalWhite.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.metalButtonStroke.withOpacity(0.5)),
+                    border: Border.all(
+                        color: AppColors.metalButtonStroke.withOpacity(0.5)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,11 +449,14 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
                         text: 'LOCATION',
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.metalBrownColourForText.withOpacity(0.7),
+                        color:
+                            AppColors.metalBrownColourForText.withOpacity(0.7),
                       ),
                       const Gap(2),
                       TextView(
-                        text: meetup.placeName.isNotEmpty ? meetup.placeName : 'No address',
+                        text: meetup.placeName.isNotEmpty
+                            ? meetup.placeName
+                            : 'No address',
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: AppColors.metalBrownColourForText,
@@ -376,7 +477,8 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
                     borderRadius: BorderRadius.circular(24),
                     child: const Padding(
                       padding: EdgeInsets.all(12),
-                      child: Icon(Icons.directions, color: AppColors.metalWhite, size: 24),
+                      child: Icon(Icons.directions,
+                          color: AppColors.metalWhite, size: 24),
                     ),
                   ),
                 ),
@@ -389,25 +491,27 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
   }
 
   Future<void> _openPlaceInMaps(MeetupDto meetup) async {
-    if (meetup.placeLocation != null) {
-      final lat = meetup.placeLocation!.latitude;
-      final lng = meetup.placeLocation!.longitude;
-      final uri = Uri.parse(
-        'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
-      );
+    try {
+      Uri uri;
+      if (meetup.placeLocation != null) {
+        final lat = meetup.placeLocation!.latitude;
+        final lng = meetup.placeLocation!.longitude;
+        uri = Uri.parse(
+          'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+        );
+      } else {
+        final query = Uri.encodeComponent(
+            meetup.placeName.isNotEmpty ? meetup.placeName : '');
+        uri =
+            Uri.parse('https://www.google.com/maps/search/?api=1&query=$query');
+      }
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         Fluttertoast.showToast(msg: 'Could not open maps');
       }
-    } else {
-      final query = Uri.encodeComponent(meetup.placeName);
-      final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$query');
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        Fluttertoast.showToast(msg: 'Could not open maps');
-      }
+    } catch (e) {
+      Fluttertoast.showToast(msg: 'Could not open maps');
     }
   }
 
@@ -424,7 +528,8 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     );
   }
 
-  Widget _buildAttendeesSection(MeetupDetailState state, MeetupDetailViewModel viewModel) {
+  Widget _buildAttendeesSection(
+      MeetupDetailState state, MeetupDetailViewModel viewModel) {
     final tabs = ['accepted', 'maybe', 'waitlist'];
     final labels = ['Confirmed', 'Pending', 'Waitlist'];
     final currentIndex = tabs.indexOf(state.attendeeStatus);
@@ -451,7 +556,9 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
-                        color: isSelected ? AppColors.metalPinkColour : Colors.transparent,
+                        color: isSelected
+                            ? AppColors.metalPinkColour
+                            : Colors.transparent,
                         width: 2,
                       ),
                     ),
@@ -462,15 +569,18 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
                       TextView(
                         text: labels[i],
                         fontSize: 14,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w500,
                         color: isSelected
                             ? AppColors.metalBrownColourForText
-                            : AppColors.metalBrownColourForText.withOpacity(0.6),
+                            : AppColors.metalBrownColourForText
+                                .withOpacity(0.6),
                       ),
                       if (i == 1 && count > 0) ...[
                         const Gap(6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: AppColors.metalPinkColour,
                             borderRadius: BorderRadius.circular(10),
@@ -494,7 +604,8 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
         if (state.isLoadingAttendees)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 24),
-            child: Center(child: SizedBox(
+            child: Center(
+                child: SizedBox(
               width: 24,
               height: 24,
               child: CircularProgressIndicator(strokeWidth: 2),
@@ -540,9 +651,10 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
   }
 
   Widget _buildAttendeeItem(MeetupRsvpDto attendee) {
-    final displayName = attendee.username != null && attendee.username!.isNotEmpty
-        ? attendee.username!
-        : 'User';
+    final displayName =
+        attendee.username != null && attendee.username!.isNotEmpty
+            ? attendee.username!
+            : 'User';
     final initials = displayName.length >= 2
         ? '${displayName[0].toUpperCase()}${displayName[1].toUpperCase()}'
         : displayName.isNotEmpty
@@ -623,7 +735,8 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     );
   }
 
-  Widget _buildRebroadcastButton(MeetupDto meetup, MeetupDetailViewModel viewModel) {
+  Widget _buildRebroadcastButton(
+      MeetupDto meetup, MeetupDetailViewModel viewModel) {
     return Column(
       children: [
         SizedBox(
@@ -633,12 +746,15 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
             borderRadius: BorderRadius.circular(24),
             child: InkWell(
               onTap: () async {
-                final success = await viewModel.broadcastMeetup(widget.meetupId);
+                final success =
+                    await viewModel.broadcastMeetup(widget.meetupId);
                 if (mounted) {
                   if (success) {
-                    Fluttertoast.showToast(msg: 'LinkUp re-broadcast successfully');
+                    Fluttertoast.showToast(
+                        msg: 'LinkUp re-broadcast successfully');
                   } else {
-                    Fluttertoast.showToast(msg: 'Re-broadcast failed. Try again later.');
+                    Fluttertoast.showToast(
+                        msg: 'Re-broadcast failed. Try again later.');
                   }
                 }
               },
@@ -648,7 +764,8 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.cell_tower, color: AppColors.metalWhite, size: 22),
+                    const Icon(Icons.cell_tower,
+                        color: AppColors.metalWhite, size: 22),
                     const Gap(10),
                     TextView(
                       text: 'Re-Broadcast LinkUp',
@@ -675,7 +792,8 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     );
   }
 
-  Future<void> _handleRsvp(MeetupDetailViewModel viewModel, String status) async {
+  Future<void> _handleRsvp(
+      MeetupDetailViewModel viewModel, String status) async {
     final success = await viewModel.rsvpMeetup(widget.meetupId, status);
     if (mounted) {
       if (success) {
@@ -692,13 +810,13 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     }
   }
 
-
   Future<void> _handleDelete(MeetupDetailViewModel viewModel) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Meetup'),
-        content: const Text('Are you sure you want to delete this meetup? This action cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this meetup? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -730,13 +848,15 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     if (meetup == null) return;
 
     final url = DeepLinkService.generateMeetupUrl(meetup.id);
-    final text = 'Join me for ${meetup.eventName} on ${DateFormat('MMM dd, yyyy').format(meetup.eventDateTime)} at ${meetup.time}! $url';
+    final text =
+        'Join me for ${meetup.eventName} on ${DateFormat('MMM dd, yyyy').format(meetup.eventDateTime)} at ${meetup.time}! $url';
 
     await Share.share(text);
   }
 
   Future<void> _handleEdit(MeetupDto meetup) async {
-    final viewModel = ref.read(meetupDetailViewModelProvider(widget.meetupId).notifier);
+    final viewModel =
+        ref.read(meetupDetailViewModelProvider(widget.meetupId).notifier);
     final result = await Navigator.push(
       context,
       MaterialPageRoute(

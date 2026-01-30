@@ -69,10 +69,10 @@ class MeetupModel {
       time: json['time'] as String,
       eventDateTime: json['eventDateTime'] as String,
       placeName: (json['placeName'] ?? json['placeUrl'] ?? '') as String,
-      placeLocation: json['placeLocation'] != null
-          ? PlaceLocationModel.fromJson(
-              json['placeLocation'] as Map<String, dynamic>)
-          : null,
+      placeLocation: PlaceLocationModel.tryFromJson(
+          json['placeLocation'] is Map<String, dynamic>
+              ? json['placeLocation'] as Map<String, dynamic>
+              : null),
       description: json['description'] as String?,
       maxParticipants: (json['maxParticipants'] as num).toInt(),
       creatorId: json['creatorId'] as String,
@@ -184,9 +184,25 @@ class PlaceLocationModel {
 
   factory PlaceLocationModel.fromJson(Map<String, dynamic> json) {
     return PlaceLocationModel(
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
+      latitude: _parseDouble(json['latitude']) ?? 0.0,
+      longitude: _parseDouble(json['longitude']) ?? 0.0,
     );
+  }
+
+  /// Returns null if lat/lng are missing or invalid (avoids crash when building map).
+  static PlaceLocationModel? tryFromJson(Map<String, dynamic>? json) {
+    if (json == null) return null;
+    final lat = _parseDouble(json['latitude']);
+    final lng = _parseDouble(json['longitude']);
+    if (lat == null || lng == null || !lat.isFinite || !lng.isFinite) return null;
+    return PlaceLocationModel(latitude: lat, longitude: lng);
+  }
+
+  static double? _parseDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
   }
 
   Map<String, dynamic> toJson() {

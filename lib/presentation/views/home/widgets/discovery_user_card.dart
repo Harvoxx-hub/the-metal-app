@@ -688,7 +688,10 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
   }
 
   Widget _buildThoughtSnippet(ThoughtDto thought) {
-    final dateText = formatTime(datetime: thought.createdAt);
+    final dateText = formatTime(
+      datetime: thought.createdAt,
+      locale: Localizations.localeOf(context).languageCode,
+    );
 
     return InkWell(
       onTap: () {

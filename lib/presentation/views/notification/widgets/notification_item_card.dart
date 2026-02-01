@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/domain/entities/notification_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 /// Notification item card matching design spec:
 /// Avatar left (56px, dotted border), content right, optional action buttons
@@ -68,7 +68,10 @@ class NotificationItemCard extends StatelessWidget {
                           _buildContent(context, isUnread),
                           const SizedBox(height: 4),
                           TextView(
-                            text: timeago.format(notification.createdAt),
+                            text: formatTime(
+                              datetime: notification.createdAt,
+                              locale: Localizations.localeOf(context).languageCode,
+                            ),
                             fontSize: 11,
                             color: Colors.grey.shade500,
                           ),

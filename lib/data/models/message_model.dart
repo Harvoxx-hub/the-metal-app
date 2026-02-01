@@ -98,7 +98,7 @@ class MessageModel {
     );
   }
 
-  /// Convert to domain entity
+  /// Convert to domain entity. API timestamps are UTC (ISO with Z); parse preserves that for correct local display.
   MessageDto toDomain() {
     return MessageDto(
       id: id,
@@ -337,6 +337,8 @@ class ChatUserModel {
   final String? metal;
   final bool isOnline;
   final bool isVerified;
+  /// Last seen / last active from API (ISO string). Used with isOnline for accurate online status.
+  final String? lastSeen;
 
   ChatUserModel({
     required this.id,
@@ -346,6 +348,7 @@ class ChatUserModel {
     this.metal,
     this.isOnline = false,
     this.isVerified = false,
+    this.lastSeen,
   });
 
   factory ChatUserModel.fromJson(Map<String, dynamic> json) {
@@ -357,6 +360,7 @@ class ChatUserModel {
       metal: json['metal'] as String?,
       isOnline: json['isOnline'] as bool? ?? false,
       isVerified: json['isVerified'] as bool? ?? false,
+      lastSeen: json['lastSeen'] as String? ?? json['lastActive'] as String?,
     );
   }
 
@@ -369,6 +373,7 @@ class ChatUserModel {
       metal: metal,
       isOnline: isOnline,
       isVerified: isVerified,
+      lastActive: lastSeen,
     );
   }
 }

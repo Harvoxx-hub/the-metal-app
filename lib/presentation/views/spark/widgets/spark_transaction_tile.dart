@@ -154,6 +154,7 @@ class SparkTransactionTile extends StatelessWidget {
                 TextView(
                   text: formatTime(
                     isoDateString: transaction.timestamp.toIso8601String(),
+                    locale: Localizations.localeOf(context).languageCode,
                   ),
                   fontWeight: FontWeight.w300,
                   fontSize: 13,
@@ -183,7 +184,10 @@ class SparkTransactionTile extends StatelessWidget {
           _detailRow("Amount", "${transaction.amount} sparks"),
           _detailRow(
             "Date",
-            formatTime(isoDateString: transaction.timestamp.toIso8601String()),
+            formatTime(
+              isoDateString: transaction.timestamp.toIso8601String(),
+              locale: Localizations.localeOf(context).languageCode,
+            ),
           ),
           if (transaction.type == SparkTransactionType.sent ||
               transaction.type == SparkTransactionType.received) ...[

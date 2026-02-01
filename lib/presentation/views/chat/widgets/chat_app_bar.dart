@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
+import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/image_picker_util.dart';
 import 'package:metal/data/repositories/chat/chat_repository_providers.dart';
 import 'package:metal/data/repositories/profile/profile_repository_providers.dart';
@@ -31,6 +32,7 @@ class ChatAppBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = Localizations.localeOf(context).languageCode;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -62,8 +64,8 @@ class ChatAppBar extends ConsumerWidget {
                       connection.isAnonymous ? null : otherUser.profilePhoto,
                   size: 44,
                 ),
-                // Online indicator
-                if (otherUser.isOnline)
+                // Online indicator: only show green dot when truly active (based on lastActive)
+                if (_isActuallyOnline(otherUser, locale))
                   Positioned(
                     right: 0,
                     bottom: 0,
@@ -99,13 +101,12 @@ class ChatAppBar extends ConsumerWidget {
                     fontWeight: FontWeight.w600,
                     color: AppColors.metalBlack,
                   ),
-                  if (otherUser.isOnline)
-                    const TextView(
-                      text: 'Active now',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.grey,
-                    ),
+                  TextView(
+                    text: _onlineStatusText(otherUser, locale),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.grey,
+                  ),
                 ],
               ),
             ),
@@ -206,6 +207,29 @@ class ChatAppBar extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// True only when user is considered online using lastActive (not dummy isOnline).
+  bool _isActuallyOnline(ChatUserDto user, String locale) {
+    final status = getAccurateOnlineStatus(
+      isOnline: user.isOnline,
+      showOnline: true,
+      lastActive: user.lastActive,
+      locale: locale,
+    );
+    return status == 'active';
+  }
+
+  /// Status text: "Active now" or relative time e.g. "2 hours ago", or "Offline".
+  String _onlineStatusText(ChatUserDto user, String locale) {
+    final status = getAccurateOnlineStatus(
+      isOnline: user.isOnline,
+      showOnline: true,
+      lastActive: user.lastActive,
+      locale: locale,
+    );
+    if (status == 'active') return 'Active now';
+    return status;
   }
 
   void _viewProfile(BuildContext context) {

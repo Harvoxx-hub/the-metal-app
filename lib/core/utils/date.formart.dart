@@ -19,19 +19,31 @@ String formatTime({
   DateTime? datetime,
   String locale = 'en',
 }) {
-  // Parse the date and convert to local time
-  DateTime date = datetime ??
-      DateTime.parse(isoDateString ?? DateTime.now().toIso8601String());
+  // Parse the date: API timestamps are typically UTC (ISO with Z). Convert to local for display.
+  DateTime date = datetime ?? _parseToLocal(isoDateString ?? DateTime.now().toIso8601String());
 
-  // Convert to local time for display
-  DateTime localDate = date.toLocal();
+  // Ensure we compare local time to local "now" for correct relative strings
+  final localDate = date.isUtc ? date.toLocal() : date;
 
-  // Return relative time string based on local time
   return timeago.format(localDate, locale: locale);
 }
 
-String ActiveTime({String? isoDateString, DateTime? datetime}) {
-  String time = formatTime(isoDateString: isoDateString, datetime: datetime);
+/// Parse ISO string (UTC or local) and return as local DateTime for consistent display.
+DateTime _parseToLocal(String isoDateString) {
+  final date = DateTime.parse(isoDateString);
+  return date.isUtc ? date.toLocal() : date;
+}
+
+String ActiveTime({
+  String? isoDateString,
+  DateTime? datetime,
+  String locale = 'en',
+}) {
+  String time = formatTime(
+    isoDateString: isoDateString,
+    datetime: datetime,
+    locale: locale,
+  );
   if (time == "a moment ago") {
     return "active";
   } else {
@@ -46,6 +58,7 @@ String getAccurateOnlineStatus({
   required bool showOnline,
   String? lastActive,
   int maxOfflineMinutes = 5, // Consider offline after 5 minutes of inactivity
+  String locale = 'en',
 }) {
   // If user has disabled showing online status
   if (!showOnline) {
@@ -58,13 +71,14 @@ String getAccurateOnlineStatus({
   }
 
   try {
-    final lastActiveTime = DateTime.parse(lastActive);
+    // Parse lastActive (API sends UTC). Compare in local time.
+    final lastActiveTime = _parseToLocal(lastActive);
     final now = DateTime.now();
     final timeDifference = now.difference(lastActiveTime);
 
     // If lastActive is more than maxOfflineMinutes ago, definitely offline
     if (timeDifference.inMinutes > maxOfflineMinutes) {
-      return ActiveTime(isoDateString: lastActive);
+      return ActiveTime(isoDateString: lastActive, locale: locale);
     }
 
     // If recent activity AND isOnline flag is true, show active
@@ -73,7 +87,7 @@ String getAccurateOnlineStatus({
     }
 
     // If isOnline is false or activity is getting stale, show time-based status
-    return ActiveTime(isoDateString: lastActive);
+    return ActiveTime(isoDateString: lastActive, locale: locale);
   } catch (e) {
     // Fallback to isOnline flag if parsing fails
     return isOnline ? "active" : "Offline";

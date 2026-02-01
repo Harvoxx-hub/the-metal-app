@@ -358,6 +358,8 @@ class ChatUserDto extends BaseEntity {
   final String? metal;
   final bool isOnline;
   final bool isVerified;
+  /// Last active/last seen timestamp from backend (ISO string). Used with isOnline for accurate status.
+  final String? lastActive;
 
   const ChatUserDto({
     required this.id,
@@ -367,6 +369,7 @@ class ChatUserDto extends BaseEntity {
     this.metal,
     this.isOnline = false,
     this.isVerified = false,
+    this.lastActive,
   });
 
   /// Get display name (username or fullname)

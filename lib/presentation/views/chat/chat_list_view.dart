@@ -250,8 +250,10 @@ class _ChatListItem extends ConsumerWidget {
               children: [
                 TextView(
                   text: formatTime(
-                      isoDateString:
-                          connection.lastUpdatedAt?.toIso8601String()),
+                    isoDateString:
+                        connection.lastUpdatedAt?.toIso8601String(),
+                    locale: Localizations.localeOf(context).languageCode,
+                  ),
                   fontWeight: FontWeight.w300,
                   fontSize: 13,
                 ),

@@ -291,6 +291,7 @@ class _MessageBubbleState extends State<_MessageBubble>
                         text: formatTime(
                           isoDateString:
                               widget.message.timestamp.toIso8601String(),
+                          locale: Localizations.localeOf(context).languageCode,
                         ),
                         fontSize: 11,
                         color: Colors.grey,

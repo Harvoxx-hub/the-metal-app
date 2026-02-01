@@ -22,12 +22,14 @@ class DiscoveryUserCard extends ConsumerStatefulWidget {
   final DiscoveryUserDto user;
   final VoidCallback? onLike;
   final VoidCallback? onPass;
+  final void Function(String connectionId)? onDirectMessageSent;
 
   const DiscoveryUserCard({
     super.key,
     required this.user,
     this.onLike,
     this.onPass,
+    this.onDirectMessageSent,
   });
 
   @override
@@ -44,44 +46,8 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
   final double _horizontalSwipeThreshold =
       20.0; // Minimum horizontal movement to start swipe
 
-  /// Get prompts - return ALL actual user prompts with dummy data if needed (for testing)
-  /// Dummy data will be removed in production
-  List<UserPromptDto> get _prompts {
-    final userPrompts = widget.user.prompts ?? [];
-
-    // For testing: If user has less than 3 prompts, add dummy data
-    // TODO: Remove dummy data when going to production
-    if (userPrompts.length < 3) {
-      final dummyPrompts = [
-        UserPromptDto(
-          questionId: 'dummy1',
-          questionText: 'What\'s your ideal first date?',
-          answer: 'A cozy coffee shop or a walk in the park',
-        ),
-        UserPromptDto(
-          questionId: 'dummy2',
-          questionText: 'What makes you laugh?',
-          answer: 'Good memes and witty conversations',
-        ),
-        UserPromptDto(
-          questionId: 'dummy3',
-          questionText: 'What\'s something you\'re passionate about?',
-          answer: 'Music, art, and meaningful connections',
-        ),
-      ];
-
-      // Fill with dummy data if needed to reach minimum of 3
-      final result = <UserPromptDto>[];
-      result.addAll(userPrompts);
-      for (int i = userPrompts.length; i < 3; i++) {
-        result.add(dummyPrompts[i - userPrompts.length]);
-      }
-      return result;
-    }
-
-    // Return ALL prompts (no maximum limit)
-    return userPrompts;
-  }
+  /// Actual user prompts only (no dummy data). If empty, card shows bio instead.
+  List<UserPromptDto> get _prompts => widget.user.prompts ?? [];
 
   void _onPanStart(DragStartDetails details) {
     setState(() {
@@ -220,9 +186,11 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
                                     children: [
                                       _buildUsernameWithDetails(ref),
                                       const Gap(12),
-                                      // Prompts section (replaces bio)
+                                      // Prompts if user has any; otherwise show bio
                                       if (prompts.isNotEmpty)
-                                        _buildPromptsSection(prompts, context),
+                                        _buildPromptsSection(prompts, context)
+                                      else
+                                        _buildBioSection(),
                                       const Gap(12),
                                       _buildPassions(),
                                     ],
@@ -292,8 +260,8 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
                         Spacer(),
                         _buildActionButton(
                           icon: Icons.message,
-                          color: Colors.black,
-                          onTap: widget.onPass,
+                          color: AppColors.metalPinkColour,
+                          onTap: () => _showDirectMessageDialog(context),
                         ),
                         Spacer(),
                         _buildActionButton(
@@ -516,6 +484,24 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
     );
   }
 
+  Widget _buildBioSection() {
+    final bio = widget.user.bio?.trim();
+    if (bio == null || bio.isEmpty) return const SizedBox.shrink();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextView(
+          text: bio,
+          fontSize: 16,
+          color: Colors.black87,
+          maxLines: 6,
+          textOverflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
   Widget _buildPromptsSection(
       List<UserPromptDto> prompts, BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -600,6 +586,22 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
         userName: widget.user.username ?? 'User',
         recipientId: widget.user.id,
         onCancel: () => Navigator.pop(dialogContext),
+      ),
+    );
+  }
+
+  void _showDirectMessageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (dialogContext) => _DirectMessageDialog(
+        userName: widget.user.username ?? 'User',
+        recipientId: widget.user.id,
+        onCancel: () => Navigator.pop(dialogContext),
+        onSent: (connectionId) {
+          Navigator.pop(dialogContext);
+          widget.onDirectMessageSent?.call(connectionId);
+        },
       ),
     );
   }
@@ -1016,6 +1018,208 @@ class _PromptReplyDialogState extends ConsumerState<_PromptReplyDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to send reaction: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+}
+
+/// Dialog for sending a direct message from discovery (auto-melts)
+class _DirectMessageDialog extends ConsumerStatefulWidget {
+  final String userName;
+  final String recipientId;
+  final VoidCallback onCancel;
+  final void Function(String connectionId) onSent;
+
+  const _DirectMessageDialog({
+    required this.userName,
+    required this.recipientId,
+    required this.onCancel,
+    required this.onSent,
+  });
+
+  @override
+  ConsumerState<_DirectMessageDialog> createState() =>
+      _DirectMessageDialogState();
+}
+
+class _DirectMessageDialogState extends ConsumerState<_DirectMessageDialog> {
+  final TextEditingController _messageController = TextEditingController();
+  bool _isSending = false;
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: TextView(
+                text: 'Message ${widget.userName}',
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: TextView(
+                text:
+                    'Send a quick message to start the conversation. You\'ll automatically connect when you send.',
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+              child: TextField(
+                controller: _messageController,
+                decoration: InputDecoration(
+                  hintText: 'Write your message...',
+                  hintStyle: TextStyle(
+                    color: Colors.grey.withOpacity(0.6),
+                    fontSize: 16,
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey.withOpacity(0.1),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+                maxLines: 4,
+                maxLength: 500,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: _isSending ? null : widget.onCancel,
+                      child: TextView(
+                        text: 'Cancel',
+                        fontSize: 16,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: GestureDetector(
+                      onTap: _isSending ? null : _handleSend,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: _isSending
+                              ? Colors.grey.shade300
+                              : AppColors.metalPinkColour,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: _isSending
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const TextView(
+                                  text: 'Send Message',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleSend() async {
+    final message = _messageController.text.trim();
+    if (message.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a message'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    if (_isSending) return;
+
+    setState(() {
+      _isSending = true;
+    });
+
+    try {
+      final dataSource = ref.read(chatRemoteDataSourceProvider);
+
+      final result = await dataSource.sendDirectMessage(
+        recipientId: widget.recipientId,
+        message: message,
+      );
+
+      if (mounted) {
+        final connectionId = result['connectionId'] as String?;
+        if (connectionId != null) {
+          widget.onSent(connectionId);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Message sent! Opening chat...'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } else {
+          setState(() => _isSending = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Message sent but could not open chat'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSending = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send message: ${e.toString()}'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),

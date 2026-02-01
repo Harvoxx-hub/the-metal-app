@@ -7,7 +7,8 @@ enum MessageType {
   audio,
   unmelt,
   calls,
-  promptReaction;
+  promptReaction,
+  directMessage;
 
   /// Convert string to MessageType
   static MessageType fromString(String value) {
@@ -23,6 +24,8 @@ enum MessageType {
         return MessageType.calls;
       case 'prompt_reaction':
         return MessageType.promptReaction;
+      case 'direct_message':
+        return MessageType.directMessage;
       default:
         return MessageType.text;
     }
@@ -41,6 +44,8 @@ enum MessageType {
         return 'calls';
       case MessageType.promptReaction:
         return 'prompt_reaction';
+      case MessageType.directMessage:
+        return 'direct_message';
     }
   }
 }
@@ -98,6 +103,9 @@ class MessageDto extends BaseEntity {
   final String? promptAnswer;
   final String? comment;
 
+  // Direct message flag (for direct_message from discovery)
+  final bool? isDirectMessage;
+
   const MessageDto({
     required this.id,
     required this.message,
@@ -116,6 +124,7 @@ class MessageDto extends BaseEntity {
     this.promptQuestionText,
     this.promptAnswer,
     this.comment,
+    this.isDirectMessage,
   });
 
   /// Check if this message is a reply to another message
@@ -170,6 +179,10 @@ class MessageDto extends BaseEntity {
   bool get isPromptReactionMessage =>
       type == MessageType.promptReaction || isPromptReaction == true;
 
+  /// Check if this is a direct message (from discovery)
+  bool get isDirectMessageMessage =>
+      type == MessageType.directMessage || isDirectMessage == true;
+
   /// Check if the message is still sending
   bool get isSending => state == MessageState.sending;
 
@@ -195,6 +208,7 @@ class MessageDto extends BaseEntity {
     String? promptQuestionText,
     String? promptAnswer,
     String? comment,
+    bool? isDirectMessage,
   }) {
     return MessageDto(
       id: id ?? this.id,
@@ -214,6 +228,7 @@ class MessageDto extends BaseEntity {
       promptQuestionText: promptQuestionText ?? this.promptQuestionText,
       promptAnswer: promptAnswer ?? this.promptAnswer,
       comment: comment ?? this.comment,
+      isDirectMessage: isDirectMessage ?? this.isDirectMessage,
     );
   }
 

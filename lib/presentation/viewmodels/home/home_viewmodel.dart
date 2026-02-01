@@ -226,6 +226,17 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(lastSwipeResult: null);
   }
 
+  /// Remove user from list (e.g. after sending direct message)
+  void removeUser(String userId) {
+    final updatedUsers = (state.data ?? <DiscoveryUserDto>[])
+        .where((user) => user.id != userId)
+        .toList();
+    state = state.copyWith(data: updatedUsers);
+    if (updatedUsers.length < 5 && state.hasMore) {
+      loadMoreUsers();
+    }
+  }
+
   /// Get current users
   List<DiscoveryUserDto> get users => state.data ?? [];
 

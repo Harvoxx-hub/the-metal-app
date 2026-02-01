@@ -12,6 +12,7 @@ import 'package:metal/fcm/models/push_type.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:metal/core/services/notification_navigation_service.dart';
+import 'package:metal/core/services/notification_refresh_signal.dart';
 import 'package:metal/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -258,6 +259,7 @@ class FCMClient {
 
   /// Handle push notification when the app in foreground state.
   Future<void> _onMessage(RemoteMessage message) async {
+    NotificationRefreshSignal.instance.notifyPushReceived();
     print(
         'onMessage: title ${message.notification?.title}, body: ${message.notification?.body}');
     final payload = NotificationPayloadModel.fromRemoteMessage(message);
@@ -278,6 +280,7 @@ class FCMClient {
 
   /// Handle tap on notification when the app is open from background state.
   void _onMessageOpenedApp(RemoteMessage message) {
+    NotificationRefreshSignal.instance.notifyPushReceived();
     print(
         'onMessageOpenedApp: title ${message.notification?.title}, body: ${message.notification?.body}');
     final payload = NotificationPayloadModel.fromRemoteMessage(message);

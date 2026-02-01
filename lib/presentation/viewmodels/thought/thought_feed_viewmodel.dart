@@ -180,6 +180,13 @@ class ThoughtFeedViewModel extends StateNotifier<ThoughtFeedState> {
     );
   }
 
+  /// Remove all thoughts from a user (e.g. after blocking)
+  void removeThoughtsByUserId(String userId) {
+    state = state.copyWith(
+      thoughts: state.thoughts.where((t) => t.userId != userId).toList(),
+    );
+  }
+
   /// Delete a thought
   Future<bool> deleteThought(String thoughtId) async {
     final result = await _repository.deleteThought(thoughtId);

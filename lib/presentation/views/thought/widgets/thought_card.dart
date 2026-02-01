@@ -990,10 +990,10 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
 
         if (mounted) {
           Fluttertoast.showToast(msg: 'User blocked successfully');
-          // Remove thought from feed
+          // Remove all thoughts from this user from the feed
           ref
               .read(thoughtFeedViewModelProvider.notifier)
-              .removeThought(thoughtModel.id);
+              .removeThoughtsByUserId(thoughtModel.userId);
         }
       } catch (e) {
         if (mounted) {

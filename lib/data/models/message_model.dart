@@ -20,6 +20,7 @@ class MessageModel {
   final String? promptQuestionText;
   final String? promptAnswer;
   final String? comment;
+  final bool? isDirectMessage;
 
   MessageModel({
     required this.id,
@@ -38,6 +39,7 @@ class MessageModel {
     this.promptQuestionText,
     this.promptAnswer,
     this.comment,
+    this.isDirectMessage,
   });
 
   /// Create from API JSON response
@@ -70,6 +72,7 @@ class MessageModel {
         promptQuestionText: json['promptQuestionText'] as String?,
         promptAnswer: json['promptAnswer'] as String?,
         comment: json['comment'] as String?,
+        isDirectMessage: json['isDirectMessage'] as bool?,
       );
     }
 
@@ -91,6 +94,7 @@ class MessageModel {
       promptQuestionText: json['promptQuestionText'] as String?,
       promptAnswer: json['promptAnswer'] as String?,
       comment: json['comment'] as String?,
+      isDirectMessage: json['isDirectMessage'] as bool?,
     );
   }
 
@@ -113,6 +117,7 @@ class MessageModel {
       promptQuestionText: promptQuestionText,
       promptAnswer: promptAnswer,
       comment: comment,
+      isDirectMessage: isDirectMessage,
     );
   }
 

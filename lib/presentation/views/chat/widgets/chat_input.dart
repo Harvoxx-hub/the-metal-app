@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:metal/core/di/provider_setup.dart';
 import 'package:metal/core/network/api_routes.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/core/utils/permission_helper.dart';
 import 'package:metal/domain/entities/message_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -477,6 +478,17 @@ class _ChatInputState extends ConsumerState<ChatInput> {
               backgroundColor: Colors.green,
               toastLength: Toast.LENGTH_LONG,
             );
+            // Navigate to melt celebration screen with correct user info
+            if (response?.connectionId != null && recipientId.isNotEmpty) {
+              Navigator.pushNamed(
+                context,
+                AppRoutes.meltMetal,
+                arguments: {
+                  'userId': recipientId,
+                  'connectionId': response!.connectionId!,
+                },
+              );
+            }
           } else {
             Fluttertoast.showToast(
               msg: 'Melt request sent! Waiting for response...',

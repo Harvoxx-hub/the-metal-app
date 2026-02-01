@@ -180,6 +180,31 @@ class ChatRemoteDataSource {
     throw Exception(response.data?['error'] ?? 'Failed to send prompt reaction');
   }
 
+  /// Send a direct message from discovery (auto-melts with recipient)
+  Future<Map<String, dynamic>> sendDirectMessage({
+    required String recipientId,
+    required String message,
+  }) async {
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.directMessage),
+      data: {
+        'recipientId': recipientId,
+        'message': message,
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.data != null) {
+        final data =
+            response.data['data'] as Map<String, dynamic>? ?? response.data;
+        return data;
+      }
+    }
+
+    throw Exception(
+        response.data?['error'] ?? 'Failed to send direct message');
+  }
+
   /// Upload and send an audio message
   Future<MessageModel> sendAudioMessage({
     required String connectionId,

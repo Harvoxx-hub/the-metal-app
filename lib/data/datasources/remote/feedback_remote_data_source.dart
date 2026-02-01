@@ -35,4 +35,29 @@ class FeedbackRemoteDataSource extends BaseRemoteDataSource {
       throw Exception('Submit feedback failed: ${e.message}');
     }
   }
+
+  /// Submit app review feedback
+  /// Sends improvement feedback and/or app store rating to the backend
+  Future<Map<String, dynamic>> submitReviewFeedback({
+    required ReviewFeedbackSubmissionDto feedback,
+  }) async {
+    try {
+      final response = await dioClient.post(
+        ApiRoutes.buildPath(ApiRoutes.feedback),
+        data: feedback.toJson(),
+      );
+
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['success'] == true) {
+          return data['data'] as Map<String, dynamic>? ?? {};
+        }
+        throw Exception(data['message'] ?? 'Failed to submit feedback');
+      }
+
+      throw Exception('Invalid response format');
+    } on DioException catch (e) {
+      throw Exception('Submit feedback failed: ${e.message}');
+    }
+  }
 }

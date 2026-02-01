@@ -53,6 +53,24 @@ class NotificationRepository implements NotificationRepositoryAbstract {
   }
 
   @override
+  Future<BaseState<Map<String, dynamic>>> executeAction({
+    required String notificationId,
+    required String action,
+    Map<String, dynamic>? params,
+  }) async {
+    try {
+      final result = await _remoteDataSource.executeAction(
+        notificationId: notificationId,
+        action: action,
+        params: params,
+      );
+      return BaseState.success(result);
+    } catch (e) {
+      return ErrorHandler.handleError<Map<String, dynamic>>(e);
+    }
+  }
+
+  @override
   Future<BaseState<NotificationSettingsDto>> updateSettings({
     required NotificationSettingsDto settings,
   }) async {

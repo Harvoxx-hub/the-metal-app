@@ -7,4 +7,9 @@ abstract class FeedbackRepositoryAbstract {
   Future<BaseState<bool>> submitFeedback({
     required FeedbackSubmissionDto feedback,
   });
+
+  /// Submit app review feedback (improvement text and/or star rating)
+  Future<BaseState<bool>> submitReviewFeedback({
+    required ReviewFeedbackSubmissionDto feedback,
+  });
 }

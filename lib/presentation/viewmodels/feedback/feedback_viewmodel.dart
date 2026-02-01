@@ -39,7 +39,7 @@ class FeedbackViewModel extends StateNotifier<FeedbackState> {
 
   FeedbackViewModel(this._ref) : super(FeedbackState.initial());
 
-  /// Submit feedback
+  /// Submit feedback (legacy)
   Future<bool> submitFeedback({
     required FeedbackType type,
     required String message,
@@ -60,6 +60,49 @@ class FeedbackViewModel extends StateNotifier<FeedbackState> {
       );
 
       final result = await repository.submitFeedback(feedback: feedback);
+
+      if (result.isSuccess) {
+        state = state.copyWith(
+          isSubmitting: false,
+          isSubmitted: true,
+          successMessage: 'Thank you for your feedback!',
+        );
+        return true;
+      } else {
+        state = state.copyWith(
+          isSubmitting: false,
+          errorMessage: result.errorMessage ?? 'Failed to submit feedback',
+        );
+        return false;
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isSubmitting: false,
+        errorMessage: 'Failed to submit feedback: $e',
+      );
+      return false;
+    }
+  }
+
+  /// Submit app review feedback (improvement text and/or star rating)
+  Future<bool> submitReviewFeedback({
+    String? improvementFeedback,
+    int? appStoreRating,
+  }) async {
+    state = state.copyWith(
+      isSubmitting: true,
+      errorMessage: null,
+      successMessage: null,
+    );
+
+    try {
+      final repository = _ref.read(feedbackRepositoryProvider);
+      final feedback = ReviewFeedbackSubmissionDto(
+        improvementFeedback: improvementFeedback,
+        appStoreRating: appStoreRating,
+      );
+
+      final result = await repository.submitReviewFeedback(feedback: feedback);
 
       if (result.isSuccess) {
         state = state.copyWith(

@@ -256,7 +256,8 @@ class _MessageBubbleState extends State<_MessageBubble>
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: widget.message.isPromptReactionMessage
+                    color: (widget.message.isPromptReactionMessage ||
+                            widget.message.isDirectMessageMessage)
                         ? (widget.isMe
                             ? AppColors.metalPinkColour.withOpacity(0.15)
                             : AppColors.metalPinkColour.withOpacity(0.1))
@@ -269,7 +270,8 @@ class _MessageBubbleState extends State<_MessageBubble>
                       bottomLeft: Radius.circular(widget.isMe ? 18 : 4),
                       bottomRight: Radius.circular(widget.isMe ? 4 : 18),
                     ),
-                    border: widget.message.isPromptReactionMessage
+                    border: (widget.message.isPromptReactionMessage ||
+                            widget.message.isDirectMessageMessage)
                         ? Border.all(
                             color: AppColors.metalPinkColour.withOpacity(0.3),
                             width: 1.5,
@@ -326,6 +328,11 @@ class _MessageBubbleState extends State<_MessageBubble>
       return _buildPromptReactionMessage();
     }
 
+    // Handle direct message type (from discovery)
+    if (widget.message.isDirectMessageMessage) {
+      return _buildDirectMessageContent();
+    }
+
     // Handle unmelt message type
     if (widget.message.isUnmelt) {
       return _buildUnmeltMessage();
@@ -335,6 +342,45 @@ class _MessageBubbleState extends State<_MessageBubble>
       text: widget.message.message,
       fontSize: 14,
       color: Colors.black87,
+    );
+  }
+
+  /// Build the direct message UI (from discovery - auto-melt)
+  Widget _buildDirectMessageContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.metalPinkColour.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.chat_bubble_outline,
+                size: 16,
+                color: AppColors.metalPinkColour,
+              ),
+            ),
+            const Gap(8),
+            const TextView(
+              text: 'Direct Message',
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ],
+        ),
+        const Gap(12),
+        TextView(
+          text: widget.message.message,
+          fontSize: 14,
+          color: Colors.black87,
+        ),
+      ],
     );
   }
 

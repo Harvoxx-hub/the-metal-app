@@ -227,6 +227,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ref.read(homeViewModelProvider.notifier).likeUser(userId),
       onPass: (userId) =>
           ref.read(homeViewModelProvider.notifier).passUser(userId),
+      onDirectMessageSent: (userId, connectionId) {
+        ref.read(homeViewModelProvider.notifier).removeUser(userId);
+        Navigator.pushNamed(
+          context,
+          AppRoutes.chatWindowView,
+          arguments: connectionId,
+        );
+      },
     );
   }
 
@@ -251,11 +259,13 @@ class _UserCardView extends ConsumerStatefulWidget {
   final List<DiscoveryUserDto> users;
   final Function(String) onLike;
   final Function(String) onPass;
+  final void Function(String userId, String connectionId)? onDirectMessageSent;
 
   const _UserCardView({
     required this.users,
     required this.onLike,
     required this.onPass,
+    this.onDirectMessageSent,
   });
 
   @override
@@ -304,6 +314,9 @@ class _UserCardViewState extends ConsumerState<_UserCardView> {
       onPass: _isProcessing
           ? null
           : () => _handleAction(() => widget.onPass(currentUserId)),
+      onDirectMessageSent: widget.onDirectMessageSent != null
+          ? (connectionId) => widget.onDirectMessageSent!(currentUserId, connectionId)
+          : null,
     );
   }
 }

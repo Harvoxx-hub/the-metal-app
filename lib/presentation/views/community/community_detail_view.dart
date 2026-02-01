@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:metal/presentation/viewmodels/community/community_detail_viewmodel_providers.dart';
 import 'package:metal/presentation/views/community/widgets/community_posts_tab.dart';
+import 'package:metal/presentation/views/community/widgets/community_members_tab.dart';
 import 'package:metal/presentation/views/community/widgets/community_about_tab.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
@@ -33,7 +34,7 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -81,6 +82,10 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
                                 CommunityPostsTab(
                                   communityId: widget.communityId,
                                   initialPosts: detailState.posts,
+                                ),
+                                CommunityMembersTab(
+                                  communityId: widget.communityId,
+                                  memberCount: detailState.community!.memberCount,
                                 ),
                                 CommunityAboutTab(
                                   community: detailState.community!,
@@ -297,6 +302,7 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
         ),
         tabs: const [
           Tab(text: 'Posts'),
+          Tab(text: 'Members'),
           Tab(text: 'About'),
         ],
       ),

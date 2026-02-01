@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,13 +6,15 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/services/notification_navigation_service.dart';
+import 'package:metal/core/services/notification_refresh_signal.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/presentation/views/notification/widgets/notification_item_card.dart';
 import 'package:metal/presentation/viewmodels/notification/notification_viewmodel.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/state.handler/loading.state.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 /// Notification View - displays notification list with live updates
 class NotificationView extends ConsumerStatefulWidget {
@@ -29,15 +30,22 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
   @override
   void initState() {
     super.initState();
-    // Setup scroll listener for pagination
-    // Note: Notifications are auto-loaded by the viewmodel provider
     _scrollController.addListener(_onScroll);
+    NotificationRefreshSignal.instance.addListener(_onPushReceived);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(notificationViewModelProvider.notifier).refreshNotifications();
+    });
   }
 
   @override
   void dispose() {
+    NotificationRefreshSignal.instance.removeListener(_onPushReceived);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onPushReceived() {
+    ref.read(notificationViewModelProvider.notifier).refreshOnPushReceived();
   }
 
   void _onScroll() {
@@ -56,20 +64,7 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
       Header: 'Notifications',
       appBarState: AppBarState.BackWithHeader,
       body: _buildBody(context, notificationState),
-      floatingActionButton: notificationState.unreadCount > 0
-          ? FloatingActionButton.extended(
-              onPressed: () => _handleMarkAllAsRead(context),
-              backgroundColor: AppColors.metalPinkColour,
-              icon: const Icon(Icons.done_all, color: Colors.white),
-              label: const TextView(
-                text: 'Mark all as read',
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            )
-          : null,
-    );
+    ) ;
   }
 
   Widget _buildBody(BuildContext context, NotificationState state) {
@@ -145,261 +140,42 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
           }
 
           final notification = state.notifications[index];
-          return _buildNotificationCard(context, notification, state);
+          return NotificationItemCard(
+            notification: notification,
+            onTap: () => _handleNotificationTap(context, notification),
+            onAction: (action) => _handleNotificationAction(context, notification, action),
+          );
         },
       ),
     );
   }
 
-  Widget _buildNotificationCard(
+  Future<void> _handleNotificationAction(
     BuildContext context,
     notification,
-    NotificationState state,
-  ) {
-    final isUnread = !notification.isRead;
+    String action,
+  ) async {
+    final result = await ref
+        .read(notificationViewModelProvider.notifier)
+        .executeAction(
+          notificationId: notification.id,
+          action: action,
+        );
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: isUnread
-            ? AppColors.metalPinkColour.withOpacity(0.05)
-            : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isUnread
-              ? AppColors.metalPinkColour.withOpacity(0.2)
-              : Colors.grey.shade200,
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _handleNotificationTap(context, notification),
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Notification icon
-                _buildNotificationIcon(notification.type, isUnread),
-                const Gap(16),
-                // Notification content
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextView(
-                              text: notification.title,
-                              fontSize: 15,
-                              fontWeight: isUnread
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          if (isUnread)
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: AppColors.metalPinkColour,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                        ],
-                      ),
-                      const Gap(6),
-                      // Message
-                      TextView(
-                        text: notification.message,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.grey.shade700,
-                        maxLines: 2,
-                        textOverflow: TextOverflow.ellipsis,
-                      ),
-                      const Gap(8),
-                      // Time ago
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.access_time,
-                            size: 12,
-                            color: Colors.grey.shade500,
-                          ),
-                          const Gap(4),
-                          TextView(
-                            text: timeago.format(notification.createdAt),
-                            fontSize: 11,
-                            color: Colors.grey.shade500,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                // Sender photo (if available)
-                if (notification.senderPhoto != null) ...[
-                  const Gap(12),
-                  ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: notification.senderPhoto!,
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.grey.shade200,
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.metalPinkColour,
-                          ),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.grey.shade200,
-                        child: Icon(
-                          Icons.person,
-                          size: 20,
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+    if (!context.mounted) return;
 
-  Widget _buildNotificationIcon(notificationType, bool isUnread) {
-    Color iconColor = isUnread
-        ? AppColors.metalPinkColour
-        : Colors.grey.shade600;
+    if (result != null) {
+      final connectionId = result['connectionId'] as String?;
+      final meetupId = result['meetupId'] as String?;
 
-    Widget iconWidget;
-
-    switch (notificationType.toString().split('.').last) {
-      // Profile interactions
-      case 'like':
-        iconWidget = Image.asset(
-          Assets.images.likeNotification.path,
-          width: 32,
-          height: 32,
-          color: iconColor,
-        );
-        break;
-      case 'superlike':
-        iconWidget = Icon(
-          Icons.favorite,
-          size: 32,
-          color: iconColor,
-        );
-        break;
-      // Melt/Connection
-      case 'match':
-        iconWidget = SvgPicture.asset(
-          Assets.icons.meltNotification.path,
-          width: 32,
-          height: 32,
-          colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-        );
-        break;
-      case 'meltRequest':
-      case 'melt_request':
-        iconWidget = SvgPicture.asset(
-          Assets.icons.meltNotification.path,
-          width: 32,
-          height: 32,
-          colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-        );
-        break;
-      // Unmelt
-      case 'unmetalRequested':
-      case 'unmetal_requested':
-        iconWidget = Icon(
-          Icons.visibility,
-          size: 32,
-          color: iconColor,
-        );
-        break;
-      case 'unmetalAccepted':
-      case 'unmetal_accepted':
-        iconWidget = Icon(
-          Icons.check_circle,
-          size: 32,
-          color: iconColor,
-        );
-        break;
-      // Sparks
-      case 'spark':
-        iconWidget = Icon(
-          Icons.bolt_rounded,
-          size: 32,
-          color: iconColor,
-        );
-        break;
-      // Referral
-      case 'referral':
-        iconWidget = Icon(
-          Icons.person_add,
-          size: 32,
-          color: iconColor,
-        );
-        break;
-      // Other
-      case 'message':
-        iconWidget = Icon(
-          Icons.message_rounded,
-          size: 32,
-          color: iconColor,
-        );
-        break;
-      case 'comment':
-        iconWidget = Icon(
-          Icons.comment_rounded,
-          size: 32,
-          color: iconColor,
-        );
-        break;
-      default:
-        iconWidget = SvgPicture.asset(
-          Assets.icons.notification.path,
-          width: 32,
-          height: 32,
-          colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-        );
+      if (connectionId != null && connectionId.isNotEmpty) {
+        Navigator.pushNamed(context, AppRoutes.chatWindowView, arguments: connectionId);
+      } else if (meetupId != null && meetupId.isNotEmpty) {
+        Navigator.pushNamed(context, AppRoutes.meetupDetails, arguments: meetupId);
+      }
     }
 
-    return Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        color: iconColor.withOpacity(0.1),
-        shape: BoxShape.circle,
-      ),
-      child: Center(child: iconWidget),
-    );
+    ref.read(notificationViewModelProvider.notifier).refreshNotifications();
   }
 
   Future<void> _handleNotificationTap(

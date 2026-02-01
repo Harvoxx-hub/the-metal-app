@@ -44,38 +44,72 @@ class NotificationNavigationService {
     
     // Handle notification types that need special navigation
     switch (notification.type) {
-      case NotificationType.like:
-      case NotificationType.superlike:
-        // Navigate to sender's profile
-        if (notification.senderId != null) {
-          await _navigateToUserProfile(notification.senderId!, context);
+      case NotificationType.profileLiked:
+        if (notification.effectiveSenderId.isNotEmpty) {
+          await _navigateToUserProfile(notification.effectiveSenderId, context);
         } else {
           await _navigateToHome(context);
         }
         return;
       case NotificationType.meltRequest:
-        // Navigate to sender's profile or pending melt requests
-        if (notification.senderId != null) {
-          await _navigateToUserProfile(notification.senderId!, context);
+        if (notification.effectiveSenderId.isNotEmpty) {
+          await _navigateToUserProfile(notification.effectiveSenderId, context);
         } else {
           await _navigateToHome(context);
         }
         return;
-      case NotificationType.referral:
-        // Navigate to referral page or profile
+      case NotificationType.referralJoined:
         await _navigateToReferral(context);
+        return;
+      case NotificationType.melted:
+        if (notification.connectionId != null && notification.connectionId!.isNotEmpty) {
+          await _navigateToMeltMetal(
+            {
+              'userId': notification.effectiveSenderId,
+              'connectionId': notification.connectionId,
+            },
+            context,
+          );
+        } else {
+          await _navigateToHome(context);
+        }
+        return;
+      case NotificationType.sparksSent:
+        await _navigateToSparks(context);
+        return;
+      case NotificationType.unmetalRequiresMoreTime:
+      case NotificationType.message:
+      case NotificationType.promptReaction:
+      case NotificationType.directMessage:
+        if (notification.connectionId != null) {
+          await _navigateToChat({'connectionId': notification.connectionId}, context);
+        } else {
+          await _navigateToMessages(context);
+        }
+        return;
+      case NotificationType.meetupRsvpDeclined:
+        if (notification.connectionId != null) {
+          await _navigateToChat({'connectionId': notification.connectionId}, context);
+        } else {
+          await _navigateToMessages(context);
+        }
         return;
       case NotificationType.meetupCreated:
       case NotificationType.meetupInvite:
       case NotificationType.meetupReminder:
       case NotificationType.meetupRsvpUpdate:
       case NotificationType.meetupCapacityReached:
-        // Navigate to meetup details
-        if (notification.relatedId != null) {
+        if (notification.meetupId != null) {
+          await _navigateToMeetup({'meetupId': notification.meetupId}, context);
+        } else if (notification.relatedId != null) {
           await _navigateToMeetup({'meetupId': notification.relatedId}, context);
         } else {
           await _navigateToHome(context);
         }
+        return;
+      case NotificationType.unmetalAcceptance:
+      case NotificationType.unmetalRequest:
+        await _navigateToChat(notification.metadata ?? notification.data ?? {}, context);
         return;
       default:
         // Use push type mapping for other types
@@ -97,13 +131,30 @@ class NotificationNavigationService {
         await _navigateToHome(context);
         break;
       case PushType.message:
-        await _navigateToChat(data, context);
-        break;
-      case PushType.unmetal_request:
+      case PushType.messageDirect:
+      case PushType.unmetalRequest:
+      case PushType.unmetalAcceptance:
+      case PushType.unmetalRequiresMoreTime:
         await _navigateToChat(data, context);
         break;
       case PushType.new_connection:
+      case PushType.melted:
         await _navigateToMeltMetal(data, context);
+        break;
+      case PushType.profileLiked:
+      case PushType.meltRequest:
+        final senderId = data?['senderId'] as String?;
+        if (senderId != null && senderId.isNotEmpty) {
+          await _navigateToUserProfile(senderId, context);
+        } else {
+          await _navigateToHome(context);
+        }
+        break;
+      case PushType.sparksSent:
+        await _navigateToSparks(context);
+        break;
+      case PushType.referralJoined:
+        await _navigateToReferral(context);
         break;
       case PushType.thought_created:
       case PushType.reaction_added:
@@ -128,7 +179,12 @@ class NotificationNavigationService {
       case PushType.meetup_reminder:
       case PushType.meetup_rsvp_update:
       case PushType.meetup_capacity_reached:
+      case PushType.meetupRsvpDeclined:
         await _navigateToMeetup(data, context);
+        break;
+      case PushType.promptReaction:
+      case PushType.directMessage:
+        await _navigateToChat(data, context);
         break;
     }
   }
@@ -136,36 +192,40 @@ class NotificationNavigationService {
   /// Map NotificationType to PushType
   PushType? _mapNotificationTypeToPushType(NotificationType type) {
     switch (type) {
-      case NotificationType.like:
-      case NotificationType.superlike:
-        return PushType.reaction_added; // Navigate to profile or discovery
-      case NotificationType.match:
-        return PushType.new_connection; // Navigate to melt screen
+      case NotificationType.profileLiked:
+        return PushType.reaction_added;
+      case NotificationType.melted:
+        return PushType.new_connection;
       case NotificationType.meltRequest:
-        return PushType.new_connection; // Navigate to user profile or pending requests
-      case NotificationType.unmetalRequested:
-      case NotificationType.unmetalAccepted:
-        return PushType.unmetal_request; // Navigate to chat
-      case NotificationType.spark:
-        return PushType.sparks_transaction; // Navigate to sparks page
-      case NotificationType.referral:
-        return null; // Navigate to referral/profile page
+        return PushType.new_connection;
+      case NotificationType.unmetalRequest:
+      case NotificationType.unmetalAcceptance:
+        return PushType.unmetalRequest;
+      case NotificationType.sparksSent:
+        return PushType.sparks_transaction;
+      case NotificationType.referralJoined:
+        return null;
       case NotificationType.message:
-        return PushType.message; // Navigate to chat
+      case NotificationType.promptReaction:
+      case NotificationType.directMessage:
+        return PushType.message;
       case NotificationType.comment:
-        return PushType.comment; // Navigate to thought details
+        return PushType.comment;
       case NotificationType.meetupCreated:
-        return PushType.meetup_created; // Navigate to meetup details
+        return PushType.meetup_created;
       case NotificationType.meetupInvite:
-        return PushType.meetup_invite; // Navigate to meetup details
+        return PushType.meetup_invite;
       case NotificationType.meetupReminder:
-        return PushType.meetup_reminder; // Navigate to meetup details
+        return PushType.meetup_reminder;
       case NotificationType.meetupRsvpUpdate:
-        return PushType.meetup_rsvp_update; // Navigate to meetup details
+      case NotificationType.meetupRsvpDeclined:
+        return PushType.meetup_rsvp_update;
       case NotificationType.meetupCapacityReached:
-        return PushType.meetup_capacity_reached; // Navigate to meetup details
+        return PushType.meetup_capacity_reached;
+      case NotificationType.unmetalRequiresMoreTime:
+        return PushType.unmetalRequest;
       case NotificationType.system:
-        return null; // Navigate to home
+        return null;
     }
   }
 
@@ -219,20 +279,30 @@ class NotificationNavigationService {
   }
 
   /// Navigate to melt metal page
+  /// Requires userId (other user) for display; connectionId for chat navigation.
+  /// When userId is missing, falls back to chat (connection shows other user's name).
   Future<void> _navigateToMeltMetal(
       Map<String, dynamic>? data, BuildContext context) async {
     final metadata = _parseMetadata(data);
     final connectionId = metadata?['connectionId'] ??
         data?['connectionId'] as String? ??
         data?['otherUserId'] as String?;
+    final userId = metadata?['userId'] as String? ??
+        data?['userId'] as String? ??
+        metadata?['senderId'] as String? ??
+        data?['senderId'] as String?;
 
     if (connectionId != null && connectionId.isNotEmpty) {
-      await _safeNavigate(
-        context,
-        AppRoutes.meltMetal,
-        connectionId,
-        _navigateToHome,
-      );
+      if (userId != null && userId.isNotEmpty) {
+        await _safeNavigate(
+          context,
+          AppRoutes.meltMetal,
+          {'userId': userId, 'connectionId': connectionId},
+          _navigateToHome,
+        );
+      } else {
+        await _navigateToChat(data, context);
+      }
     } else {
       await _navigateToHome(context);
     }

@@ -13,6 +13,12 @@ abstract class NotificationRepositoryAbstract {
 
   Future<BaseState<void>> markAllAsRead();
 
+  Future<BaseState<Map<String, dynamic>>> executeAction({
+    required String notificationId,
+    required String action,
+    Map<String, dynamic>? params,
+  });
+
   Future<BaseState<NotificationSettingsDto>> updateSettings({
     required NotificationSettingsDto settings,
   });

@@ -920,6 +920,10 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
 
         if (mounted) {
           Fluttertoast.showToast(msg: 'User blocked successfully');
+          // Remove all thoughts from this user from the feed
+          ref
+              .read(thoughtFeedViewModelProvider.notifier)
+              .removeThoughtsByUserId(_thought!.userId);
           Navigator.of(context).pop(); // Go back to previous screen
         }
       } catch (e) {

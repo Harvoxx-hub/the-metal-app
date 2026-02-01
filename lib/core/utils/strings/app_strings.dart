@@ -160,7 +160,7 @@ class AppStrings {
   static const String chooseMetalSubtitle = "You can only select one metal";
   static const String passionsTitle =
       "Tell us your passions and what interest you most";
-  static const String passionsSubtitle = "We could add it your profile!";
+  static const String passionsSubtitle = "We could add it to your profile!";
   static const String aboutYouTitle = "Just a little more about you";
   static const String aboutYouSubtitle =
       "The more we know you, the easier it is to match you!";

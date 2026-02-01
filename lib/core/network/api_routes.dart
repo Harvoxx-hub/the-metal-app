@@ -52,6 +52,7 @@ class ApiRoutes {
   static const String markAllMessagesRead =
       '/messages'; // PUT /messages/:connectionId/read-all
   static const String promptReaction = '/messages/prompt-reaction'; // POST - send prompt reaction
+  static const String directMessage = '/messages/direct-message'; // POST - send direct message from discovery
   static const String clearChat =
       '/connections'; // DELETE /connections/:id/messages
 
@@ -114,6 +115,8 @@ class ApiRoutes {
       '/notifications/settings'; // PUT - update notification preferences
   static const String notificationDevices =
       '/notifications/devices'; // POST - register FCM device token
+  static const String notificationAction =
+      '/notifications'; // POST /notifications/:id/action - execute action
 
   // Story/Eyes endpoints
   static const String stories =

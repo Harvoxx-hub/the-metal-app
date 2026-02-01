@@ -1,6 +1,7 @@
 import 'package:metal/domain/entities/notification_dto.dart';
 
 /// Notification model for API responses
+/// Handles both new schema (user, content, badge, actions) and legacy (title, message, senderId)
 class NotificationModel {
   final String id;
   final String type;
@@ -13,6 +14,13 @@ class NotificationModel {
   final String? relatedId;
   final Map<String, dynamic>? data;
   final String createdAt;
+  final String? category;
+  final String? notificationType;
+  final Map<String, dynamic>? user;
+  final Map<String, dynamic>? content;
+  final Map<String, dynamic>? badge;
+  final List<dynamic>? actions;
+  final Map<String, dynamic>? metadata;
 
   NotificationModel({
     required this.id,
@@ -26,37 +34,126 @@ class NotificationModel {
     this.relatedId,
     this.data,
     required this.createdAt,
+    this.category,
+    this.notificationType,
+    this.user,
+    this.content,
+    this.badge,
+    this.actions,
+    this.metadata,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    final contentObj = json['content'];
+    String message = json['message'] as String? ??
+        json['body'] as String? ??
+        json['subTitle'] as String? ??
+        '';
+    if (contentObj is Map<String, dynamic>) {
+      final contentMsg = contentObj['message'] as String? ??
+          contentObj['body'] as String? ??
+          contentObj['subTitle'] as String?;
+      if (contentMsg != null) message = contentMsg;
+    }
+    final isRead = json['isRead'] as bool? ?? json['read'] as bool? ?? false;
+    final actionsData = json['actions'];
+    List<dynamic>? actionsList;
+    if (actionsData is Map && actionsData['buttons'] != null) {
+      actionsList = (actionsData['buttons'] as List?)?.cast<dynamic>();
+    }
+
+    final createdAtRaw = json['createdAt'] ?? json['timestamp'];
+    final createdAt = _parseCreatedAt(createdAtRaw);
+
     return NotificationModel(
       id: json['id'] as String? ?? '',
       type: json['type'] as String? ?? 'system',
       title: json['title'] as String? ?? '',
-      message: json['message'] as String? ?? '',
-      isRead: json['isRead'] as bool? ?? false,
+      message: message,
+      isRead: isRead,
       senderId: json['senderId'] as String?,
       senderName: json['senderName'] as String?,
       senderPhoto: json['senderPhoto'] as String?,
       relatedId: json['relatedId'] as String?,
       data: json['data'] as Map<String, dynamic>?,
-      createdAt: json['createdAt'] as String? ?? '',
+      createdAt: createdAt,
+      category: json['category'] as String?,
+      notificationType: json['notificationType'] as String?,
+      user: json['user'] as Map<String, dynamic>?,
+      content: contentObj as Map<String, dynamic>?,
+      badge: json['badge'] as Map<String, dynamic>?,
+      actions: actionsList,
+      metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
 
+  static String _parseCreatedAt(dynamic value) {
+    if (value == null) return '';
+    if (value is String) return value;
+    if (value is Map) {
+      final secs = value['_seconds'] as int? ?? value['seconds'] as int?;
+      final nsecs = value['_nanoseconds'] as int? ?? value['nanoseconds'] as int? ?? 0;
+      if (secs != null) {
+        return DateTime.fromMillisecondsSinceEpoch(
+          secs * 1000 + (nsecs / 1e6).round(),
+        ).toIso8601String();
+      }
+    }
+    return value.toString();
+  }
+
   NotificationDto toDomain() {
+    NotificationUserDto? userDto;
+    if (user != null && (user!['id'] != null || user!['id'] != '')) {
+      userDto = NotificationUserDto.fromJson(user);
+    }
+
+    NotificationContentDto? contentDto;
+    if (content != null) {
+      contentDto = NotificationContentDto.fromJson(content);
+    } else {
+      contentDto = NotificationContentDto(message: message);
+    }
+
+    NotificationBadgeDto? badgeDto;
+    if (badge != null) {
+      badgeDto = NotificationBadgeDto.fromJson(badge);
+    }
+
+    List<NotificationActionButtonDto>? actionButtons;
+    if (actions != null && actions!.isNotEmpty) {
+      actionButtons = actions!
+          .map((e) =>
+              NotificationActionButtonDto.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
+    final mergedMetadata = <String, dynamic>{
+      ...?data,
+      ...?metadata,
+      if (relatedId != null) 'relatedId': relatedId,
+      if (senderId != null) 'senderId': senderId,
+    };
+
     return NotificationDto(
       id: id,
       type: NotificationType.fromString(type),
       title: title,
-      message: message,
+      message: contentDto.message,
       isRead: isRead,
-      senderId: senderId,
-      senderName: senderName,
-      senderPhoto: senderPhoto,
+      senderId: userDto?.id ?? senderId,
+      senderName: userDto?.username ?? senderName,
+      senderPhoto: userDto?.avatarUrl ?? senderPhoto,
       relatedId: relatedId,
       data: data,
       createdAt: DateTime.tryParse(createdAt) ?? DateTime.now(),
+      category: category,
+      notificationType: notificationType,
+      user: userDto,
+      content: contentDto,
+      badge: badgeDto,
+      actions: actionButtons,
+      metadata: mergedMetadata.isNotEmpty ? mergedMetadata : null,
     );
   }
 }
@@ -80,16 +177,21 @@ class NotificationsResponseModel {
   });
 
   factory NotificationsResponseModel.fromJson(Map<String, dynamic> json) {
+    final pagination = json['pagination'] as Map<String, dynamic>?;
+    final total = pagination?['total'] as int? ?? json['total'] as int? ?? 0;
+    final page = pagination?['page'] as int? ?? 1;
+    final totalPages = pagination?['totalPages'] as int? ?? 1;
+
     return NotificationsResponseModel(
       notifications: (json['notifications'] as List<dynamic>?)
               ?.map((e) => NotificationModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      total: json['total'] as int? ?? 0,
+      total: total,
       unreadCount: json['unreadCount'] as int? ?? 0,
-      hasMore: json['hasMore'] as bool? ?? false,
+      hasMore: page < totalPages,
       nextCursor: json['nextCursor'] as String?,
-      currentPage: json['currentPage'] as int?,
+      currentPage: page,
     );
   }
 

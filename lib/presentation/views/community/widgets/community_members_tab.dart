@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/presentation/viewmodels/community/community_detail_viewmodel_providers.dart';
 import 'package:metal/domain/entities/community_dto.dart';
+import 'package:metal/presentation/viewmodels/community/community_detail_viewmodel_providers.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/state.handler/loading.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
@@ -128,7 +129,7 @@ class _CommunityMembersTabState extends ConsumerState<CommunityMembersTab> {
               itemCount: filteredMembers.length,
               itemBuilder: (context, index) {
                 final member = filteredMembers[index];
-                return _buildMemberCard(member);
+                return _buildMemberCard(context, member);
               },
             ),
           ),
@@ -137,11 +138,20 @@ class _CommunityMembersTabState extends ConsumerState<CommunityMembersTab> {
     );
   }
 
-  Widget _buildMemberCard(member) {
+  Widget _buildMemberCard(BuildContext context, CommunityMemberDto member) {
     final roleColor = _getRoleColor(member.role);
     final roleIcon = _getRoleIcon(member.role);
 
-    return Container(
+    return InkWell(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.userProfile,
+          arguments: member.userId,
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -211,6 +221,7 @@ class _CommunityMembersTabState extends ConsumerState<CommunityMembersTab> {
           ),
         ],
       ),
+    ),
     );
   }
 

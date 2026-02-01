@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/domain/entities/feedback_dto.dart';
+import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/feedback/feedback_viewmodel.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/plain.button.dart';
 import 'package:metal/widgets/text_views.dart';
 
-/// Feedback View
-/// Allows users to submit feedback (bug reports, feature requests, general feedback)
+/// Feedback Review View
+/// Lets users submit app feedback and rate the app store
 class FeedbackView extends ConsumerStatefulWidget {
   static const String route = '/feedback';
 
@@ -19,16 +20,12 @@ class FeedbackView extends ConsumerStatefulWidget {
 }
 
 class _FeedbackViewState extends ConsumerState<FeedbackView> {
-  final _formKey = GlobalKey<FormState>();
-  final _messageController = TextEditingController();
-  final _emailController = TextEditingController();
-
-  FeedbackType _selectedType = FeedbackType.general;
+  final _improvementController = TextEditingController();
+  int _starRating = 0;
 
   @override
   void dispose() {
-    _messageController.dispose();
-    _emailController.dispose();
+    _improvementController.dispose();
     super.dispose();
   }
 
@@ -38,187 +35,176 @@ class _FeedbackViewState extends ConsumerState<FeedbackView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Feedback'),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
-            bottom: 24 + MediaQuery.of(context).padding.bottom,
-          ),
-          child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (!state.isSubmitted) ...[
-                const Icon(
-                  Icons.feedback_outlined,
-                  size: 80,
-                  color: AppColors.metalPinkColour,
-                ),
-                const Gap(24),
-                const TextView(
-                  text: 'We Value Your Feedback',
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  textAlign: TextAlign.center,
-                ),
-                const Gap(12),
-                TextView(
-                  text:
-                      'Help us improve by sharing your thoughts, reporting bugs, or suggesting new features.',
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                  textAlign: TextAlign.center,
-                ),
-                const Gap(32),
-                _buildTypeSelector(),
-                const Gap(24),
-                _buildMessageField(),
-                const Gap(24),
-                _buildEmailField(),
-                const Gap(32),
-                if (state.errorMessage != null) ...[
-                  _buildErrorMessage(state.errorMessage!),
-                  const Gap(16),
-                ],
-                PlainButton(
-                  buttonText: 'Submit Feedback',
-                  loading: state.isSubmitting,
-                  onPressed: state.isSubmitting ? null : _handleSubmit,
-                ),
-              ] else
-                _buildSuccessMessage(),
-            ],
-          ),
+        backgroundColor: AppColors.metalPinkColour,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.metalWhite),
+          onPressed: () => Navigator.pop(context),
         ),
+        title: const TextView(
+            text: 'Let\'s hear from you',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppColors.metalWhite),
       ),
-      ),
+      body:
+          state.isSubmitted ? _buildSuccessMessage() : _buildContentCard(state),
     );
   }
 
-  Widget _buildTypeSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const TextView(
-          text: 'Feedback Type',
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-        const Gap(12),
-        Wrap(
-          spacing: 12,
-          children: [
-            _buildTypeChip(
-              FeedbackType.bug,
-              'Bug Report',
-              Icons.bug_report,
-            ),
-            _buildTypeChip(
-              FeedbackType.feature,
-              'Feature Request',
-              Icons.lightbulb_outline,
-            ),
-            _buildTypeChip(
-              FeedbackType.general,
-              'General',
-              Icons.chat_bubble_outline,
+  Widget _buildContentCard(FeedbackState state) {
+    return Transform.translate(
+      offset: const Offset(0, -20),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.metalWhite,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildTypeChip(FeedbackType type, String label, IconData icon) {
-    final isSelected = _selectedType == type;
-
-    return FilterChip(
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 18),
-          const Gap(8),
-          Text(label),
-        ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildIntroSection(),
+            const Gap(24),
+            _buildFeedbackFormSection(),
+            const Gap(32),
+            _buildRatingSection(),
+            const Gap(32),
+            if (state.errorMessage != null) ...[
+              _buildErrorMessage(state.errorMessage!),
+              const Gap(16),
+            ],
+            _buildSubmitButton(state),
+          ],
+        ),
       ),
-      selected: isSelected,
-      onSelected: (selected) {
-        if (selected) {
-          setState(() => _selectedType = type);
-        }
-      },
-      selectedColor: AppColors.metalPinkColour.withOpacity(0.2),
-      checkmarkColor: AppColors.metalPinkColour,
     );
   }
 
-  Widget _buildMessageField() {
+  Widget _buildIntroSection() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const TextView(
-          text: 'Your Message',
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-        const Gap(8),
-        TextFormField(
-          controller: _messageController,
-          maxLines: 6,
-          maxLength: 500,
-          decoration: const InputDecoration(
-            hintText: 'Tell us what\'s on your mind...',
-            alignLabelWithHint: true,
-          ),
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Please enter your message';
-            }
-            if (value.trim().length < 10) {
-              return 'Message must be at least 10 characters';
-            }
-            return null;
-          },
+        const Gap(32),  
+        Assets.icons.edit04.svg(width: 100, height: 100),
+        const Gap(16),
+        TextView(
+          text:
+              "Tell us how your experience has been using our app. Let us know the areas we can improve in order to make your Metal experience a delightful one. 😋",
+          fontSize: 15,
+          color: AppColors.metalBrownColourForText.withOpacity(0.9),
+          textAlign: TextAlign.justify,
         ),
       ],
     );
   }
 
-  Widget _buildEmailField() {
+  Widget _buildFeedbackFormSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TextView(
-          text: 'Email (Optional)',
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
+          text: 'Can you tell us how to improve the app?',
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color: AppColors.metalBrownColourForText,
         ),
         const Gap(8),
-        TextView(
-          text: 'Provide your email if you\'d like us to follow up.',
-          fontSize: 12,
-          color: Colors.grey[600],
-        ),
-        const Gap(8),
-        TextFormField(
-          controller: _emailController,
-          keyboardType: TextInputType.emailAddress,
-          decoration: const InputDecoration(
-            hintText: 'your.email@example.com',
-            prefixIcon: Icon(Icons.email_outlined),
+        Semantics(
+          label: 'Can you tell us how to improve the app?',
+          hint:
+              'Please share how you think we can make Metal app more safe and better for you or other users next time',
+          textField: true,
+          child: TextField(
+            controller: _improvementController,
+            maxLines: 5,
+            maxLength: 500,
+            decoration: InputDecoration(
+              hintText:
+                  'Please share how you think we can make Metal app more safe and better for you or other users next time',
+              hintStyle: TextStyle(
+                fontSize: 14,
+                fontStyle: FontStyle.italic,
+                color: AppColors.metalBrownColourForText.withOpacity(0.5),
+              ),
+              filled: true,
+              fillColor: AppColors.metalWhite,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.metalPinkColour.withOpacity(0.3),
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.metalPinkColour.withOpacity(0.3),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: AppColors.metalPinkColour,
+                  width: 1.5,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+            ),
+            style: const TextStyle(
+              fontSize: 15,
+              color: AppColors.metalBrownColourForText,
+            ),
           ),
-          validator: (value) {
-            if (value != null && value.isNotEmpty && !value.contains('@')) {
-              return 'Please enter a valid email';
-            }
-            return null;
-          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRatingSection() {
+    return Column(
+      children: [
+        const TextView(
+          text: 'Rate us on the app store!',
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color: AppColors.metalBrownColourForText,
+          textAlign: TextAlign.center,
+        ),
+        const Gap(16),
+        Semantics(
+          label: 'Rate app from 1 to 5 stars. Current rating: $_starRating',
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(5, (index) {
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _starRating = index + 1;
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: SvgPicture.asset(
+                    index < _starRating
+                        ? Assets.images.activeStar.path
+                        : Assets.images.inactiveStar.path,
+                    width: 40,
+                    height: 40,
+                  ),
+                ),
+              );
+            }),
+          ),
         ),
       ],
     );
@@ -228,9 +214,9 @@ class _FeedbackViewState extends ConsumerState<FeedbackView> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.red[50],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.red[200]!),
+        color: Colors.red.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.red.withOpacity(0.3)),
       ),
       child: TextView(
         text: message,
@@ -240,54 +226,84 @@ class _FeedbackViewState extends ConsumerState<FeedbackView> {
     );
   }
 
+  Widget _buildSubmitButton(FeedbackState state) {
+    return Semantics(
+      label: 'Submit review',
+      button: true,
+      child: PlainButton(
+        buttonText: 'Submit review',
+        loading: state.isSubmitting,
+        onPressed: state.isSubmitting ? null : _handleSubmit,
+        height: 56,
+        width: double.infinity,
+        radius: 28,
+        lowerCase: false,
+      ),
+    );
+  }
+
   Widget _buildSuccessMessage() {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        children: [
-          Icon(
-            Icons.check_circle,
-            size: 80,
-            color: Colors.green[600],
-          ),
-          const Gap(24),
-          const TextView(
-            text: 'Thank You!',
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.green,
-          ),
-          const Gap(12),
-          TextView(
-            text:
-                'Your feedback has been submitted successfully. We appreciate you taking the time to help us improve.',
-            fontSize: 14,
-            color: Colors.grey[700],
-            textAlign: TextAlign.center,
-          ),
-          const Gap(32),
-          PlainButton(
-            buttonText: 'Back to App',
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
+    return Transform.translate(
+      offset: const Offset(0, -20),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: AppColors.metalWhite,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.check_circle,
+              size: 80,
+              color: Colors.green[600],
+            ),
+            const Gap(24),
+            TextView(
+              text: 'Thank You!',
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.green[700],
+            ),
+            const Gap(12),
+            TextView(
+              text:
+                  'Your feedback has been submitted successfully. We appreciate you taking the time to help us improve.',
+              fontSize: 15,
+              color: AppColors.metalBrownColourForText.withOpacity(0.9),
+              textAlign: TextAlign.center,
+            ),
+            const Gap(32),
+            PlainButton(
+              buttonText: 'Back to App',
+              onPressed: () => Navigator.of(context).pop(),
+              height: 56,
+              width: double.infinity,
+              radius: 28,
+              lowerCase: false,
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Future<void> _handleSubmit() async {
-    if (!_formKey.currentState!.validate()) return;
+    final improvementText = _improvementController.text.trim();
+    final rating = _starRating > 0 ? _starRating : null;
 
-    final success = await ref.read(feedbackViewModelProvider.notifier).submitFeedback(
-          type: _selectedType,
-          message: _messageController.text.trim(),
-          email: _emailController.text.trim().isEmpty
-              ? null
-              : _emailController.text.trim(),
+    await ref.read(feedbackViewModelProvider.notifier).submitReviewFeedback(
+          improvementFeedback:
+              improvementText.isNotEmpty ? improvementText : null,
+          appStoreRating: rating,
         );
-
-    if (success) {
-      // Success is shown via state.isSubmitted
-    }
   }
 }

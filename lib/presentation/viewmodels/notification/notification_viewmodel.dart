@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/data/repositories/notification/notification_repository.dart';
 import 'package:metal/data/repositories/notification/notification_repository_providers.dart';
@@ -106,35 +105,19 @@ class NotificationState {
 }
 
 /// Notification ViewModel
-/// Handles loading notifications with polling functionality
+/// Event-driven only: fetch on screen open, pull-to-refresh, or when FCM push received
+/// No polling / interval-based refresh
 class NotificationViewModel extends StateNotifier<NotificationState> {
   final NotificationRepository _repository;
-  Timer? _pollingTimer;
-  static const Duration pollingInterval = Duration(seconds: 300);
 
   NotificationViewModel({
     required NotificationRepository repository,
   })  : _repository = repository,
         super(NotificationState.initial());
 
-  @override
-  void dispose() {
-    stopPolling();
-    super.dispose();
-  }
-
-  /// Start polling for notifications
-  void startPolling() {
-    stopPolling(); // Stop any existing timer
-    _pollingTimer = Timer.periodic(pollingInterval, (_) {
-      loadNotifications(silentRefresh: true);
-    });
-  }
-
-  /// Stop polling
-  void stopPolling() {
-    _pollingTimer?.cancel();
-    _pollingTimer = null;
+  /// Refresh when FCM push is received (foreground or background)
+  Future<void> refreshOnPushReceived() async {
+    await loadNotifications(refresh: true, silentRefresh: true);
   }
 
   /// Load notifications with optional filters
@@ -204,11 +187,9 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
           return n;
         }).toList();
 
-        // Decrease unread count if the notification was unread
-        final notification =
-            state.notifications.firstWhere((n) => n.id == notificationId);
-        final newUnreadCount =
-            notification.isRead ? state.unreadCount : state.unreadCount - 1;
+        final idx = state.notifications.indexWhere((n) => n.id == notificationId);
+        final wasUnread = idx >= 0 && !state.notifications[idx].isRead;
+        final newUnreadCount = wasUnread ? state.unreadCount - 1 : state.unreadCount;
 
         state = state.copyWith(
           isMarking: false,
@@ -295,6 +276,23 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
       refresh: false,
     );
   }
+
+  /// Execute notification action (Accept, Decline, Chat, etc.)
+  Future<Map<String, dynamic>?> executeAction({
+    required String notificationId,
+    required String action,
+    Map<String, dynamic>? params,
+  }) async {
+    final result = await _repository.executeAction(
+      notificationId: notificationId,
+      action: action,
+      params: params,
+    );
+    if (result.isSuccess && result.data != null) {
+      return result.data;
+    }
+    return null;
+  }
 }
 
 /// Notification ViewModel Provider
@@ -302,7 +300,6 @@ final notificationViewModelProvider = StateNotifierProvider.autoDispose<
     NotificationViewModel, NotificationState>((ref) {
   final repository = ref.watch(notificationRepositoryProvider);
   final viewModel = NotificationViewModel(repository: repository);
-  viewModel.loadNotifications(); // Auto-load on creation
-  viewModel.startPolling(); // Start polling for updates
+  viewModel.loadNotifications(); // Initial load when screen opens
   return viewModel;
 });

@@ -142,6 +142,35 @@ class NotificationRemoteDataSource extends BaseRemoteDataSource {
     }
   }
 
+  /// Execute notification action (Accept, Decline, Chat, etc.)
+  Future<Map<String, dynamic>> executeAction({
+    required String notificationId,
+    required String action,
+    Map<String, dynamic>? params,
+  }) async {
+    try {
+      final response = await dioClient.post(
+        ApiRoutes.buildPath('${ApiRoutes.notificationAction}/$notificationId/action'),
+        data: {
+          'action': action,
+          if (params != null) 'params': params,
+        },
+      );
+
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        if (data['success'] == true && data['data'] != null) {
+          return data['data'] as Map<String, dynamic>;
+        }
+        throw Exception(data['message'] ?? 'Failed to execute action');
+      }
+
+      throw Exception('Invalid response format');
+    } on DioException catch (e) {
+      throw Exception('Execute notification action failed: ${e.message}');
+    }
+  }
+
   /// Register FCM device token for push notifications
   Future<void> registerDevice({
     required String deviceToken,

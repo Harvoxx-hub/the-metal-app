@@ -159,11 +159,9 @@ class NavDrawer extends ConsumerWidget {
               )),
             ),
             title: const TextView(text: "Refer & Earn"),
-            onTap: () => {
-              // Navigator.pushNamed(
-              //   context,
-              //   AppRoutes.referEarn,
-              // )
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, AppRoutes.referEarn);
             },
           ),
           const Gap(20),
@@ -186,33 +184,6 @@ class NavDrawer extends ConsumerWidget {
           //   onTap: () => {},
           // ),
           const Gap(20),
-          (user.isVerified == false)
-              ? Column(
-                  children: [
-                    ListTile(
-                      leading: Container(
-                        height: 46,
-                        width: 46,
-                        decoration: ShapeDecoration(
-                          color: AppColors.metalPinkColour.withOpacity(0.06),
-                          shape: const OvalBorder(),
-                        ),
-                        child: Center(
-                            child: SvgPicture.asset(
-                          Assets.icons.checkVerified.path,
-                          color: AppColors.metalBlack75,
-                          height: 24,
-                          width: 24,
-                        )),
-                      ),
-                      title: const TextView(text: "Verify your account"),
-                      onTap: () =>
-                          {Navigator.pushNamed(context, AppRoutes.workEmail)},
-                    ),
-                    const Gap(20),
-                  ],
-                )
-              : const SizedBox(),
           ListTile(
             leading: Container(
               height: 46,

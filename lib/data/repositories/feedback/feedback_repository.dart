@@ -24,4 +24,16 @@ class FeedbackRepository implements FeedbackRepositoryAbstract {
       return ErrorHandler.handleError<bool>(e);
     }
   }
+
+  @override
+  Future<BaseState<bool>> submitReviewFeedback({
+    required ReviewFeedbackSubmissionDto feedback,
+  }) async {
+    try {
+      await _remoteDataSource.submitReviewFeedback(feedback: feedback);
+      return BaseState.success(true);
+    } catch (e) {
+      return ErrorHandler.handleError<bool>(e);
+    }
+  }
 }

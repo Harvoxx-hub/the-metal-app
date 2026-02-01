@@ -67,15 +67,6 @@ class _ReferralViewState extends ConsumerState<ReferralView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Redeem a Referral Code Button
-                    OutilineButton(
-                      buttonText: "Redeem a Referral Code",
-                      onPressed: () => _showRedeemDialog(context, referralState),
-                      width: double.infinity,
-                    ),
-                    
-                    const Gap(24),
-                    
                     // Your Referral Code Box
                     if (referralState.referralInfo != null)
                       _buildReferralCodeBox(referralState.referralInfo!.referralCode),
@@ -222,68 +213,6 @@ class _ReferralViewState extends ConsumerState<ReferralView> {
             fontSize: 36,
             fontWeight: FontWeight.bold,
             color: AppColors.metalBrownColourForText,
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showRedeemDialog(BuildContext context, ReferralState state) {
-    final codeController = TextEditingController();
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const TextView(
-          text: "Redeem Referral Code",
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-        content: TextField(
-          controller: codeController,
-          decoration: const InputDecoration(
-            hintText: "Enter referral code",
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const TextView(
-              text: "Cancel",
-              fontSize: 14,
-              color: AppColors.metalPinkColour,
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              final code = codeController.text.trim();
-              if (code.isEmpty) {
-                Fluttertoast.showToast(msg: 'Please enter a referral code');
-                return;
-              }
-
-              final success = await ref
-                  .read(referralViewModelProvider.notifier)
-                  .applyReferralCode(code);
-
-              if (mounted) {
-                Navigator.pop(context);
-                if (success) {
-                  Fluttertoast.showToast(msg: 'Referral code applied successfully!');
-                } else {
-                  Fluttertoast.showToast(
-                    msg: state.errorMessage ?? 'Failed to apply referral code',
-                  );
-                }
-              }
-            },
-            child: const TextView(
-              text: "Redeem",
-              fontSize: 14,
-              color: AppColors.metalPinkColour,
-              fontWeight: FontWeight.bold,
-            ),
           ),
         ],
       ),

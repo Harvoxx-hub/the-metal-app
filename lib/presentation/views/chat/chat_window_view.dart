@@ -6,7 +6,6 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/domain/entities/message_dto.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_window_viewmodel.dart';
-import 'package:metal/presentation/viewmodels/chat/chat_list_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/chat/widgets/chat_app_bar.dart';
@@ -46,15 +45,6 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
-    
-    // Mark connection as read and refresh chat list when leaving chat window
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Mark this connection as read in the chat list
-      ref.read(chatListViewModelProvider.notifier).markConnectionAsRead(widget.connectionId);
-      // Also refresh to ensure sync with backend
-      ref.read(chatListViewModelProvider.notifier).refresh();
-    });
-    
     super.dispose();
   }
 

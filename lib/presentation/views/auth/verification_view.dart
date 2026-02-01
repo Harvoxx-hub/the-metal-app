@@ -99,20 +99,7 @@ class _VerificationViewState extends ConsumerState<VerificationView> {
     }
   }
 
-  String _maskEmail(String email) {
-    final parts = email.split('@');
-    if (parts.length != 2) return email;
-
-    final name = parts[0];
-    final domain = parts[1];
-
-    if (name.length <= 2) {
-      return '$name***@$domain';
-    }
-
-    final visible = name.substring(0, 2);
-    return '$visible***@$domain';
-  }
+ 
 
   @override
   void dispose() {
@@ -167,7 +154,7 @@ class _VerificationViewState extends ConsumerState<VerificationView> {
             const Gap(8),
             if (_email != null)
               TextView(
-                text: 'Code sent to ${_maskEmail(_email!)}',
+                text: 'Code sent to ${_email!}',
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: AppColors.metalPinkColour,

@@ -147,7 +147,7 @@ class ChatWindowViewModel extends StateNotifier<ChatWindowState> {
 
     final result = await _getMessagesUseCase(GetMessagesParams(
       connectionId: connectionId,
-      limit: ChatConstants.initialMessagesLoad,
+      limit: ChatConstants.messagesPageSize,
     ));
 
     if (mounted) {

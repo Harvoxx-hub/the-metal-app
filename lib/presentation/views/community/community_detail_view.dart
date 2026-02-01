@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:metal/presentation/viewmodels/community/community_detail_viewmodel_providers.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/community/widgets/community_posts_tab.dart';
 import 'package:metal/presentation/views/community/widgets/community_members_tab.dart';
 import 'package:metal/presentation/views/community/widgets/community_about_tab.dart';
@@ -225,54 +226,56 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
                         color: AppColors.metalBrownColourForText,
                       ),
                       const Spacer(),
-                      BaseButton(
-                        buttonText: community.isJoined ? 'Leave' : 'Join',
-                        onPressed: () async {
-                          final viewModel = ref.read(
-                            communityDetailViewModelProvider(widget.communityId)
-                                .notifier,
-                          );
-                          if (community.isJoined) {
-                            final result = await viewModel
-                                .leaveCommunity(widget.communityId);
-                            // Check if community was deleted (admin left)
-                            if (result != null && result['deleted'] == true) {
-                              if (mounted) {
-                                // Show success message
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Community and all posts have been deleted',
+                      // Hide Leave/Join for creator — creator cannot leave
+                      if (ref.watch(currentUserProvider)?.id != community.creatorId)
+                        BaseButton(
+                          buttonText: community.isJoined ? 'Leave' : 'Join',
+                          onPressed: () async {
+                            final viewModel = ref.read(
+                              communityDetailViewModelProvider(widget.communityId)
+                                  .notifier,
+                            );
+                            if (community.isJoined) {
+                              final result = await viewModel
+                                  .leaveCommunity(widget.communityId);
+                              // Check if community was deleted (admin left)
+                              if (result != null && result['deleted'] == true) {
+                                if (mounted) {
+                                  // Show success message
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Community and all posts have been deleted',
+                                      ),
+                                      backgroundColor: Colors.green,
                                     ),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                                // Navigate back
-                                Navigator.pop(context);
+                                  );
+                                  // Navigate back
+                                  Navigator.pop(context);
+                                }
                               }
+                            } else {
+                              viewModel.joinCommunity(widget.communityId);
                             }
-                          } else {
-                            viewModel.joinCommunity(widget.communityId);
-                          }
-                        },
-                        height: 36,
-                        width: 100,
-                        radius: 8,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        enabled: !ref
-                                .watch(
-                                  communityDetailViewModelProvider(
-                                      widget.communityId),
-                                )
-                                .isJoining &&
-                            !ref
-                                .watch(
-                                  communityDetailViewModelProvider(
-                                      widget.communityId),
-                                )
-                                .isLeaving,
-                      ),
+                          },
+                          height: 36,
+                          width: 100,
+                          radius: 8,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          enabled: !ref
+                                  .watch(
+                                    communityDetailViewModelProvider(
+                                        widget.communityId),
+                                  )
+                                  .isJoining &&
+                              !ref
+                                  .watch(
+                                    communityDetailViewModelProvider(
+                                        widget.communityId),
+                                  )
+                                  .isLeaving,
+                        ),
                     ],
                   ),
                 ],

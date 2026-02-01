@@ -6,7 +6,6 @@ import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/core/utils/image_picker_util.dart';
 import 'package:metal/data/repositories/chat/chat_repository_providers.dart';
-import 'package:metal/data/repositories/profile/profile_repository_providers.dart';
 import 'package:metal/domain/entities/message_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_viewmodel_providers.dart';
@@ -197,10 +196,6 @@ class ChatAppBar extends ConsumerWidget {
                   value: 'clear_chat',
                   child: Text('Clear chat'),
                 ),
-                const PopupMenuItem(
-                  value: 'unblock',
-                  child: Text('Unblock'),
-                ),
               ];
             },
           ),
@@ -250,9 +245,6 @@ class ChatAppBar extends ConsumerWidget {
         break;
       case 'clear_chat':
         _showClearChatDialog(context, ref);
-        break;
-      case 'unblock':
-        _handleUnblock(context, ref);
         break;
     }
   }
@@ -481,50 +473,4 @@ class ChatAppBar extends ConsumerWidget {
     }
   }
 
-  void _handleUnblock(BuildContext context, WidgetRef ref) {
-    MetalDialog.show(
-      context: context,
-      title: 'Unblock user',
-      content: TextView(
-        text: 'Are you sure you want to unblock ${otherUser.displayName}?',
-        fontSize: 14,
-        textAlign: TextAlign.center,
-        color: Colors.black87,
-      ),
-      secondaryButtonText: 'Cancel',
-      onSecondaryPressed: () => Navigator.pop(context),
-      primaryButtonText: 'Unblock',
-      onPrimaryPressed: () {
-        Navigator.pop(context);
-        _performUnblock(context, ref);
-      },
-    );
-  }
-
-  Future<void> _performUnblock(BuildContext context, WidgetRef ref) async {
-    try {
-      final profileRepository = ref.read(profileRepositoryProvider);
-      final result = await profileRepository.unblockUser(
-        userId: otherUser.id,
-      );
-
-      if (context.mounted) {
-        if (result.isSuccess) {
-          Fluttertoast.showToast(msg: 'User unblocked successfully');
-          // Refresh chat list to update connection status
-          ref.invalidate(chatListViewModelProvider);
-          // Navigate back after successful unblock
-          Navigator.pop(context);
-        } else {
-          Fluttertoast.showToast(
-            msg: result.errorMessage ?? 'Failed to unblock user',
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        Fluttertoast.showToast(msg: 'Error unblocking user: $e');
-      }
-    }
-  }
 }

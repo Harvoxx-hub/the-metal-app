@@ -62,14 +62,9 @@ class NotificationNavigationService {
         await _navigateToReferral(context);
         return;
       case NotificationType.melted:
-        if (notification.connectionId != null && notification.connectionId!.isNotEmpty) {
-          await _navigateToMeltMetal(
-            {
-              'userId': notification.effectiveSenderId,
-              'connectionId': notification.connectionId,
-            },
-            context,
-          );
+        // Take user to the profile of the person they melted with
+        if (notification.effectiveSenderId.isNotEmpty) {
+          await _navigateToUserProfile(notification.effectiveSenderId, context);
         } else {
           await _navigateToHome(context);
         }
@@ -138,9 +133,20 @@ class NotificationNavigationService {
         await _navigateToChat(data, context);
         break;
       case PushType.new_connection:
-      case PushType.melted:
-        await _navigateToMeltMetal(data, context);
+      case PushType.melted: {
+        // Take user to the profile of the person they melted with
+        final metadata = _parseMetadata(data);
+        final userId = metadata?['userId'] as String? ??
+            data?['userId'] as String? ??
+            metadata?['senderId'] as String? ??
+            data?['senderId'] as String?;
+        if (userId != null && userId.isNotEmpty) {
+          await _navigateToUserProfile(userId, context);
+        } else {
+          await _navigateToMeltMetal(data, context);
+        }
         break;
+      }
       case PushType.profileLiked:
       case PushType.meltRequest:
         final senderId = data?['senderId'] as String?;

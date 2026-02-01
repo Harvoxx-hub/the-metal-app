@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
+import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/presentation/viewmodels/user/user_profile_viewmodel_providers.dart';
 import 'package:metal/presentation/widgets/settings/edit_field.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -72,11 +73,11 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
               const Gap(20),
             ],
 
-            // Metal
+            // Metal (resolve ID to name via metal properties)
             if (widget.user.metal != null) ...[
               _buildInfoField(
                 label: 'Metal that represents your value',
-                value: widget.user.metal!,
+                value: _getMetalDisplayName(ref),
               ),
               const Gap(20),
             ],
@@ -195,6 +196,23 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
         ),
       ],
     );
+  }
+
+  /// Resolve user's metal ID to display name using metal properties; fallback to ID if not found.
+  String _getMetalDisplayName(WidgetRef ref) {
+    final metalId = widget.user.metal!;
+    final metalProperties = ref.watch(metalPropertiesProvider);
+    if (metalProperties.isLoading || metalProperties.data?.metals == null) {
+      return metalId;
+    }
+    final metals = metalProperties.data!.metals!;
+    if (metals.isEmpty) return metalId;
+    try {
+      final metal = metals.firstWhere((e) => e.id == metalId);
+      return metal.title;
+    } catch (_) {
+      return metalId;
+    }
   }
 
   /// Calculate age display from date of birth

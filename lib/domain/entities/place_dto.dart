@@ -1,5 +1,5 @@
 /// Result of a place search (from map/places API).
-/// Used for location search in Create LinkUp and elsewhere.
+/// Used for location search in Create Meetup and elsewhere.
 class PlaceSearchResultDto {
   final String displayName;
   final double latitude;

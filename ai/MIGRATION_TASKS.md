@@ -219,7 +219,7 @@ Flutter:
 **Migration Summary:**
 - ✅ Backend thought service with full CRUD operations
 - ✅ Reactions and comments support via API
-- ✅ New tab structure: Thoughts, Community, Link Up
+- ✅ New tab structure: Thoughts, Community, Meetup
 - ✅ Removed For You/Explore split - single unified feed
 - ✅ New Clean Architecture data layer (Remote Data Source, Repository)
 - ✅ New ThoughtScreen with TabBar, ViewModels
@@ -245,7 +245,7 @@ Flutter:
 **New Tab Structure:**
 1. **Thoughts** - All thoughts feed (API-based, paginated)
 2. **Community** - Placeholder for future community features
-3. **Link Up** - Placeholder for future link up features
+3. **Meetup** - Placeholder for future meetup features
 
 **Key Improvements:**
 - REST API for all operations (no more direct Firestore queries)

@@ -12,6 +12,8 @@ class MeetupDetailState {
   final String? errorMessage;
   final MeetupDto? meetup;
   final List<MeetupRsvpDto> attendees;
+  /// Accepted attendees only (for "People that are attending" section).
+  final List<MeetupRsvpDto> acceptedAttendees;
   final bool isLoadingAttendees;
   final String attendeeStatus; // 'all', 'accepted', 'maybe'
   final bool filterByPreferences;
@@ -23,6 +25,7 @@ class MeetupDetailState {
     this.errorMessage,
     this.meetup,
     this.attendees = const [],
+    this.acceptedAttendees = const [],
     this.isLoadingAttendees = false,
     this.attendeeStatus = 'accepted',
     this.filterByPreferences = false,
@@ -53,6 +56,7 @@ class MeetupDetailState {
     String? errorMessage,
     MeetupDto? meetup,
     List<MeetupRsvpDto>? attendees,
+    List<MeetupRsvpDto>? acceptedAttendees,
     bool? isLoadingAttendees,
     String? attendeeStatus,
     bool? filterByPreferences,
@@ -64,6 +68,7 @@ class MeetupDetailState {
       errorMessage: errorMessage ?? this.errorMessage,
       meetup: meetup ?? this.meetup,
       attendees: attendees ?? this.attendees,
+      acceptedAttendees: acceptedAttendees ?? this.acceptedAttendees,
       isLoadingAttendees: isLoadingAttendees ?? this.isLoadingAttendees,
       attendeeStatus: attendeeStatus ?? this.attendeeStatus,
       filterByPreferences: filterByPreferences ?? this.filterByPreferences,
@@ -113,8 +118,10 @@ class MeetupDetailViewModel extends StateNotifier<MeetupDetailState> {
     );
 
     if (result.isSuccess && result.data != null) {
+      final list = result.data!.attendees;
       state = state.copyWith(
-        attendees: result.data!.attendees,
+        attendees: list,
+        acceptedAttendees: state.attendeeStatus == 'accepted' ? list : state.acceptedAttendees,
         isLoadingAttendees: false,
       );
     } else {

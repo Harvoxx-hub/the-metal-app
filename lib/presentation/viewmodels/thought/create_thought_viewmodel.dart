@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/data/datasources/remote/media_remote_data_source_provider.dart';
 import 'package:metal/data/datasources/remote/media_remote_data_source.dart';
 import 'package:metal/data/repositories/thought/thought_repository_abstract.dart';
+import 'package:metal/domain/entities/thought_dto.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
-import 'dart:io';
 
 /// Create Thought State
 class CreateThoughtState {
@@ -115,10 +117,11 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
     }
   }
 
-  /// Post the thought
-  /// [communityMetadata] - Optional metadata for posting to a community
-  Future<bool> postThought({Map<String, dynamic>? communityMetadata}) async {
-    if (!state.canPost) return false;
+  /// Post the thought.
+  /// [communityMetadata] - Optional metadata for posting to a community.
+  /// Returns the created [ThoughtDto] on success, or null on failure (so the caller can add it to the community feed immediately).
+  Future<ThoughtDto?> postThought({Map<String, dynamic>? communityMetadata}) async {
+    if (!state.canPost) return null;
 
     state = state.copyWith(isPosting: true, isError: false, errorMessage: null);
 
@@ -142,7 +145,7 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
             isError: true,
             errorMessage: 'Failed to upload audio. Please try again.',
           );
-          return false;
+          return null;
         }
 
         state = state.copyWith(
@@ -165,19 +168,19 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
         communityMetadata: communityMetadata,
       );
 
-      if (result.isSuccess) {
+      if (result.isSuccess && result.data != null) {
         state = state.copyWith(
           isPosting: false,
           isSuccess: true,
         );
-        return true;
+        return result.data;
       } else {
         state = state.copyWith(
           isPosting: false,
           isError: true,
           errorMessage: result.errorMessage ?? 'Failed to post thought',
         );
-        return false;
+        return null;
       }
     } catch (e) {
       state = state.copyWith(
@@ -186,7 +189,7 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
         isError: true,
         errorMessage: 'Error: $e',
       );
-      return false;
+      return null;
     }
   }
 }

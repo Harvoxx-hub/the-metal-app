@@ -1,6 +1,6 @@
 # Google Maps API key setup
 
-Place search in **Create LinkUp** uses Google Places when an API key is set; otherwise it uses OpenStreetMap (Nominatim).
+Place search in **Create Meetup** uses Google Places when an API key is set; otherwise it uses OpenStreetMap (Nominatim).
 
 ## 1. Dart / Places (search)
 

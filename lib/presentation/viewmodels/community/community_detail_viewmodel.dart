@@ -214,4 +214,24 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
       state = state.copyWith(posts: updatedPosts);
     }
   }
+
+  /// Remove a post from the list (optimistic delete). Returns the removed post for rollback on API failure.
+  ThoughtDto? removePost(String thoughtId) {
+    if (!mounted) return null;
+    final index = state.posts.indexWhere((p) => p.id == thoughtId);
+    if (index == -1) return null;
+    final removed = state.posts[index];
+    final updatedPosts = state.posts.where((p) => p.id != thoughtId).toList();
+    state = state.copyWith(posts: updatedPosts);
+    return removed;
+  }
+
+  /// Replace a post (e.g. optimistic placeholder with real thought from API).
+  void replacePost(String oldThoughtId, ThoughtDto newThought) {
+    if (!mounted) return;
+    final updatedPosts = state.posts
+        .map((p) => p.id == oldThoughtId ? newThought : p)
+        .toList();
+    state = state.copyWith(posts: updatedPosts);
+  }
 }

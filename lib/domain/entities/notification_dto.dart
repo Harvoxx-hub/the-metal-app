@@ -21,7 +21,10 @@ enum NotificationType {
   thoughtReaction,
   thoughtComment,
   thoughtRepost,
+  thoughtCreated,
+  communityPost,
   meetupCapacityReached,
+  thoughtReminder,
   system;
 
   /// Backend type string for each enum value
@@ -67,8 +70,14 @@ enum NotificationType {
         return 'thought_comment';
       case NotificationType.thoughtRepost:
         return 'thought_repost';
+      case NotificationType.thoughtCreated:
+        return 'thought_created';
+      case NotificationType.communityPost:
+        return 'community_post';
       case NotificationType.meetupCapacityReached:
         return 'meetup_capacity_reached';
+      case NotificationType.thoughtReminder:
+        return 'thought_reminder';
       case NotificationType.system:
         return 'system';
     }
@@ -123,8 +132,14 @@ enum NotificationType {
         return NotificationType.thoughtComment;
       case 'thought_repost':
         return NotificationType.thoughtRepost;
+      case 'thought_created':
+        return NotificationType.thoughtCreated;
+      case 'community_post':
+        return NotificationType.communityPost;
       case 'meetup_capacity_reached':
         return NotificationType.meetupCapacityReached;
+      case 'thought_reminder':
+        return NotificationType.thoughtReminder;
       default:
         return NotificationType.system;
     }
@@ -194,8 +209,12 @@ class NotificationContentDto {
   factory NotificationContentDto.fromJson(Map<String, dynamic>? json) {
     if (json == null) return NotificationContentDto(message: '');
     return NotificationContentDto(
-      message: json['message'] as String? ?? json['body'] as String? ?? json['subTitle'] as String? ?? '',
-      secondaryMessage: json['secondaryMessage'] as String? ?? json['subTitle'] as String?,
+      message: json['message'] as String? ??
+          json['body'] as String? ??
+          json['subTitle'] as String? ??
+          '',
+      secondaryMessage:
+          json['secondaryMessage'] as String? ?? json['subTitle'] as String?,
       inlineAction: json['inlineAction'] != null
           ? NotificationInlineActionDto.fromJson(
               json['inlineAction'] as Map<String, dynamic>)
@@ -212,7 +231,8 @@ class NotificationBadgeDto {
   NotificationBadgeDto({required this.type, required this.variant});
 
   factory NotificationBadgeDto.fromJson(Map<String, dynamic>? json) {
-    if (json == null) return NotificationBadgeDto(type: 'checkmark', variant: 'success');
+    if (json == null)
+      return NotificationBadgeDto(type: 'checkmark', variant: 'success');
     return NotificationBadgeDto(
       type: json['type'] as String? ?? 'checkmark',
       variant: json['variant'] as String? ?? 'success',
@@ -295,15 +315,19 @@ class NotificationDto {
     if (message.isNotEmpty) return message;
     return title;
   }
+
   String? get secondaryMessage => content?.secondaryMessage;
   NotificationUserDto? get senderUser => user;
   String get effectiveSenderId => user?.id ?? senderId ?? '';
   String get effectiveSenderName => user?.username ?? senderName ?? 'Someone';
   String? get effectiveSenderPhoto => user?.avatarUrl ?? senderPhoto;
 
-  String? get connectionId => metadata?['connectionId'] as String? ?? data?['connectionId'] as String?;
-  String? get meetupId => metadata?['meetupId'] as String? ?? data?['meetupId'] as String?;
-  String? get messageId => metadata?['messageId'] as String? ?? data?['messageId'] as String?;
+  String? get connectionId =>
+      metadata?['connectionId'] as String? ?? data?['connectionId'] as String?;
+  String? get meetupId =>
+      metadata?['meetupId'] as String? ?? data?['meetupId'] as String?;
+  String? get messageId =>
+      metadata?['messageId'] as String? ?? data?['messageId'] as String?;
 
   NotificationDto copyWith({
     String? id,
@@ -339,7 +363,6 @@ class NotificationDto {
       metadata: metadata,
     );
   }
-
 }
 
 /// Notifications list response DTO

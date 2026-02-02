@@ -4,7 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/presentation/views/thought/widgets/thought_card.dart';
 // import 'package:metal/presentation/views/story/story_view.dart';
 import 'package:metal/presentation/views/community/community_list_view.dart';
-import 'package:metal/presentation/views/meetup/discover_linkups_view.dart';
+import 'package:metal/presentation/views/meetup/discover_meetups_view.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_feed_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
 import 'package:metal/presentation/viewmodels/meetup/meetup_viewmodel.dart';
@@ -15,7 +15,7 @@ import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/route/routes.dart';
 
-/// New Thought Screen with 3 tabs: Thoughts, Community, Link Up
+/// New Thought Screen with 3 tabs: Thoughts, Community, Meetup
 class ThoughtScreen extends ConsumerStatefulWidget {
   const ThoughtScreen({super.key});
 
@@ -63,7 +63,7 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
               children: [
                 _buildThoughtsTab(),
                 _buildCommunityTab(),
-                _buildLinkUpTab(),
+                _buildMeetupTab(),
               ],
             ),
           ),
@@ -90,7 +90,7 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
               Navigator.pushNamed(context, AppRoutes.createCommunity),
           child: const Icon(Icons.add, color: Colors.white),
         );
-      case 2: // Link Up tab
+      case 2: // Meetup tab
         return FloatingActionButton(
           backgroundColor: AppColors.metalPinkColour,
           onPressed: () => Navigator.pushNamed(context, AppRoutes.createMeetup)
@@ -161,7 +161,7 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
         tabs: const [
           Tab(text: 'Thoughts'),
           Tab(text: 'Community'),
-          Tab(text: 'Link Up'),
+          Tab(text: 'Meetup'),
         ],
       ),
     );
@@ -259,8 +259,8 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
     return const CommunityListView();
   }
 
-  /// Link Up Tab - Discover LinkUps (map/list toggle, filters, nearby list, empty state)
-  Widget _buildLinkUpTab() {
-    return const DiscoverLinkupsView();
+  /// Meetup Tab - Discover Meetups (map/list toggle, filters, nearby list, empty state)
+  Widget _buildMeetupTab() {
+    return const DiscoverMeetupsView();
   }
 }

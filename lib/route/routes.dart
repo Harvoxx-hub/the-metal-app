@@ -28,7 +28,7 @@ import 'package:metal/presentation/views/thought/thought_detail_view.dart';
 import 'package:metal/presentation/views/community/community_detail_view.dart';
 import 'package:metal/presentation/views/community/create_community_screen.dart';
 import 'package:metal/presentation/views/user/user_profile_view.dart';
-import 'package:metal/presentation/views/meetup/create_linkup_screen.dart';
+import 'package:metal/presentation/views/meetup/create_meetup_screen.dart';
 import 'package:metal/presentation/views/meetup/invite_guests_screen.dart';
 import 'package:metal/presentation/views/meetup/meetup_detail_view.dart';
 
@@ -104,7 +104,7 @@ class AppRoutes {
   static const String userProfile = '/userProfile';
   static const String workEmail = '/work-email';
   static const String meetupDetails = '/meetupDetails';
-  /// LinkUp detail (Live Event Dashboard). Same screen as meetupDetails.
+  /// Meetup detail (Live Event Dashboard). Alias for meetupDetails (backwards compatibility).
   static const String linkupDetails = '/linkupDetails';
   static const String createMeetup = '/createMeetup';
   static const String inviteGuests = '/inviteGuests';
@@ -360,11 +360,11 @@ class AppRoutes {
             ? args
             : (args as Map<String, dynamic>?)?['communityId'] as String?;
         return MaterialPageRoute(
-          builder: (_) => CreateLinkupScreen(communityId: communityId),
+          builder: (_) => CreateMeetupScreen(communityId: communityId),
         );
       case meetupDetails:
       case linkupDetails:
-        // Live Event Dashboard (LinkUp detail)
+        // Live Event Dashboard (Meetup detail)
         final args = settings.arguments;
         final meetupId = args is String
             ? args

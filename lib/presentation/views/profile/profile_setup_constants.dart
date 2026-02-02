@@ -53,11 +53,11 @@ class ProfileSetupConstants {
     "Others",
   ];
 
-  // Connection Options
+  // Connection Options (Connect with)
   static const List<String> connectionOptions = [
     "Male",
     "Female",
-    "Everyone",
+    "Non-binary",
   ];
 
   // Selection Limits
@@ -65,4 +65,3 @@ class ProfileSetupConstants {
   static const int minPassions = 1;
   static const int minAge = 18;
 }
-

@@ -84,7 +84,8 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
             ],
 
             // Passion/Interests
-            if (widget.user.passion != null && widget.user.passion!.isNotEmpty) ...[
+            if (widget.user.passion != null &&
+                widget.user.passion!.isNotEmpty) ...[
               _buildInfoField(
                 label: 'Passion/Interests',
                 value: widget.user.passion!.join(', '),
@@ -120,7 +121,8 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
             ],
 
             // Interested in
-            if (widget.user.connectionOption != null && widget.user.connectionOption!.isNotEmpty) ...[
+            if (widget.user.connectionOption != null &&
+                widget.user.connectionOption!.isNotEmpty) ...[
               _buildInfoField(
                 label: 'Interested in',
                 value: widget.user.connectionOption!.join(', '),
@@ -129,13 +131,19 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
             ],
 
             const Gap(24),
-            // DEMELT (Unmelt / remove connection) - like unfriending
-            OutilineButton(
-              buttonText: 'DEMELT',
-              onPressed: () => _showDemeltConfirmation(context),
-              width: double.infinity,
-            ),
-            const Gap(40),
+            if (widget.isConnected) ...[
+              EditField(
+                text: "Demelt ${widget.user.username ?? 'User'}",
+                floatingLabel: "Demelt ${widget.user.username ?? 'User'}",
+                onTap: () => _showDemeltConfirmation(context),
+                suffixIcon: SvgPicture.asset(
+                  Assets.icons.meltedMetalsSmileyXEyes.path,
+                  height: 21,
+                  width: 21,
+                ),
+              ),
+            ],
+            const Gap(24),
             // Block User Option at the bottom
             EditField(
               text: "Block ${widget.user.username ?? 'User'} from reaching you",
@@ -222,7 +230,8 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
       final dob = DateTime.parse(dobString);
       final now = DateTime.now();
       int age = now.year - dob.year;
-      if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
+      if (now.month < dob.month ||
+          (now.month == dob.month && now.day < dob.day)) {
         age--;
       }
       return '$age years';
@@ -259,7 +268,9 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
       if (!context.mounted) return;
       if (result.isSuccess) {
         ref.read(connectionViewModelProvider.notifier).refresh();
-        ref.read(userProfileViewModelProvider(widget.user.id).notifier).refresh();
+        ref
+            .read(userProfileViewModelProvider(widget.user.id).notifier)
+            .refresh();
         Fluttertoast.showToast(msg: 'Connection removed');
         // Navigate back to dashboard home so user sees updated connections
         Navigator.pushNamedAndRemoveUntil(
@@ -269,7 +280,8 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
           arguments: 0, // Home tab
         );
       } else {
-        Fluttertoast.showToast(msg: result.errorMessage ?? 'Failed to remove connection');
+        Fluttertoast.showToast(
+            msg: result.errorMessage ?? 'Failed to remove connection');
       }
     } catch (e) {
       if (context.mounted) {
@@ -326,5 +338,4 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
       ],
     );
   }
-
 }

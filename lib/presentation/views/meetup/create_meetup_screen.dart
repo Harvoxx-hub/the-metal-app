@@ -12,22 +12,23 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:place_picker_google/place_picker_google.dart';
 
-/// Create a LinkUp - modal screen matching the design spec.
+/// Create a Meetup - modal screen matching the design spec.
 /// Uses project theme colors (metalPinkColour, metalBrownColourForText, etc.).
-class CreateLinkupScreen extends ConsumerStatefulWidget {
+class CreateMeetupScreen extends ConsumerStatefulWidget {
   final String? communityId;
 
-  const CreateLinkupScreen({
+  const CreateMeetupScreen({
     super.key,
     this.communityId,
   });
 
   @override
-  ConsumerState<CreateLinkupScreen> createState() => _CreateLinkupScreenState();
+  ConsumerState<CreateMeetupScreen> createState() => _CreateMeetupScreenState();
 }
 
-class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
-  final _occasionController = TextEditingController();
+class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
   /// Event date: only dates after today (tomorrow and forward).
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
@@ -43,7 +44,8 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
   int _guestCapacity = 8;
   int _broadcastRadius = 25;
   String _inviteType = 'broadcast'; // 'broadcast' | 'select_friends'
-  List<String> _selectedFriendIds = []; // user IDs from connection list (melted metals)
+  List<String> _selectedFriendIds =
+      []; // user IDs from connection list (melted metals)
   bool _isLoading = false;
 
   /// Picked place from PlacePicker (place_picker_google).
@@ -58,13 +60,15 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
 
   @override
   void dispose() {
-    _occasionController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
   Future<void> _openPlacePicker() async {
     if (!MapConfig.hasGoogleMapsKey) {
-      Fluttertoast.showToast(msg: 'Map is not configured. Add a Google Maps API key.');
+      Fluttertoast.showToast(
+          msg: 'Map is not configured. Add a Google Maps API key.');
       return;
     }
     final result = await Navigator.of(context).push<LocationResult>(
@@ -77,8 +81,10 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
           ),
           body: PlacePicker(
             apiKey: MapConfig.googleMapsApiKey,
-            onPlacePicked: (LocationResult res) => Navigator.of(context).pop(res),
-            initialLocation: _pickedPlaceLatLng ?? const LatLng(37.7749, -122.4194),
+            onPlacePicked: (LocationResult res) =>
+                Navigator.of(context).pop(res),
+            initialLocation:
+                _pickedPlaceLatLng ?? const LatLng(37.7749, -122.4194),
             searchInputDecorationConfig: const SearchInputDecorationConfig(
               hintText: 'Search for a place',
             ),
@@ -100,9 +106,9 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Create a LinkUp'),
+        title: const Text('Create a Meetup'),
         content: const Text(
-          'LinkUps let you create events and invite people by broadcast area (local discovery) or by selecting friends. Set the occasion, location, date, guest capacity and broadcast radius.',
+          'Meetups let you create events and invite people by broadcast area (local discovery) or by selecting friends. Set the title, description, location, date, guest capacity and broadcast radius.',
         ),
         actions: [
           TextButton(
@@ -115,7 +121,7 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
     );
   }
 
-  /// Opens the Invite Guests full screen (connection list / melted metals).
+  /// Opens the Invite Guests full screen: everybody within broadcast radius (not just connections).
   Future<void> _showFriendsSelection() async {
     final selectedIds = await Navigator.push<List<String>>(
       context,
@@ -123,6 +129,9 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
         builder: (_) => InviteGuestsScreen(
           maxGuests: _guestCapacity,
           initialSelectedIds: _selectedFriendIds,
+          broadcastRadiusKm: _broadcastRadius,
+          centerLat: _pickedPlaceLatLng?.latitude,
+          centerLng: _pickedPlaceLatLng?.longitude,
         ),
       ),
     );
@@ -132,12 +141,11 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
   }
 
   bool get _canSubmit =>
-      _occasionController.text.trim().isNotEmpty &&
-      _pickedPlaceLatLng != null;
+      _titleController.text.trim().isNotEmpty && _pickedPlaceLatLng != null;
 
   Future<void> _submit() async {
     if (!_canSubmit) {
-      Fluttertoast.showToast(msg: 'Please fill occasion and choose a location');
+      Fluttertoast.showToast(msg: 'Please fill title and choose a location');
       return;
     }
 
@@ -152,13 +160,14 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
         longitude: _pickedPlaceLatLng!.longitude,
       );
 
+      final desc = _descriptionController.text.trim();
       final createData = CreateMeetupDto(
-        eventName: _occasionController.text.trim(),
+        eventName: _titleController.text.trim(),
         date: DateFormat('yyyy-MM-dd').format(_selectedDate),
         time: '18:00', // default evening time
         placeName: placeName,
         placeLocation: placeLocation,
-        description: null,
+        description: desc.isEmpty ? null : desc,
         maxParticipants: _guestCapacity,
         broadcastType: _inviteType == 'broadcast' ? 'all' : 'friends',
         broadcastRadius: _broadcastRadius,
@@ -173,12 +182,12 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
 
       if (mounted) {
         if (success) {
-          Fluttertoast.showToast(msg: 'LinkUp created successfully!');
+          Fluttertoast.showToast(msg: 'Meetup created successfully!');
           Navigator.pop(context, true);
         } else {
           final error = ref.read(createMeetupViewModelProvider).errorMessage;
           Fluttertoast.showToast(
-            msg: error ?? 'Failed to create LinkUp. Please try again.',
+            msg: error ?? 'Failed to create Meetup. Please try again.',
             toastLength: Toast.LENGTH_LONG,
           );
         }
@@ -246,7 +255,7 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
           ),
           const Spacer(),
           TextView(
-            text: 'Create a LinkUp',
+            text: 'Create a Meetup',
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.metalBrownColourForText,
@@ -277,9 +286,16 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
         ),
         const Gap(_fieldGap),
         _roundedInput(
-          controller: _occasionController,
-          placeholder: "What's the occasion?",
+          controller: _titleController,
+          placeholder: 'Title',
           onChanged: (_) => setState(() {}),
+        ),
+        const Gap(_fieldGap),
+        _roundedInput(
+          controller: _descriptionController,
+          placeholder: 'Description (optional)',
+          onChanged: (_) => setState(() {}),
+          maxLines: 4,
         ),
         const Gap(_fieldGap),
         _buildLocationSearchField(),
@@ -734,7 +750,7 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
         ),
         icon: const Icon(Icons.bolt, size: 22),
         label: TextView(
-          text: 'CREATE LINKUP',
+          text: 'CREATE MEETUP',
           fontSize: 16,
           fontWeight: FontWeight.w700,
           color: AppColors.metalWhite,
@@ -748,6 +764,7 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
     required String placeholder,
     Widget? trailing,
     ValueChanged<String>? onChanged,
+    int maxLines = 1,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -760,6 +777,7 @@ class _CreateLinkupScreenState extends ConsumerState<CreateLinkupScreen> {
       child: TextField(
         controller: controller,
         onChanged: onChanged,
+        maxLines: maxLines,
         style: const TextStyle(
           color: AppColors.metalBrownColourForText,
           fontSize: 16,

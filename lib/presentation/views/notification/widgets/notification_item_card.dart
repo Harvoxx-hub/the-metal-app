@@ -1,15 +1,19 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/domain/entities/notification_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 
 /// Notification item card matching design spec:
 /// Avatar left (56px, dotted border), content right, optional action buttons
-class NotificationItemCard extends StatelessWidget {
+/// For thought-related notifications (reaction, comment, repost) shows sender's metal icon.
+class NotificationItemCard extends ConsumerWidget {
   final NotificationDto notification;
   final VoidCallback? onTap;
   final void Function(String action)? onAction;
@@ -21,8 +25,16 @@ class NotificationItemCard extends StatelessWidget {
     this.onAction,
   });
 
+  static bool _isThoughtRelated(NotificationType type) {
+    return type == NotificationType.thoughtReaction ||
+        type == NotificationType.thoughtComment ||
+        type == NotificationType.thoughtRepost ||
+        type == NotificationType.thoughtCreated ||
+        type == NotificationType.communityPost;
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isUnread = !notification.isRead;
 
     return Container(
@@ -59,7 +71,7 @@ class NotificationItemCard extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildAvatar(context),
+                    _buildAvatar(context, ref),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -70,7 +82,8 @@ class NotificationItemCard extends StatelessWidget {
                           TextView(
                             text: formatTime(
                               datetime: notification.createdAt,
-                              locale: Localizations.localeOf(context).languageCode,
+                              locale:
+                                  Localizations.localeOf(context).languageCode,
                             ),
                             fontSize: 11,
                             color: Colors.grey.shade500,
@@ -106,9 +119,61 @@ class NotificationItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatar(BuildContext context) {
-    final photoUrl = notification.effectiveSenderPhoto;
+  Widget _buildAvatar(BuildContext context, WidgetRef ref) {
+    // For thought-related notifications show the sender's metal icon, not profile photo
+    if (_isThoughtRelated(notification.type) &&
+        notification.effectiveSenderId.isNotEmpty) {
+      final userAsync =
+          ref.watch(getUserProvider(notification.effectiveSenderId));
+      return SizedBox(
+        width: 56,
+        height: 56,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.metalPinkColour.withOpacity(0.5),
+                  width: 2,
+                  strokeAlign: BorderSide.strokeAlignOutside,
+                ),
+              ),
+              child: ClipOval(
+                child: userAsync.when(
+                  data: (baseState) {
+                    if (baseState.isError || baseState.data == null) {
+                      return _buildPlaceholderAvatar();
+                    }
+                    final user = baseState.data!;
+                    final metalId =
+                        user.metal ?? notification.effectiveSenderId;
+                    return ProfilePhoto(
+                      verfly: false,
+                      size: 40,
+                      meltId: metalId,
+                    );
+                  },
+                  loading: () => _buildPlaceholderAvatar(),
+                  error: (_, __) => _buildPlaceholderAvatar(),
+                ),
+              ),
+            ),
+            if (notification.badge != null)
+              Positioned(
+                bottom: -2,
+                right: -2,
+                child: _buildBadge(),
+              ),
+          ],
+        ),
+      );
+    }
 
+    final photoUrl = notification.effectiveSenderPhoto;
     return SizedBox(
       width: 56,
       height: 56,
@@ -202,7 +267,8 @@ class NotificationItemCard extends StatelessWidget {
 
   Widget _buildContent(BuildContext context, bool isUnread) {
     final displayMessage = notification.displayMessage;
-    final effectiveMessage = displayMessage.isNotEmpty ? displayMessage : 'New notification';
+    final effectiveMessage =
+        displayMessage.isNotEmpty ? displayMessage : 'New notification';
 
     return DefaultTextStyle(
       style: TextStyle(
@@ -268,17 +334,21 @@ class NotificationItemCard extends StatelessWidget {
           side: const BorderSide(color: AppColors.metalPinkColour),
           padding: const EdgeInsets.symmetric(vertical: 10),
         ),
-        child: Text(btn.text, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+        child: Text(btn.text,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
       );
     }
     return ElevatedButton(
       onPressed: () => onAction?.call(btn.action),
       style: ElevatedButton.styleFrom(
-        backgroundColor: isPrimary ? AppColors.metalPinkColour : AppColors.metalPinkColour.withOpacity(0.3),
+        backgroundColor: isPrimary
+            ? AppColors.metalPinkColour
+            : AppColors.metalPinkColour.withOpacity(0.3),
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 10),
       ),
-      child: Text(btn.text, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+      child: Text(btn.text,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
     );
   }
 
@@ -311,14 +381,23 @@ class NotificationItemCard extends StatelessWidget {
       case NotificationType.message:
       case NotificationType.promptReaction:
       case NotificationType.directMessage:
-        return Icon(Icons.message_rounded, size: 28, color: Colors.grey.shade600);
+        return Icon(Icons.message_rounded,
+            size: 28, color: Colors.grey.shade600);
       case NotificationType.comment:
       case NotificationType.thoughtComment:
-        return Icon(Icons.comment_rounded, size: 28, color: Colors.grey.shade600);
+        return Icon(Icons.comment_rounded,
+            size: 28, color: Colors.grey.shade600);
       case NotificationType.thoughtReaction:
-        return Icon(Icons.thumb_up_rounded, size: 28, color: Colors.grey.shade600);
+        return Icon(Icons.thumb_up_rounded,
+            size: 28, color: Colors.grey.shade600);
       case NotificationType.thoughtRepost:
-        return Icon(Icons.repeat_rounded, size: 28, color: Colors.grey.shade600);
+        return Icon(Icons.repeat_rounded,
+            size: 28, color: Colors.grey.shade600);
+      case NotificationType.thoughtCreated:
+      case NotificationType.thoughtReminder:
+      case NotificationType.communityPost:
+        return Icon(Icons.article_outlined,
+            size: 28, color: Colors.grey.shade600);
       default:
         return Icon(Icons.notifications, size: 28, color: Colors.grey.shade600);
     }

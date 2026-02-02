@@ -8,12 +8,12 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
-/// Discover LinkUp event card: cover image, distance + spots badges, title, time, JOIN/VIEW.
+/// Discover Meetup event card: cover image, distance + spots badges, title, time, JOIN/VIEW.
 /// Creators see "View" (no join); non-creators see JOIN / JOINED / FULL.
-class DiscoverLinkupEventCard extends ConsumerWidget {
+class DiscoverMeetupEventCard extends ConsumerWidget {
   final MeetupDto meetup;
 
-  const DiscoverLinkupEventCard({super.key, required this.meetup});
+  const DiscoverMeetupEventCard({super.key, required this.meetup});
 
   int get _spotsLeft => (meetup.maxParticipants - meetup.acceptedCount).clamp(0, meetup.maxParticipants);
   bool get _isFull => _spotsLeft == 0;
@@ -28,7 +28,7 @@ class DiscoverLinkupEventCard extends ConsumerWidget {
       onTap: () {
         Navigator.pushNamed(
           context,
-          AppRoutes.linkupDetails,
+          AppRoutes.meetupDetails,
           arguments: meetup.id,
         );
       },
@@ -200,7 +200,7 @@ class DiscoverLinkupEventCard extends ConsumerWidget {
   }
 
   Widget _buildActionButton(BuildContext context, bool isCreator) {
-    // Creator: show "View" only — they can't join their own LinkUp; tap opens detail/dashboard.
+    // Creator: show "View" only — they can't join their own Meetup; tap opens detail/dashboard.
     if (isCreator) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -253,7 +253,7 @@ class DiscoverLinkupEventCard extends ConsumerWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          Navigator.pushNamed(context, AppRoutes.linkupDetails, arguments: meetup.id);
+          Navigator.pushNamed(context, AppRoutes.meetupDetails, arguments: meetup.id);
         },
         borderRadius: BorderRadius.circular(24),
         child: Container(

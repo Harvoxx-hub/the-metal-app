@@ -33,6 +33,7 @@ class ApiRoutes {
 
   // Discovery endpoints
   static const String discoveryUsers = '/discovery/users';
+  static const String discoveryUsersInRadius = '/discovery/users-in-radius';
   static const String discoverySwipe = '/discovery/swipe';
   static const String discoveryHistory = '/discovery/history';
   static const String discoveryUndo = '/discovery/undo';
@@ -51,8 +52,10 @@ class ApiRoutes {
   static const String markMessageRead = '/messages'; // PUT /messages/:id/read
   static const String markAllMessagesRead =
       '/messages'; // PUT /messages/:connectionId/read-all
-  static const String promptReaction = '/messages/prompt-reaction'; // POST - send prompt reaction
-  static const String directMessage = '/messages/direct-message'; // POST - send direct message from discovery
+  static const String promptReaction =
+      '/messages/prompt-reaction'; // POST - send prompt reaction
+  static const String directMessage =
+      '/messages/direct-message'; // POST - send direct message from discovery
   static const String clearChat =
       '/connections'; // DELETE /connections/:id/messages
 
@@ -161,14 +164,19 @@ class ApiRoutes {
   static const String metals = '/metals'; // GET - get all metals
 
   // Prompt endpoints
-  static const String promptQuestions = '/prompts/questions'; // GET - get all questions
-  static const String promptUser = '/prompts/user'; // GET /prompts/user/:userId, POST - save prompts
+  static const String promptQuestions =
+      '/prompts/questions'; // GET - get all questions
+  static const String promptUser =
+      '/prompts/user'; // GET /prompts/user/:userId, POST - save prompts
 
   // Meetup endpoints
-  static const String meetups = '/meetups'; // GET - get meetups list, POST - create meetup
+  static const String meetups =
+      '/meetups'; // GET - get meetups list, POST - create meetup
   static const String meetupById = '/meetups'; // GET/PUT/DELETE /meetups/:id
   static const String meetupRsvp = '/meetups'; // POST /meetups/:id/rsvp
   static const String meetupInvite = '/meetups'; // POST /meetups/:id/invite
-  static const String meetupAttendees = '/meetups'; // GET /meetups/:id/attendees
-  static const String meetupBroadcast = '/meetups'; // POST /meetups/:id/broadcast
+  static const String meetupAttendees =
+      '/meetups'; // GET /meetups/:id/attendees
+  static const String meetupBroadcast =
+      '/meetups'; // POST /meetups/:id/broadcast
 }

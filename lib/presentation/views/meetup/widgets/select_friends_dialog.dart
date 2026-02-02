@@ -8,7 +8,7 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/profile.photo.dart';
 import 'package:metal/widgets/text_views.dart';
 
-/// Dialog to select friends (connections / melted metals) to invite to a LinkUp.
+/// Dialog to select friends (connections / melted metals) to invite to a Meetup.
 /// If the user has no connections, shows an empty state explaining they need
 /// to connect with people first.
 class SelectFriendsDialog extends ConsumerStatefulWidget {
@@ -213,7 +213,7 @@ class _SelectFriendsDialogState extends ConsumerState<SelectFriendsDialog> {
                                 const Gap(8),
                                 TextView(
                                   text: _searchQuery.isEmpty
-                                      ? 'To invite friends to a LinkUp, connect with people first from your melted metal list.'
+                                      ? 'To invite friends to a Meetup, connect with people first from your melted metal list.'
                                       : 'Try a different name.',
                                   fontSize: 13,
                                   color: AppColors.metalBrownColourForText.withOpacity(0.7),

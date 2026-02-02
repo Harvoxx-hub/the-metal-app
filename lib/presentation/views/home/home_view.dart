@@ -229,10 +229,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ref.read(homeViewModelProvider.notifier).passUser(userId),
       onDirectMessageSent: (userId, connectionId) {
         ref.read(homeViewModelProvider.notifier).removeUser(userId);
+        // Connection was made (it's a melt) – show melt celebration screen first
         Navigator.pushNamed(
           context,
-          AppRoutes.chatWindowView,
-          arguments: connectionId,
+          AppRoutes.meltMetal,
+          arguments: {
+            'userId': userId,
+            'connectionId': connectionId,
+          },
         );
       },
     );
@@ -315,7 +319,8 @@ class _UserCardViewState extends ConsumerState<_UserCardView> {
           ? null
           : () => _handleAction(() => widget.onPass(currentUserId)),
       onDirectMessageSent: widget.onDirectMessageSent != null
-          ? (connectionId) => widget.onDirectMessageSent!(currentUserId, connectionId)
+          ? (userId, connectionId) =>
+              widget.onDirectMessageSent!(userId, connectionId)
           : null,
     );
   }

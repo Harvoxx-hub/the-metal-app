@@ -34,13 +34,17 @@ import 'package:metal/res/res.dart';
 
 import 'package:share_plus/share_plus.dart';
 import 'package:metal/core/services/deep_link_service.dart';
+import 'package:metal/presentation/viewmodels/community/community_detail_viewmodel_providers.dart';
 
 class ThoughtCard extends ConsumerStatefulWidget {
   final ThoughtDto thoughtModel;
+  /// When set, delete will update this community's local state first (optimistic delete).
+  final String? communityId;
 
   const ThoughtCard({
     super.key,
     required this.thoughtModel,
+    this.communityId,
   });
 
   @override
@@ -67,8 +71,8 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
       loadRepost(thoughtModel.originalThoughtId!);
     }
 
-    // Auto-prepare audio for voice thoughts
-    if (thoughtModel.type == 'voice' && thoughtModel.audioUrl != null) {
+    // Auto-prepare audio when thought has audio (voice-only or text+audio)
+    if (thoughtModel.audioUrl != null && thoughtModel.audioUrl!.isNotEmpty) {
       _autoPrepareAudio();
     }
   }
@@ -198,9 +202,9 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
         originalThought = result.data;
         print('Repost loaded successfully: ${originalThought!.content}');
 
-        // Auto-prepare audio for reposted voice thoughts
-        if (originalThought!.type == 'voice' &&
-            originalThought!.audioUrl != null) {
+        // Auto-prepare audio for reposted thoughts that have audio
+        if (originalThought!.audioUrl != null &&
+            originalThought!.audioUrl!.isNotEmpty) {
           _autoPrepareRepostAudio();
         }
       } else {
@@ -332,14 +336,14 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
                 ),
                 const Gap(8),
               ],
-              if (thoughtModel.type == 'voice') ...[
+              // Show audio player when thought has audio (voice-only or text+audio)
+              if (thoughtModel.audioUrl != null &&
+                  thoughtModel.audioUrl!.isNotEmpty) ...[
                 _buildVoicePlayer(context, thoughtModel),
-                if (thoughtModel.content.isNotEmpty) ...[
-                  const Gap(6),
-                  TextView(text: thoughtModel.content),
-                ],
-                const Gap(4),
-              ] else ...[
+                const Gap(6),
+              ],
+              // Show text when thought has content
+              if (thoughtModel.content.isNotEmpty) ...[
                 ReadMoreText(
                   text: thoughtModel.content,
                   onTap: () {
@@ -571,14 +575,13 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           ),
           const Gap(8),
         ],
-        if (original.type == 'voice') ...[
+        // Show audio when reposted thought has audio
+        if (original.audioUrl != null && original.audioUrl!.isNotEmpty) ...[
           _buildVoicePlayer(context, original),
-          if (original.content.isNotEmpty) ...[
-            const Gap(6),
-            TextView(text: original.content),
-          ],
-          const Gap(4),
-        ] else ...[
+          const Gap(6),
+        ],
+        // Show text when reposted thought has content
+        if (original.content.isNotEmpty) ...[
           ReadMoreText(
             text: original.content,
             onTap: () {
@@ -919,12 +922,24 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
 
     if (confirmed == true && mounted) {
       final feedViewModel = ref.read(thoughtFeedViewModelProvider.notifier);
+      ThoughtDto? removedForRollback;
+      if (widget.communityId != null) {
+        final communityVm = ref.read(
+          communityDetailViewModelProvider(widget.communityId!).notifier,
+        );
+        removedForRollback = communityVm.removePost(thoughtModel.id);
+      }
       final success = await feedViewModel.deleteThought(thoughtModel.id);
 
       if (mounted) {
         if (success) {
           Fluttertoast.showToast(msg: 'Thought deleted successfully');
         } else {
+          if (widget.communityId != null && removedForRollback != null) {
+            ref
+                .read(communityDetailViewModelProvider(widget.communityId!).notifier)
+                .addPost(removedForRollback);
+          }
           Fluttertoast.showToast(msg: 'Failed to delete thought');
         }
       }

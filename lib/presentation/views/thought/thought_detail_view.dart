@@ -18,6 +18,7 @@ import 'package:metal/domain/entities/report_dto.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:metal/core/services/deep_link_service.dart';
 import 'package:metal/route/routes.dart';
+import 'package:metal/presentation/views/chat/widgets/audio_player_widget.dart';
 
 /// Thought Detail View
 /// Displays a single thought with full content and comments below
@@ -229,22 +230,24 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
             const Gap(12),
           ],
 
-          // Thought content
-          if (thought.type == 'voice') ...[
-            // Voice thought - use ThoughtCard for audio player
-            _buildVoiceThoughtContent(thought),
-            const Gap(12),
-          ] else if (thought.type == 'repost') ...[
-            // Repost - show repost header and original thought
+          // Thought content (show audio and/or text when present)
+          if (thought.type == 'repost') ...[
             _buildRepostContent(thought),
           ] else ...[
-            // Regular text thought
-            TextView(
-              text: thought.content,
-              fontSize: 16,
-              color: AppColors.metalBlack,
-              fontWeight: FontWeight.w400,
-            ),
+            // Show audio when thought has audio (voice-only or text+audio)
+            if (thought.audioUrl != null && thought.audioUrl!.isNotEmpty) ...[
+              _buildVoiceThoughtContent(thought),
+              const Gap(12),
+            ],
+            // Show text when thought has content
+            if (thought.content.isNotEmpty) ...[
+              TextView(
+                text: thought.content,
+                fontSize: 16,
+                color: AppColors.metalBlack,
+                fontWeight: FontWeight.w400,
+              ),
+            ],
           ],
 
           const Gap(16),
@@ -257,27 +260,7 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
   }
 
   Widget _buildVoiceThoughtContent(ThoughtDto thought) {
-    // For voice thoughts, show a simplified player
-    // In production, you might want to extract the voice player from ThoughtCard
-    final audioUrl = thought.audioUrl;
-    if (audioUrl == null || audioUrl.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: const Center(
-          child: TextView(
-            text: 'Audio not available',
-            fontSize: 14,
-            color: Colors.grey,
-          ),
-        ),
-      );
-    }
-
+    final audioUrl = thought.audioUrl!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -287,38 +270,22 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
       ),
       child: Row(
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.metalPinkColour,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.play_arrow,
-              color: Colors.white,
-              size: 24,
-            ),
-          ),
-          const Gap(12),
+          const Icon(Icons.mic, color: AppColors.metalPinkColour, size: 20),
+          const Gap(8),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextView(
-                  text: 'Voice Thought',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-                if (thought.audioDuration != null)
-                  TextView(
-                    text: '${thought.audioDuration}s',
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-              ],
+            child: AudioPlayerWidget(
+              audioUrl: audioUrl,
+              isMe: true,
             ),
           ),
+          if (thought.audioDuration != null) ...[
+            const Gap(8),
+            TextView(
+              text: '${thought.audioDuration}s',
+              fontSize: 12,
+              color: Colors.grey[600],
+            ),
+          ],
         ],
       ),
     );
@@ -708,16 +675,18 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextView(
-                          text: 'Replying to ${_replyingToComment!.userId}',
+                          text: 'Replying to',
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: AppColors.metalPinkColour,
                         ),
                         const SizedBox(height: 2),
                         TextView(
-                          text: _replyingToComment!.content.length > 50
-                              ? '${_replyingToComment!.content.substring(0, 50)}...'
-                              : _replyingToComment!.content,
+                          text: _replyingToComment!.content.isEmpty
+                              ? 'comment'
+                              : (_replyingToComment!.content.length > 50
+                                  ? '${_replyingToComment!.content.substring(0, 50)}...'
+                                  : _replyingToComment!.content),
                           fontSize: 11,
                           color: Colors.grey[600],
                           maxLines: 1,
@@ -849,12 +818,14 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
             Fluttertoast.showToast(msg: 'Thought deleted successfully');
             Navigator.of(context).pop(); // Go back to previous screen
           } else {
-            Fluttertoast.showToast(msg: result.errorMessage ?? 'Failed to delete thought');
+            Fluttertoast.showToast(
+                msg: result.errorMessage ?? 'Failed to delete thought');
           }
         }
       } catch (e) {
         if (mounted) {
-          Fluttertoast.showToast(msg: 'Failed to delete thought: ${e.toString()}');
+          Fluttertoast.showToast(
+              msg: 'Failed to delete thought: ${e.toString()}');
         }
       }
     }
@@ -869,7 +840,8 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
     );
 
     if (result != null && mounted) {
-      Fluttertoast.showToast(msg: 'Thank you for reporting. We will review this thought.');
+      Fluttertoast.showToast(
+          msg: 'Thank you for reporting. We will review this thought.');
     }
   }
 
@@ -963,9 +935,11 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
                     if (result.isSuccess) {
                       // Refresh the feed
                       ref.read(thoughtFeedViewModelProvider.notifier).refresh();
-                      Fluttertoast.showToast(msg: 'Thought reposted successfully');
+                      Fluttertoast.showToast(
+                          msg: 'Thought reposted successfully');
                     } else {
-                      Fluttertoast.showToast(msg: result.errorMessage ?? 'Failed to repost');
+                      Fluttertoast.showToast(
+                          msg: result.errorMessage ?? 'Failed to repost');
                     }
                   }
                 },

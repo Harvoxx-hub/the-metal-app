@@ -44,9 +44,11 @@ class NotificationModel {
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     final contentObj = json['content'];
-    String message = json['message'] as String? ?? json['body'] as String? ?? '';
+    String message =
+        json['message'] as String? ?? json['body'] as String? ?? '';
     if (contentObj is Map<String, dynamic>) {
-      final contentMsg = contentObj['message'] as String? ?? contentObj['body'] as String?;
+      final contentMsg =
+          contentObj['message'] as String? ?? contentObj['body'] as String?;
       if (contentMsg != null) message = contentMsg;
     }
     final isRead = json['isRead'] as bool? ?? false;
@@ -60,9 +62,15 @@ class NotificationModel {
     final createdAtRaw = json['createdAt'];
     final createdAt = _parseCreatedAt(createdAtRaw);
 
+    // If type is missing/system but category is 'match', treat as melted (fixes "You have a new Melt!" showing as system)
+    final rawType = json['type'] as String? ?? 'system';
+    final category = json['category'] as String?;
+    final type =
+        (rawType == 'system' && category == 'match') ? 'melted' : rawType;
+
     return NotificationModel(
       id: json['id'] as String? ?? '',
-      type: json['type'] as String? ?? 'system',
+      type: type,
       title: json['title'] as String? ?? '',
       message: message,
       isRead: isRead,
@@ -87,7 +95,8 @@ class NotificationModel {
     if (value is String) return value;
     if (value is Map) {
       final secs = value['_seconds'] as int? ?? value['seconds'] as int?;
-      final nsecs = value['_nanoseconds'] as int? ?? value['nanoseconds'] as int? ?? 0;
+      final nsecs =
+          value['_nanoseconds'] as int? ?? value['nanoseconds'] as int? ?? 0;
       if (secs != null) {
         return DateTime.fromMillisecondsSinceEpoch(
           secs * 1000 + (nsecs / 1e6).round(),
@@ -179,7 +188,8 @@ class NotificationsResponseModel {
 
     return NotificationsResponseModel(
       notifications: (json['notifications'] as List<dynamic>?)
-              ?.map((e) => NotificationModel.fromJson(e as Map<String, dynamic>))
+              ?.map(
+                  (e) => NotificationModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
       total: total,
@@ -237,9 +247,12 @@ class NotificationSettingsModel {
       likeNotifications: json['likeNotifications'] as bool? ?? true,
       superlikeNotifications: json['superlikeNotifications'] as bool? ?? true,
       matchNotifications: json['matchNotifications'] as bool? ?? true,
-      meltRequestNotifications: json['meltRequestNotifications'] as bool? ?? true,
-      unmetalRequestedNotifications: json['unmetalRequestedNotifications'] as bool? ?? true,
-      unmetalAcceptedNotifications: json['unmetalAcceptedNotifications'] as bool? ?? true,
+      meltRequestNotifications:
+          json['meltRequestNotifications'] as bool? ?? true,
+      unmetalRequestedNotifications:
+          json['unmetalRequestedNotifications'] as bool? ?? true,
+      unmetalAcceptedNotifications:
+          json['unmetalAcceptedNotifications'] as bool? ?? true,
       sparkNotifications: json['sparkNotifications'] as bool? ?? true,
       referralNotifications: json['referralNotifications'] as bool? ?? true,
       messageNotifications: json['messageNotifications'] as bool? ?? true,

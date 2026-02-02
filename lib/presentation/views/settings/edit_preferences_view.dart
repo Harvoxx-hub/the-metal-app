@@ -17,6 +17,7 @@ import 'package:metal/widgets/dropdown/metal.dropdown.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/presentation/views/prompt/prompt_creation_view.dart';
+import 'package:metal/presentation/views/profile/profile_setup_constants.dart';
 
 class EditPreferencesView extends ConsumerStatefulWidget {
   const EditPreferencesView({super.key});
@@ -219,7 +220,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                       text: user?.connectWith ?? "Connect with",
                       floatingLabel: "Connect with",
                       subLabel: "Edit",
-                      dropDownItems: const ["Male", "Female", "Everyone"],
+                      dropDownItems: ProfileSetupConstants.connectionOptions,
                       editType: EditType.dropdown,
                       onSubLabel: (value) => _updateUser('connectWith', value),
                     ),
@@ -262,10 +263,8 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
       ageRange: _formatAgeRange(selectedAgeRange),
       religion: noSpecialPreference ? null : _joinAndClean(selectedReligion),
       demography: selectedDemography,
-      education:
-          noSpecialPreference ? null : _joinAndClean(selectedEducation),
-      ethnicity:
-          noSpecialPreference ? null : _joinAndClean(selectedEthnicity),
+      education: noSpecialPreference ? null : _joinAndClean(selectedEducation),
+      ethnicity: noSpecialPreference ? null : _joinAndClean(selectedEthnicity),
     );
     final ok = await ref
         .read(userStateProvider.notifier)
@@ -496,7 +495,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
   Widget _buildManagePromptsSection(UserDto? user) {
     final prompts = user?.prompts ?? [];
     final promptCount = prompts.length;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -543,14 +542,17 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                       ),
                     ),
                   );
-                  
+
                   // Refresh user data to get latest prompts
                   if (mounted) {
-                    await ref.read(userStateProvider.notifier).fetchAndSetUser();
+                    await ref
+                        .read(userStateProvider.notifier)
+                        .fetchAndSetUser();
                   }
                 },
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   backgroundColor: AppColors.metalPinkColour,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -605,7 +607,8 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: TextView(
-                  text: "+${prompts.length - 3} more prompt${prompts.length - 3 > 1 ? 's' : ''}",
+                  text:
+                      "+${prompts.length - 3} more prompt${prompts.length - 3 > 1 ? 's' : ''}",
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: AppColors.metalPinkColour,
@@ -628,8 +631,8 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
   /// Update user field via single source of truth (userStateProvider)
   Future<void> _updateUser(String field, dynamic value) async {
     await ref.read(userStateProvider.notifier).updateUserField(
-      field: field,
-      value: value,
-    );
+          field: field,
+          value: value,
+        );
   }
 }

@@ -10,6 +10,46 @@ class DiscoveryRemoteDataSource {
 
   DiscoveryRemoteDataSource(this._client);
 
+  /// Get users within radius (for meetup invite: everybody in broadcast radius)
+  Future<DiscoveryUsersResponse> getUsersWithinRadius({
+    required int radiusKm,
+    double? lat,
+    double? lng,
+  }) async {
+    final queryParams = <String, String>{
+      'radiusKm': radiusKm.toString(),
+      if (lat != null) 'lat': lat.toString(),
+      if (lng != null) 'lng': lng.toString(),
+    };
+    final queryString =
+        queryParams.entries.map((e) => '${e.key}=${e.value}').join('&');
+    try {
+      final response = await _client.get(
+        '${ApiRoutes.discoveryUsersInRadius}?$queryString',
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data['data'] as Map<String, dynamic>?;
+        if (data == null) {
+          return const DiscoveryUsersResponse(users: [], pagination: null);
+        }
+        final usersJson = data['users'] as List<dynamic>? ?? [];
+        final users = usersJson
+            .map((json) =>
+                DiscoveryUserDto.fromJson(json as Map<String, dynamic>))
+            .toList();
+        final paginationJson = data['pagination'] as Map<String, dynamic>?;
+        final pagination = paginationJson != null
+            ? DiscoveryPaginationDto.fromJson(paginationJson)
+            : null;
+        return DiscoveryUsersResponse(users: users, pagination: pagination);
+      }
+      throw Exception(
+          response.data?['error'] ?? 'Failed to get users within radius');
+    } on DioException {
+      rethrow;
+    }
+  }
+
   /// Get users for discovery
   /// Returns filtered users based on preferences
   Future<DiscoveryUsersResponse> getDiscoveryUsers({

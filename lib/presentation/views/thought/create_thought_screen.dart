@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/domain/entities/thought_dto.dart';
+import 'package:metal/presentation/viewmodels/community/community_detail_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/thought/create_thought_viewmodel.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/presentation/views/thought/widgets/thought_text_input.dart';
@@ -267,19 +270,81 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
   }
 
   Future<void> _handlePost(CreateThoughtViewModel viewModel) async {
-    final success = await viewModel.postThought(
-      communityMetadata: widget.communityMetadata,
+    final createState = ref.read(createThoughtViewModelProvider);
+    final communityMeta = widget.communityMetadata;
+
+    String? optimisticId;
+    if (communityMeta != null) {
+      // Optimistic post: add to community feed first so it appears immediately, then call API
+      final communityId = communityMeta['communityId'] as String?;
+      if (communityId != null) {
+        final currentUser = ref.read(currentUserProvider);
+        final optimisticThought = _buildOptimisticThought(createState, communityMeta, currentUser);
+        if (optimisticThought != null) {
+          optimisticId = optimisticThought.id;
+          ref.read(communityDetailViewModelProvider(communityId).notifier).addPost(optimisticThought);
+        }
+      }
+    }
+
+    final thought = await viewModel.postThought(
+      communityMetadata: communityMeta,
     );
 
     if (!mounted) return;
 
-    if (success) {
-      Navigator.pop(context, true); // Return true to indicate success
+    if (thought != null) {
+      if (communityMeta != null && communityMeta['communityId'] != null && optimisticId != null) {
+        final communityId = communityMeta['communityId'] as String;
+        ref.read(communityDetailViewModelProvider(communityId).notifier).replacePost(optimisticId, thought);
+      }
+      Navigator.pop(context, thought);
       Fluttertoast.showToast(msg: 'Thought posted successfully!');
     } else {
+      if (communityMeta != null && communityMeta['communityId'] != null && optimisticId != null) {
+        ref
+            .read(communityDetailViewModelProvider(communityMeta['communityId'] as String).notifier)
+            .removePost(optimisticId);
+      }
       final currentState = ref.read(createThoughtViewModelProvider);
       Fluttertoast.showToast(msg: currentState.errorMessage ?? 'Failed to post thought');
     }
+  }
+
+  static ThoughtDto? _buildOptimisticThought(
+    CreateThoughtState createState,
+    Map<String, dynamic> communityMeta,
+    dynamic currentUser,
+  ) {
+    if (currentUser == null) return null;
+    final hasText = createState.text.trim().isNotEmpty;
+    final type = hasText ? 'text' : 'voice';
+    final id = 'pending-${DateTime.now().millisecondsSinceEpoch}';
+    final author = AuthorMetadataDto(
+      authorId: currentUser.id,
+      authorName: currentUser.fullname,
+      authorProfilePhoto: currentUser.profilePhoto,
+    );
+    final tags = communityMeta['tags'] ?? communityMeta['categories'];
+    final communityDto = CommunityMetadataDto(
+      communityId: communityMeta['communityId'] as String? ?? '',
+      communityName: communityMeta['communityName'] as String? ?? 'Community',
+      categories: tags != null ? List<String>.from(tags) : const [],
+      communityImage: communityMeta['communityImage'] as String?,
+      isPublic: communityMeta['isPublic'] as bool? ?? true,
+    );
+    return ThoughtDto(
+      id: id,
+      userId: currentUser.id,
+      content: createState.text.trim().isEmpty ? '(Voice)' : createState.text.trim(),
+      type: type,
+      audioUrl: createState.audioUrl,
+      audioDuration: createState.audioDuration,
+      createdAt: DateTime.now(),
+      connectionOnly: false,
+      authorMetadata: author,
+      communityMetadata: communityDto,
+    );
   }
 }
 

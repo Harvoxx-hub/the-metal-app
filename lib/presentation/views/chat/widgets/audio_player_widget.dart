@@ -88,7 +88,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
 
     // Load the audio source with error handling
     try {
-      await _audioPlayer.setSourceUrl(widget.audioUrl);
+      await _setSource(widget.audioUrl);
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -102,6 +102,20 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  /// Sets the audio source. Uses [DeviceFileSource] for local file paths (e.g. from
+  /// thought voice notes before upload) and [setSourceUrl] for remote URLs (e.g. chat
+  /// messages). On iOS/macOS, setSourceUrl with a raw path fails; DeviceFileSource works.
+  Future<void> _setSource(String audioUrl) async {
+    final isRemoteOrFileUrl = audioUrl.startsWith('http://') ||
+        audioUrl.startsWith('https://') ||
+        audioUrl.startsWith('file://');
+    if (isRemoteOrFileUrl) {
+      await _audioPlayer.setSourceUrl(audioUrl);
+    } else {
+      await _audioPlayer.setSource(DeviceFileSource(audioUrl));
     }
   }
 
@@ -131,12 +145,12 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
           });
           // Stop and reload the source for clean replay
           await _audioPlayer.stop();
-          await _audioPlayer.setSourceUrl(widget.audioUrl);
+          await _setSource(widget.audioUrl);
           await _audioPlayer.resume();
         } else if (_audioPlayer.state == PlayerState.stopped ||
             _audioPlayer.state == PlayerState.completed) {
           // Player stopped but not marked as completed - reload source
-          await _audioPlayer.setSourceUrl(widget.audioUrl);
+          await _setSource(widget.audioUrl);
           await _audioPlayer.resume();
         } else {
           // Normal resume (e.g., after pause)

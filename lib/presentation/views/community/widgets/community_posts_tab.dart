@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:metal/domain/entities/thought_dto.dart';
 import 'package:metal/presentation/viewmodels/community/community_detail_viewmodel_providers.dart';
 import 'package:metal/presentation/views/thought/widgets/thought_card.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 
-/// Community Posts Tab - displays thoughts posted in the community
+/// Community Posts Tab – list is driven only by [communityDetailViewModelProvider].state.posts.
+/// Add/remove in that state and the list updates (no scroll or extra state).
 class CommunityPostsTab extends ConsumerWidget {
   final String communityId;
-  final List<ThoughtDto> initialPosts;
+  final ScrollController? scrollController;
 
   const CommunityPostsTab({
     super.key,
     required this.communityId,
-    required this.initialPosts,
+    this.scrollController,
   });
 
   @override
@@ -21,11 +21,7 @@ class CommunityPostsTab extends ConsumerWidget {
     final detailState = ref.watch(
       communityDetailViewModelProvider(communityId),
     );
-
-    // Always use the state posts if available, otherwise fall back to initialPosts
-    final posts = detailState.posts.isNotEmpty 
-        ? detailState.posts 
-        : initialPosts;
+    final posts = detailState.posts;
 
     if (posts.isEmpty) {
       return Center(
@@ -55,6 +51,7 @@ class CommunityPostsTab extends ConsumerWidget {
             .refreshAll(communityId);
       },
       child: ListView.builder(
+        controller: scrollController,
         padding: const EdgeInsets.all(16),
         itemCount: posts.length,
         itemBuilder: (context, index) {
@@ -63,6 +60,7 @@ class CommunityPostsTab extends ConsumerWidget {
             padding: const EdgeInsets.only(bottom: 16),
             child: ThoughtCard(
               thoughtModel: thought,
+              communityId: communityId,
             ),
           );
         },

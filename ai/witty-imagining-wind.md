@@ -469,7 +469,7 @@ View re-renders, shows message with checkmark (sent confirmation)
 
 #### **Where Requests Are Initiated**
 - **ThoughtScreen**: `lib/presentation/views/thought/thought_screen.dart`
-  - TabBar with 3 tabs: Thoughts, Community, Link Up
+  - TabBar with 3 tabs: Thoughts, Community, Meetup
   - On mount → calls `thoughtFeedViewModel.loadThoughts()`
   - Pull to refresh → calls `thoughtFeedViewModel.refreshThoughts()`
   - Scroll to bottom → calls `thoughtFeedViewModel.loadMoreThoughts()`

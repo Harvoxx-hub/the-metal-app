@@ -4,6 +4,7 @@ enum PushType {
   message('new_message'),
   messageDirect('message'),
   new_connection('new_connection'),
+  match('match'), // backend may send 'match' for melted; treat same as melted
   profileLiked('profile_liked'),
   melted('melted'),
   sparksSent('sparks_sent'),

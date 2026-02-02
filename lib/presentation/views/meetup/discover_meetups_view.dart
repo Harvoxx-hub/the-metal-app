@@ -1,30 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:metal/core/config/map_config.dart';
 import 'package:metal/domain/entities/meetup_dto.dart';
 import 'package:metal/presentation/viewmodels/meetup/meetup_viewmodel.dart';
-import 'package:metal/presentation/views/meetup/widgets/discover_linkup_event_card.dart';
+import 'package:metal/presentation/views/meetup/expanded_meetup_map_view.dart';
+import 'package:metal/presentation/views/meetup/widgets/discover_meetup_event_card.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/shimmer/feed_shimmer_widget.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/text_views.dart';
 
-/// Discover LinkUps: map, Nearby LinkUps list, empty state.
-/// Uses project design system. Shown in the Link Up tab.
-class DiscoverLinkupsView extends ConsumerStatefulWidget {
-  const DiscoverLinkupsView({super.key});
+/// Discover Meetups: map, Nearby Meetups list, empty state.
+/// Uses project design system. Shown in the Meetup tab.
+class DiscoverMeetupsView extends ConsumerStatefulWidget {
+  const DiscoverMeetupsView({super.key});
 
   @override
-  ConsumerState<DiscoverLinkupsView> createState() => _DiscoverLinkupsViewState();
+  ConsumerState<DiscoverMeetupsView> createState() =>
+      _DiscoverMeetupsViewState();
 }
 
-class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
+class _DiscoverMeetupsViewState extends ConsumerState<DiscoverMeetupsView> {
   static const double _paddingH = 16;
   static const double _sectionGap = 16;
   static const double _mapAspectRatio = 16 / 9;
+
+  LatLng? _userLocation;
 
   @override
   void initState() {
@@ -32,6 +37,33 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(meetupFeedViewModelProvider.notifier).loadMeetups();
     });
+    _loadUserLocation();
+  }
+
+  Future<void> _loadUserLocation() async {
+    final permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      await Geolocator.requestPermission();
+    }
+    if (!mounted) return;
+    final nowPerm = await Geolocator.checkPermission();
+    if (nowPerm != LocationPermission.whileInUse &&
+        nowPerm != LocationPermission.always) {
+      return;
+    }
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 8),
+      );
+      if (mounted) {
+        setState(() {
+          _userLocation = LatLng(position.latitude, position.longitude);
+        });
+      }
+    } catch (_) {
+      // Keep _userLocation null; map will use fallback center
+    }
   }
 
   @override
@@ -69,9 +101,20 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: MapConfig.hasGoogleMapsKey
-                ? _DiscoverMapContent(meetups: meetups)
+                ? _DiscoverMapContent(
+                    meetups: meetups,
+                    userLocation: _userLocation,
+                  )
                 : _buildMapPlaceholder(),
           ),
+          if (MapConfig.hasGoogleMapsKey && _userLocation != null)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Center(
+                  child: _BreathingLocationCircle(),
+                ),
+              ),
+            ),
           Positioned(
             bottom: 12,
             right: 12,
@@ -80,11 +123,19 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
               borderRadius: BorderRadius.circular(24),
               child: InkWell(
                 onTap: () {
-                  // Expand map fullscreen - could push a fullscreen map route
+                  if (MapConfig.hasGoogleMapsKey) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ExpandedMeetupMapView(),
+                      ),
+                    );
+                  }
                 },
                 borderRadius: BorderRadius.circular(24),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   child: TextView(
                     text: 'EXPAND MAP',
                     fontSize: 11,
@@ -118,7 +169,7 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         TextView(
-          text: 'Nearby LinkUps',
+          text: 'Nearby Meetups',
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.metalBrownColourForText,
@@ -156,8 +207,9 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 32),
         child: ErrorState(
-          text: feedState.errorMessage ?? 'Failed to load LinkUps',
-          retry: () => ref.read(meetupFeedViewModelProvider.notifier).loadMeetups(),
+          text: feedState.errorMessage ?? 'Failed to load Meetups',
+          retry: () =>
+              ref.read(meetupFeedViewModelProvider.notifier).loadMeetups(),
         ),
       );
     }
@@ -176,7 +228,8 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
           ref.read(meetupFeedViewModelProvider.notifier).loadMoreMeetups();
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: SizedBox(
+            child: Center(
+                child: SizedBox(
               width: 24,
               height: 24,
               child: CircularProgressIndicator(strokeWidth: 2),
@@ -184,7 +237,7 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
           );
         }
         final meetup = feedState.meetups[index];
-        return DiscoverLinkupEventCard(meetup: meetup);
+        return DiscoverMeetupEventCard(meetup: meetup);
       },
     );
   }
@@ -201,7 +254,7 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
           ),
           const Gap(20),
           TextView(
-            text: 'No LinkUps nearby yet',
+            text: 'No Meetups nearby yet',
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: AppColors.metalBrownColourForText,
@@ -211,7 +264,8 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: TextView(
-              text: 'Be the first to create a LinkUp and invite people around you.',
+              text:
+                  'Be the first to create a Meetup and invite people around you.',
               fontSize: 14,
               fontWeight: FontWeight.w400,
               color: AppColors.metalBrownColourForText.withOpacity(0.7),
@@ -223,14 +277,16 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
             color: AppColors.metalPinkColour,
             borderRadius: BorderRadius.circular(24),
             child: InkWell(
-              onTap: () => Navigator.pushNamed(context, AppRoutes.createMeetup).then((_) {
+              onTap: () => Navigator.pushNamed(context, AppRoutes.createMeetup)
+                  .then((_) {
                 ref.read(meetupFeedViewModelProvider.notifier).refresh();
               }),
               borderRadius: BorderRadius.circular(24),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 child: TextView(
-                  text: 'CREATE LINKUP',
+                  text: 'CREATE MEETUP',
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: AppColors.metalWhite,
@@ -244,27 +300,38 @@ class _DiscoverLinkupsViewState extends ConsumerState<DiscoverLinkupsView> {
   }
 }
 
-/// Renders Google Map with LinkUp markers when API key is set.
+/// Renders Google Map with Meetup markers when API key is set.
+/// Centers on user's current location when available; otherwise first meetup or default.
 class _DiscoverMapContent extends StatelessWidget {
   final List<MeetupDto> meetups;
+  final LatLng? userLocation;
 
-  const _DiscoverMapContent({required this.meetups});
+  const _DiscoverMapContent({
+    required this.meetups,
+    this.userLocation,
+  });
 
-  static const LatLng _defaultCenter = LatLng(37.7749, -122.4194); // San Francisco
+  static const LatLng _defaultCenter =
+      LatLng(37.7749, -122.4194); // San Francisco fallback
   static const double _defaultZoom = 11.0;
+
+  LatLng _initialCenter() {
+    if (userLocation != null) return userLocation!;
+    final withLocation = meetups.where((m) => m.placeLocation != null).toList();
+    if (withLocation.isNotEmpty) {
+      final loc = withLocation.first.placeLocation!;
+      return LatLng(loc.latitude, loc.longitude);
+    }
+    return _defaultCenter;
+  }
 
   @override
   Widget build(BuildContext context) {
     final withLocation = meetups.where((m) => m.placeLocation != null).toList();
-    final initialPosition = withLocation.isNotEmpty
-        ? CameraPosition(
-            target: LatLng(
-              withLocation.first.placeLocation!.latitude,
-              withLocation.first.placeLocation!.longitude,
-            ),
-            zoom: _defaultZoom,
-          )
-        : const CameraPosition(target: _defaultCenter, zoom: _defaultZoom);
+    final initialPosition = CameraPosition(
+      target: _initialCenter(),
+      zoom: _defaultZoom,
+    );
 
     final markerSet = <Marker>{};
     for (var i = 0; i < withLocation.length; i++) {
@@ -281,6 +348,7 @@ class _DiscoverMapContent extends StatelessWidget {
     }
 
     return GoogleMap(
+      key: ValueKey('${userLocation?.latitude}_${userLocation?.longitude}'),
       initialCameraPosition: initialPosition,
       markers: markerSet,
       mapType: MapType.normal,
@@ -288,6 +356,86 @@ class _DiscoverMapContent extends StatelessWidget {
       myLocationEnabled: false,
       zoomControlsEnabled: false,
       mapToolbarEnabled: false,
+    );
+  }
+}
+
+/// Round circle with a breathing (pulsing) animation for current location.
+class _BreathingLocationCircle extends StatefulWidget {
+  @override
+  State<_BreathingLocationCircle> createState() =>
+      _BreathingLocationCircleState();
+}
+
+class _BreathingLocationCircleState extends State<_BreathingLocationCircle>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _scaleAnimation = Tween<double>(begin: 0.85, end: 1.25).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _opacityAnimation = Tween<double>(begin: 0.4, end: 0.85).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            ScaleTransition(
+              scale: _scaleAnimation,
+              child: FadeTransition(
+                opacity: _opacityAnimation,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.metalPinkColour.withOpacity(0.25),
+                    border: Border.all(
+                      color: AppColors.metalPinkColour.withOpacity(0.6),
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.metalPinkColour,
+                border: Border.all(
+                  color: AppColors.metalWhite,
+                  width: 2.5,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -22,7 +22,7 @@ class DiscoveryUserCard extends ConsumerStatefulWidget {
   final DiscoveryUserDto user;
   final VoidCallback? onLike;
   final VoidCallback? onPass;
-  final void Function(String connectionId)? onDirectMessageSent;
+  final void Function(String userId, String connectionId)? onDirectMessageSent;
 
   const DiscoveryUserCard({
     super.key,
@@ -601,7 +601,7 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
         onCancel: () => Navigator.pop(dialogContext),
         onSent: (connectionId) {
           Navigator.pop(dialogContext);
-          widget.onDirectMessageSent?.call(connectionId);
+          widget.onDirectMessageSent?.call(widget.user.id, connectionId);
         },
       ),
     );

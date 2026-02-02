@@ -41,7 +41,7 @@ class NotificationNavigationService {
     if (!context.mounted) return;
 
     final data = notification.data;
-    
+
     // Handle notification types that need special navigation
     switch (notification.type) {
       case NotificationType.profileLiked:
@@ -63,8 +63,13 @@ class NotificationNavigationService {
         return;
       case NotificationType.melted:
         // Take user to the profile of the person they melted with
-        if (notification.effectiveSenderId.isNotEmpty) {
-          await _navigateToUserProfile(notification.effectiveSenderId, context);
+        final meltedUserId = notification.effectiveSenderId.isNotEmpty
+            ? notification.effectiveSenderId
+            : (notification.data?['senderId'] as String? ??
+                notification.metadata?['senderId'] as String? ??
+                '');
+        if (meltedUserId.isNotEmpty) {
+          await _navigateToUserProfile(meltedUserId, context);
         } else {
           await _navigateToHome(context);
         }
@@ -77,14 +82,16 @@ class NotificationNavigationService {
       case NotificationType.promptReaction:
       case NotificationType.directMessage:
         if (notification.connectionId != null) {
-          await _navigateToChat({'connectionId': notification.connectionId}, context);
+          await _navigateToChat(
+              {'connectionId': notification.connectionId}, context);
         } else {
           await _navigateToMessages(context);
         }
         return;
       case NotificationType.meetupRsvpDeclined:
         if (notification.connectionId != null) {
-          await _navigateToChat({'connectionId': notification.connectionId}, context);
+          await _navigateToChat(
+              {'connectionId': notification.connectionId}, context);
         } else {
           await _navigateToMessages(context);
         }
@@ -97,28 +104,77 @@ class NotificationNavigationService {
         if (notification.meetupId != null) {
           await _navigateToMeetup({'meetupId': notification.meetupId}, context);
         } else if (notification.relatedId != null) {
-          await _navigateToMeetup({'meetupId': notification.relatedId}, context);
+          await _navigateToMeetup(
+              {'meetupId': notification.relatedId}, context);
         } else {
           await _navigateToHome(context);
         }
         return;
       case NotificationType.unmetalAcceptance:
       case NotificationType.unmetalRequest:
-        await _navigateToChat(notification.metadata ?? notification.data ?? {}, context);
+        await _navigateToChat(
+            notification.metadata ?? notification.data ?? {}, context);
+        return;
+      case NotificationType.thoughtReminder:
+        await _navigateToPostThought(context);
         return;
       case NotificationType.thoughtReaction:
       case NotificationType.thoughtComment:
       case NotificationType.thoughtRepost:
+      case NotificationType.thoughtCreated:
+      case NotificationType.communityPost:
         final payload = <String, dynamic>{
           ...?notification.data,
           if (notification.metadata != null) 'metadata': notification.metadata,
         };
-        if (notification.metadata != null && notification.metadata!['thoughtId'] != null) {
-          payload['thoughtId'] = notification.metadata!['thoughtId'];
+        final thoughtId = notification.metadata?['thoughtId'] as String? ??
+            notification.data?['thoughtId'] as String?;
+        if (thoughtId != null && thoughtId.isNotEmpty) {
+          payload['thoughtId'] = thoughtId;
         }
         await _navigateToThoughtDetails(payload, context);
         return;
       default:
+        // "Share your Thought!" system notification -> go to post thought page
+        final title = notification.title.toLowerCase();
+        final message = (notification.displayMessage).toLowerCase();
+        if (title.contains('share your thought') ||
+            message.contains('share your thought') ||
+            title.contains('post a thought') ||
+            message.contains('post a thought')) {
+          await _navigateToPostThought(context);
+          return;
+        }
+        // "You have a new Melt!" coming as system -> go to profile of person they melted with
+        if (title.contains('melt') ||
+            message.contains('melt') ||
+            title.contains('match') ||
+            message.contains('match')) {
+          final meltedUserId = notification.effectiveSenderId.isNotEmpty
+              ? notification.effectiveSenderId
+              : (notification.data?['senderId'] as String? ??
+                  notification.metadata?['senderId'] as String? ??
+                  '');
+          if (meltedUserId.isNotEmpty) {
+            await _navigateToUserProfile(meltedUserId, context);
+          } else {
+            await _navigateToHome(context);
+          }
+          return;
+        }
+        // If notification has thoughtId (e.g. "new thought shared"), go to thought details
+        final thoughtId = notification.metadata?['thoughtId'] as String? ??
+            notification.data?['thoughtId'] as String?;
+        if (thoughtId != null && thoughtId.isNotEmpty) {
+          final payload = <String, dynamic>{
+            ...?notification.data,
+            if (notification.metadata != null)
+              'metadata': notification.metadata,
+            'thoughtId': thoughtId,
+          };
+          await _navigateToThoughtDetails(payload, context);
+          return;
+        }
         // Use push type mapping for other types
         final pushType = _mapNotificationTypeToPushType(notification.type);
         await _handleNavigation(pushType, data, context);
@@ -145,20 +201,22 @@ class NotificationNavigationService {
         await _navigateToChat(data, context);
         break;
       case PushType.new_connection:
-      case PushType.melted: {
-        // Take user to the profile of the person they melted with
-        final metadata = _parseMetadata(data);
-        final userId = metadata?['userId'] as String? ??
-            data?['userId'] as String? ??
-            metadata?['senderId'] as String? ??
-            data?['senderId'] as String?;
-        if (userId != null && userId.isNotEmpty) {
-          await _navigateToUserProfile(userId, context);
-        } else {
-          await _navigateToMeltMetal(data, context);
+      case PushType.match:
+      case PushType.melted:
+        {
+          // Take user to the profile of the person they melted with
+          final metadata = _parseMetadata(data);
+          final userId = metadata?['userId'] as String? ??
+              data?['userId'] as String? ??
+              metadata?['senderId'] as String? ??
+              data?['senderId'] as String?;
+          if (userId != null && userId.isNotEmpty) {
+            await _navigateToUserProfile(userId, context);
+          } else {
+            await _navigateToMeltMetal(data, context);
+          }
+          break;
         }
-        break;
-      }
       case PushType.profileLiked:
       case PushType.meltRequest:
         final senderId = data?['senderId'] as String?;
@@ -232,6 +290,10 @@ class NotificationNavigationService {
       case NotificationType.thoughtComment:
       case NotificationType.thoughtRepost:
         return PushType.comment;
+      case NotificationType.thoughtCreated:
+        return PushType.thought_created;
+      case NotificationType.communityPost:
+        return PushType.community_post;
       case NotificationType.meetupCreated:
         return PushType.meetup_created;
       case NotificationType.meetupInvite:
@@ -245,6 +307,8 @@ class NotificationNavigationService {
         return PushType.meetup_capacity_reached;
       case NotificationType.unmetalRequiresMoreTime:
         return PushType.unmetalRequest;
+      case NotificationType.thoughtReminder:
+        return PushType.thought_reminder;
       case NotificationType.system:
         return null;
     }
@@ -381,7 +445,8 @@ class NotificationNavigationService {
       Map<String, dynamic>? data, BuildContext context) async {
     final metadata = _parseMetadata(data);
     final thoughtId = metadata?['thoughtId'] ?? data?['thoughtId'] as String?;
-    final communityId = metadata?['communityId'] ?? data?['communityId'] as String?;
+    final communityId =
+        metadata?['communityId'] ?? data?['communityId'] as String?;
 
     if (thoughtId != null && thoughtId.isNotEmpty) {
       // Navigate to thought details
@@ -403,7 +468,8 @@ class NotificationNavigationService {
   Future<void> _navigateToCommunity(
       Map<String, dynamic>? data, BuildContext context) async {
     final metadata = _parseMetadata(data);
-    final communityId = metadata?['communityId'] ?? data?['communityId'] as String?;
+    final communityId =
+        metadata?['communityId'] ?? data?['communityId'] as String?;
 
     if (communityId != null && communityId.isNotEmpty) {
       await _safeNavigate(
@@ -418,7 +484,8 @@ class NotificationNavigationService {
   }
 
   /// Navigate to user profile
-  Future<void> _navigateToUserProfile(String userId, BuildContext context) async {
+  Future<void> _navigateToUserProfile(
+      String userId, BuildContext context) async {
     if (userId.isNotEmpty) {
       await _safeNavigate(
         context,

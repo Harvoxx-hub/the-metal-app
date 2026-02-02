@@ -13,12 +13,13 @@ import 'package:metal/presentation/viewmodels/meetup/meetup_detail_viewmodel.dar
 import 'package:metal/presentation/views/meetup/edit_meetup_screen.dart';
 import 'package:metal/presentation/views/meetup/widgets/rsvp_section.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// LinkUp Detail (Live Event Dashboard)
+/// Meetup Detail (Live Event Dashboard)
 /// Header, LIVE DASHBOARD badge, stats cards, capacity, map, tabbed attendees, Re-Broadcast.
 class MeetupDetailView extends ConsumerStatefulWidget {
   final String meetupId;
@@ -137,8 +138,14 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
             _buildPageHeader(meetup, viewModel),
             const Gap(10),
             _buildStatusBadge(meetup, viewModel.isCreator),
+            if (meetup.description != null && meetup.description!.trim().isNotEmpty) ...[
+              const Gap(_sectionGap),
+              _buildDescriptionSection(meetup),
+            ],
             const Gap(_sectionGap),
             _buildLocationSection(meetup),
+            const Gap(_sectionGap),
+            _buildPeopleAttendingSection(state, viewModel),
             const Gap(_sectionGap),
             if (viewModel.isCreator) ...[
               _buildStatsCards(meetup),
@@ -194,7 +201,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
           children: [
             ListTile(
               leading: const Icon(Icons.edit_outlined),
-              title: const Text('Edit LinkUp'),
+              title: const Text('Edit Meetup'),
               onTap: () {
                 Navigator.pop(ctx);
                 _handleEdit(meetup);
@@ -249,6 +256,173 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
       fontSize: 12,
       fontWeight: FontWeight.w600,
       color: AppColors.metalBrownColourForText.withOpacity(0.8),
+    );
+  }
+
+  Widget _buildDescriptionSection(MeetupDto meetup) {
+    final desc = meetup.description?.trim() ?? '';
+    if (desc.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextView(
+          text: 'Description',
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+          color: AppColors.metalBrownColourForText,
+        ),
+        const Gap(8),
+        TextView(
+          text: desc,
+          fontSize: 15,
+          fontWeight: FontWeight.w400,
+          color: AppColors.metalBrownColourForText.withOpacity(0.85),
+        ),
+      ],
+    );
+  }
+
+  /// People that are attending: list with Metal icon, name, when they got interest, tap to profile.
+  Widget _buildPeopleAttendingSection(
+      MeetupDetailState state, MeetupDetailViewModel viewModel) {
+    final meetup = state.meetup!;
+    final accepted = state.acceptedAttendees;
+    final count = accepted.length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextView(
+          text: 'People that are attending',
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+          color: AppColors.metalBrownColourForText,
+        ),
+        if (count > 0)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: TextView(
+              text: 'People that are going for the ${meetup.eventName}',
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: AppColors.metalBrownColourForText.withOpacity(0.6),
+            ),
+          ),
+        const Gap(12),
+        if (state.isLoadingAttendees && state.attendeeStatus == 'accepted')
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          )
+        else if (accepted.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: TextView(
+              text: 'No one has confirmed yet',
+              fontSize: 14,
+              color: AppColors.metalBrownColourForText.withOpacity(0.7),
+            ),
+          )
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: accepted.length,
+            separatorBuilder: (_, __) => const Gap(12),
+            itemBuilder: (_, index) => _buildAttendingPersonItem(accepted[index]),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildAttendingPersonItem(MeetupRsvpDto attendee) {
+    final displayName =
+        attendee.username != null && attendee.username!.isNotEmpty
+            ? attendee.username!
+            : 'User';
+    final whenInterested = DateFormat('MMM d, y • HH:mm').format(attendee.respondedAt);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.userProfile,
+            arguments: attendee.userId,
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+          decoration: BoxDecoration(
+            color: AppColors.metalWhite,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.metalBlack.withOpacity(0.06),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundImage: attendee.userPhoto != null
+                    ? NetworkImage(attendee.userPhoto!)
+                    : null,
+                backgroundColor: AppColors.metalTabBg,
+                child: attendee.userPhoto == null
+                    ? TextView(
+                        text: displayName.length >= 2
+                            ? '${displayName[0].toUpperCase()}${displayName[1].toUpperCase()}'
+                            : displayName.isNotEmpty
+                                ? displayName[0].toUpperCase()
+                                : 'U',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.metalBrownColourForText,
+                      )
+                    : null,
+              ),
+              const Gap(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextView(
+                      text: displayName,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.metalBrownColourForText,
+                    ),
+                    const Gap(2),
+                    TextView(
+                      text: 'Interested $whenInterested',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.metalBrownColourForText.withOpacity(0.6),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: AppColors.metalBrownColourForText.withOpacity(0.5),
+                size: 24,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -751,7 +925,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
                 if (mounted) {
                   if (success) {
                     Fluttertoast.showToast(
-                        msg: 'LinkUp re-broadcast successfully');
+                        msg: 'Meetup re-broadcast successfully');
                   } else {
                     Fluttertoast.showToast(
                         msg: 'Re-broadcast failed. Try again later.');
@@ -768,7 +942,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
                         color: AppColors.metalWhite, size: 22),
                     const Gap(10),
                     TextView(
-                      text: 'Re-Broadcast LinkUp',
+                      text: 'Re-Broadcast Meetup',
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: AppColors.metalWhite,

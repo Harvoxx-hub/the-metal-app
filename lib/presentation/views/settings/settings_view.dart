@@ -148,18 +148,6 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                     ),
                     const Gap(20),
                     PlainButton(
-                      buttonText: "Logout",
-                      onPressed: _handleLogout,
-                      textColor: AppColors.metalWhite,
-                      color: AppColors.metalGray,
-                      leftIcon: const Icon(
-                        Icons.logout_rounded,
-                        color: AppColors.metalWhite,
-                        size: 24,
-                      ),
-                    ),
-                    const Gap(12),
-                    PlainButton(
                       buttonText: "Delete my account",
                       onPressed: () => Navigator.pushNamed(context, AppRoutes.delete),
                       textColor: AppColors.metalWhite,
@@ -189,33 +177,4 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
     );
   }
 
-  /// Handle logout
-  Future<void> _handleLogout() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true && context.mounted) {
-      await ref.read(userStateProvider.notifier).logout();
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        AppRoutes.onboarding,
-        (route) => false,
-      );
-    }
-  }
 }

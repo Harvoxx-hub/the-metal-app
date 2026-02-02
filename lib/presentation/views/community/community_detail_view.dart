@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:metal/domain/entities/thought_dto.dart';
 import 'package:metal/presentation/viewmodels/community/community_detail_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/community/widgets/community_posts_tab.dart';
@@ -31,16 +32,19 @@ class CommunityDetailView extends ConsumerStatefulWidget {
 class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late ScrollController _postsScrollController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _postsScrollController = ScrollController();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _postsScrollController.dispose();
     super.dispose();
   }
 
@@ -82,7 +86,7 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
                               children: [
                                 CommunityPostsTab(
                                   communityId: widget.communityId,
-                                  initialPosts: detailState.posts,
+                                  scrollController: _postsScrollController,
                                 ),
                                 CommunityMembersTab(
                                   communityId: widget.communityId,
@@ -123,19 +127,35 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
       arguments: communityMetadata,
     );
 
-    // Refresh community details if thought was posted successfully
-    if (result == true && mounted) {
-      final viewModel = ref.read(
-        communityDetailViewModelProvider(widget.communityId).notifier,
-      );
-      // Force a full refresh to get the latest posts
-      await viewModel.refreshAll(widget.communityId);
+    if (!mounted) return;
 
-      // Ensure we're on the Posts tab to see the new post
+    final viewModel = ref.read(
+      communityDetailViewModelProvider(widget.communityId).notifier,
+    );
+    if (result != null && result is ThoughtDto) {
+      // Add the new post first so it appears at the top immediately (no waiting for refresh)
+      viewModel.addPost(result);
+
+      // Ensure we're on the Posts tab
       if (_tabController.index != 0) {
         _tabController.animateTo(0);
       }
+
+      // Scroll to top so the new post is visible; retry for a few frames in case the list isn't built yet
+      _scrollPostsToTop(retries: 8);
     }
+  }
+
+  void _scrollPostsToTop({int retries = 8}) {
+    if (retries <= 0) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_postsScrollController.hasClients) {
+        _postsScrollController.jumpTo(0);
+      } else {
+        _scrollPostsToTop(retries: retries - 1);
+      }
+    });
   }
 
   Widget _buildAppBar(BuildContext context, community) {

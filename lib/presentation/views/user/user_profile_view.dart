@@ -452,9 +452,10 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
         throw Exception('Connection ID not found');
       }
 
-      // Refresh connections
+      // Refresh profile and connections so UI reflects new state
+      ref.read(userProfileViewModelProvider(widget.userId).notifier).refresh();
       ref.read(connectionViewModelProvider.notifier).refresh();
-      await Future.delayed(const Duration(milliseconds: 1500));
+      await Future.delayed(const Duration(milliseconds: 300));
 
       if (!mounted) return;
       Navigator.of(context).pop(); // Close loading dialog
@@ -471,8 +472,9 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
       }
 
       if (!mounted) return;
+      final msg = e.toString().replaceAll('Exception: ', '');
       Fluttertoast.showToast(
-        msg: 'Failed to open chat: ${e.toString().replaceAll('Exception: ', '')}',
+        msg: msg.contains('Connection ID') ? 'Could not open chat. Try again.' : 'Failed to open chat: $msg',
         toastLength: Toast.LENGTH_LONG,
       );
     }
@@ -486,8 +488,7 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
     required String connectedOn,
     required bool isAnonymous,
   }) {
-    // If connected, show MetalDetailsTabNew with connection details
-    if (isConnected && connectionId.isNotEmpty) {
+    
       return MetalDetailsTabNew(
         connectedOn: connectedOn,
         connectionId: connectionId,
@@ -497,9 +498,8 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
       );
     }
 
-    // Otherwise show regular UserDetailsTab
-    return UserDetailsTab(user: user);
-  }
+    
+  
 
   /// Melt limit dialog
   Widget _meltLimitDialog() {

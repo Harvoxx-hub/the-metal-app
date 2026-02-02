@@ -6,6 +6,13 @@ import 'package:metal/domain/entities/discovery_user_dto.dart';
 /// Discovery repository
 /// Provides clean interface for discovery operations
 abstract class IDiscoveryRepository {
+  /// Get users within radius (for meetup invite: everybody in broadcast radius)
+  Future<DiscoveryUsersResponse> getUsersWithinRadius({
+    required int radiusKm,
+    double? lat,
+    double? lng,
+  });
+
   /// Get users for discovery with server-side filtering
   Future<DiscoveryUsersResponse> getDiscoveryUsers({
     int limit = 20,
@@ -33,6 +40,23 @@ class DiscoveryRepository implements IDiscoveryRepository {
   final DiscoveryRemoteDataSource _remoteDataSource;
 
   DiscoveryRepository(this._remoteDataSource);
+
+  @override
+  Future<DiscoveryUsersResponse> getUsersWithinRadius({
+    required int radiusKm,
+    double? lat,
+    double? lng,
+  }) async {
+    try {
+      return await _remoteDataSource.getUsersWithinRadius(
+        radiusKm: radiusKm,
+        lat: lat,
+        lng: lng,
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   @override
   Future<DiscoveryUsersResponse> getDiscoveryUsers({

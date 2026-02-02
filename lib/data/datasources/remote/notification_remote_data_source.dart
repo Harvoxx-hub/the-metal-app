@@ -12,23 +12,16 @@ class NotificationRemoteDataSource extends BaseRemoteDataSource {
 
   NotificationRemoteDataSource(this.dioClient);
 
-  /// Get notifications with filters and pagination
+  /// Get notifications (all, read and unread). Pagination only; no filters.
   Future<NotificationsResponseModel> getNotifications({
-    String? type,
-    bool unreadOnly = false,
     int page = 1,
-    int limit = 20,
+    int limit = 50,
   }) async {
     try {
       final queryParams = <String, dynamic>{
         'page': page,
         'limit': limit,
-        'unreadOnly': unreadOnly,
       };
-
-      if (type != null) {
-        queryParams['type'] = type;
-      }
 
       final response = await dioClient.get(
         ApiRoutes.buildPath(ApiRoutes.notifications),

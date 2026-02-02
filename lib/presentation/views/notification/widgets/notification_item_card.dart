@@ -91,7 +91,10 @@ class NotificationItemCard extends StatelessWidget {
                   ],
                 ),
                 if (notification.actions != null &&
-                    notification.actions!.isNotEmpty) ...[
+                    notification.actions!.isNotEmpty &&
+                    notification.type != NotificationType.unmetalAcceptance &&
+                    notification.type != NotificationType.meltRequest &&
+                    notification.type != NotificationType.meetupInvite) ...[
                   const SizedBox(height: 12),
                   _buildActionButtons(context),
                 ],
@@ -198,8 +201,6 @@ class NotificationItemCard extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context, bool isUnread) {
-    final username = notification.effectiveSenderName;
-    final showUsername = username.isNotEmpty && username != 'Someone';
     final displayMessage = notification.displayMessage;
     final effectiveMessage = displayMessage.isNotEmpty ? displayMessage : 'New notification';
 
@@ -219,14 +220,6 @@ class NotificationItemCard extends StatelessWidget {
             fontWeight: FontWeight.w400,
           ),
           children: [
-            if (showUsername)
-              TextSpan(
-                text: '@$username ',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
             TextSpan(text: effectiveMessage),
             if (notification.content?.inlineAction != null)
               TextSpan(
@@ -320,7 +313,12 @@ class NotificationItemCard extends StatelessWidget {
       case NotificationType.directMessage:
         return Icon(Icons.message_rounded, size: 28, color: Colors.grey.shade600);
       case NotificationType.comment:
+      case NotificationType.thoughtComment:
         return Icon(Icons.comment_rounded, size: 28, color: Colors.grey.shade600);
+      case NotificationType.thoughtReaction:
+        return Icon(Icons.thumb_up_rounded, size: 28, color: Colors.grey.shade600);
+      case NotificationType.thoughtRepost:
+        return Icon(Icons.repeat_rounded, size: 28, color: Colors.grey.shade600);
       default:
         return Icon(Icons.notifications, size: 28, color: Colors.grey.shade600);
     }

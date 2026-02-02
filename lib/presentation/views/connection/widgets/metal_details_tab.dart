@@ -15,6 +15,7 @@ import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/presentation/widgets/settings/block_user_helper.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 
 /// Metal details tab showing actions for a connection
 class MetalDetailsTabNew extends ConsumerStatefulWidget {
@@ -260,7 +261,13 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
         ref.read(connectionViewModelProvider.notifier).refresh();
         ref.read(userProfileViewModelProvider(widget.user.id).notifier).refresh();
         Fluttertoast.showToast(msg: 'Connection removed');
-        Navigator.pop(context);
+        // Navigate back to dashboard home so user sees updated connections
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.dashboardPage,
+          (route) => false,
+          arguments: 0, // Home tab
+        );
       } else {
         Fluttertoast.showToast(msg: result.errorMessage ?? 'Failed to remove connection');
       }

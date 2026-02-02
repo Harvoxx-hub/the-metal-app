@@ -24,7 +24,7 @@ class MeetupDetailState {
     this.meetup,
     this.attendees = const [],
     this.isLoadingAttendees = false,
-    this.attendeeStatus = 'all',
+    this.attendeeStatus = 'accepted',
     this.filterByPreferences = false,
   });
 
@@ -83,22 +83,23 @@ class MeetupDetailViewModel extends StateNotifier<MeetupDetailState> {
         _currentUserId = currentUserId,
         super(MeetupDetailState.initial());
 
-  Future<void> loadMeetup(String meetupId) async {
-    if (state.isLoading) return;
+  /// [silentRefresh] when true: do not set loading state (keeps current UI, e.g. after RSVP).
+  Future<void> loadMeetup(String meetupId, {bool silentRefresh = false}) async {
+    if (state.isLoading && !silentRefresh) return;
 
-    state = MeetupDetailState.loading();
+    if (!silentRefresh) {
+      state = MeetupDetailState.loading();
+    }
 
     final result = await _repository.getMeetupById(meetupId);
 
-    if (mounted) {
-      if (result.isSuccess && result.data != null) {
-        state = MeetupDetailState.success(result.data!).copyWith(attendeeStatus: 'accepted');
-        await loadAttendees(meetupId);
-      } else {
-        state = MeetupDetailState.error(
-          result.errorMessage ?? 'Failed to load meetup',
-        );
-      }
+    if (result.isSuccess && result.data != null) {
+      state = MeetupDetailState.success(result.data!).copyWith(attendeeStatus: 'accepted');
+      await loadAttendees(meetupId);
+    } else if (!silentRefresh) {
+      state = MeetupDetailState.error(
+        result.errorMessage ?? 'Failed to load meetup',
+      );
     }
   }
 
@@ -111,17 +112,15 @@ class MeetupDetailViewModel extends StateNotifier<MeetupDetailState> {
       filterByPreferences: state.filterByPreferences,
     );
 
-    if (mounted) {
-      if (result.isSuccess && result.data != null) {
-        state = state.copyWith(
-          attendees: result.data!.attendees,
-          isLoadingAttendees: false,
-        );
-      } else {
-        state = state.copyWith(
-          isLoadingAttendees: false,
-        );
-      }
+    if (result.isSuccess && result.data != null) {
+      state = state.copyWith(
+        attendees: result.data!.attendees,
+        isLoadingAttendees: false,
+      );
+    } else {
+      state = state.copyWith(
+        isLoadingAttendees: false,
+      );
     }
   }
 
@@ -132,8 +131,30 @@ class MeetupDetailViewModel extends StateNotifier<MeetupDetailState> {
     );
 
     if (result.isSuccess || result.errorMessage?.contains('refresh') == true) {
-      // Reload meetup to get updated counts and RSVP status
-      await loadMeetup(meetupId);
+      final currentMeetup = state.meetup;
+      if (currentMeetup != null) {
+        // Optimistic update: show new RSVP state immediately
+        final oldStatus = currentMeetup.userRsvpStatus;
+        int newAccepted = currentMeetup.acceptedCount;
+        int newRejected = currentMeetup.rejectedCount;
+        int newMaybe = currentMeetup.maybeCount;
+        if (oldStatus == 'accepted') newAccepted = (newAccepted - 1).clamp(0, 999);
+        else if (oldStatus == 'rejected') newRejected = (newRejected - 1).clamp(0, 999);
+        else if (oldStatus == 'maybe') newMaybe = (newMaybe - 1).clamp(0, 999);
+        if (status == 'accepted') newAccepted++;
+        else if (status == 'rejected') newRejected++;
+        else if (status == 'maybe') newMaybe++;
+        state = state.copyWith(
+          meetup: currentMeetup.copyWith(
+            userRsvpStatus: status,
+            acceptedCount: newAccepted,
+            rejectedCount: newRejected,
+            maybeCount: newMaybe,
+          ),
+        );
+      }
+      // Reload meetup from server in background (no loading spinner)
+      await loadMeetup(meetupId, silentRefresh: true);
       return true;
     }
 
@@ -193,7 +214,7 @@ class MeetupDetailViewModel extends StateNotifier<MeetupDetailState> {
   /// Re-broadcast the meetup to reach more users (creator only). Returns true on success.
   Future<bool> broadcastMeetup(String meetupId) async {
     final result = await _repository.broadcastMeetup(meetupId);
-    if (result.isSuccess && mounted) {
+    if (result.isSuccess) {
       await loadMeetup(meetupId);
       return true;
     }

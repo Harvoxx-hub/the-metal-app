@@ -236,6 +236,7 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
                                       ],
                                     ),
                                   ),
+                                const Gap(45),
                               ],
                             ),
                           ),

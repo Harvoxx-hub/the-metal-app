@@ -16,8 +16,6 @@ abstract class CommunityRepositoryAbstract {
 
   Future<BaseState<List<CommunityMemberDto>>> getCommunityMembers(
     String communityId, {
-    int page = 1,
-    int limit = 50,
     String? role,
   });
 

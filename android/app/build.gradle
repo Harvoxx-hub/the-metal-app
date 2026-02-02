@@ -20,6 +20,10 @@ if (flutterRoot == null) {
     throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
+// Engine version for Flutter embedding dependency (MetalApplication extends FlutterApplication)
+def engineStampFile = file("${flutterRoot}/bin/cache/engine.stamp")
+def engineVersion = engineStampFile.exists() ? engineStampFile.text.trim() : ""
+
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '1'
 def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
 
@@ -29,20 +33,26 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
- 
+def hasKeystore = keystorePropertiesFile.exists() &&
+    keystoreProperties['keyAlias'] != null &&
+    keystoreProperties['storeFile'] != null
+
+// Fallback to default debug keystore when key.properties is missing (e.g. for local debug builds)
+def debugKeystorePath = "${System.getProperty('user.home')}/.android/debug.keystore"
+
 android {
     namespace "com.bwh.metal_app"
     compileSdk 36
     ndkVersion  "27.0.12077973"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
         coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
 
     sourceSets {
@@ -56,6 +66,8 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
+        multiDexKeepProguard file('multidex-keep.pro')
+        multiDexKeepFile file('main-dex-list.txt')
         consumerProguardFiles 'proguard-rules.pro'
         // Google Maps API key: add GOOGLE_MAPS_API_KEY=your_key to android/local.properties
         manifestPlaceholders = [
@@ -66,24 +78,24 @@ android {
 
     signingConfigs {
         debug {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+            keyAlias hasKeystore ? keystoreProperties['keyAlias'] : 'androiddebugkey'
+            keyPassword hasKeystore ? keystoreProperties['keyPassword'] : 'android'
+            storeFile hasKeystore ? file(keystoreProperties['storeFile']) : file(debugKeystorePath)
+            storePassword hasKeystore ? keystoreProperties['storePassword'] : 'android'
         }
-
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-        }
-
-        profile {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+        if (hasKeystore) {
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+            profile {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
         }
     }
 
@@ -96,13 +108,13 @@ android {
         }
         profile {
             minifyEnabled true
-            signingConfig signingConfigs.profile
+            signingConfig hasKeystore ? signingConfigs.profile : signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled false
             shrinkResources false
-            signingConfig signingConfigs.release
+            signingConfig hasKeystore ? signingConfigs.release : signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -136,6 +148,9 @@ flutter {
 }
 
 dependencies {
+    // Compile-only engine JAR contains io.flutter.app.FlutterApplication (v1) so MetalApplication compiles.
+    // Runtime Flutter comes from Flutter plugin.
+    compileOnly files("${flutterRoot}/bin/cache/artifacts/engine/android-arm64-release/flutter.jar")
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'com.google.firebase:firebase-messaging:23.0.0'
     implementation 'androidx.multidex:multidex:2.0.1'

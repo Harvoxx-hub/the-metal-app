@@ -98,8 +98,8 @@ class MeetupRemoteDataSource {
     }
   }
 
-  /// RSVP to a meetup
-  Future<MeetupModel> rsvpMeetup({
+  /// RSVP to a meetup. API returns 200 with optional meetup; caller should refresh meetup after success.
+  Future<void> rsvpMeetup({
     required String meetupId,
     required String status, // 'accepted', 'rejected', 'maybe'
   }) async {
@@ -108,15 +108,8 @@ class MeetupRemoteDataSource {
       data: {'status': status},
     );
 
-    if (response.statusCode == 200 && response.data != null) {
-      // RSVP endpoint might not return full meetup, but we'll handle it
-      final responseData = response.data['data'] as Map<String, dynamic>? ?? response.data;
-      // If meetup is returned, parse it
-      if (responseData.containsKey('meetup')) {
-        return MeetupModel.fromJson(responseData['meetup']);
-      }
-      // Otherwise, just return success (frontend will refresh)
-      throw Exception('RSVP successful but meetup data not returned');
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return;
     }
 
     throw Exception(response.data?['error'] ?? 'Failed to RSVP');

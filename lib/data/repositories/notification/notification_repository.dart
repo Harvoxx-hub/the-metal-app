@@ -13,15 +13,11 @@ class NotificationRepository implements NotificationRepositoryAbstract {
 
   @override
   Future<BaseState<NotificationsResponseDto>> getNotifications({
-    String? type,
-    bool? unreadOnly,
     required int page,
     required int limit,
   }) async {
     try {
       final response = await _remoteDataSource.getNotifications(
-        type: type,
-        unreadOnly: unreadOnly ?? false,
         page: page,
         limit: limit,
       );

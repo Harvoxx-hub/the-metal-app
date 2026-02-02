@@ -304,6 +304,7 @@ class CommunityMemberModel {
       userId: userId,
       userName: username ?? fullname ?? 'Unknown',
       userProfilePhoto: profilePhoto,
+      userMetal: metal,
       role: _parseMemberRole(role),
       joinedAt: DateTime.parse(joinedAt),
     );

@@ -443,17 +443,17 @@ class DeepLinkService {
 
   /// Generate shareable URL for a thought
   static String generateThoughtUrl(String thoughtId) {
-    return 'https://metal-ad87d.web.app/thought/$thoughtId';
+    return 'https://themetalapp.com/thought/$thoughtId';
   }
 
   /// Generate shareable URL for a user
   static String generateUserUrl(String userId) {
-    return 'https://metal-ad87d.web.app/user/$userId';
+    return 'https://themetalapp.com/user/$userId';
   }
 
   /// Generate shareable URL for a community
   static String generateCommunityUrl(String communityId) {
-    return 'https://metal-ad87d.web.app/community/$communityId';
+    return 'https://themetalapp.com/community/$communityId';
   }
 
   /// Navigate to meetup details page
@@ -480,7 +480,7 @@ class DeepLinkService {
 
   /// Generate shareable URL for a meetup
   static String generateMeetupUrl(String meetupId) {
-    return 'https://metal-ad87d.web.app/meetup/$meetupId';
+    return 'https://themetalapp.com/meetup/$meetupId';
   }
 
   /// Dispose resources

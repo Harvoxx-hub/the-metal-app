@@ -124,7 +124,7 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
   Future<void> loadNotifications({
     bool refresh = false,
     bool silentRefresh = false,
-    int limit = 20,
+    int limit = 50,
   }) async {
     if (state.isLoading && !silentRefresh) return;
 
@@ -139,20 +139,18 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
     }
 
     final result = await _repository.getNotifications(
-      type: state.filterType,
-      unreadOnly: state.showUnreadOnly,
       page: page,
       limit: limit,
     );
 
     if (mounted) {
       if (result.isSuccess && result.data != null) {
-        final newNotifications = refresh
+        final notifications = refresh
             ? result.data!.notifications
             : [...state.notifications, ...result.data!.notifications];
 
         state = NotificationState.success(
-          notifications: newNotifications,
+          notifications: notifications,
           unreadCount: result.data!.unreadCount,
           hasMore: result.data!.hasMore,
           currentPage: result.data!.currentPage ?? page,

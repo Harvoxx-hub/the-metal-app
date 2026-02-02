@@ -59,15 +59,16 @@ class _ThoughtAudioSectionState extends State<ThoughtAudioSection> {
   }
 
   void _handleRecordingComplete(String audioPath) {
-    // Calculate duration from file
+    // Calculate duration from file (backend requires 1-120 seconds for voice thoughts)
     _calculateDuration(audioPath).then((duration) {
       if (mounted) {
+        final safeDuration = duration < 1 ? 1 : (duration > 120 ? 120 : duration);
         setState(() {
           _isRecording = false;
           _recordedAudioPath = audioPath;
-          _recordedDuration = duration;
+          _recordedDuration = safeDuration;
         });
-        widget.onAudioRecorded(audioPath, duration);
+        widget.onAudioRecorded(audioPath, safeDuration);
       }
     });
   }
@@ -86,10 +87,11 @@ class _ThoughtAudioSectionState extends State<ThoughtAudioSection> {
       await playerController.preparePlayer(path: audioPath);
       final durationMs = await playerController.getDuration(DurationType.max);
       playerController.dispose();
-      return durationMs ~/ 1000;
+      final seconds = durationMs ~/ 1000;
+      return seconds < 1 ? 1 : seconds;
     } catch (e) {
       print('Error calculating duration: $e');
-      return 0;
+      return 1;
     }
   }
 

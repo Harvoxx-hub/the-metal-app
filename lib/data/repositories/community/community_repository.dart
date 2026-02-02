@@ -59,15 +59,11 @@ class CommunityRepository implements CommunityRepositoryAbstract {
   @override
   Future<BaseState<List<CommunityMemberDto>>> getCommunityMembers(
     String communityId, {
-    int page = 1,
-    int limit = 50,
     String? role,
   }) async {
     try {
       final response = await _remoteDataSource.getCommunityMembers(
         communityId,
-        page: page,
-        limit: limit,
         role: role,
       );
       final members = response.toDomain(communityId);

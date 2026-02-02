@@ -1,7 +1,6 @@
 import 'package:metal/domain/entities/notification_dto.dart';
 
-/// Notification model for API responses
-/// Handles both new schema (user, content, badge, actions) and legacy (title, message, senderId)
+/// Notification model for API responses (user, content, badge, actions, title, message, senderId)
 class NotificationModel {
   final String id;
   final String type;
@@ -45,24 +44,20 @@ class NotificationModel {
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     final contentObj = json['content'];
-    String message = json['message'] as String? ??
-        json['body'] as String? ??
-        json['subTitle'] as String? ??
-        '';
+    String message = json['message'] as String? ?? json['body'] as String? ?? '';
     if (contentObj is Map<String, dynamic>) {
-      final contentMsg = contentObj['message'] as String? ??
-          contentObj['body'] as String? ??
-          contentObj['subTitle'] as String?;
+      final contentMsg = contentObj['message'] as String? ?? contentObj['body'] as String?;
       if (contentMsg != null) message = contentMsg;
     }
-    final isRead = json['isRead'] as bool? ?? json['read'] as bool? ?? false;
+    final isRead = json['isRead'] as bool? ?? false;
     final actionsData = json['actions'];
     List<dynamic>? actionsList;
     if (actionsData is Map && actionsData['buttons'] != null) {
       actionsList = (actionsData['buttons'] as List?)?.cast<dynamic>();
     }
 
-    final createdAtRaw = json['createdAt'] ?? json['timestamp'];
+    // Single time field: createdAt only
+    final createdAtRaw = json['createdAt'];
     final createdAt = _parseCreatedAt(createdAtRaw);
 
     return NotificationModel(

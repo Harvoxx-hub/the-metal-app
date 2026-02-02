@@ -23,7 +23,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>92</string>
+	<string>93</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -79,7 +79,7 @@
 	<false/>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:metal-ad87d.web.app</string>
+		<string>applinks:themetalapp.com</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>

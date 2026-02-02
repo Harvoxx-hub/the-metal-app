@@ -46,15 +46,33 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Log uncaught Flutter errors (visible in adb logcat when app crashes on Android)
+  FlutterError.onError = (FlutterErrorDetails details) {
+    debugPrint('FlutterError: $details');
+    FlutterError.dumpErrorToConsole(details);
+  };
+
   // Lock app to portrait orientation
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Only initialize if not already done (e.g. Android can auto-initialize via google-services)
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  }
 
-  FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
-  await FirebaseRemoteConfigService().initialize();
+  try {
+    FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+  } catch (e) {
+    debugPrint('Firebase Analytics setup failed: $e');
+  }
+  try {
+    await FirebaseRemoteConfigService().initialize();
+  } catch (e) {
+    debugPrint('Firebase Remote Config initialization failed (app will continue): $e');
+    // Remote Config can fail on Android due to network/API; don't block startup
+  }
   // Set the background messaging handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -82,12 +100,23 @@ void main() async {
   }
 
   // Initialize SharedPreferences eagerly before app starts
-  final sharedPreferences = await SharedPreferences.getInstance();
+  SharedPreferences sharedPreferences;
+  try {
+    sharedPreferences = await SharedPreferences.getInstance();
+  } catch (e) {
+    debugPrint('SharedPreferences init failed: $e');
+    rethrow;
+  }
 
   // Initialize the lifecycle handler (handles its own auth state changes)
   final lifecycleHandler = AppLifecycleHandler();
   WidgetsBinding.instance.addObserver(lifecycleHandler);
-  await lifecycleHandler.initialize();
+  try {
+    await lifecycleHandler.initialize();
+  } catch (e) {
+    debugPrint('AppLifecycleHandler init failed: $e');
+    // Continue so app still launches
+  }
 
   runApp(
     ProviderScope(
@@ -110,6 +139,8 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
+  static const int _maxDeepLinkInitRetries = 10;
+
   @override
   void initState() {
     super.initState();
@@ -118,22 +149,40 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
     // Request microphone and camera permissions on iOS after app is initialized
     // Using post-frame callback to ensure app is fully running
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onFirstFrameReady(ref));
+  }
+
+  /// Called after first frame. Initializes DeepLinkService only when navigator
+  /// context is available (avoids crash on Android where context can be null
+  /// on first frame in release builds).
+  void _onFirstFrameReady(WidgetRef ref, [int retryCount = 0]) async {
+    try {
+      await PermissionHelper.requestIOSMediaPermissionsOnLaunch();
+    } catch (e) {
+      print('iOS media permissions request failed: $e');
+    }
+
+    final context = navKey.currentContext;
+    if (context != null && context.mounted) {
       try {
-        await PermissionHelper.requestIOSMediaPermissionsOnLaunch();
+        final secureStorage = ref.read(secureStorageHelperProvider);
+        final sharedPrefs = ref.read(sharedPrefsHelperProvider);
+        DeepLinkService.instance.initialize(
+          context,
+          secureStorage: secureStorage,
+          sharedPrefs: sharedPrefs,
+        );
       } catch (e) {
-        print('iOS media permissions request failed: $e');
+        print('DeepLinkService initialization failed: $e');
       }
-      
-      // Initialize deep link service with dependencies
-      final secureStorage = ref.read(secureStorageHelperProvider);
-      final sharedPrefs = ref.read(sharedPrefsHelperProvider);
-      DeepLinkService.instance.initialize(
-        navKey.currentContext!,
-        secureStorage: secureStorage,
-        sharedPrefs: sharedPrefs,
+      return;
+    }
+
+    if (retryCount < _maxDeepLinkInitRetries && mounted) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _onFirstFrameReady(ref, retryCount + 1),
       );
-    });
+    }
   }
 
   /// Check if a route name is numeric (likely an ID from deep link)

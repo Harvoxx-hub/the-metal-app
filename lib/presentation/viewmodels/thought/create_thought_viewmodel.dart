@@ -130,7 +130,10 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
       if (state.localAudioPath != null && state.localAudioPath!.isNotEmpty) {
         state = state.copyWith(isUploadingAudio: true);
         uploadedAudioUrl = await _uploadAudio(state.localAudioPath!);
-        uploadedAudioDuration = state.audioDuration;
+        // Backend requires audioDuration 1-120 for voice thoughts; use 1 if missing or 0
+        uploadedAudioDuration = state.audioDuration != null && state.audioDuration! >= 1
+            ? state.audioDuration
+            : 1;
 
         if (uploadedAudioUrl == null) {
           state = state.copyWith(

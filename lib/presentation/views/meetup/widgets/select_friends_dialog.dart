@@ -262,9 +262,7 @@ class _SelectFriendsDialogState extends ConsumerState<SelectFriendsDialog> {
                                       size: 44,
                                       verfly: false,
                                       meltId: otherUser.metal ?? '',
-                                      imgUrl: connection.isAnonymous
-                                          ? null
-                                          : otherUser.profilePhoto,
+                                      imgUrl: null, // Invite list: show metal icon only
                                     ),
                                     const Gap(12),
                                     Expanded(

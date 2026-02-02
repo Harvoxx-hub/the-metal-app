@@ -94,22 +94,18 @@ class CommunityRemoteDataSource {
     return data as Map<String, dynamic>;
   }
 
-  /// Get community members
+  /// Get community members (all members, no pagination)
   Future<CommunityMembersListModel> getCommunityMembers(
     String communityId, {
-    int page = 1,
-    int limit = 50,
     String? role,
   }) async {
     final queryParams = <String, dynamic>{
-      'page': page,
-      'limit': limit,
       if (role != null && role.isNotEmpty) 'role': role,
     };
 
     final response = await _client.get(
       '${ApiRoutes.buildPath(ApiRoutes.communityMembers)}/$communityId/members',
-      queryParameters: queryParams,
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
     );
 
     if (response.statusCode == 200 && response.data != null) {

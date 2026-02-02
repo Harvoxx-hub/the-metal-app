@@ -18,10 +18,13 @@ enum NotificationType {
   promptReaction,
   directMessage,
   comment,
+  thoughtReaction,
+  thoughtComment,
+  thoughtRepost,
   meetupCapacityReached,
   system;
 
-  // Legacy aliases map to new types
+  /// Backend type string for each enum value
   String get value {
     switch (this) {
       case NotificationType.profileLiked:
@@ -58,6 +61,12 @@ enum NotificationType {
         return 'direct_message';
       case NotificationType.comment:
         return 'comment';
+      case NotificationType.thoughtReaction:
+        return 'thought_reaction';
+      case NotificationType.thoughtComment:
+        return 'thought_comment';
+      case NotificationType.thoughtRepost:
+        return 'thought_repost';
       case NotificationType.meetupCapacityReached:
         return 'meetup_capacity_reached';
       case NotificationType.system:
@@ -108,6 +117,12 @@ enum NotificationType {
         return NotificationType.directMessage;
       case 'comment':
         return NotificationType.comment;
+      case 'thought_reaction':
+        return NotificationType.thoughtReaction;
+      case 'thought_comment':
+        return NotificationType.thoughtComment;
+      case 'thought_repost':
+        return NotificationType.thoughtRepost;
       case 'meetup_capacity_reached':
         return NotificationType.meetupCapacityReached;
       default:
@@ -117,10 +132,10 @@ enum NotificationType {
 
   bool get isActionable {
     return [
-      NotificationType.unmetalAcceptance,
+      // unmetalAcceptance: card is tappable to open chat, no action buttons
       NotificationType.unmetalRequest,
-      NotificationType.meltRequest,
-      NotificationType.meetupInvite,
+      // meltRequest: card is tappable to open sender profile, no action buttons
+      // meetupInvite: card is tappable to open meetup, no action buttons
       NotificationType.meetupReminder,
     ].contains(this);
   }

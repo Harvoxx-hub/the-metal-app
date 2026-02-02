@@ -3,8 +3,6 @@ import 'package:metal/domain/entities/notification_dto.dart';
 
 abstract class NotificationRepositoryAbstract {
   Future<BaseState<NotificationsResponseDto>> getNotifications({
-    String? type,
-    bool? unreadOnly,
     required int page,
     required int limit,
   });

@@ -106,6 +106,18 @@ class NotificationNavigationService {
       case NotificationType.unmetalRequest:
         await _navigateToChat(notification.metadata ?? notification.data ?? {}, context);
         return;
+      case NotificationType.thoughtReaction:
+      case NotificationType.thoughtComment:
+      case NotificationType.thoughtRepost:
+        final payload = <String, dynamic>{
+          ...?notification.data,
+          if (notification.metadata != null) 'metadata': notification.metadata,
+        };
+        if (notification.metadata != null && notification.metadata!['thoughtId'] != null) {
+          payload['thoughtId'] = notification.metadata!['thoughtId'];
+        }
+        await _navigateToThoughtDetails(payload, context);
+        return;
       default:
         // Use push type mapping for other types
         final pushType = _mapNotificationTypeToPushType(notification.type);
@@ -216,6 +228,9 @@ class NotificationNavigationService {
       case NotificationType.directMessage:
         return PushType.message;
       case NotificationType.comment:
+      case NotificationType.thoughtReaction:
+      case NotificationType.thoughtComment:
+      case NotificationType.thoughtRepost:
         return PushType.comment;
       case NotificationType.meetupCreated:
         return PushType.meetup_created;

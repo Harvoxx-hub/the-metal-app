@@ -87,6 +87,8 @@ class CommunityMemberDto {
   final String userId;
   final String userName;
   final String? userProfilePhoto;
+  /// Metal id for displaying member's metal icon (not profile photo)
+  final String? userMetal;
   final CommunityMemberRole role;
   final DateTime joinedAt;
 
@@ -95,6 +97,7 @@ class CommunityMemberDto {
     required this.userId,
     required this.userName,
     this.userProfilePhoto,
+    this.userMetal,
     this.role = CommunityMemberRole.member,
     required this.joinedAt,
   });

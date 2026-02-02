@@ -75,11 +75,8 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
           community: updatedCommunity,
           posts: result.data!.recentPosts,
         );
-        
-        // Conditionally load members only if user is a member (to avoid 403 errors)
-        if (updatedCommunity.isJoined == true) {
-          await loadCommunityMembers(communityId);
-        }
+        // Load members for everyone (members and non-members can see the list)
+        await loadCommunityMembers(communityId);
       } else {
         state = state.copyWith(
           isLoading: false,
@@ -165,14 +162,9 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
     return null;
   }
 
+  /// Load all community members (no pagination).
   Future<void> loadCommunityMembers(String communityId, {String? role}) async {
     if (state.isLoadingMembers) return;
-
-    // Only load members if user is a member (backend requires membership)
-    if (state.community?.isJoined != true) {
-      // Silently skip loading members for non-members
-      return;
-    }
 
     state = state.copyWith(isLoadingMembers: true);
 
@@ -188,12 +180,11 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
           members: result.data!,
         );
       } else {
-        // Handle 403 errors gracefully - don't show error if user is not a member
-        final isForbiddenError = result.errorMessage?.contains('must be a member') == true ||
-                                result.errorMessage?.contains('403') == true;
-        
+        final isForbiddenError =
+            result.errorMessage?.contains('must be a member') == true ||
+                result.errorMessage?.contains('403') == true;
+
         if (!isForbiddenError) {
-          // Only set error for non-permission related errors
           state = state.copyWith(
             isLoadingMembers: false,
             isError: true,
@@ -201,10 +192,9 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
                 result.errorMessage ?? 'Failed to load community members',
           );
         } else {
-          // Silently handle permission errors
           state = state.copyWith(
             isLoadingMembers: false,
-            members: [], // Empty members list for non-members
+            members: [],
           );
         }
       }
@@ -213,12 +203,8 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
 
   /// Refresh all data for the community details page
   Future<void> refreshAll(String communityId) async {
-    // Reload community details first (includes posts)
     await loadCommunityDetails(communityId);
-    // Then reload members (only if user is a member)
-    if (state.community?.isJoined == true) {
-      await loadCommunityMembers(communityId);
-    }
+    await loadCommunityMembers(communityId);
   }
 
   /// Add a new post to the list (optimistic update)

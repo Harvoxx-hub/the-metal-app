@@ -164,11 +164,11 @@ class _CommunityMembersTabState extends ConsumerState<CommunityMembersTab> {
       ),
       child: Row(
         children: [
-          // Profile photo
+          // Metal icon (not profile photo) based on member's metal
           ProfilePhoto(
-            imgUrl: member.userProfilePhoto,
+            imgUrl: null,
             size: 50,
-            meltId: member.userId, // Using userId as meltId fallback
+            meltId: member.userMetal ?? '',
           ),
           const Gap(12),
           // Member info

@@ -392,7 +392,7 @@ class _InviteGuestsScreenState extends ConsumerState<InviteGuestsScreen> {
                 size: 52,
                 verfly: false,
                 meltId: otherUser.metal ?? '',
-                imgUrl: connection.isAnonymous ? null : otherUser.profilePhoto,
+                imgUrl: null, // Invite list: show metal icon only, not profile photo
               ),
               if (otherUser.isVerified)
                 Positioned(

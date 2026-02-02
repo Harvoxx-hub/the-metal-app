@@ -4,17 +4,17 @@ import 'package:gap/gap.dart';
 import 'package:metal/presentation/views/thought/widgets/thought_card.dart';
 import 'package:metal/presentation/viewmodels/user/user_profile_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
-import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
- 
+import 'package:metal/presentation/views/settings/edit_profile_view.dart';
+import 'package:metal/data/models/user_location_model.dart';
+import 'package:metal/presentation/views/community/community_list_view.dart';
 import 'package:metal/presentation/widgets/profile/profile_header.dart';
 import 'package:metal/presentation/widgets/settings/edit_field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/loading.state.dart';
 import 'package:metal/widgets/text_views.dart';
 
-/// My Profile View with 2 tabs: Thoughts, Personal
+/// My Profile View with 3 tabs: Thoughts, Personal, Discovery
 class MyProfileView extends ConsumerStatefulWidget {
   const MyProfileView({super.key});
 
@@ -29,7 +29,7 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -82,8 +82,8 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
                   controller: _tabController,
                   children: [
                     _buildThoughtsTab(profileState, profileViewModel),
-             
                     _buildPersonalTab(),
+                    _buildDiscoveryTab(currentUser),
                   ],
                 ),
               ),
@@ -121,8 +121,8 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
         dividerColor: Colors.transparent,
         tabs: const [
           Tab(text: 'Thoughts'),
-    
           Tab(text: 'Personal'),
+          Tab(text: 'Discovery'),
         ],
       ),
     );
@@ -169,7 +169,9 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
         child: ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: profileState.thoughts.length +
-              (profileState.hasMoreThoughts && profileState.isLoadingThoughts ? 1 : 0),
+              (profileState.hasMoreThoughts && profileState.isLoadingThoughts
+                  ? 1
+                  : 0),
           itemBuilder: (context, index) {
             if (index == profileState.thoughts.length) {
               // Load more indicator
@@ -192,12 +194,21 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
     );
   }
 
- 
-
-  /// Personal Tab - Shows list of personal settings and options
+  /// Personal Tab - Shows edit profile view
   Widget _buildPersonalTab() {
-    final blockedUsersState = ref.watch(blockedUsersViewModelProvider);
-    final blockedCount = blockedUsersState.blockedUsers.length;
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const EditProfileView(),
+        ],
+      ),
+    );
+  }
+
+  /// Discovery Tab - Shows location and communities section
+  Widget _buildDiscoveryTab(currentUser) {
+    final location = currentUser.location;
+    final locationText = _formatLocation(location);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -206,54 +217,28 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
         children: [
           const Gap(20),
           EditField(
-            text: blockedCount.toString(),
-            floatingLabel: 'Blocked Contacts',
-            prefixIcon: TextView(
-              text: 'View',
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: Colors.blueAccent,
-              underline: true,
-              onTap: () {
-                if (blockedCount > 0) {
-                  Navigator.pushNamed(context, AppRoutes.blockedUser);
-                }
-              },
-            ),
-            onTap: () {
-              if (blockedCount > 0) {
-                Navigator.pushNamed(context, AppRoutes.blockedUser);
-              }
-            },
+            text: locationText,
+            floatingLabel: 'Location',
           ),
-          const Gap(20),
-          EditField(
-            text: 'Settings',
-            floatingLabel: '',
-            prefixIcon: const Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: Colors.grey,
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, AppRoutes.settingPage);
-            },
-          ),
-          const Gap(20),
-          EditField(
-            text: 'Metal List',
-            floatingLabel: '',
-            prefixIcon: const Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: Colors.grey,
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, AppRoutes.myMeltedMetals);
-            },
-          ),
+          const Gap(24),
         ],
       ),
     );
+  }
+
+  String _formatLocation(UserLocationModel? location) {
+    if (location == null) return '';
+    final parts = <String>[
+      if (location.city != null && location.city!.isNotEmpty) location.city!,
+      if (location.state != null && location.state!.isNotEmpty) location.state!,
+      if (location.country != null && location.country!.isNotEmpty)
+        location.country!,
+    ];
+    if (parts.isEmpty &&
+        location.address != null &&
+        location.address!.isNotEmpty) {
+      return location.address!;
+    }
+    return parts.join(', ');
   }
 }

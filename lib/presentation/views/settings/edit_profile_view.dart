@@ -4,13 +4,16 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/data/models/metal_properties_model.dart';
+import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/widgets/settings/edit_field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 
 class EditProfileView extends ConsumerStatefulWidget {
-  const EditProfileView({super.key});
+  const EditProfileView({super.key, this.isPersonal = false});
+  final bool isPersonal;
 
   @override
   ConsumerState<EditProfileView> createState() => _EditProfileViewState();
@@ -31,36 +34,50 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
       orElse: () => metalProperties.metals![0],
     );
 
-    return BaseScreen(
-      appBarState: AppBarState.BackWithHeader,
-      Header: "Make Changes to Profile",
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 220,
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment(0.00, -1.00),
-                      end: Alignment(0, 1),
-                      colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
-                    ),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(35),
-                      bottomRight: Radius.circular(35),
-                    ),
+    return widget.isPersonal
+        ? BaseScreen(
+            appBarState: AppBarState.BackWithHeader,
+            Header: "Make Changes to Profile",
+            body: SingleChildScrollView(
+              child: Stack(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 220,
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment(0.00, -1.00),
+                            end: Alignment(0, 1),
+                            colors: [Color(0xFFDB217A), Color(0xFFF00E3E)],
+                          ),
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(35),
+                            bottomRight: Radius.circular(35),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  _buildPersonalProfile(user, metal, metalProperties),
+                ],
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 29, left: 9, right: 9),
+          )
+        : _buildPersonalProfile(user, metal, metalProperties);
+  }
+
+  Widget _buildPersonalProfile(
+    UserDto user,
+    Metal metal,
+    MetalPropertiesModel metalProperties,
+  ) {
+    return  Padding(
+              padding:   EdgeInsets.only(top: widget.isPersonal ? 0 : 29, left: 9, right: 9),
               child: Container(
-                padding: const EdgeInsets.only(top: 55, left: 22, right: 22),
+                padding:   EdgeInsets.only(top: widget.isPersonal ? 0 : 55, left: 22, right: 22),
                 decoration: const BoxDecoration(
                   color: AppColors.metalWhite,
                   borderRadius: BorderRadius.all(Radius.circular(35)),
@@ -183,11 +200,8 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
+            );
+        
   }
 
   /// Update user field via single source of truth (userStateProvider)

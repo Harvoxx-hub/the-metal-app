@@ -97,15 +97,11 @@ class MeetupRepository implements MeetupRepositoryAbstract {
     required String status,
   }) async {
     try {
-      // RSVP might not return full meetup, so we'll just return success
-      // Frontend should refresh the meetup after RSVP
       await _remoteDataSource.rsvpMeetup(
         meetupId: meetupId,
         status: status,
       );
-      // Return empty meetup DTO - frontend will refresh
-      // This is a limitation, but we'll handle it by refreshing after RSVP
-      return BaseState.error('RSVP successful but need to refresh meetup');
+      return BaseState.successNoData<MeetupDto>();
     } catch (e) {
       return ErrorHandler.handleError<MeetupDto>(e);
     }

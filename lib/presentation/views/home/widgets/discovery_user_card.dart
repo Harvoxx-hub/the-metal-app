@@ -22,7 +22,7 @@ class DiscoveryUserCard extends ConsumerStatefulWidget {
   final DiscoveryUserDto user;
   final VoidCallback? onLike;
   final VoidCallback? onPass;
-  final void Function(String userId, String connectionId)? onDirectMessageSent;
+  final void Function(String userId)? onDirectMessageSent;
 
   const DiscoveryUserCard({
     super.key,
@@ -599,9 +599,9 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
         userName: widget.user.username ?? 'User',
         recipientId: widget.user.id,
         onCancel: () => Navigator.pop(dialogContext),
-        onSent: (connectionId) {
+        onSent: () {
           Navigator.pop(dialogContext);
-          widget.onDirectMessageSent?.call(widget.user.id, connectionId);
+          widget.onDirectMessageSent?.call(widget.user.id);
         },
       ),
     );
@@ -1031,12 +1031,12 @@ class _PromptReplyDialogState extends ConsumerState<_PromptReplyDialog> {
   }
 }
 
-/// Dialog for sending a direct message from discovery (auto-melts)
+/// Dialog for sending a direct message from discovery (no connection until recipient accepts)
 class _DirectMessageDialog extends ConsumerStatefulWidget {
   final String userName;
   final String recipientId;
   final VoidCallback onCancel;
-  final void Function(String connectionId) onSent;
+  final VoidCallback onSent;
 
   const _DirectMessageDialog({
     required this.userName,
@@ -1087,7 +1087,7 @@ class _DirectMessageDialogState extends ConsumerState<_DirectMessageDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: TextView(
                 text:
-                    'Send a quick message to start the conversation. You\'ll automatically connect when you send.',
+                    'Send a quick message. They can accept to start chatting.',
                 fontSize: 14,
                 color: Colors.black54,
               ),
@@ -1193,30 +1193,19 @@ class _DirectMessageDialogState extends ConsumerState<_DirectMessageDialog> {
     try {
       final dataSource = ref.read(chatRemoteDataSourceProvider);
 
-      final result = await dataSource.sendDirectMessage(
+      await dataSource.sendDirectMessage(
         recipientId: widget.recipientId,
         message: message,
       );
 
       if (mounted) {
-        final connectionId = result['connectionId'] as String?;
-        if (connectionId != null) {
-          widget.onSent(connectionId);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Message sent! Opening chat...'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        } else {
-          setState(() => _isSending = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Message sent but could not open chat'),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
+        widget.onSent();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Message sent! They can accept to start chatting.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {

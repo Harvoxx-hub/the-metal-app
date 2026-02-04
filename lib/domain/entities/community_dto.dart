@@ -87,6 +87,7 @@ class CommunityMemberDto {
   final String userId;
   final String userName;
   final String? userProfilePhoto;
+
   /// Metal id for displaying member's metal icon (not profile photo)
   final String? userMetal;
   final CommunityMemberRole role;

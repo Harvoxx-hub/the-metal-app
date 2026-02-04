@@ -21,7 +21,8 @@ class CreateThoughtScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CreateThoughtScreen> createState() => _CreateThoughtScreenState();
+  ConsumerState<CreateThoughtScreen> createState() =>
+      _CreateThoughtScreenState();
 }
 
 class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
@@ -53,14 +54,26 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
   }
 
   Future<bool> _onWillPop() async {
-    if (!_hasChanges) return true;
+    if (!_hasChanges) {
+      _clearAndPop();
+      return true;
+    }
 
     final shouldDiscard = await showDialog<bool>(
       context: context,
       builder: (context) => _buildDiscardDialog(),
     );
 
-    return shouldDiscard ?? false;
+    if (shouldDiscard == true) {
+      _clearAndPop();
+      return true;
+    }
+    return false;
+  }
+
+  /// Clear viewmodel state so next open is fresh. Call when dismissing or after successful post.
+  void _clearAndPop() {
+    ref.read(createThoughtViewModelProvider.notifier).reset();
   }
 
   Widget _buildDiscardDialog() {
@@ -131,9 +144,8 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: viewModelState.canPost
-                  ? () => _handlePost(viewModel)
-                  : null,
+              onPressed:
+                  viewModelState.canPost ? () => _handlePost(viewModel) : null,
               child: TextView(
                 text: 'Post',
                 fontSize: 16,
@@ -177,7 +189,8 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
                               const Gap(8),
                               Expanded(
                                 child: TextView(
-                                  text: 'Posting to ${widget.communityMetadata!['communityName'] ?? 'Community'}',
+                                  text:
+                                      'Posting to ${widget.communityMetadata!['communityName'] ?? 'Community'}',
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   color: AppColors.metalPinkColour,
@@ -226,7 +239,8 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
               ),
               // Character counter and status
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.grey[50],
                   border: Border(
@@ -279,10 +293,13 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
       final communityId = communityMeta['communityId'] as String?;
       if (communityId != null) {
         final currentUser = ref.read(currentUserProvider);
-        final optimisticThought = _buildOptimisticThought(createState, communityMeta, currentUser);
+        final optimisticThought =
+            _buildOptimisticThought(createState, communityMeta, currentUser);
         if (optimisticThought != null) {
           optimisticId = optimisticThought.id;
-          ref.read(communityDetailViewModelProvider(communityId).notifier).addPost(optimisticThought);
+          ref
+              .read(communityDetailViewModelProvider(communityId).notifier)
+              .addPost(optimisticThought);
         }
       }
     }
@@ -294,20 +311,30 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
     if (!mounted) return;
 
     if (thought != null) {
-      if (communityMeta != null && communityMeta['communityId'] != null && optimisticId != null) {
+      if (communityMeta != null &&
+          communityMeta['communityId'] != null &&
+          optimisticId != null) {
         final communityId = communityMeta['communityId'] as String;
-        ref.read(communityDetailViewModelProvider(communityId).notifier).replacePost(optimisticId, thought);
+        ref
+            .read(communityDetailViewModelProvider(communityId).notifier)
+            .replacePost(optimisticId, thought);
       }
+      _clearAndPop();
       Navigator.pop(context, thought);
       Fluttertoast.showToast(msg: 'Thought posted successfully!');
     } else {
-      if (communityMeta != null && communityMeta['communityId'] != null && optimisticId != null) {
+      if (communityMeta != null &&
+          communityMeta['communityId'] != null &&
+          optimisticId != null) {
         ref
-            .read(communityDetailViewModelProvider(communityMeta['communityId'] as String).notifier)
+            .read(communityDetailViewModelProvider(
+                    communityMeta['communityId'] as String)
+                .notifier)
             .removePost(optimisticId);
       }
       final currentState = ref.read(createThoughtViewModelProvider);
-      Fluttertoast.showToast(msg: currentState.errorMessage ?? 'Failed to post thought');
+      Fluttertoast.showToast(
+          msg: currentState.errorMessage ?? 'Failed to post thought');
     }
   }
 
@@ -336,7 +363,8 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
     return ThoughtDto(
       id: id,
       userId: currentUser.id,
-      content: createState.text.trim().isEmpty ? '(Voice)' : createState.text.trim(),
+      content:
+          createState.text.trim().isEmpty ? '(Voice)' : createState.text.trim(),
       type: type,
       audioUrl: createState.audioUrl,
       audioDuration: createState.audioDuration,
@@ -347,4 +375,3 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
     );
   }
 }
-

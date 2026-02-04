@@ -29,43 +29,90 @@ class CommentReactionSection extends ConsumerStatefulWidget {
 
 class _CommentReactionSectionState
     extends ConsumerState<CommentReactionSection> {
-  bool _showReactions = false;
+  void _showEmojiPickerSheet() {
+    final userdata = ref.read(userStateProvider).user;
+    final userReaction = userdata?.id != null
+        ? widget.reactions.where((r) => r.userId == userdata!.id).firstOrNull
+        : null;
+    final emojis = ['😍', '👍', '😂', '😢', '😡'];
 
-  void _toggleReactions() {
-    setState(() {
-      _showReactions = !_showReactions;
-    });
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: emojis.map((emoji) {
+                final isCurrentReaction = userReaction?.emoji == emoji;
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () async {
+                    Navigator.pop(sheetContext);
+                    final viewModel = ref.read(
+                        commentViewModelProvider(widget.thoughtId).notifier);
+                    await viewModel.reactToComment(widget.commentId, emoji);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    decoration: isCurrentReaction
+                        ? BoxDecoration(
+                            color: AppColors.metalPinkColour.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          )
+                        : null,
+                    child: TextView(
+                      text: emoji,
+                      fontSize: 32,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final userdata = ref.watch(userStateProvider).user;
 
-    return Stack(
-      children: [
-        SizedBox(
-          height: _showReactions ? 100 : 60,
-          width: 250, // Match the width with ReactionSection
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: _toggleReactions,
-                child: _buildReactionDisplay(widget.reactions, userdata?.id),
-              ),
-            ],
+    return SizedBox(
+      height: 60,
+      width: 250,
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: _showEmojiPickerSheet,
+            child: _buildReactionDisplay(
+              widget.reactions,
+              userdata?.id,
+              onTapOpenPicker: _showEmojiPickerSheet,
+            ),
           ),
-        ),
-        if (_showReactions) _buildReactionsSelector(),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildReactionDisplay(List<ReactionDto> reactions, String? userId) {
+  Widget _buildReactionDisplay(
+    List<ReactionDto> reactions,
+    String? userId, {
+    required VoidCallback onTapOpenPicker,
+  }) {
     if (reactions.isEmpty) {
       return Row(
         children: [
           IconButton(
-            onPressed: _toggleReactions,
+            onPressed: onTapOpenPicker,
             icon: const Icon(Icons.favorite_border),
           ),
           const TextView(
@@ -90,7 +137,8 @@ class _CommentReactionSectionState
               // Toggle reaction via API
               final viewModel =
                   ref.read(commentViewModelProvider(widget.thoughtId).notifier);
-              await viewModel.reactToComment(widget.commentId, userReaction.emoji);
+              await viewModel.reactToComment(
+                  widget.commentId, userReaction.emoji);
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -102,7 +150,7 @@ class _CommentReactionSectionState
           )
         else
           IconButton(
-            onPressed: _toggleReactions,
+            onPressed: onTapOpenPicker,
             icon: const Icon(Icons.favorite_border),
           ),
         GestureDetector(
@@ -190,7 +238,8 @@ class _CommentReactionSectionState
 
                           return Row(
                             children: [
-                              TextView(text: baseState.data!.username ?? "User"),
+                              TextView(
+                                  text: baseState.data!.username ?? "User"),
                               const Gap(5),
                               TextView(
                                 text: reaction.emoji,
@@ -220,61 +269,5 @@ class _CommentReactionSectionState
         ],
       ),
     );
-  }
-
-  Widget _buildReactionsSelector() {
-    return Positioned(
-      bottom: 40,
-      left: 20,
-      right: 20,
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: AppColors.metalTabBg,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: _buildReactionIcons(),
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _buildReactionIcons() {
-    final userdata = ref.watch(userStateProvider).user;
-    final userReaction = userdata?.id != null
-        ? widget.reactions
-            .where((reaction) => reaction.userId == userdata!.id)
-            .firstOrNull
-        : null;
-
-    final emojis = ["😍", "👍", "😂", "😢", "😡"];
-    return emojis.map((emoji) {
-      final isCurrentReaction = userReaction?.emoji == emoji;
-      return GestureDetector(
-        onTap: () async {
-          final viewModel =
-              ref.read(commentViewModelProvider(widget.thoughtId).notifier);
-          await viewModel.reactToComment(widget.commentId, emoji);
-          setState(() {
-            _showReactions = false;
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.all(4),
-          decoration: isCurrentReaction
-              ? BoxDecoration(
-                  color: AppColors.metalPinkColour.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                )
-              : null,
-          child: TextView(
-            text: emoji,
-            fontSize: 24,
-          ),
-        ),
-      );
-    }).toList();
   }
 }

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/data/repositories/thought/thought_repository.dart';
 import 'package:metal/domain/entities/reaction_dto.dart';
@@ -75,11 +76,42 @@ class ReactionViewModel extends StateNotifier<ReactionViewState> {
     }
   }
 
-  /// Add or toggle a reaction on the thought
-  /// If user already has a reaction with the same emoji, it will be removed
-  /// If user has a different emoji, it will be updated
-  Future<void> addReaction(String emoji) async {
+  /// Add or toggle a reaction on the thought.
+  /// If [currentUserId] is provided, updates state optimistically before the API call.
+  /// If user already has a reaction with the same emoji, it will be removed.
+  /// If user has a different emoji, it will be updated.
+  Future<void> addReaction(String emoji, {String? currentUserId}) async {
     if (!mounted) return;
+
+    final previousReactions = List<ReactionDto>.from(state.reactions);
+
+    if (currentUserId != null && currentUserId.isNotEmpty) {
+      // Optimistic update: apply locally first
+      final withoutMine =
+          state.reactions.where((r) => r.userId != currentUserId).toList();
+      final existingMine =
+          state.reactions.where((r) => r.userId == currentUserId).firstOrNull;
+      final isToggleOff = existingMine?.emoji == emoji;
+
+      final newReactions = isToggleOff
+          ? withoutMine
+          : [
+              ...withoutMine,
+              ReactionDto(
+                id: 'pending-${DateTime.now().millisecondsSinceEpoch}',
+                userId: currentUserId,
+                thoughtId: thoughtId,
+                emoji: emoji,
+                createdAt: DateTime.now(),
+              ),
+            ];
+
+      state = state.copyWith(
+        reactions: newReactions,
+        isError: false,
+        errorMessage: null,
+      );
+    }
 
     final result = await _repository.addReaction(
       thoughtId: thoughtId,
@@ -89,8 +121,17 @@ class ReactionViewModel extends StateNotifier<ReactionViewState> {
     if (!mounted) return;
 
     if (result.isSuccess && result.data != null) {
-      // Reload reactions to get the updated list
+      // Sync with server to get canonical list (ids, etc.)
       await loadReactions();
+    } else {
+      // Revert on failure
+      if (currentUserId != null && currentUserId.isNotEmpty) {
+        state = state.copyWith(
+          reactions: previousReactions,
+          isError: true,
+          errorMessage: result.errorMessage ?? 'Failed to add reaction',
+        );
+      }
     }
   }
 

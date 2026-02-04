@@ -6,6 +6,7 @@ import 'package:metal/domain/entities/reaction_dto.dart';
 import 'package:metal/presentation/viewmodels/thought/reaction_viewmodel.dart';
 import 'package:metal/presentation/views/thought/widgets/reaction_list_tile.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
+import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class ReactionSection extends ConsumerStatefulWidget {
@@ -26,27 +27,93 @@ class ReactionSection extends ConsumerStatefulWidget {
 class _ReactionSectionState extends ConsumerState<ReactionSection> {
   @override
   Widget build(BuildContext context) {
-    final reactionState = ref.watch(reactionViewModelProvider(widget.thoughtId));
+    final reactionState =
+        ref.watch(reactionViewModelProvider(widget.thoughtId));
     final reactions = reactionState.reactions;
     final userdata = ref.watch(userStateProvider).user;
+
+    final onTapPicker = widget.onToggleReactions ??
+        () => _showReactionPicker(context, reactions);
 
     return Row(
       children: [
         GestureDetector(
-          onTap: widget.onToggleReactions ?? () {},
-          child: _buildReactionDisplay(reactions, userdata?.id),
+          onTap: onTapPicker,
+          child: _buildReactionDisplay(
+            reactions,
+            userdata?.id,
+            onTapAddReaction: onTapPicker,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildReactionDisplay(List<ReactionDto> reactions, String? userId) {
+  void _showReactionPicker(BuildContext context, List<ReactionDto> reactions) {
+    final userdata = ref.read(userStateProvider).user;
+    final userReaction = userdata?.id != null
+        ? reactions.where((r) => r.userId == userdata!.id).firstOrNull
+        : null;
+    final emojis = ['😍', '👍', '😂', '😢', '😡'];
+    final currentUserId = userdata?.id;
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: emojis.map((emoji) {
+                final isCurrentReaction = userReaction?.emoji == emoji;
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () async {
+                    Navigator.pop(sheetContext);
+                    final viewModel = ref.read(
+                        reactionViewModelProvider(widget.thoughtId).notifier);
+                    await viewModel.addReaction(emoji,
+                        currentUserId: currentUserId);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    decoration: isCurrentReaction
+                        ? BoxDecoration(
+                            color: AppColors.metalPinkColour.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          )
+                        : null,
+                    child: TextView(
+                      text: emoji,
+                      fontSize: 32,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReactionDisplay(
+    List<ReactionDto> reactions,
+    String? userId, {
+    required VoidCallback onTapAddReaction,
+  }) {
     if (reactions.isEmpty) {
       return Row(
         key: widget.reactionKey,
         children: [
           IconButton(
-            onPressed: widget.onToggleReactions ?? () {},
+            onPressed: onTapAddReaction,
             icon: const Icon(Icons.favorite_border),
           ),
           const TextView(
@@ -70,9 +137,12 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
           GestureDetector(
             onTap: () async {
               // Toggle reaction (API handles remove if same emoji)
-              final viewModel =
-                  ref.read(reactionViewModelProvider(widget.thoughtId).notifier);
-              await viewModel.addReaction(userReaction.emoji);
+              final viewModel = ref
+                  .read(reactionViewModelProvider(widget.thoughtId).notifier);
+              await viewModel.addReaction(
+                userReaction.emoji,
+                currentUserId: userId,
+              );
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -84,7 +154,7 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
           )
         else
           IconButton(
-            onPressed: widget.onToggleReactions ?? () {},
+            onPressed: onTapAddReaction,
             icon: const Icon(Icons.favorite_border),
           ),
         GestureDetector(
@@ -174,5 +244,4 @@ class _ReactionSectionState extends ConsumerState<ReactionSection> {
       ),
     );
   }
-
 }

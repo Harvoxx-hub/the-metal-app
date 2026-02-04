@@ -5,7 +5,7 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/core/utils/permission_helper.dart';
 import 'package:metal/presentation/views/chat/widgets/voice_recording_widget.dart';
-import 'package:metal/presentation/views/chat/widgets/audio_player_widget.dart';
+import 'package:metal/widgets/audio_player.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -62,7 +62,8 @@ class _ThoughtAudioSectionState extends State<ThoughtAudioSection> {
     // Calculate duration from file (backend requires 1-120 seconds for voice thoughts)
     _calculateDuration(audioPath).then((duration) {
       if (mounted) {
-        final safeDuration = duration < 1 ? 1 : (duration > 120 ? 120 : duration);
+        final safeDuration =
+            duration < 1 ? 1 : (duration > 120 ? 120 : duration);
         setState(() {
           _isRecording = false;
           _recordedAudioPath = audioPath;
@@ -142,9 +143,9 @@ class _ThoughtAudioSectionState extends State<ThoughtAudioSection> {
                 ),
                 const Gap(8),
                 Expanded(
-                  child: AudioPlayerWidget(
+                  child: AudioPlayer(
                     audioUrl: _recordedAudioPath!,
-                    isMe: true,
+                    theme: AudioPlayerTheme.thought,
                   ),
                 ),
                 const Gap(8),

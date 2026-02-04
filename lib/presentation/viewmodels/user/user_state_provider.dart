@@ -271,7 +271,8 @@ final isUpdatingUserProvider = Provider<bool>((ref) {
 /// if (userState.isError) { ... }
 /// final user = userState.data; // UserDto?
 /// ```
-final getUserProvider = FutureProvider.family<BaseState<UserDto>, String>((ref, userId) async {
+final getUserProvider =
+    FutureProvider.family<BaseState<UserDto>, String>((ref, userId) async {
   final profileRepo = ref.read(profileRepositoryProvider);
   return await profileRepo.getUserById(userId);
 });
@@ -313,7 +314,8 @@ class GetUsersByQueryNotifier extends StateNotifier<GetUsersByQueryState> {
 
   /// Search users by query (username, name, etc.)
   Future<void> getUserByquery({required String query}) async {
-    if (query.isEmpty) {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) {
       state = const GetUsersByQueryState();
       return;
     }
@@ -322,7 +324,7 @@ class GetUsersByQueryNotifier extends StateNotifier<GetUsersByQueryState> {
 
     try {
       final profileRepo = _ref.read(profileRepositoryProvider);
-      final result = await profileRepo.searchUsers(query: query, limit: 10);
+      final result = await profileRepo.searchUsers(query: trimmed, limit: 10);
 
       if (result.isSuccess && result.data != null) {
         state = GetUsersByQueryState(

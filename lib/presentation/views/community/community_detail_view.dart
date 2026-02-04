@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:metal/core/services/deep_link_service.dart';
+import 'package:metal/domain/entities/community_dto.dart';
 import 'package:metal/domain/entities/thought_dto.dart';
 import 'package:metal/presentation/viewmodels/community/community_detail_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
@@ -29,21 +33,18 @@ class CommunityDetailView extends ConsumerStatefulWidget {
       _CommunityDetailViewState();
 }
 
-class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _CommunityDetailViewState extends ConsumerState<CommunityDetailView> {
   late ScrollController _postsScrollController;
+  TabController? _tabControllerFromChild;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
     _postsScrollController = ScrollController();
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
     _postsScrollController.dispose();
     super.dispose();
   }
@@ -77,28 +78,14 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
                           _buildAppBar(context, detailState.community!),
                         ];
                       },
-                      body: Column(
-                        children: [
-                          _buildTabBar(),
-                          Expanded(
-                            child: TabBarView(
-                              controller: _tabController,
-                              children: [
-                                CommunityPostsTab(
-                                  communityId: widget.communityId,
-                                  scrollController: _postsScrollController,
-                                ),
-                                CommunityMembersTab(
-                                  communityId: widget.communityId,
-                                  memberCount: detailState.community!.memberCount,
-                                ),
-                                CommunityAboutTab(
-                                  community: detailState.community!,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                      body: _CommunityDetailTabs(
+                        key: ValueKey(detailState.community!.isJoined),
+                        community: detailState.community!,
+                        communityId: widget.communityId,
+                        postsScrollController: _postsScrollController,
+                        onTabControllerReady: (c) {
+                          setState(() => _tabControllerFromChild = c);
+                        },
                       ),
                     ),
       floatingActionButton: detailState.community?.isJoined == true
@@ -137,8 +124,9 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
       viewModel.addPost(result);
 
       // Ensure we're on the Posts tab
-      if (_tabController.index != 0) {
-        _tabController.animateTo(0);
+      if (_tabControllerFromChild != null &&
+          _tabControllerFromChild!.index != 0) {
+        _tabControllerFromChild!.animateTo(0);
       }
 
       // Scroll to top so the new post is visible; retry for a few frames in case the list isn't built yet
@@ -158,11 +146,32 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
     });
   }
 
+  Future<void> _shareCommunity(CommunityDto community) async {
+    try {
+      final shareUrl = DeepLinkService.generateCommunityUrl(community.id);
+      final shareText =
+          '${community.name}\n\n${community.description}\n\nJoin this community on Metal: $shareUrl';
+      await Share.share(shareText);
+    } catch (e) {
+      if (mounted) {
+        Fluttertoast.showToast(msg: 'Failed to share: ${e.toString()}');
+      }
+    }
+  }
+
   Widget _buildAppBar(BuildContext context, community) {
     return SliverAppBar(
-      expandedHeight: 300,
+      expandedHeight: 320,
       floating: false,
       pinned: true,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.share_outlined,
+              color: AppColors.metalBrownColourForText),
+          onPressed: () => _shareCommunity(community),
+          tooltip: 'Share community',
+        ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         background: Column(
           children: [
@@ -213,12 +222,15 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
               color: AppColors.metalWhite,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   TextView(
                     text: community.name,
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
                     color: AppColors.metalBrownColourForText,
+                    maxLines: 1,
+                    textOverflow: TextOverflow.ellipsis,
                   ),
                   const Gap(8),
                   TextView(
@@ -247,12 +259,14 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
                       ),
                       const Spacer(),
                       // Hide Leave/Join for creator — creator cannot leave
-                      if (ref.watch(currentUserProvider)?.id != community.creatorId)
+                      if (ref.watch(currentUserProvider)?.id !=
+                          community.creatorId)
                         BaseButton(
                           buttonText: community.isJoined ? 'Leave' : 'Join',
                           onPressed: () async {
                             final viewModel = ref.read(
-                              communityDetailViewModelProvider(widget.communityId)
+                              communityDetailViewModelProvider(
+                                      widget.communityId)
                                   .notifier,
                             );
                             if (community.isJoined) {
@@ -306,29 +320,113 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView>
       ),
     );
   }
+}
 
-  Widget _buildTabBar() {
-    return Container(
-      color: AppColors.metalWhite,
-      child: TabBar(
-        controller: _tabController,
-        indicatorColor: AppColors.metalPinkColour,
-        labelColor: AppColors.metalPinkColour,
-        unselectedLabelColor: AppColors.metalBrownColourForText,
-        labelStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
+/// Tab bar and tab view for community detail. Members tab is only shown when user is a member.
+class _CommunityDetailTabs extends StatefulWidget {
+  final CommunityDto community;
+  final String communityId;
+  final ScrollController postsScrollController;
+  final void Function(TabController?)? onTabControllerReady;
+
+  const _CommunityDetailTabs({
+    super.key,
+    required this.community,
+    required this.communityId,
+    required this.postsScrollController,
+    this.onTabControllerReady,
+  });
+
+  @override
+  State<_CommunityDetailTabs> createState() => _CommunityDetailTabsState();
+}
+
+class _CommunityDetailTabsState extends State<_CommunityDetailTabs>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    final tabCount = widget.community.isJoined ? 3 : 2;
+    _tabController = TabController(length: tabCount, vsync: this);
+    // Defer callback to avoid parent setState during child mount
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        widget.onTabControllerReady?.call(_tabController);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.onTabControllerReady?.call(null);
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final showMembersTab = widget.community.isJoined;
+
+    return Column(
+      children: [
+        Container(
+          color: AppColors.metalWhite,
+          child: TabBar(
+            controller: _tabController,
+            indicatorColor: AppColors.metalPinkColour,
+            labelColor: AppColors.metalPinkColour,
+            unselectedLabelColor: AppColors.metalBrownColourForText,
+            labelStyle: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            ),
+            tabs: showMembersTab
+                ? const [
+                    Tab(text: 'Posts'),
+                    Tab(text: 'Members'),
+                    Tab(text: 'About'),
+                  ]
+                : const [
+                    Tab(text: 'Posts'),
+                    Tab(text: 'About'),
+                  ],
+          ),
         ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: showMembersTab
+                ? [
+                    CommunityPostsTab(
+                      communityId: widget.communityId,
+                      scrollController: widget.postsScrollController,
+                    ),
+                    CommunityMembersTab(
+                      communityId: widget.communityId,
+                      memberCount: widget.community.memberCount,
+                    ),
+                    CommunityAboutTab(
+                      community: widget.community,
+                    ),
+                  ]
+                : [
+                    CommunityPostsTab(
+                      communityId: widget.communityId,
+                      scrollController: widget.postsScrollController,
+                    ),
+                    CommunityAboutTab(
+                      community: widget.community,
+                    ),
+                  ],
+          ),
         ),
-        tabs: const [
-          Tab(text: 'Posts'),
-          Tab(text: 'Members'),
-          Tab(text: 'About'),
-        ],
-      ),
+      ],
     );
   }
 }

@@ -21,8 +21,7 @@ class CreateCommunityScreen extends ConsumerStatefulWidget {
       _CreateCommunityScreenState();
 }
 
-class _CreateCommunityScreenState
-    extends ConsumerState<CreateCommunityScreen> {
+class _CreateCommunityScreenState extends ConsumerState<CreateCommunityScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -76,7 +75,8 @@ class _CreateCommunityScreenState
       if (pickedFile != null) {
         setState(() {
           _selectedImage = File(pickedFile.path);
-          _uploadedImageUrl = null; // Reset uploaded URL when new image is selected
+          _uploadedImageUrl =
+              null; // Reset uploaded URL when new image is selected
         });
       }
     } catch (e) {

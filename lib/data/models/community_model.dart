@@ -40,16 +40,17 @@ class CommunityModel {
   factory CommunityModel.fromJson(Map<String, dynamic> json) {
     // Backend returns 'isMember' but we use 'isJoined' in the model
     // Support both for backward compatibility
-    final isJoined = json['isJoined'] as bool? ?? 
-                     json['isMember'] as bool? ?? 
-                     false;
-    
+    final isJoined =
+        json['isJoined'] as bool? ?? json['isMember'] as bool? ?? false;
+
     return CommunityModel(
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
-      bannerImage: json['bannerImage'] as String? ?? json['coverUrl'] as String?,
-      creatorId: json['creatorId'] as String? ?? json['createdBy'] as String? ?? '',
+      bannerImage:
+          json['bannerImage'] as String? ?? json['coverUrl'] as String?,
+      creatorId:
+          json['creatorId'] as String? ?? json['createdBy'] as String? ?? '',
       creatorName: json['creatorName'] as String? ?? 'Unknown',
       creatorProfilePhoto: json['creatorProfilePhoto'] as String?,
       memberCount: json['memberCount'] as int? ?? 0,
@@ -59,7 +60,8 @@ class CommunityModel {
       tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? [],
       rules: _parseRules(json['rules']),
       isJoined: isJoined,
-      createdAt: json['createdAt'] as String,
+      createdAt:
+          json['createdAt'] as String? ?? DateTime.now().toIso8601String(),
     );
   }
 
@@ -80,7 +82,7 @@ class CommunityModel {
       tags: tags,
       rules: rules,
       isJoined: isJoined,
-      createdAt: DateTime.parse(createdAt),
+      createdAt: DateTime.tryParse(createdAt) ?? DateTime.now(),
     );
   }
 
@@ -105,7 +107,8 @@ class CommunityModel {
     if (rules is String) return rules;
     if (rules is List) {
       // Join array of rules into a string (e.g., for display)
-      final rulesList = rules.map((e) => e.toString()).where((e) => e.isNotEmpty).toList();
+      final rulesList =
+          rules.map((e) => e.toString()).where((e) => e.isNotEmpty).toList();
       return rulesList.isEmpty ? null : rulesList.join('\n');
     }
     return rules.toString();
@@ -241,14 +244,12 @@ class CommunityDetailsModel {
       community: CommunityModel.fromJson(
         json['community'] as Map<String, dynamic>,
       ),
-      recentPosts: (json['recentPosts'] as List<dynamic>?)
-              ?.map((post) {
-                // Backend returns posts with author field, need to map to ThoughtModel structure
-                final postData = post as Map<String, dynamic>;
-                // Ensure the post has the required ThoughtModel structure
-                return ThoughtModel.fromJson(postData);
-              })
-              .toList() ??
+      recentPosts: (json['recentPosts'] as List<dynamic>?)?.map((post) {
+            // Backend returns posts with author field, need to map to ThoughtModel structure
+            final postData = post as Map<String, dynamic>;
+            // Ensure the post has the required ThoughtModel structure
+            return ThoughtModel.fromJson(postData);
+          }).toList() ??
           [],
     );
   }
@@ -337,7 +338,8 @@ class CommunityMembersListModel {
   factory CommunityMembersListModel.fromJson(Map<String, dynamic> json) {
     return CommunityMembersListModel(
       members: (json['members'] as List<dynamic>?)
-              ?.map((m) => CommunityMemberModel.fromJson(m as Map<String, dynamic>))
+              ?.map((m) =>
+                  CommunityMemberModel.fromJson(m as Map<String, dynamic>))
               .toList() ??
           [],
       pagination: json['pagination'] != null

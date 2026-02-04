@@ -4,14 +4,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'dart:async';
-import 'dart:io';
-
-import 'package:audio_waveforms/audio_waveforms.dart';
-
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
 
 import 'package:metal/domain/entities/thought_dto.dart';
+import 'package:metal/widgets/audio_player.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/presentation/viewmodels/thought/comment_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
@@ -38,6 +33,7 @@ import 'package:metal/presentation/viewmodels/community/community_detail_viewmod
 
 class ThoughtCard extends ConsumerStatefulWidget {
   final ThoughtDto thoughtModel;
+
   /// When set, delete will update this community's local state first (optimistic delete).
   final String? communityId;
 
@@ -57,135 +53,12 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
   bool isLoadingRepost = false;
   bool _showReactions = false;
 
-  final PlayerController _waveformController = PlayerController();
-
-  bool _isPlayerPrepared = false;
-  String? _localAudioPath;
-  bool _isDownloading = false;
-
   @override
   void initState() {
     super.initState();
     thoughtModel = widget.thoughtModel;
     if (thoughtModel.type == "repost") {
       loadRepost(thoughtModel.originalThoughtId!);
-    }
-
-    // Auto-prepare audio when thought has audio (voice-only or text+audio)
-    if (thoughtModel.audioUrl != null && thoughtModel.audioUrl!.isNotEmpty) {
-      _autoPrepareAudio();
-    }
-  }
-
-  @override
-  void dispose() {
-    _waveformController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _autoPrepareAudio() async {
-    final audioUrl = thoughtModel.audioUrl!;
-
-    try {
-      // Download file first if it's a URL
-      if (_isUrl(audioUrl)) {
-        await _downloadFile(audioUrl);
-        if (_localAudioPath == null) {
-          print('Failed to download audio file');
-          return;
-        }
-      } else {
-        _localAudioPath = audioUrl;
-      }
-
-      // Prepare player with LOCAL file path
-      await _waveformController.preparePlayer(
-        path: _localAudioPath!,
-        shouldExtractWaveform: true,
-      );
-
-      if (mounted) {
-        setState(() {
-          _isPlayerPrepared = true;
-        });
-      }
-    } catch (e) {
-      print('Error auto-preparing audio: $e');
-    }
-  }
-
-  Future<void> _autoPrepareRepostAudio() async {
-    final audioUrl = originalThought!.audioUrl!;
-
-    try {
-      // Download file first if it's a URL
-      if (_isUrl(audioUrl)) {
-        await _downloadFile(audioUrl);
-        if (_localAudioPath == null) {
-          print('Failed to download repost audio file');
-          return;
-        }
-      } else {
-        _localAudioPath = audioUrl;
-      }
-
-      // Prepare player with LOCAL file path
-      await _waveformController.preparePlayer(
-        path: _localAudioPath!,
-        shouldExtractWaveform: true,
-      );
-
-      if (mounted) {
-        setState(() {
-          _isPlayerPrepared = true;
-        });
-      }
-    } catch (e) {
-      print('Error auto-preparing repost audio: $e');
-    }
-  }
-
-  bool _isUrl(String path) {
-    final uri = Uri.tryParse(path);
-    return uri != null &&
-        uri.hasScheme &&
-        (uri.scheme == 'http' || uri.scheme == 'https');
-  }
-
-  Future<void> _downloadFile(String url) async {
-    if (!mounted) return;
-
-    setState(() {
-      _isDownloading = true;
-    });
-
-    try {
-      final tempDir = await getTemporaryDirectory();
-      final fileName = DateTime.timestamp().microsecondsSinceEpoch;
-      final filePath = '${tempDir.path}/$fileName.m4a';
-      final file = File(filePath);
-
-      if (await file.exists()) {
-        debugPrint("File already cached: $filePath");
-        _localAudioPath = file.path;
-      } else {
-        debugPrint("Downloading file: $url");
-        final response = await http.get(Uri.parse(url));
-        if (response.statusCode == 200) {
-          await file.writeAsBytes(response.bodyBytes);
-          _localAudioPath = file.path;
-        } else {
-          throw Exception("Failed to download file");
-        }
-      }
-    } catch (e) {
-      debugPrint("Error downloading file: $e");
-      _localAudioPath = null;
-    } finally {
-      if (!mounted) return;
-      setState(() {
-        _isDownloading = false;
-      });
     }
   }
 
@@ -201,12 +74,6 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
       if (result.isSuccess && result.data != null) {
         originalThought = result.data;
         print('Repost loaded successfully: ${originalThought!.content}');
-
-        // Auto-prepare audio for reposted thoughts that have audio
-        if (originalThought!.audioUrl != null &&
-            originalThought!.audioUrl!.isNotEmpty) {
-          _autoPrepareRepostAudio();
-        }
       } else {
         print('Original thought not found or deleted: $originalId');
         originalThought = null;
@@ -323,12 +190,16 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
                           color: AppColors.metalPinkColour,
                         ),
                         const Gap(4),
-                        TextView(
-                          text:
-                              'Posted in: ${thoughtModel.communityMetadata!.communityName}',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.metalPinkColour,
+                        Expanded(
+                          child: TextView(
+                            text:
+                                'Posted in: ${thoughtModel.communityMetadata!.communityName}',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.metalPinkColour,
+                            maxLines: 1,
+                            textOverflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),
@@ -339,7 +210,10 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
               // Show audio player when thought has audio (voice-only or text+audio)
               if (thoughtModel.audioUrl != null &&
                   thoughtModel.audioUrl!.isNotEmpty) ...[
-                _buildVoicePlayer(context, thoughtModel),
+                AudioPlayer(
+                  audioUrl: thoughtModel.audioUrl!,
+                  theme: AudioPlayerTheme.thought,
+                ),
                 const Gap(6),
               ],
               // Show text when thought has content
@@ -466,13 +340,16 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
       final isCurrentReaction = userReaction?.emoji == emoji;
       return GestureDetector(
         onTap: () async {
+          final currentUserId = ref.read(userStateProvider).user?.id;
           final viewModel =
               ref.read(reactionViewModelProvider(thoughtId).notifier);
-          await viewModel.addReaction(emoji);
+          await viewModel.addReaction(emoji, currentUserId: currentUserId);
 
-          setState(() {
-            _showReactions = false;
-          });
+          if (mounted) {
+            setState(() {
+              _showReactions = false;
+            });
+          }
         },
         child: Container(
           padding: const EdgeInsets.all(4),
@@ -563,12 +440,16 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
                   color: AppColors.metalPinkColour,
                 ),
                 const Gap(4),
-                TextView(
-                  text:
-                      'Posted in: ${original.communityMetadata!.communityName}',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.metalPinkColour,
+                Expanded(
+                  child: TextView(
+                    text:
+                        'Posted in: ${original.communityMetadata!.communityName}',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.metalPinkColour,
+                    maxLines: 1,
+                    textOverflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -577,7 +458,10 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
         ],
         // Show audio when reposted thought has audio
         if (original.audioUrl != null && original.audioUrl!.isNotEmpty) ...[
-          _buildVoicePlayer(context, original),
+          AudioPlayer(
+            audioUrl: original.audioUrl!,
+            theme: AudioPlayerTheme.thought,
+          ),
           const Gap(6),
         ],
         // Show text when reposted thought has content
@@ -686,202 +570,6 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     }
   }
 
-  Widget _buildVoicePlayer(BuildContext context, ThoughtDto original) {
-    final audioUrl = original.audioUrl;
-    if (audioUrl == null || audioUrl.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: const Center(
-          child: TextView(
-            text: 'Audio not available',
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        children: [
-          // Play/Pause button using audio_waveforms for real audio analysis
-          StreamBuilder<PlayerState>(
-            stream: _waveformController.onPlayerStateChanged,
-            builder: (context, stateSnap) {
-              final isPlaying = stateSnap.data == PlayerState.playing;
-              return GestureDetector(
-                onTap: () async {
-                  if (isPlaying) {
-                    await _waveformController.pausePlayer();
-                  } else {
-                    try {
-                      await _waveformController.startPlayer();
-                    } catch (e) {
-                      print('Error playing audio: $e');
-                    }
-                  }
-                },
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.metalPinkColour,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.metalPinkColour.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              );
-            },
-          ),
-          const Gap(12),
-          // Waveform and duration
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Waveform using both packages
-                SizedBox(
-                  height: 30,
-                  child: _isDownloading
-                      ? Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.metalPinkColour,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Loading audio...',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: AppColors.metalPinkColour,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      : Stack(
-                          children: [
-                            // Background waveform from audio_waveforms
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: SizedBox(
-                                width: double.infinity,
-                                height: 30,
-                                child: AudioFileWaveforms(
-                                  size: const Size(double.infinity, 30),
-                                  playerController: _waveformController,
-                                  waveformType: WaveformType.fitWidth,
-                                  playerWaveStyle: const PlayerWaveStyle(
-                                    fixedWaveColor:
-                                        Color.fromARGB(255, 238, 186, 186),
-                                    liveWaveColor: AppColors.metalPinkColour,
-                                    showSeekLine: false,
-                                    showTop: true,
-                                    showBottom: true,
-                                    scaleFactor: 100,
-                                    spacing: 5,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                ),
-                const Gap(4),
-                // Duration text
-                _isPlayerPrepared
-                    ? FutureBuilder<int>(
-                        future: _waveformController.getDuration(),
-                        builder: (context, durationSnap) {
-                          final durationMs = durationSnap.data ?? 0;
-                          final totalDuration =
-                              Duration(milliseconds: durationMs);
-                          final isPlaying =
-                              _waveformController.playerState.isPlaying;
-
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextView(
-                                text:
-                                    _formatDurationFromDuration(totalDuration),
-                                fontSize: 11,
-                                color: isPlaying
-                                    ? AppColors.metalPinkColour
-                                    : Colors.grey.shade600,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              // Play indicator
-                              if (isPlaying)
-                                Container(
-                                  width: 6,
-                                  height: 6,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.metalPinkColour,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                            ],
-                          );
-                        },
-                      )
-                    : const SizedBox.shrink(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Create a real amplitude stream from audio_waveforms data
-
-  String _formatDurationFromDuration(Duration duration) {
-    if (duration.inSeconds == 0) return '0:00';
-
-    final minutes = duration.inMinutes;
-    final seconds = duration.inSeconds % 60;
-
-    if (minutes > 0) {
-      return '$minutes:${seconds.toString().padLeft(2, '0')}';
-    } else {
-      return '0:${seconds.toString().padLeft(2, '0')}';
-    }
-  }
-
   Future<void> _handleDeleteThought(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -937,7 +625,8 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
         } else {
           if (widget.communityId != null && removedForRollback != null) {
             ref
-                .read(communityDetailViewModelProvider(widget.communityId!).notifier)
+                .read(communityDetailViewModelProvider(widget.communityId!)
+                    .notifier)
                 .addPost(removedForRollback);
           }
           Fluttertoast.showToast(msg: 'Failed to delete thought');

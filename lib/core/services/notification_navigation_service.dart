@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:metal/fcm/models/notification_payload_model.dart';
 import 'package:metal/fcm/models/push_type.dart';
 import 'package:metal/domain/entities/notification_dto.dart';
+import 'package:metal/presentation/views/notification/widgets/direct_message_accept_reject_sheet.dart';
 import 'package:metal/route/routes.dart';
 
 /// Centralized service for handling notification navigation
@@ -80,12 +81,22 @@ class NotificationNavigationService {
       case NotificationType.unmetalRequiresMoreTime:
       case NotificationType.message:
       case NotificationType.promptReaction:
-      case NotificationType.directMessage:
         if (notification.connectionId != null) {
           await _navigateToChat(
               {'connectionId': notification.connectionId}, context);
         } else {
           await _navigateToMessages(context);
+        }
+        return;
+      case NotificationType.directMessage:
+        final connectionId = await DirectMessageAcceptRejectSheet.show(
+          context,
+          notification,
+        );
+        if (connectionId != null &&
+            connectionId.isNotEmpty &&
+            context.mounted) {
+          await _navigateToChat({'connectionId': connectionId}, context);
         }
         return;
       case NotificationType.meetupRsvpDeclined:
@@ -259,9 +270,34 @@ class NotificationNavigationService {
         await _navigateToMeetup(data, context);
         break;
       case PushType.promptReaction:
-      case PushType.directMessage:
         await _navigateToChat(data, context);
         break;
+      case PushType.directMessage:
+        {
+          final senderId = data?['senderId'] as String? ?? '';
+          final notification = NotificationDto(
+            id: data?['notificationId'] as String? ?? '',
+            type: NotificationType.directMessage,
+            title: '',
+            message: '',
+            isRead: false,
+            createdAt: DateTime.now(),
+            senderId: senderId,
+            senderName: data?['senderName'] as String?,
+            senderPhoto: data?['senderPhoto'] as String?,
+            data: data is Map<String, dynamic> ? data : <String, dynamic>{},
+          );
+          final connectionId = await DirectMessageAcceptRejectSheet.show(
+            context,
+            notification,
+          );
+          if (connectionId != null &&
+              connectionId.isNotEmpty &&
+              context.mounted) {
+            await _navigateToChat({'connectionId': connectionId}, context);
+          }
+          break;
+        }
     }
   }
 

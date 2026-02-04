@@ -97,11 +97,17 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
     );
   }
 
+  /// Resets all state to initial. Call when screen is dismissed or after successful post
+  /// so the next open is always a fresh start.
+  void reset() {
+    state = const CreateThoughtState();
+  }
+
   /// Upload audio file using MediaRemoteDataSource (Clean Architecture)
   Future<String?> _uploadAudio(String filePath) async {
     try {
       final file = File(filePath);
-      
+
       // Use MediaRemoteDataSource to handle upload (follows Clean Architecture)
       final publicUrl = await _mediaDataSource.uploadMedia(
         file: file,
@@ -109,7 +115,7 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
         purpose: MediaPurpose.thought,
         contentType: 'audio/aac',
       );
-      
+
       return publicUrl;
     } catch (e) {
       print('Error uploading audio: $e');
@@ -120,7 +126,8 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
   /// Post the thought.
   /// [communityMetadata] - Optional metadata for posting to a community.
   /// Returns the created [ThoughtDto] on success, or null on failure (so the caller can add it to the community feed immediately).
-  Future<ThoughtDto?> postThought({Map<String, dynamic>? communityMetadata}) async {
+  Future<ThoughtDto?> postThought(
+      {Map<String, dynamic>? communityMetadata}) async {
     if (!state.canPost) return null;
 
     state = state.copyWith(isPosting: true, isError: false, errorMessage: null);
@@ -134,9 +141,10 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
         state = state.copyWith(isUploadingAudio: true);
         uploadedAudioUrl = await _uploadAudio(state.localAudioPath!);
         // Backend requires audioDuration 1-120 for voice thoughts; use 1 if missing or 0
-        uploadedAudioDuration = state.audioDuration != null && state.audioDuration! >= 1
-            ? state.audioDuration
-            : 1;
+        uploadedAudioDuration =
+            state.audioDuration != null && state.audioDuration! >= 1
+                ? state.audioDuration
+                : 1;
 
         if (uploadedAudioUrl == null) {
           state = state.copyWith(
@@ -194,9 +202,10 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
   }
 }
 
-/// Provider for Create Thought ViewModel
-final createThoughtViewModelProvider =
-    StateNotifierProvider<CreateThoughtViewModel, CreateThoughtState>((ref) {
+/// Provider for Create Thought ViewModel.
+/// Auto-disposes when no longer listened to (e.g. screen popped) so reopening is always fresh.
+final createThoughtViewModelProvider = StateNotifierProvider.autoDispose<
+    CreateThoughtViewModel, CreateThoughtState>((ref) {
   final repository = ref.watch(thoughtRepositoryProvider);
   final mediaDataSource = ref.watch(mediaRemoteDataSourceProvider);
   return CreateThoughtViewModel(
@@ -204,4 +213,3 @@ final createThoughtViewModelProvider =
     mediaDataSource: mediaDataSource,
   );
 });
-

@@ -5,7 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/domain/entities/message_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/presentation/views/chat/widgets/audio_player_widget.dart';
+import 'package:metal/widgets/audio_player.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
 
@@ -317,7 +317,7 @@ class _MessageBubbleState extends State<_MessageBubble>
       // Use the audio player widget
       return SizedBox(
         width: 220,
-        child: AudioPlayerWidget(
+        child: AudioPlayer.chat(
           audioUrl: widget.message.content ?? '',
           isMe: widget.isMe,
         ),
@@ -329,7 +329,7 @@ class _MessageBubbleState extends State<_MessageBubble>
       return _buildPromptReactionMessage();
     }
 
-    // Handle direct message type (from discovery)
+    // Handle direct message type (accepted DM)
     if (widget.message.isDirectMessageMessage) {
       return _buildDirectMessageContent();
     }
@@ -346,7 +346,7 @@ class _MessageBubbleState extends State<_MessageBubble>
     );
   }
 
-  /// Build the direct message UI (from discovery - auto-melt)
+  /// Build the direct message UI (first message from accepted DM)
   Widget _buildDirectMessageContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

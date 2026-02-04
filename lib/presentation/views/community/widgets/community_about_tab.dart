@@ -37,7 +37,8 @@ class CommunityAboutTab extends StatelessWidget {
             _buildSection(
               title: 'Category',
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.metalTabBg,
                   borderRadius: BorderRadius.circular(8),
@@ -67,7 +68,9 @@ class CommunityAboutTab extends StatelessWidget {
                 ),
                 const Gap(8),
                 TextView(
-                  text: community.isPublic ? 'Public Community' : 'Private Community',
+                  text: community.isPublic
+                      ? 'Public Community'
+                      : 'Private Community',
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                   color: AppColors.metalBrownColourForText,
@@ -86,7 +89,8 @@ class CommunityAboutTab extends StatelessWidget {
                 runSpacing: 8,
                 children: community.tags.map((tag) {
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppColors.metalPinkColour.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),

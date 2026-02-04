@@ -18,7 +18,7 @@ import 'package:metal/domain/entities/report_dto.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:metal/core/services/deep_link_service.dart';
 import 'package:metal/route/routes.dart';
-import 'package:metal/presentation/views/chat/widgets/audio_player_widget.dart';
+import 'package:metal/widgets/audio_player.dart';
 
 /// Thought Detail View
 /// Displays a single thought with full content and comments below
@@ -217,12 +217,16 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
                     color: AppColors.metalPinkColour,
                   ),
                   const Gap(4),
-                  TextView(
-                    text:
-                        'Posted in: ${thought.communityMetadata!.communityName}',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.metalPinkColour,
+                  Expanded(
+                    child: TextView(
+                      text:
+                          'Posted in: ${thought.communityMetadata!.communityName}',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.metalPinkColour,
+                      maxLines: 1,
+                      textOverflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -273,9 +277,9 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
           const Icon(Icons.mic, color: AppColors.metalPinkColour, size: 20),
           const Gap(8),
           Expanded(
-            child: AudioPlayerWidget(
+            child: AudioPlayer(
               audioUrl: audioUrl,
-              isMe: true,
+              theme: AudioPlayerTheme.thought,
             ),
           ),
           if (thought.audioDuration != null) ...[

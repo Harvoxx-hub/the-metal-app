@@ -4,7 +4,6 @@ import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/community_dto.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
-import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class CommunityCard extends StatelessWidget {
@@ -238,7 +237,6 @@ class CommunityCard extends StatelessWidget {
                     //     enabled: true,
                     //   ),
                     // ),
-                
                   ],
                 ),
               ),

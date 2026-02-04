@@ -7,11 +7,11 @@ import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/presentation/viewmodels/user/user_profile_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
+import 'package:metal/data/repositories/chat/chat_repository_providers.dart';
 import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
 import 'package:metal/presentation/viewmodels/connection/melt_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
 import 'package:metal/presentation/views/user/widgets/user_thoughts_tab.dart';
-import 'package:metal/presentation/views/user/widgets/user_details_tab.dart';
 import 'package:metal/presentation/views/connection/widgets/metal_details_tab.dart';
 import 'package:metal/presentation/views/dashboard/widgets/complete.profile.dialog.dart';
 import 'package:metal/presentation/widgets/profile/profile_header.dart';
@@ -386,7 +386,7 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
     );
   }
 
-  /// Handle message action
+  /// Handle message action (when not connected: send DM, recipient must accept to create connection)
   Future<void> _handleMessageAction(user) async {
     final currentUserId = ref.read(userStateProvider).user?.id;
 
@@ -399,85 +399,23 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
       return;
     }
 
-    // Show loading dialog
+    final userName = user.username ?? user.fullname ?? 'User';
     if (!mounted) return;
     showDialog(
       context: context,
-      barrierDismissible: false,
-      builder: (context) => PopScope(
-        canPop: false,
-        child: Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    AppColors.metalPinkColour,
-                  ),
-                ),
-                SizedBox(height: 16),
-                TextView(
-                  text: 'Opening chat...',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ],
-            ),
-          ),
-        ),
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (dialogContext) => _ProfileDirectMessageDialog(
+        userName: userName,
+        recipientId: widget.userId,
+        onCancel: () => Navigator.pop(dialogContext),
+        onSent: () {
+          Navigator.pop(dialogContext);
+          Fluttertoast.showToast(
+            msg: 'Message sent! They can accept to start chatting.',
+          );
+        },
       ),
     );
-
-    try {
-      // Create melt request using new architecture
-      final meltViewModel = ref.read(meltActionProvider.notifier);
-      final success = await meltViewModel.meltUser(widget.userId);
-
-      if (!success) {
-        throw Exception('Failed to create connection');
-      }
-
-      // Get connectionId from melt response
-      final meltState = ref.read(meltActionProvider);
-      final connectionId = meltState.response?.connectionId;
-
-      if (connectionId == null || connectionId.isEmpty) {
-        throw Exception('Connection ID not found');
-      }
-
-      // Refresh profile and connections so UI reflects new state
-      ref.read(userProfileViewModelProvider(widget.userId).notifier).refresh();
-      ref.read(connectionViewModelProvider.notifier).refresh();
-      await Future.delayed(const Duration(milliseconds: 300));
-
-      if (!mounted) return;
-      Navigator.of(context).pop(); // Close loading dialog
-
-      if (!mounted) return;
-      Navigator.pushNamed(
-        context,
-        AppRoutes.chatWindowView,
-        arguments: connectionId,
-      );
-    } catch (e) {
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
-
-      if (!mounted) return;
-      final msg = e.toString().replaceAll('Exception: ', '');
-      Fluttertoast.showToast(
-        msg: msg.contains('Connection ID') ? 'Could not open chat. Try again.' : 'Failed to open chat: $msg',
-        toastLength: Toast.LENGTH_LONG,
-      );
-    }
   }
 
   /// Build details tab - shows MetalDetailsTabNew if connected, otherwise UserDetailsTab
@@ -488,18 +426,14 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
     required String connectedOn,
     required bool isAnonymous,
   }) {
-    
-      return MetalDetailsTabNew(
-        connectedOn: connectedOn,
-        connectionId: connectionId,
-        isConnected: isConnected,
-        user: user,
-        isAnonymous: isAnonymous,
-      );
-    }
-
-    
-  
+    return MetalDetailsTabNew(
+      connectedOn: connectedOn,
+      connectionId: connectionId,
+      isConnected: isConnected,
+      user: user,
+      isAnonymous: isAnonymous,
+    );
+  }
 
   /// Melt limit dialog
   Widget _meltLimitDialog() {
@@ -606,14 +540,17 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
                         final success = await ref
                             .read(blockedUsersViewModelProvider.notifier)
                             .unblockUser(userId: widget.userId);
-                        
+
                         if (success) {
                           // Refresh the blocked users list
                           await ref
                               .read(blockedUsersViewModelProvider.notifier)
                               .refreshBlockedUsers();
                           // Refresh the user profile to get updated status
-                          ref.read(userProfileViewModelProvider(widget.userId).notifier).refresh();
+                          ref
+                              .read(userProfileViewModelProvider(widget.userId)
+                                  .notifier)
+                              .refresh();
                           Navigator.of(context).pop();
                           setState(() {
                             _hasShownBlockedDialog = false;
@@ -627,6 +564,189 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
               const Gap(20),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Dialog for sending a direct message from profile (no connection until recipient accepts)
+class _ProfileDirectMessageDialog extends ConsumerStatefulWidget {
+  final String userName;
+  final String recipientId;
+  final VoidCallback onCancel;
+  final VoidCallback onSent;
+
+  const _ProfileDirectMessageDialog({
+    required this.userName,
+    required this.recipientId,
+    required this.onCancel,
+    required this.onSent,
+  });
+
+  @override
+  ConsumerState<_ProfileDirectMessageDialog> createState() =>
+      _ProfileDirectMessageDialogState();
+}
+
+class _ProfileDirectMessageDialogState
+    extends ConsumerState<_ProfileDirectMessageDialog> {
+  final TextEditingController _messageController = TextEditingController();
+  bool _isSending = false;
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSend() async {
+    final message = _messageController.text.trim();
+    if (message.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a message'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    if (_isSending) return;
+
+    setState(() => _isSending = true);
+
+    try {
+      final dataSource = ref.read(chatRemoteDataSourceProvider);
+      await dataSource.sendDirectMessage(
+        recipientId: widget.recipientId,
+        message: message,
+      );
+
+      if (mounted) {
+        widget.onSent();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSending = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send message: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: TextView(
+                text: 'Message ${widget.userName}',
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: TextView(
+                text:
+                    'Send a quick message. They can accept to start chatting.',
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+              child: TextField(
+                controller: _messageController,
+                decoration: InputDecoration(
+                  hintText: 'Write your message...',
+                  hintStyle: TextStyle(
+                    color: Colors.grey.withOpacity(0.6),
+                    fontSize: 16,
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey.withOpacity(0.1),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+                maxLines: 4,
+                maxLength: 500,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: _isSending ? null : widget.onCancel,
+                      child: TextView(
+                        text: 'Cancel',
+                        fontSize: 16,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: GestureDetector(
+                      onTap: _isSending ? null : _handleSend,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: _isSending
+                              ? Colors.grey.shade300
+                              : AppColors.metalPinkColour,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: _isSending
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const TextView(
+                                  text: 'Send Message',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

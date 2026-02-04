@@ -227,17 +227,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ref.read(homeViewModelProvider.notifier).likeUser(userId),
       onPass: (userId) =>
           ref.read(homeViewModelProvider.notifier).passUser(userId),
-      onDirectMessageSent: (userId, connectionId) {
+      onDirectMessageSent: (userId) {
         ref.read(homeViewModelProvider.notifier).removeUser(userId);
-        // Connection was made (it's a melt) – show melt celebration screen first
-        Navigator.pushNamed(
-          context,
-          AppRoutes.meltMetal,
-          arguments: {
-            'userId': userId,
-            'connectionId': connectionId,
-          },
-        );
       },
     );
   }
@@ -263,7 +254,7 @@ class _UserCardView extends ConsumerStatefulWidget {
   final List<DiscoveryUserDto> users;
   final Function(String) onLike;
   final Function(String) onPass;
-  final void Function(String userId, String connectionId)? onDirectMessageSent;
+  final void Function(String userId)? onDirectMessageSent;
 
   const _UserCardView({
     required this.users,
@@ -319,8 +310,7 @@ class _UserCardViewState extends ConsumerState<_UserCardView> {
           ? null
           : () => _handleAction(() => widget.onPass(currentUserId)),
       onDirectMessageSent: widget.onDirectMessageSent != null
-          ? (userId, connectionId) =>
-              widget.onDirectMessageSent!(userId, connectionId)
+          ? (userId) => widget.onDirectMessageSent!(userId)
           : null,
     );
   }

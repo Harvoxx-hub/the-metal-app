@@ -58,9 +58,15 @@ class _SendSparkScreenState extends ConsumerState<SendSparkScreen> {
 
   void _onUsernameChanged() {
     if (_usernameController.text.isNotEmpty) {
-      ref
-          .read(getUserByNameProvider.notifier)
-          .getUserByquery(query: _usernameController.text);
+      // Defer to avoid modifying provider during widget build (e.g. when
+      // preSelectedUser sets text in initState)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref.read(getUserByNameProvider.notifier).getUserByquery(
+                query: _usernameController.text,
+              );
+        }
+      });
     }
   }
 

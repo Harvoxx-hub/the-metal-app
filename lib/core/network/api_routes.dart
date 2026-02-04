@@ -56,6 +56,12 @@ class ApiRoutes {
       '/messages/prompt-reaction'; // POST - send prompt reaction
   static const String directMessage =
       '/messages/direct-message'; // POST - send direct message from discovery
+  static const String pendingDirectMessage =
+      '/messages/pending-direct'; // GET /messages/pending-direct/:senderId
+  static const String directMessageAccept =
+      '/messages/direct-message/accept'; // POST - accept DM, create connection
+  static const String directMessageReject =
+      '/messages/direct-message/reject'; // POST - reject DM
   static const String clearChat =
       '/connections'; // DELETE /connections/:id/messages
 

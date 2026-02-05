@@ -29,7 +29,8 @@ class ApiRoutes {
   static const String getUserProfile = '/users/me';
   static const String updateUserProfile = '/users/me';
   static const String completeProfile = '/users/me/profile/complete';
-  static const String getUserById = '/users'; // /users/:id
+  static const String getUserById = '/users'; // GET /users/:id
+  static const String searchUsers = '/users'; // GET /users?query=&limit=
 
   // Discovery endpoints
   static const String discoveryUsers = '/discovery/users';

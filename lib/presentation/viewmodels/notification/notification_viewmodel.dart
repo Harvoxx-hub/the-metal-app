@@ -110,6 +110,14 @@ class NotificationState {
 class NotificationViewModel extends StateNotifier<NotificationState> {
   final NotificationRepository _repository;
 
+  /// True if this is a melt notification but lacks senderId and connectionId (can't navigate)
+  static bool _isIncompleteMeltNotification(NotificationDto n) {
+    if (n.type != NotificationType.melted) return false;
+    final hasSender = n.effectiveSenderId.isNotEmpty;
+    final hasConnection = n.connectionId != null && n.connectionId!.isNotEmpty;
+    return !hasSender && !hasConnection;
+  }
+
   NotificationViewModel({
     required NotificationRepository repository,
   })  : _repository = repository,
@@ -145,13 +153,20 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
 
     if (mounted) {
       if (result.isSuccess && result.data != null) {
-        final notifications = refresh
+        var notifications = refresh
             ? result.data!.notifications
             : [...state.notifications, ...result.data!.notifications];
 
+        // Remove old melt notifications that lack required data (senderId or connectionId)
+        notifications = notifications
+            .where((n) => !_isIncompleteMeltNotification(n))
+            .toList();
+
+        final unreadCount = notifications.where((n) => !n.isRead).length;
+
         state = NotificationState.success(
           notifications: notifications,
-          unreadCount: result.data!.unreadCount,
+          unreadCount: unreadCount,
           hasMore: result.data!.hasMore,
           currentPage: result.data!.currentPage ?? page,
         );
@@ -185,9 +200,11 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
           return n;
         }).toList();
 
-        final idx = state.notifications.indexWhere((n) => n.id == notificationId);
+        final idx =
+            state.notifications.indexWhere((n) => n.id == notificationId);
         final wasUnread = idx >= 0 && !state.notifications[idx].isRead;
-        final newUnreadCount = wasUnread ? state.unreadCount - 1 : state.unreadCount;
+        final newUnreadCount =
+            wasUnread ? state.unreadCount - 1 : state.unreadCount;
 
         state = state.copyWith(
           isMarking: false,
@@ -294,8 +311,9 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
 }
 
 /// Notification ViewModel Provider
-final notificationViewModelProvider = StateNotifierProvider.autoDispose<
-    NotificationViewModel, NotificationState>((ref) {
+final notificationViewModelProvider =
+    StateNotifierProvider.autoDispose<NotificationViewModel, NotificationState>(
+        (ref) {
   final repository = ref.watch(notificationRepositoryProvider);
   final viewModel = NotificationViewModel(repository: repository);
   viewModel.loadNotifications(); // Initial load when screen opens

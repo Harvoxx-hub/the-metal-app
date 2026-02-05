@@ -61,15 +61,16 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
   }
 
   /// Search users by query (username, name, etc.)
+  /// Backend: GET /api/v1/users?query=&limit= - query optional, empty returns []
   Future<List<Map<String, dynamic>>> searchUsers({
     required String query,
     int limit = 10,
   }) async {
     try {
       final response = await dioClient.get(
-        ApiRoutes.buildPath(ApiRoutes.getUserById),
+        ApiRoutes.buildPath(ApiRoutes.searchUsers),
         queryParameters: {
-          'query': query,
+          'query': query.trim(),
           'limit': limit,
         },
       );
@@ -77,7 +78,8 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       if (response.data is Map<String, dynamic>) {
         final data = response.data as Map<String, dynamic>;
         if (data['success'] == true && data['data'] != null) {
-          final users = data['data'] as List<dynamic>;
+          final dataObj = data['data'] as Map<String, dynamic>;
+          final users = dataObj['users'] as List<dynamic>? ?? [];
           return users.map((user) => user as Map<String, dynamic>).toList();
         }
         throw Exception(data['message'] ?? 'Failed to search users');

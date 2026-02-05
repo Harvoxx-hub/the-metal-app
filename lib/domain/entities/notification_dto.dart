@@ -91,6 +91,7 @@ enum NotificationType {
         return NotificationType.profileLiked;
       case 'melted':
       case 'match':
+      case 'new_connection': // metal-function onConnectionCreated used this
         return NotificationType.melted;
       case 'sparks_sent':
       case 'spark':

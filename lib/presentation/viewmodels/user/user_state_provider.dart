@@ -313,6 +313,7 @@ class GetUsersByQueryNotifier extends StateNotifier<GetUsersByQueryState> {
   GetUsersByQueryNotifier(this._ref) : super(const GetUsersByQueryState());
 
   /// Search users by query (username, name, etc.)
+  /// Backend accepts any query length; empty query clears results without API call.
   Future<void> getUserByquery({required String query}) async {
     final trimmed = query.trim();
     if (trimmed.isEmpty) {

@@ -63,14 +63,14 @@ class NotificationNavigationService {
         await _navigateToReferral(context);
         return;
       case NotificationType.melted:
-        // Take user to the profile of the person they melted with
-        final meltedUserId = notification.effectiveSenderId.isNotEmpty
-            ? notification.effectiveSenderId
-            : (notification.data?['senderId'] as String? ??
-                notification.metadata?['senderId'] as String? ??
-                '');
+        // "You have a melt!" / "It's a match!" - profile of other user, or chat if no senderId
+        final meltedUserId = _extractMeltedUserId(notification);
         if (meltedUserId.isNotEmpty) {
           await _navigateToUserProfile(meltedUserId, context);
+        } else if (notification.connectionId != null &&
+            notification.connectionId!.isNotEmpty) {
+          await _navigateToChat(
+              {'connectionId': notification.connectionId}, context);
         } else {
           await _navigateToHome(context);
         }
@@ -156,18 +156,18 @@ class NotificationNavigationService {
           await _navigateToPostThought(context);
           return;
         }
-        // "You have a new Melt!" coming as system -> go to profile of person they melted with
+        // "You have a melt!" / "You have a new Melt!" / "It's a match!" - profile or chat
         if (title.contains('melt') ||
             message.contains('melt') ||
             title.contains('match') ||
             message.contains('match')) {
-          final meltedUserId = notification.effectiveSenderId.isNotEmpty
-              ? notification.effectiveSenderId
-              : (notification.data?['senderId'] as String? ??
-                  notification.metadata?['senderId'] as String? ??
-                  '');
+          final meltedUserId = _extractMeltedUserId(notification);
           if (meltedUserId.isNotEmpty) {
             await _navigateToUserProfile(meltedUserId, context);
+          } else if (notification.connectionId != null &&
+              notification.connectionId!.isNotEmpty) {
+            await _navigateToChat(
+                {'connectionId': notification.connectionId}, context);
           } else {
             await _navigateToHome(context);
           }
@@ -190,6 +190,20 @@ class NotificationNavigationService {
         final pushType = _mapNotificationTypeToPushType(notification.type);
         await _handleNavigation(pushType, data, context);
     }
+  }
+
+  /// Extract the other user's ID from a melt/match notification (for navigating to their profile)
+  String _extractMeltedUserId(NotificationDto notification) {
+    if (notification.effectiveSenderId.isNotEmpty) {
+      return notification.effectiveSenderId;
+    }
+    return (notification.data?['senderId'] as String? ??
+            notification.metadata?['senderId'] as String? ??
+            notification.data?['userId'] as String? ??
+            notification.metadata?['userId'] as String? ??
+            notification.data?['otherUserId'] as String? ??
+            '')
+        .trim();
   }
 
   /// Centralized navigation handler
@@ -215,12 +229,14 @@ class NotificationNavigationService {
       case PushType.match:
       case PushType.melted:
         {
-          // Take user to the profile of the person they melted with
+          // "You have a melt!" - take user to the profile of the person they melted with
           final metadata = _parseMetadata(data);
-          final userId = metadata?['userId'] as String? ??
-              data?['userId'] as String? ??
-              metadata?['senderId'] as String? ??
-              data?['senderId'] as String?;
+          final userId = (metadata?['userId'] as String? ??
+                  data?['userId'] as String? ??
+                  metadata?['senderId'] as String? ??
+                  data?['senderId'] as String? ??
+                  data?['otherUserId'] as String?)
+              ?.trim();
           if (userId != null && userId.isNotEmpty) {
             await _navigateToUserProfile(userId, context);
           } else {

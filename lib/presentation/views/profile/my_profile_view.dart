@@ -199,10 +199,11 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
     return SingleChildScrollView(
       child: Column(
         children: [
-          const EditProfileView(),
+          const EditProfileView(isPersonal: true),
         ],
       ),
     );
+  //   EditProfileView(isPersonal: true);
   }
 
   /// Discovery Tab - Shows location and communities section

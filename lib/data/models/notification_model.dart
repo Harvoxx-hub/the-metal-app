@@ -44,8 +44,10 @@ class NotificationModel {
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     final contentObj = json['content'];
-    String message =
-        json['message'] as String? ?? json['body'] as String? ?? '';
+    String message = json['message'] as String? ??
+        json['body'] as String? ??
+        json['subTitle'] as String? ??
+        '';
     if (contentObj is Map<String, dynamic>) {
       final contentMsg =
           contentObj['message'] as String? ?? contentObj['body'] as String?;
@@ -62,11 +64,18 @@ class NotificationModel {
     final createdAtRaw = json['createdAt'];
     final createdAt = _parseCreatedAt(createdAtRaw);
 
-    // If type is missing/system but category is 'match', treat as melted (fixes "You have a new Melt!" showing as system)
+    // Map melt-like notifications to melted type (handles metal-function new_connection and system)
     final rawType = json['type'] as String? ?? 'system';
-    final category = json['category'] as String?;
+    final title = (json['title'] as String? ?? '').toLowerCase();
+    final msg = message.toLowerCase();
+    final isMeltLike = title.contains('melt') ||
+        title.contains('match') ||
+        msg.contains('melt') ||
+        msg.contains('match');
     final type =
-        (rawType == 'system' && category == 'match') ? 'melted' : rawType;
+        ((rawType == 'system' || rawType == 'new_connection') && isMeltLike)
+            ? 'melted'
+            : rawType;
 
     return NotificationModel(
       id: json['id'] as String? ?? '',
@@ -108,7 +117,8 @@ class NotificationModel {
 
   NotificationDto toDomain() {
     NotificationUserDto? userDto;
-    if (user != null && (user!['id'] != null || user!['id'] != '')) {
+    final userId = user?['id']?.toString().trim() ?? '';
+    if (user != null && userId.isNotEmpty) {
       userDto = NotificationUserDto.fromJson(user);
     }
 

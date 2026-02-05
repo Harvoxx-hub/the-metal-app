@@ -34,7 +34,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
       orElse: () => metalProperties.metals![0],
     );
 
-    return widget.isPersonal
+    return !widget.isPersonal
         ? BaseScreen(
             appBarState: AppBarState.BackWithHeader,
             Header: "Make Changes to Profile",

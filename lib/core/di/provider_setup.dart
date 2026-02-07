@@ -1,8 +1,35 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/network/dio_client.dart';
 import 'package:metal/core/storage/secure_storage_helper.dart';
 import 'package:metal/core/storage/shared_prefs_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Gate that completes when dashboard startup tasks (including location attempt) finish.
+/// HomeView awaits this before running its own location/discovery flow to avoid races.
+class StartupGateNotifier extends StateNotifier<Completer<void>?> {
+  StartupGateNotifier() : super(null);
+
+  /// Run [run] and complete the gate when done. Only runs once per app session.
+  Future<void> runAfterGate(Future<void> Function() run) async {
+    if (state != null) return;
+    final completer = Completer<void>();
+    state = completer;
+    try {
+      await run();
+    } catch (_) {}
+    if (!completer.isCompleted) completer.complete();
+  }
+}
+
+final startupGateProvider =
+    StateNotifierProvider<StartupGateNotifier, Completer<void>?>((ref) {
+  return StartupGateNotifier();
+});
+
+/// Current dashboard tab index (0 = Home/Discovery). Used by HomeView to re-check location when tab becomes visible.
+final currentDashboardTabIndexProvider = StateProvider<int>((ref) => 0);
 
 /// Core providers for dependency injection
 /// These are the foundation providers that other providers depend on

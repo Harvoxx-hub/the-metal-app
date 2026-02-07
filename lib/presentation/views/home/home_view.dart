@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:metal/core/di/provider_setup.dart';
+import 'package:metal/core/managers/location_manager.dart';
+import 'package:metal/core/utils/permission_helper.dart';
 import 'package:metal/domain/entities/discovery_user_dto.dart';
 import 'package:metal/presentation/viewmodels/home/home_viewmodel.dart';
 import 'package:metal/presentation/views/home/widgets/discovery_user_card.dart';
@@ -20,42 +22,71 @@ class HomeView extends ConsumerStatefulWidget {
   ConsumerState<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends ConsumerState<HomeView> {
+class _HomeViewState extends ConsumerState<HomeView>
+    with WidgetsBindingObserver {
   bool _hasCheckedLocation = false;
+  int? _lastSeenTabIndex;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkLocationAndLoadUsers();
     });
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _hasCheckedLocation = false;
+      _checkLocationAndLoadUsers();
+    }
+  }
+
   Future<void> _checkLocationAndLoadUsers() async {
     if (_hasCheckedLocation) return;
+
+    // Wait for dashboard startup (location attempt) to finish to avoid races
+    final gate = ref.read(startupGateProvider);
+    if (gate != null) {
+      await gate.future;
+    }
+    if (!mounted) return;
+
     _hasCheckedLocation = true;
 
-    final permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      final requestedPermission = await Geolocator.requestPermission();
-      if (requestedPermission == LocationPermission.denied ||
-          requestedPermission == LocationPermission.deniedForever) {
-        if (mounted) {
-          _showLocationPermissionScreen(
-              requestedPermission == LocationPermission.deniedForever);
-        }
-        return;
-      }
-    } else if (permission == LocationPermission.deniedForever) {
-      if (mounted) {
-        _showLocationPermissionScreen(true);
-      }
+    // Use permission_handler as single source of truth for location permission
+    if (await PermissionHelper.hasLocationPermission()) {
+      await _updateProfileLocationAndLoadUsers();
       return;
     }
 
-    // Permission granted, load users
-    ref.read(homeViewModelProvider.notifier).loadUsers();
+    // Try request once (handles "Ask every time" on Android before showing Settings)
+    final result = await PermissionHelper.requestLocationPermission();
+    if (result.granted) {
+      await _updateProfileLocationAndLoadUsers();
+      return;
+    }
+    if (result.permanentlyDenied) {
+      if (mounted) _showLocationPermissionScreen(true);
+      return;
+    }
+    if (mounted) _showLocationPermissionScreen(false);
+  }
+
+  /// Get location, update profile, then load discovery users.
+  Future<void> _updateProfileLocationAndLoadUsers() async {
+    await LocationManager().updateProfileLocation(ref);
+    if (mounted) {
+      ref.read(homeViewModelProvider.notifier).loadUsers();
+    }
   }
 
   void _showLocationPermissionScreen(bool isPermanentlyDenied) {
@@ -63,8 +94,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
       MaterialPageRoute(
         builder: (context) => LocationPermissionScreen(
           isPermanentlyDenied: isPermanentlyDenied,
-          onLocationGranted: () {
-            ref.read(homeViewModelProvider.notifier).refresh();
+          onLocationGranted: () async {
+            await LocationManager().updateProfileLocation(ref);
+            if (mounted) {
+              ref.read(homeViewModelProvider.notifier).refresh();
+            }
           },
         ),
       ),
@@ -74,6 +108,20 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   Widget build(BuildContext context) {
     final homeState = ref.watch(homeViewModelProvider);
+    final currentTabIndex = ref.watch(currentDashboardTabIndexProvider);
+
+    // Re-check location when Discovery tab becomes visible again
+    if (currentTabIndex == 0 &&
+        _lastSeenTabIndex != null &&
+        _lastSeenTabIndex != 0) {
+      _lastSeenTabIndex = 0;
+      _hasCheckedLocation = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkLocationAndLoadUsers();
+      });
+    } else {
+      _lastSeenTabIndex = currentTabIndex;
+    }
 
     // Listen for match results
     ref.listen<SwipeResultDto?>(lastSwipeResultProvider, (previous, next) {
@@ -132,6 +180,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       // Check if error is related to location
       if (errorMessage.contains("Location data required") ||
           errorMessage.toLowerCase().contains("location")) {
+        _hasCheckedLocation = false;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             _checkLocationAndShowScreen();
@@ -157,8 +206,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   Future<void> _checkLocationAndShowScreen() async {
-    final permission = await Geolocator.checkPermission();
-    final isPermanentlyDenied = permission == LocationPermission.deniedForever;
+    final isPermanentlyDenied =
+        await PermissionHelper.isLocationPermanentlyDenied();
     if (mounted) {
       _showLocationPermissionScreen(isPermanentlyDenied);
     }

@@ -16,7 +16,8 @@ class SparkModel {
     return SparkModel(
       balance: json['balance'] as int? ?? 0,
       transactions: (json['transactions'] as List<dynamic>?)
-              ?.map((t) => SparkTransactionModel.fromJson(t as Map<String, dynamic>))
+              ?.map((t) =>
+                  SparkTransactionModel.fromJson(t as Map<String, dynamic>))
               .toList() ??
           [],
       pagination: json['pagination'] != null
@@ -92,6 +93,7 @@ class SparkTransactionModel {
   SparkTransactionType _parseTransactionType(String type) {
     switch (type.toLowerCase()) {
       case 'earned':
+      case 'awarded': // Backend uses 'awarded' for referral/spark rewards
         return SparkTransactionType.earned;
       case 'sent':
         return SparkTransactionType.sent;
@@ -142,11 +144,27 @@ class SendSparkResponseModel {
   });
 
   factory SendSparkResponseModel.fromJson(Map<String, dynamic> json) {
+    final transactionJson = json['transaction'];
+    final SparkTransactionModel transaction;
+    if (transactionJson != null && transactionJson is Map<String, dynamic>) {
+      transaction = SparkTransactionModel.fromJson(transactionJson);
+    } else {
+      // Backend may return only newBalance, amount, recipientId, transactionId
+      transaction = SparkTransactionModel(
+        id: json['transactionId'] as String? ?? '',
+        amount: (json['amount'] as int?) ?? 0,
+        type: 'sent',
+        senderId: null,
+        senderName: null,
+        recipientId: json['recipientId'] as String?,
+        recipientName: null,
+        message: json['message'] as String?,
+        createdAt: DateTime.now().toIso8601String(),
+      );
+    }
     return SendSparkResponseModel(
       newBalance: json['newBalance'] as int? ?? 0,
-      transaction: SparkTransactionModel.fromJson(
-        json['transaction'] as Map<String, dynamic>,
-      ),
+      transaction: transaction,
     );
   }
 }

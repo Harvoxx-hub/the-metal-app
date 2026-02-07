@@ -9,8 +9,6 @@ class CommunityState {
   final List<CommunityDto> communities;
   final List<CommunityDto> filteredCommunities;
   final String searchQuery;
-  final bool hasMore;
-  final int currentPage;
 
   const CommunityState({
     this.isLoading = false,
@@ -19,8 +17,6 @@ class CommunityState {
     this.communities = const [],
     this.filteredCommunities = const [],
     this.searchQuery = '',
-    this.hasMore = true,
-    this.currentPage = 1,
   });
 
   factory CommunityState.initial() => const CommunityState();
@@ -32,8 +28,6 @@ class CommunityState {
     List<CommunityDto>? communities,
     List<CommunityDto>? filteredCommunities,
     String? searchQuery,
-    bool? hasMore,
-    int? currentPage,
   }) {
     return CommunityState(
       isLoading: isLoading ?? this.isLoading,
@@ -42,8 +36,6 @@ class CommunityState {
       communities: communities ?? this.communities,
       filteredCommunities: filteredCommunities ?? this.filteredCommunities,
       searchQuery: searchQuery ?? this.searchQuery,
-      hasMore: hasMore ?? this.hasMore,
-      currentPage: currentPage ?? this.currentPage,
     );
   }
 }
@@ -66,18 +58,17 @@ class CommunityViewModel extends StateNotifier<CommunityState> {
 
     final searchQuery = search ?? state.searchQuery;
     final result = await _repository.getCommunities(
-      page: refresh ? 1 : state.currentPage,
       search: searchQuery.isNotEmpty ? searchQuery : null,
     );
 
     if (mounted) {
       if (result.isSuccess && result.data != null) {
+        final listResult = result.data!;
         state = state.copyWith(
           isLoading: false,
-          communities: result.data!,
-          filteredCommunities: result.data!,
+          communities: listResult.communities,
+          filteredCommunities: listResult.communities,
           searchQuery: searchQuery,
-          hasMore: result.data!.length >= 20,
         );
       } else {
         state = state.copyWith(
@@ -159,9 +150,8 @@ class CommunityViewModel extends StateNotifier<CommunityState> {
 
       if (wasDeleted) {
         // Community was deleted - remove it from the list
-        final updatedCommunities = state.communities
-            .where((c) => c.id != communityId)
-            .toList();
+        final updatedCommunities =
+            state.communities.where((c) => c.id != communityId).toList();
 
         final updatedFiltered = state.filteredCommunities
             .where((c) => c.id != communityId)
@@ -197,9 +187,9 @@ class CommunityViewModel extends StateNotifier<CommunityState> {
 
   Future<bool> createCommunity(CreateCommunityDto request) async {
     if (state.isLoading) return false;
-    
+
     state = state.copyWith(isLoading: true, isError: false, errorMessage: null);
-    
+
     final result = await _repository.createCommunity(request);
 
     if (mounted) {

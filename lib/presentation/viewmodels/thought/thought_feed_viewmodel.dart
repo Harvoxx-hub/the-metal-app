@@ -180,7 +180,7 @@ class ThoughtFeedViewModel extends StateNotifier<ThoughtFeedState> {
     );
   }
 
-  /// Remove all thoughts from a user (e.g. after blocking)
+  /// Remove all thoughts from a user from the feed (e.g. after blocking or account deletion)
   void removeThoughtsByUserId(String userId) {
     state = state.copyWith(
       thoughts: state.thoughts.where((t) => t.userId != userId).toList(),

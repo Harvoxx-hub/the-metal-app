@@ -141,6 +141,31 @@ class CommunitiesListModel {
   List<CommunityDto> toDomain() {
     return communities.map((c) => c.toDomain()).toList();
   }
+
+  /// Convert to domain result with pagination
+  CommunitiesListResult toDomainWithPagination() {
+    return CommunitiesListResult(
+      communities: communities.map((c) => c.toDomain()).toList(),
+      hasMore: pagination?.hasMore ?? false,
+      currentPage: pagination?.currentPage ?? 1,
+      totalItems: pagination?.totalItems ?? 0,
+    );
+  }
+}
+
+/// Result of getCommunities with pagination metadata
+class CommunitiesListResult {
+  final List<CommunityDto> communities;
+  final bool hasMore;
+  final int currentPage;
+  final int totalItems;
+
+  CommunitiesListResult({
+    required this.communities,
+    required this.hasMore,
+    required this.currentPage,
+    required this.totalItems,
+  });
 }
 
 /// Pagination info model
@@ -158,11 +183,15 @@ class PaginationInfo {
   });
 
   factory PaginationInfo.fromJson(Map<String, dynamic> json) {
+    final page = json['currentPage'] as int? ?? json['page'] as int? ?? 1;
+    final total = json['totalItems'] as int? ?? json['total'] as int? ?? 0;
+    final totalPages = json['totalPages'] as int? ?? 1;
+    final hasMore = json['hasMore'] as bool? ?? (page < totalPages);
     return PaginationInfo(
-      currentPage: json['currentPage'] as int? ?? 1,
-      totalPages: json['totalPages'] as int? ?? 1,
-      totalItems: json['totalItems'] as int? ?? 0,
-      hasMore: json['hasMore'] as bool? ?? false,
+      currentPage: page,
+      totalPages: totalPages,
+      totalItems: total,
+      hasMore: hasMore,
     );
   }
 }

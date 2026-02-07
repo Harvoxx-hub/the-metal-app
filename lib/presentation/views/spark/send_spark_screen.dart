@@ -9,6 +9,7 @@ import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
+import 'package:metal/widgets/dialog/dialogs.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/route/routes.dart';
 
@@ -352,21 +353,36 @@ class _SendSparkScreenState extends ConsumerState<SendSparkScreen> {
           message: null,
         );
 
-    if (mounted) {
-      if (success) {
-        final userName = selectedUser?.username ??
-            widget.preSelectedUser?.username ??
-            'user';
-        Fluttertoast.showToast(
-          msg: "Successfully sent $amount sparks to @$userName",
-        );
-        Navigator.pop(context);
-      } else {
-        Fluttertoast.showToast(
-          msg: ref.read(sparkViewModelProvider).errorMessage ??
-              "Failed to send sparks",
-        );
-      }
-    }
+    if (!mounted) return;
+
+    final userName =
+        selectedUser?.username ?? widget.preSelectedUser?.username ?? 'user';
+    final message = success
+        ? "Successfully sent $amount spark${amount == 1 ? '' : 's'} to @$userName"
+        : (ref.read(sparkViewModelProvider).errorMessage ??
+            "Failed to send sparks");
+
+    final navigator = Navigator.of(context);
+    await MetalDialog.show(
+      context: context,
+      barrierDismissible: false,
+      icon: Icon(
+        success ? Icons.check_circle : Icons.error_outline,
+        size: 48,
+        color: success ? AppColors.metalPinkColour : Colors.grey.shade700,
+      ),
+      title: success ? "Success" : "Failed",
+      content: TextView(
+        text: message,
+        fontSize: 14,
+        textAlign: TextAlign.center,
+        color: Colors.black87,
+      ),
+      primaryButtonText: "Dismiss",
+      onPrimaryPressed: () {
+        navigator.pop(); // Close dialog
+        navigator.pop(); // Back to previous screen
+      },
+    );
   }
 }

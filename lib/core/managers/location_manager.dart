@@ -1,8 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../services/location_service.dart';
 import '../services/app_version_service.dart';
 import '../utils/permission_helper.dart';
@@ -55,6 +52,30 @@ class LocationManager {
     }
   }
 
+  /// Get current location and update user profile. Call after user grants permission (e.g. on Discovery).
+  /// Returns true if location was obtained and profile updated.
+  Future<bool> updateProfileLocation(WidgetRef ref) async {
+    try {
+      final user = ref.read(userStateProvider).user;
+      if (user == null) return false;
+
+      final result = await _locationService.getCurrentLocation();
+      if (result.isSuccess && result.location != null) {
+        await ref.read(userStateProvider.notifier).updateUserField(
+              field: 'location',
+              value: result.location!.toJson(),
+            );
+        debugPrint(
+            'Profile location updated successfully: ${result.location!.address}');
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Error updating profile location: $e');
+      return false;
+    }
+  }
+
   /// Handle location permission denial
   /// Note: This method is kept for backward compatibility but location permission
   /// is now handled in the HomePage with a full-screen UI instead of dialogs
@@ -70,9 +91,10 @@ class LocationManager {
       return;
     }
 
-    // Check if permission is permanently denied
-    final permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.deniedForever) {
+    // Check if permission is permanently denied (permission_handler)
+    final isPermanentlyDenied =
+        await PermissionHelper.isLocationPermanentlyDenied();
+    if (isPermanentlyDenied) {
       debugPrint('Location permission is permanently denied');
       // The HomePage will show the location permission screen
       return;

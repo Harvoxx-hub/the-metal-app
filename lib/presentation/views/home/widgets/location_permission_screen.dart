@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:metal/core/utils/permission_helper.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -82,7 +82,8 @@ class LocationPermissionScreen extends StatelessWidget {
                       const SizedBox(height: 12),
                       _buildInstructionStep("3", "Tap Location"),
                       const SizedBox(height: 12),
-                      _buildInstructionStep("4", 'Select "While Using the App"'),
+                      _buildInstructionStep(
+                          "4", 'Select "While Using the App"'),
                     ],
                   ),
                 ),
@@ -97,9 +98,11 @@ class LocationPermissionScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildInstructionStep("1", "Go to Settings > Metal > Location"),
+                      _buildInstructionStep(
+                          "1", "Go to Settings > Metal > Location"),
                       const SizedBox(height: 12),
-                      _buildInstructionStep("2", "Enable Location While Using the App"),
+                      _buildInstructionStep(
+                          "2", "Enable Location While Using the App"),
                     ],
                   ),
                 ),
@@ -161,19 +164,24 @@ class LocationPermissionScreen extends StatelessWidget {
   }
 
   Future<void> _checkPermissionAfterSettings(BuildContext context) async {
-    // Wait a bit for the system to update permission status
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Poll a few times: system may take a moment to update after returning from Settings
+    const initialDelay = Duration(milliseconds: 800);
+    const pollInterval = Duration(milliseconds: 600);
+    const maxAttempts = 3;
 
-    final permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.whileInUse ||
-        permission == LocationPermission.always) {
-      // Permission granted, notify callback
-      onLocationGranted?.call();
-      // Pop the screen
-      if (context.mounted) {
-        Navigator.of(context).pop();
+    await Future.delayed(initialDelay);
+
+    for (var attempt = 0; attempt < maxAttempts && context.mounted; attempt++) {
+      if (await PermissionHelper.hasLocationPermission()) {
+        onLocationGranted?.call();
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+        return;
+      }
+      if (attempt < maxAttempts - 1) {
+        await Future.delayed(pollInterval);
       }
     }
   }
 }
-

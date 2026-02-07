@@ -32,8 +32,15 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
     super.initState();
     _scrollController.addListener(_onScroll);
     NotificationRefreshSignal.instance.addListener(_onPushReceived);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(notificationViewModelProvider.notifier).refreshNotifications();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref
+          .read(notificationViewModelProvider.notifier)
+          .refreshNotifications();
+      if (!mounted) return;
+      final state = ref.read(notificationViewModelProvider);
+      if (state.unreadCount > 0) {
+        await ref.read(notificationViewModelProvider.notifier).markAllAsRead();
+      }
     });
   }
 
@@ -64,7 +71,7 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
       Header: 'Notifications',
       appBarState: AppBarState.BackWithHeader,
       body: _buildBody(context, notificationState),
-    ) ;
+    );
   }
 
   Widget _buildBody(BuildContext context, NotificationState state) {
@@ -78,7 +85,9 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
       return ErrorState(
         text: state.errorMessage ?? 'Failed to load notifications',
         retry: () {
-          ref.read(notificationViewModelProvider.notifier).refreshNotifications();
+          ref
+              .read(notificationViewModelProvider.notifier)
+              .refreshNotifications();
         },
       );
     }
@@ -119,7 +128,9 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
     // Notification list
     return RefreshIndicator(
       onRefresh: () async {
-        await ref.read(notificationViewModelProvider.notifier).refreshNotifications();
+        await ref
+            .read(notificationViewModelProvider.notifier)
+            .refreshNotifications();
       },
       color: AppColors.metalPinkColour,
       child: ListView.builder(
@@ -143,7 +154,8 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
           return NotificationItemCard(
             notification: notification,
             onTap: () => _handleNotificationTap(context, notification),
-            onAction: (action) => _handleNotificationAction(context, notification, action),
+            onAction: (action) =>
+                _handleNotificationAction(context, notification, action),
           );
         },
       ),
@@ -155,12 +167,11 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
     notification,
     String action,
   ) async {
-    final result = await ref
-        .read(notificationViewModelProvider.notifier)
-        .executeAction(
-          notificationId: notification.id,
-          action: action,
-        );
+    final result =
+        await ref.read(notificationViewModelProvider.notifier).executeAction(
+              notificationId: notification.id,
+              action: action,
+            );
 
     if (!context.mounted) return;
 
@@ -169,9 +180,11 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
       final meetupId = result['meetupId'] as String?;
 
       if (connectionId != null && connectionId.isNotEmpty) {
-        Navigator.pushNamed(context, AppRoutes.chatWindowView, arguments: connectionId);
+        Navigator.pushNamed(context, AppRoutes.chatWindowView,
+            arguments: connectionId);
       } else if (meetupId != null && meetupId.isNotEmpty) {
-        Navigator.pushNamed(context, AppRoutes.meetupDetails, arguments: meetupId);
+        Navigator.pushNamed(context, AppRoutes.meetupDetails,
+            arguments: meetupId);
       }
     }
 
@@ -197,9 +210,8 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
   }
 
   Future<void> _handleMarkAllAsRead(BuildContext context) async {
-    final success = await ref
-        .read(notificationViewModelProvider.notifier)
-        .markAllAsRead();
+    final success =
+        await ref.read(notificationViewModelProvider.notifier).markAllAsRead();
 
     if (mounted && success) {
       Fluttertoast.showToast(

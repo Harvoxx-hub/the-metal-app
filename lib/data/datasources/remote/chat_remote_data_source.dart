@@ -152,6 +152,80 @@ class ChatRemoteDataSource {
     throw Exception(response.data?['error'] ?? 'Failed to send message');
   }
 
+  /// Send a direct message from discovery (no connection until recipient accepts)
+  Future<Map<String, dynamic>> sendDirectMessage({
+    required String recipientId,
+    required String message,
+  }) async {
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.directMessage),
+      data: {
+        'recipientId': recipientId,
+        'message': message,
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.data != null) {
+        final data =
+            response.data['data'] as Map<String, dynamic>? ?? response.data;
+        return data as Map<String, dynamic>;
+      }
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to send direct message');
+  }
+
+  /// Get pending direct messages from a sender (for Accept/Reject sheet)
+  Future<Map<String, dynamic>> getPendingDirectMessages(String senderId) async {
+    final response = await _client.get(
+      '${ApiRoutes.buildPath(ApiRoutes.pendingDirectMessage)}/$senderId',
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return data as Map<String, dynamic>;
+    }
+
+    throw Exception(
+        response.data?['error'] ?? 'Failed to get pending direct messages');
+  }
+
+  /// Accept direct message: create connection, move messages to chat
+  Future<Map<String, dynamic>> acceptDirectMessage(String senderId) async {
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.directMessageAccept),
+      data: {'senderId': senderId},
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return data as Map<String, dynamic>;
+    }
+
+    throw Exception(
+        response.data?['error'] ?? 'Failed to accept direct message');
+  }
+
+  /// Reject direct message: clear pending, no connection
+  Future<Map<String, dynamic>> rejectDirectMessage(String senderId) async {
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.directMessageReject),
+      data: {'senderId': senderId},
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return data as Map<String, dynamic>;
+    }
+
+    throw Exception(
+        response.data?['error'] ?? 'Failed to reject direct message');
+  }
+
   /// Send a prompt reaction (reply to user's prompt)
   Future<Map<String, dynamic>> sendPromptReaction({
     required String recipientId,
@@ -179,78 +253,6 @@ class ChatRemoteDataSource {
 
     throw Exception(
         response.data?['error'] ?? 'Failed to send prompt reaction');
-  }
-
-  /// Send a direct message from discovery (no connection until recipient accepts).
-  /// Returns { messageId, pendingDirectMessageId }. No connectionId.
-  Future<Map<String, dynamic>> sendDirectMessage({
-    required String recipientId,
-    required String message,
-  }) async {
-    final response = await _client.post(
-      ApiRoutes.buildPath(ApiRoutes.directMessage),
-      data: {
-        'recipientId': recipientId,
-        'message': message,
-      },
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      if (response.data != null) {
-        final data =
-            response.data['data'] as Map<String, dynamic>? ?? response.data;
-        return data;
-      }
-    }
-
-    throw Exception(response.data?['error'] ?? 'Failed to send direct message');
-  }
-
-  /// Get pending direct messages from a sender (for Accept/Reject pop-up).
-  Future<Map<String, dynamic>> getPendingDirectMessages(String senderId) async {
-    final response = await _client.get(
-      '${ApiRoutes.buildPath(ApiRoutes.pendingDirectMessage)}/$senderId',
-    );
-
-    if (response.statusCode == 200 && response.data != null) {
-      final data =
-          response.data['data'] as Map<String, dynamic>? ?? response.data;
-      return data;
-    }
-
-    throw Exception(
-        response.data?['error'] ?? 'Failed to get pending direct messages');
-  }
-
-  /// Accept direct message: create connection, move messages to chat.
-  /// Returns { connectionId }.
-  Future<Map<String, dynamic>> acceptDirectMessage(String senderId) async {
-    final response = await _client.post(
-      ApiRoutes.buildPath(ApiRoutes.directMessageAccept),
-      data: {'senderId': senderId},
-    );
-
-    if (response.statusCode == 200 && response.data != null) {
-      final data =
-          response.data['data'] as Map<String, dynamic>? ?? response.data;
-      return data;
-    }
-
-    throw Exception(
-        response.data?['error'] ?? 'Failed to accept direct message');
-  }
-
-  /// Reject direct message: clear pending, no connection created.
-  Future<void> rejectDirectMessage(String senderId) async {
-    final response = await _client.post(
-      ApiRoutes.buildPath(ApiRoutes.directMessageReject),
-      data: {'senderId': senderId},
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception(
-          response.data?['error'] ?? 'Failed to reject direct message');
-    }
   }
 
   /// Upload and send an audio message

@@ -5,6 +5,17 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../widgets/dialog/enhanced.dialog.dart';
 import '../../widgets/text_views.dart';
 
+/// Result of a location permission check/request.
+class LocationPermissionResult {
+  final bool granted;
+  final bool permanentlyDenied;
+
+  const LocationPermissionResult({
+    required this.granted,
+    required this.permanentlyDenied,
+  });
+}
+
 class PermissionHelper {
   static Future<bool> requestCallPermissions(BuildContext context) async {
     if (Platform.isIOS) {
@@ -62,16 +73,7 @@ class PermissionHelper {
 
     if (permissionsToRequest.isNotEmpty) {
       final results = await permissionsToRequest.request();
-
-      // Check if all requested permissions were granted
-      bool allGranted = true;
-      for (final permission in permissionsToRequest) {
-        final status = await permission.status;
-        if (!status.isGranted) {
-          allGranted = false;
-          break;
-        }
-      }
+      final allGranted = results.values.every((s) => s.isGranted);
 
       // Optionally, request notification permission in the background (non-blocking)
       if (!notificationStatus.isGranted &&
@@ -458,6 +460,47 @@ class PermissionHelper {
 
     final systemAlertStatus = await Permission.systemAlertWindow.status;
     return systemAlertStatus.isGranted;
+  }
+
+  // ============================================
+  // Location Permission (permission_handler - single source of truth)
+  // ============================================
+
+  /// Check if location (when in use) permission is granted.
+  static Future<bool> hasLocationPermission() async {
+    final status = await Permission.locationWhenInUse.status;
+    return status.isGranted;
+  }
+
+  /// Get current location permission status.
+  static Future<PermissionStatus> getLocationPermissionStatus() async {
+    return await Permission.locationWhenInUse.status;
+  }
+
+  /// Request location permission. Returns true if granted.
+  /// Before showing "permanently denied" UI, call this once (e.g. "Ask every time" may show dialog).
+  static Future<LocationPermissionResult> requestLocationPermission() async {
+    var status = await Permission.locationWhenInUse.status;
+    if (status.isGranted) {
+      return LocationPermissionResult(granted: true, permanentlyDenied: false);
+    }
+    if (status.isPermanentlyDenied) {
+      return LocationPermissionResult(granted: false, permanentlyDenied: true);
+    }
+    status = await Permission.locationWhenInUse.request();
+    if (status.isGranted) {
+      return LocationPermissionResult(granted: true, permanentlyDenied: false);
+    }
+    if (status.isPermanentlyDenied) {
+      return LocationPermissionResult(granted: false, permanentlyDenied: true);
+    }
+    return LocationPermissionResult(granted: false, permanentlyDenied: false);
+  }
+
+  /// Check if location is permanently denied (user must go to Settings).
+  static Future<bool> isLocationPermanentlyDenied() async {
+    final status = await Permission.locationWhenInUse.status;
+    return status.isPermanentlyDenied;
   }
 
   // Add a method specifically for incoming call scenarios

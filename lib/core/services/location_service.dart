@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart' hide Location;
 
 import '../../data/models/user_location_model.dart';
+import '../utils/permission_helper.dart';
 
 /// Result class for location service operations
 class LocationResult {
@@ -84,40 +85,25 @@ class LocationService {
     }
   }
 
-  /// Check location permission status
-  /// Returns a map with 'granted' boolean and optional 'message'
+  /// Check location permission using permission_handler (single source of truth).
+  /// Returns a map with 'granted' boolean and optional 'message'.
   Future<Map<String, dynamic>> _checkLocationPermission() async {
-    var permission = await Geolocator.checkPermission();
+    final result = await PermissionHelper.requestLocationPermission();
 
-    if (permission == LocationPermission.denied) {
-      // Request permission
-      permission = await Geolocator.requestPermission();
+    if (result.granted) {
+      return {'granted': true};
     }
-
-    if (permission == LocationPermission.denied) {
-      return {
-        'granted': false,
-        'message':
-            'Location permission is denied. Please enable location permission in settings.',
-      };
-    }
-
-    if (permission == LocationPermission.deniedForever) {
+    if (result.permanentlyDenied) {
       return {
         'granted': false,
         'message':
             'Location permission is permanently denied. Please enable it in app settings.',
       };
     }
-
-    if (permission == LocationPermission.whileInUse ||
-        permission == LocationPermission.always) {
-      return {'granted': true};
-    }
-
     return {
       'granted': false,
-      'message': 'Location permission not available',
+      'message':
+          'Location permission is denied. Please enable location permission in settings.',
     };
   }
 

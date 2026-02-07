@@ -8,17 +8,14 @@ class CommunityRemoteDataSource {
 
   CommunityRemoteDataSource(this._client);
 
-  /// Get communities list with filters
+  /// Get communities list with filters.
+  /// Backend returns all communities (no limit).
   Future<CommunitiesListModel> getCommunities({
     String? type,
     String? category,
     String? search,
-    int page = 1,
-    int limit = 20,
   }) async {
     final queryParams = <String, dynamic>{
-      'page': page,
-      'limit': limit,
       if (type != null) 'type': type,
       if (category != null) 'category': category,
       if (search != null && search.isNotEmpty) 'search': search,
@@ -30,7 +27,8 @@ class CommunityRemoteDataSource {
     );
 
     if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
       return CommunitiesListModel.fromJson(data);
     }
 
@@ -44,7 +42,8 @@ class CommunityRemoteDataSource {
     );
 
     if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
       return CommunityDetailsModel.fromJson(data);
     }
 
@@ -52,15 +51,18 @@ class CommunityRemoteDataSource {
   }
 
   /// Create a new community
-  Future<CommunityModel> createCommunity(CreateCommunityRequestModel request) async {
+  Future<CommunityModel> createCommunity(
+      CreateCommunityRequestModel request) async {
     final response = await _client.post(
       ApiRoutes.buildPath(ApiRoutes.communities),
       data: request.toJson(),
     );
 
     // Accept both 200 and 201 status codes (201 Created is standard for POST)
-    if ((response.statusCode == 200 || response.statusCode == 201) && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+    if ((response.statusCode == 200 || response.statusCode == 201) &&
+        response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
       return CommunityModel.fromJson(data);
     }
 
@@ -90,7 +92,8 @@ class CommunityRemoteDataSource {
     }
 
     // Return the response data which includes 'deleted' or 'left' flag
-    final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+    final data =
+        response.data['data'] as Map<String, dynamic>? ?? response.data;
     return data as Map<String, dynamic>;
   }
 
@@ -109,10 +112,12 @@ class CommunityRemoteDataSource {
     );
 
     if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
       return CommunityMembersListModel.fromJson(data);
     }
 
-    throw Exception(response.data?['error'] ?? 'Failed to get community members');
+    throw Exception(
+        response.data?['error'] ?? 'Failed to get community members');
   }
 }

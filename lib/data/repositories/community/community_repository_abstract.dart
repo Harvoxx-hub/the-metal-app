@@ -1,13 +1,12 @@
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/data/models/community_model.dart';
 import 'package:metal/domain/entities/community_dto.dart';
 
 abstract class CommunityRepositoryAbstract {
-  Future<BaseState<List<CommunityDto>>> getCommunities({
+  Future<BaseState<CommunitiesListResult>> getCommunities({
     String? type,
     String? category,
     String? search,
-    int page = 1,
-    int limit = 20,
   });
 
   Future<BaseState<CommunityDto>> getCommunityById(String id);

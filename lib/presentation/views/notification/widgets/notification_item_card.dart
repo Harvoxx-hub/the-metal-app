@@ -267,8 +267,16 @@ class NotificationItemCard extends ConsumerWidget {
 
   Widget _buildContent(BuildContext context, bool isUnread) {
     final displayMessage = notification.displayMessage;
-    final effectiveMessage =
-        displayMessage.isNotEmpty ? displayMessage : 'New notification';
+    String effectiveMessage;
+    if (notification.type == NotificationType.directMessage) {
+      final senderName = notification.effectiveSenderName;
+      effectiveMessage = senderName.isNotEmpty
+          ? 'You got a direct message from @$senderName'
+          : displayMessage;
+    } else {
+      effectiveMessage =
+          displayMessage.isNotEmpty ? displayMessage : 'New notification';
+    }
 
     return DefaultTextStyle(
       style: TextStyle(

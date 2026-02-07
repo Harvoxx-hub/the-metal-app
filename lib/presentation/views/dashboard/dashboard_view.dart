@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/core/di/provider_setup.dart';
 import 'package:metal/core/services/startup_service.dart';
 
 import 'package:metal/presentation/views/chat/chat_list_view.dart';
@@ -13,7 +14,6 @@ import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/home/home_view.dart';
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/nav/badged_nav_icon.dart';
 
 /// Dashboard View
@@ -36,7 +36,6 @@ class DashboardView extends ConsumerStatefulWidget {
 
 class _DashboardViewState extends ConsumerState<DashboardView> {
   late int _currentIndex;
-  bool _startupComplete = false;
 
   /// Pages displayed in bottom navigation
   final List<Widget> _pages = [
@@ -54,26 +53,28 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
 
     // Run startup tasks after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(currentDashboardTabIndexProvider.notifier).state = _currentIndex;
       _runStartupTasks();
     });
   }
 
-  /// Run startup initialization tasks
-  Future<void> _runStartupTasks() async {
-    if (_startupComplete || !mounted) return;
-    _startupComplete = true;
-
-    final userData = ref.read(userStateProvider).user;
-    if (userData != null && mounted) {
-      await ref
-          .read(startupServiceProvider)
-          .runStartupTasks(context, ref, userData);
-    }
+  /// Run startup initialization tasks. Gate is completed when done so HomeView can await it.
+  void _runStartupTasks() {
+    ref.read(startupGateProvider.notifier).runAfterGate(() async {
+      if (!mounted) return;
+      final userData = ref.read(userStateProvider).user;
+      if (userData != null && mounted) {
+        await ref
+            .read(startupServiceProvider)
+            .runStartupTasks(context, ref, userData);
+      }
+    });
   }
 
   /// Handle bottom nav tap
   void _onNavTap(int index) {
     setState(() => _currentIndex = index);
+    ref.read(currentDashboardTabIndexProvider.notifier).state = index;
   }
 
   @override

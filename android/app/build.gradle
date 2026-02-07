@@ -119,22 +119,6 @@ android {
         }
     }
 
-    flavorDimensions "app"
-    productFlavors {
-        prod {
-            dimension "app"
-            applicationIdSuffix ""
-            resValue "string", "app_name", "metal"
-        }
-        dev {
-            dimension "app"
-            applicationIdSuffix ".dev"
-            resValue "string", "app_name", "metal-dev"
-            versionNameSuffix "-dev"
-        }
-    }
-
-    
     lint {
         disable 'InvalidPackage'
     }

@@ -12,25 +12,21 @@ class CommunityRepository implements CommunityRepositoryAbstract {
       : _remoteDataSource = remoteDataSource;
 
   @override
-  Future<BaseState<List<CommunityDto>>> getCommunities({
+  Future<BaseState<CommunitiesListResult>> getCommunities({
     String? type,
     String? category,
     String? search,
-    int page = 1,
-    int limit = 20,
   }) async {
     try {
       final response = await _remoteDataSource.getCommunities(
         type: type,
         category: category,
         search: search,
-        page: page,
-        limit: limit,
       );
-      final communities = response.toDomain();
-      return BaseState.success(communities);
+      final result = response.toDomainWithPagination();
+      return BaseState.success(result);
     } catch (e) {
-      return ErrorHandler.handleError<List<CommunityDto>>(e);
+      return ErrorHandler.handleError<CommunitiesListResult>(e);
     }
   }
 
@@ -74,7 +70,8 @@ class CommunityRepository implements CommunityRepositoryAbstract {
   }
 
   @override
-  Future<BaseState<CommunityDto>> createCommunity(CreateCommunityDto request) async {
+  Future<BaseState<CommunityDto>> createCommunity(
+      CreateCommunityDto request) async {
     try {
       final requestModel = CreateCommunityRequestModel.fromDto(request);
       final response = await _remoteDataSource.createCommunity(requestModel);
@@ -96,7 +93,8 @@ class CommunityRepository implements CommunityRepositoryAbstract {
   }
 
   @override
-  Future<BaseState<Map<String, dynamic>?>> leaveCommunity(String communityId) async {
+  Future<BaseState<Map<String, dynamic>?>> leaveCommunity(
+      String communityId) async {
     try {
       final result = await _remoteDataSource.leaveCommunity(communityId);
       // Return the result map so viewmodel can check if community was deleted

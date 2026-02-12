@@ -1,82 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:metal/features/authentication/presentation/forget.password/create.new.password.dart';
-import 'package:metal/features/authentication/presentation/forget.password/forgot_password.otp.screen.dart';
-import 'package:metal/features/authentication/presentation/forget.password/forgot_password.screen.dart';
-import 'package:metal/features/authentication/presentation/login/login.screen.dart';
-import 'package:metal/features/chat/domain/entries/game.model.dart';
-import 'package:metal/features/home_page/domain/entries/thought.model.dart';
-import 'package:metal/features/verification/face_verification_screen.dart';
 
-import 'package:metal/features/home_page/post_thought.dart';
-import 'package:metal/features/my.metals/melt.metal.dart';
- 
-import 'package:metal/features/onboarding/onboarding_page_view.dart';
-import 'package:metal/features/onboarding/tutorial_pages/tutorial_screen.dart';
- 
-import 'package:metal/features/settings/presentation/delete.screen.dart';
-import 'package:metal/features/settings/presentation/edit.page.dart';
-import 'package:metal/features/splash/splash.screen.dart';
-import 'package:camera/camera.dart';
+import 'package:metal/presentation/views/settings/delete_account_view.dart';
 
-import 'package:metal/features/authentication/domain/entries/user.model.dart';
+// New Clean Architecture views
+import 'package:metal/presentation/views/splash/splash_view.dart';
+import 'package:metal/presentation/views/onboarding/onboarding_view.dart';
+import 'package:metal/presentation/views/auth/login_view.dart';
+import 'package:metal/presentation/views/auth/signup_view.dart';
+import 'package:metal/presentation/views/auth/verification_view.dart';
+import 'package:metal/presentation/views/auth/forgot_password_view.dart';
+import 'package:metal/presentation/views/welcome/welcome_view.dart';
+import 'package:metal/presentation/views/profile/basic_info_view.dart';
+import 'package:metal/presentation/views/profile/choose_metal_view.dart';
+import 'package:metal/presentation/views/profile/passions_view.dart';
+import 'package:metal/presentation/views/profile/about_you_view.dart';
+import 'package:metal/presentation/views/profile/more_about_you_view.dart';
+import 'package:metal/presentation/views/prompt/prompt_creation_view.dart';
+import 'package:metal/presentation/views/profile/connection_options_view.dart';
+import 'package:metal/presentation/views/profile/preferences_view.dart';
+import 'package:metal/presentation/views/settings/settings_view.dart';
+import 'package:metal/presentation/views/settings/edit_profile_view.dart';
+import 'package:metal/presentation/views/settings/edit_preferences_view.dart';
+import 'package:metal/presentation/views/chat/chat_window_view.dart';
+import 'package:metal/presentation/views/dashboard/dashboard_view.dart';
+import 'package:metal/presentation/views/thought/create_thought_screen.dart';
+import 'package:metal/presentation/views/thought/thought_detail_view.dart';
+import 'package:metal/presentation/views/community/community_detail_view.dart';
+import 'package:metal/presentation/views/community/create_community_screen.dart';
+import 'package:metal/presentation/views/user/user_profile_view.dart';
+import 'package:metal/presentation/views/meetup/create_meetup_screen.dart';
+import 'package:metal/presentation/views/meetup/invite_guests_screen.dart';
+import 'package:metal/presentation/views/meetup/meetup_detail_view.dart';
 
-import 'package:metal/features/authentication/presentation/home.address/home.address.dart';
-import 'package:metal/features/authentication/presentation/home.address/location.dart';
-import 'package:metal/features/authentication/presentation/home.address/notification.dart';
+// New Clean Architecture Connection views
+import 'package:metal/presentation/views/connection/connection_list_screen.dart';
+import 'package:metal/presentation/views/connection/melt_screen.dart';
 
-import 'package:metal/features/authentication/presentation/profile.setting/about.you.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/choose.your.metal.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/connection.option.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/create.profile.dart';
+// Notification view
+import 'package:metal/presentation/views/notification/notification_view.dart';
 
-import 'package:metal/features/authentication/presentation/profile.setting/more.about.you.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/passions.dart';
-import 'package:metal/features/authentication/presentation/profile.setting/preference.metal.dart';
-import 'package:metal/features/authentication/presentation/signup/account.setting.dart';
-import 'package:metal/features/authentication/presentation/signup/verfication.argument.dart';
-import 'package:metal/features/authentication/presentation/signup/verfication.page.dart';
-import 'package:metal/features/authentication/presentation/welcome/presentation/welcome.page.dart';
-import 'package:metal/features/chat/presentation/chat.window/chat.window.dart';
-import 'package:metal/features/chat/presentation/games/games.page.dart';
-import 'package:metal/features/chat/presentation/games/games.rule.dart';
-import 'package:metal/features/dashboard.dart/dashboard.dart';
-import 'package:metal/features/eyes/domain/entries/status.model.dart';
-import 'package:metal/features/eyes/presentation/eye.preview.media.dart';
-import 'package:metal/features/eyes/presentation/eye.select.media.dart';
-import 'package:metal/features/eyes/presentation/eyes.intro.screen.dart';
-import 'package:metal/features/eyes/presentation/view.eyes.dart';
-import 'package:metal/features/feedback/feedback.page.dart';
+// Verification
+import 'package:metal/presentation/views/verification/work_email_verification_view.dart';
 
-import 'package:metal/features/my.metals/my.melted.metals.dart';
-import 'package:metal/features/my.metals/my.melted.user.dart';
-import 'package:metal/features/my.metals/user.profile.dart';
-import 'package:metal/features/notification/notification.page.dart';
+// Settings
+import 'package:metal/presentation/views/settings/blocked_users_view.dart';
 
-import 'package:metal/features/profile/presentation/update.email/new.email.page.dart';
-import 'package:metal/features/profile/presentation/update.email/update.email.page.dart';
-import 'package:metal/features/profile/presentation/update.phone.number/new.phone.number.page.dart';
-import 'package:metal/features/profile/presentation/update.phone.number/update.phone.number.page.dart';
-import 'package:metal/features/refer.earn/refer.earn.dart';
-import 'package:metal/features/settings/presentation/blocked.user.dart'
-    as block;
-import 'package:metal/features/settings/presentation/settings.page.dart';
-
-import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
-import 'package:metal/features/sparks_page/screens/refer.earn/refer.earn.dart';
-import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
-
-import 'package:metal/features/upgrade/make.payment.dart';
-
-import 'package:metal/features/verification/verification.video.dart';
-import 'package:metal/features/verification/video.preview.dart';
-
-import 'package:metal/features/home_page/presentation/thought_details.page.dart';
+// Spark features (to be migrated)
+// Spark features migrated to lib/presentation/views/spark/
+// import 'package:metal/features/sparks_page/screens/buy.spark/buy.spark.dart';
+// import 'package:metal/features/sparks_page/screens/send.spark/send.spark.dart';
+import 'package:metal/presentation/views/spark/send_spark_screen.dart';
+import 'package:metal/presentation/views/referral/referral_view.dart';
+import 'package:metal/presentation/views/feedback/feedback_view.dart';
+import 'package:metal/domain/entities/user_dto.dart';
 
 class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
   static const String onboardingTutorialView = '/onboardingTutorialView';
-  static const String unmetalView = '/unmetal';
   static const String metalPlusView = '/metalPlusView';
   static const String sparkInfoSwitchView = '/sparkInfoSwitchView';
   static const String login = '/login';
@@ -90,6 +71,7 @@ class AppRoutes {
   static const String preferenceMetalPage = '/preferenceMetalPage';
   static const String passionsPage = '/passionsPage';
   static const String moreAboutYouPage = '/moreAboutYouPage';
+  static const String promptCreationPage = '/promptCreationPage';
   static const String connectionOptionsPage = '/connectionOptionsPage';
   static const String chooseYourMetalPage = '/chooseYourMetalPage';
   static const String aboutYouPage = '/aboutYouPage';
@@ -97,45 +79,45 @@ class AppRoutes {
   static const String locationEnablePage = '/locationEnablePage';
   static const String homeAddressPage = '/homeAddressPage';
   static const String dashboardPage = '/dashboardPage';
-  static const String viewEyes = '/viewEyes';
-  static const String eyesIntro = '/eyesIntro';
-  static const String eyeSelectMedia = '/eyeSelectMedia';
-  static const String eyePreviewMedia = '/eyePreviewMedia';
   static const String settingPage = '/settingPage';
-  static const String verificationVideo = '/verificationVideo';
-  static const String videoPreview = '/videoPreview';
-  static const String faceVerification = '/faceVerification';
+
   static const String meltMetal = '/meltMetal';
   static const String pushMetal = '/pushMetal';
-  static const String feedBackPage = '/feedBackPage';
   static const String blockedUser = '/blockedUser';
   static const String notificationPage = '/notificationPage';
-  static const String userProfilePage = '/userProfilePage';
   static const String upgradePage = '/upgradePage';
   static const String makePayment = '/makePayment';
-  static const String referEarn = '/referEarn';
   static const String myMeltedMetals = '/myMeltedMetals';
-  static const String myMeltedUser = '/myMeltedUser';
   static const String sendSpark = '/sendSpark';
   static const String buySpark = '/buySpark';
-  static const String referEarnSpark = '/referEarnSpark';
-  static const String chatWindowsPage = '/chatWindowsPage';
-  static const String gamePage = '/gamePage';
-  static const String gameRules = '/gameRules';
+  static const String referEarn = '/referEarn';
+  static const String feedback = '/feedback';
+  static const String chatWindowView = '/chatWindowView'; // New API-based chat
   static const String updatePhoneNumberPage = '/updatePhoneNumberPage';
   static const String updateEmailPage = '/updateEmailPage';
   static const String newPhoneNumberPage = '/newPhoneNumberPage';
   static const String newEmailPage = '/newEmailPage';
   static const String editPage = '/editPage';
+  static const String editPreferences = '/editPreferences';
   static const String delete = '/deletePage';
   static const String postThought = '/postThought';
   static const String thoughtDetails = '/thoughtDetails';
+  static const String communityDetails = '/communityDetails';
+  static const String createCommunity = '/createCommunity';
+  static const String userProfile = '/userProfile';
+  static const String workEmail = '/work-email';
+  static const String meetupDetails = '/meetupDetails';
 
+  /// Meetup detail (Live Event Dashboard). Alias for meetupDetails (backwards compatibility).
+  static const String linkupDetails = '/linkupDetails';
+  static const String createMeetup = '/createMeetup';
+  static const String inviteGuests = '/inviteGuests';
   // Dashboard tab indices
   static const int homeTab = 0;
-  static const int sparksTab = 1;
-  static const int messagesTab = 2;
-  static const int profileTab = 3;
+  static const int thoughtsTab = 1;
+  static const int sparksTab = 2;
+  static const int messagesTab = 3;
+  static const int profileTab = 4;
 
   // Helper methods to navigate to specific tabs
   static void navigateToHome(BuildContext context, {bool replace = false}) {
@@ -176,165 +158,235 @@ class AppRoutes {
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      // Core auth flow - Clean Architecture
       case splash:
-        return MaterialPageRoute(builder: (_) => const SplashPage());
+        return MaterialPageRoute(builder: (_) => const SplashView());
       case onboarding:
-        return MaterialPageRoute(builder: (_) => const OnboardingPageView());
-       
-      case onboardingTutorialView:
-        return MaterialPageRoute(builder: (_) => const OnboardingFlowView());
+        return MaterialPageRoute(builder: (_) => const OnboardingView());
       case login:
-        return MaterialPageRoute(builder: (_) => const LoginPage());
-      case forgetPassword:
-        return MaterialPageRoute(builder: (_) => ForgetPasswordPage());
-      case forgetPasswordOTP:
-        return MaterialPageRoute(builder: (_) => const ForgetPasswordOTPPage());
-      case createNewPassword:
-        return MaterialPageRoute(
-            builder: (_) => CreateNewPasswordPage(
-                  userid: settings.arguments as String,
-                ));
+        return MaterialPageRoute(builder: (_) => const LoginView());
       case accountSetting:
-        return MaterialPageRoute(builder: (_) => const AccountSetting());
+        return MaterialPageRoute(builder: (_) => const SignupView());
       case verificationPage:
+        // Just pass email as string argument
         return MaterialPageRoute(
-            builder: (_) => VerificationPage(
-                settings.arguments as VerificationSentArgument));
+          builder: (_) => const VerificationView(),
+          settings: settings,
+        );
+      case forgetPassword:
+        return MaterialPageRoute(builder: (_) => const ForgotPasswordView());
       case welcomePage:
-        return MaterialPageRoute(builder: (_) => const WelcomePage());
-      case createProfilePage:
-        return MaterialPageRoute(builder: (_) => const CreateProfilePage());
-      case preferenceMetalPage:
-        return MaterialPageRoute(builder: (_) => const PreferenceMetalPage());
-      case passionsPage:
-        return MaterialPageRoute(builder: (_) => const PassionsPage());
-      case moreAboutYouPage:
-        return MaterialPageRoute(builder: (_) => const MoreAboutYouPage());
-      case connectionOptionsPage:
-        return MaterialPageRoute(builder: (_) => const ConnectionOptionsPage());
+        return MaterialPageRoute(builder: (_) => const WelcomeView());
+
+      // New Clean Architecture Profile Setup Routes
+      case BasicInfoView.route:
+        return MaterialPageRoute(builder: (_) => const BasicInfoView());
+      case ChooseMetalView.route:
       case chooseYourMetalPage:
-        return MaterialPageRoute(builder: (_) => const ChooseYourMetalPage());
+        return MaterialPageRoute(builder: (_) => const ChooseMetalView());
+      case PassionsView.route:
+      case passionsPage:
+        return MaterialPageRoute(builder: (_) => const PassionsView());
+      case AboutYouView.route:
       case aboutYouPage:
-        return MaterialPageRoute(builder: (_) => const AboutYouPage());
-      case notificationEnablePage:
+        return MaterialPageRoute(builder: (_) => const AboutYouView());
+      case MoreAboutYouView.route:
+      case moreAboutYouPage:
+        return MaterialPageRoute(builder: (_) => const MoreAboutYouView());
+      case promptCreationPage:
         return MaterialPageRoute(
-            builder: (_) => const NotificationEnablePage());
-      case locationEnablePage:
-        return MaterialPageRoute(builder: (_) => const LocationEnablePage());
-      case homeAddressPage:
-        return MaterialPageRoute(builder: (_) => const HomeAddressPage());
+          builder: (_) => PromptCreationView(
+            isAuthFlow: true,
+            onComplete: () {
+              // Navigate to connection options after prompts are created
+              Navigator.pushReplacementNamed(
+                  _, AppRoutes.connectionOptionsPage);
+            },
+          ),
+        );
+      case ConnectionOptionsView.route:
+      case connectionOptionsPage:
+        return MaterialPageRoute(builder: (_) => const ConnectionOptionsView());
+      case PreferencesView.route:
+      case preferenceMetalPage:
+        return MaterialPageRoute(builder: (_) => const PreferencesView());
+
       case dashboardPage:
         // Check if arguments contain a tab index
         final args = settings.arguments;
         if (args is int) {
           return MaterialPageRoute(
-              builder: (_) => DashboardPage(initialPageIndex: args));
+              builder: (_) => DashboardView(initialPageIndex: args));
         } else if (args is Map<String, dynamic> &&
             args.containsKey('tabIndex')) {
           return MaterialPageRoute(
               builder: (_) =>
-                  DashboardPage(initialPageIndex: args['tabIndex']));
+                  DashboardView(initialPageIndex: args['tabIndex']));
         }
-        return MaterialPageRoute(builder: (_) => const DashboardPage());
-      case viewEyes:
-        return MaterialPageRoute(
-            builder: (_) =>
-                ViewEyes(eyes: settings.arguments as List<StatusModel>));
-      case eyesIntro:
-        return MaterialPageRoute(builder: (_) => const EyesIntro());
-      case eyeSelectMedia:
-        return MaterialPageRoute(builder: (_) => const EyeSelectMedia());
+        return MaterialPageRoute(builder: (_) => const DashboardView());
       case editPage:
-        return MaterialPageRoute(builder: (_) => const EditPage());
-      case eyePreviewMedia:
-        return MaterialPageRoute(
-            builder: (_) =>
-                EyePreviewMedia(media: settings.arguments as XFile));
+        return MaterialPageRoute(builder: (_) => const EditProfileView());
+      case editPreferences:
+        return MaterialPageRoute(builder: (_) => const EditPreferencesView());
       case settingPage:
-        return MaterialPageRoute(builder: (_) => const SettingPage());
-      case verificationVideo:
-        return MaterialPageRoute(builder: (_) => const VerificationVideo());
-      case videoPreview:
-        return MaterialPageRoute(builder: (_) => const VideoPreview());
-      case faceVerification:
-        return MaterialPageRoute(
-            builder: (_) => const FaceVerificationScreen());
-      case feedBackPage:
-        return MaterialPageRoute(builder: (_) => FeedBackPage());
+        return MaterialPageRoute(builder: (_) => const SettingsView());
+
       case blockedUser:
-        return MaterialPageRoute(builder: (_) => const block.BlockedUser());
+        return MaterialPageRoute(builder: (_) => const BlockedUsersView());
       case notificationPage:
-        return MaterialPageRoute(builder: (_) => const NotificationPage());
-      case userProfilePage:
-        return MaterialPageRoute(
-            builder: (_) =>
-                UserProfilePage(user: settings.arguments as UserModel));
+        return MaterialPageRoute(builder: (_) => const NotificationView());
       // case upgradePage:
       //   return MaterialPageRoute(builder: (_) => const UpgradePage());
-      case makePayment:
-        final arguments = settings.arguments as List<dynamic>;
-        return MaterialPageRoute(
-            builder: (_) => MakePayment(
-                  price: arguments[1],
-                  paymentType: arguments[0],
-                ));
-      case referEarn:
-        return MaterialPageRoute(builder: (_) => const ReferEarn());
+
       case myMeltedMetals:
-        return MaterialPageRoute(builder: (_) => const MyMeltedMetals());
-      case myMeltedUser:
-        return MaterialPageRoute(
-            builder: (_) => MyMeltedUser(
-                  metalDetials: settings.arguments as Map<String, dynamic>,
-                ));
+        return MaterialPageRoute(builder: (_) => const ConnectionListScreen());
 
       case meltMetal:
+        final args = settings.arguments;
+        String? userId;
+        String? connectionId;
 
-//"NUFXmf3EzrOAiw7k9PQsVzf7x7B3"
+        if (args is String) {
+          userId = args;
+        } else if (args is Map) {
+          userId = args['userId'] as String?;
+          connectionId = args['connectionId'] as String?;
+        }
+
+        if (userId != null && userId.isNotEmpty) {
+          return MaterialPageRoute(
+            builder: (_) => MeltScreen(
+              userId: userId!,
+              connectionId: connectionId,
+            ),
+          );
+        }
         return MaterialPageRoute(
-            builder: (_) => MeltMetal(
-                  id: settings.arguments as String,
-                ));
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Invalid user ID')),
+          ),
+        );
+      case makePayment:
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Payment feature coming soon')),
+          ),
+        );
+      // Spark features moved to new architecture - use spark tab in dashboard
       case sendSpark:
+        final args = settings.arguments;
+        final preSelectedUser = args is UserDto ? args : null;
         return MaterialPageRoute(
-            builder: (_) => SendSpark(
-                recipient: settings.arguments != null
-                    ? (settings.arguments as UserModel)
-                    : null));
+          builder: (_) => SendSparkScreen(preSelectedUser: preSelectedUser),
+        );
       case buySpark:
-        return MaterialPageRoute(builder: (_) => BuySpark());
-      case referEarnSpark:
-        return MaterialPageRoute(builder: (_) => const ReferEarnSpark());
-      case chatWindowsPage:
         return MaterialPageRoute(
-            builder: (_) => ChatWindowsPage(
-                  metalId: settings.arguments as String,
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Use Sparks tab in dashboard')),
+          ),
+        );
+      case referEarn:
+        return MaterialPageRoute(
+          builder: (_) => const ReferralView(),
+        );
+      case feedback:
+        return MaterialPageRoute(
+          builder: (_) => const FeedbackView(),
+        );
+      case chatWindowView:
+        return MaterialPageRoute(
+            builder: (_) => ChatWindowView(
+                  connectionId: settings.arguments as String,
                 ));
-      case gamePage:
-        return MaterialPageRoute(builder: (_) => const GamePage());
-      case gameRules:
-        return MaterialPageRoute(
-            builder: (_) => GameRules(games: settings.arguments as GameModel));
-      case updatePhoneNumberPage:
-        return MaterialPageRoute(builder: (_) => UpdatePhoneNumberPage());
-      case updateEmailPage:
-        return MaterialPageRoute(builder: (_) => UpdateEmailPage());
-      case newPhoneNumberPage:
-        return MaterialPageRoute(builder: (_) => NewPhoneNumberPage());
-      case newEmailPage:
-        return MaterialPageRoute(builder: (_) => NewEmailPage());
+      // Phone number and email update pages have been removed
+      // TODO: Re-implement these in Clean Architecture when needed
+
       case delete:
-        return MaterialPageRoute(builder: (_) => DeleteScreen());
+        return MaterialPageRoute(builder: (_) => const DeleteAccountView());
 
       case postThought:
+        final communityMetadata = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-            builder: (_) => PostThought(
-                  thoughtModel: settings.arguments as ThoughtModel?,
-                ));
+          builder: (_) => CreateThoughtScreen(
+            communityMetadata: communityMetadata,
+          ),
+        );
       case thoughtDetails:
+        // Handle arguments: can be String (thoughtId) or Map with thoughtId and optional commentId
+        final args = settings.arguments;
+        String thoughtId;
+        String? targetCommentId;
+
+        if (args is String) {
+          thoughtId = args;
+        } else if (args is Map<String, dynamic>) {
+          thoughtId = args['thoughtId'] as String? ?? '';
+          targetCommentId = args['commentId'] as String?;
+        } else {
+          thoughtId = '';
+        }
+
         return MaterialPageRoute(
-          builder: (_) => ThoughtDetailsPage(),
-          settings: settings,
+          builder: (_) => ThoughtDetailView(
+            thoughtId: thoughtId,
+            targetCommentId: targetCommentId,
+          ),
+        );
+      case communityDetails:
+        final args = settings.arguments;
+        final communityId = args is String
+            ? args
+            : (args as Map<String, dynamic>?)?['communityId'] as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => CommunityDetailView(communityId: communityId),
+        );
+      case createCommunity:
+        return MaterialPageRoute(
+          builder: (_) => const CreateCommunityScreen(),
+        );
+      case userProfile:
+        final args = settings.arguments;
+        final userId = args is String
+            ? args
+            : (args as Map<String, dynamic>?)?['userId'] as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => UserProfileView(userId: userId),
+        );
+      case workEmail:
+        return MaterialPageRoute(
+          builder: (_) => const WorkEmailVerificationView(),
+        );
+      case createMeetup:
+        final args = settings.arguments;
+        final communityId = args is String
+            ? args
+            : (args as Map<String, dynamic>?)?['communityId'] as String?;
+        return MaterialPageRoute(
+          builder: (_) => CreateMeetupScreen(communityId: communityId),
+        );
+      case meetupDetails:
+      case linkupDetails:
+        // Live Event Dashboard (Meetup detail)
+        final args = settings.arguments;
+        final meetupId = args is String
+            ? args
+            : (args as Map<String, dynamic>?)?['meetupId'] as String? ?? '';
+        return MaterialPageRoute(
+          builder: (_) => MeetupDetailView(meetupId: meetupId),
+        );
+      case inviteGuests:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final maxGuests = args?['maxGuests'] as int? ?? 10;
+        final initialSelectedIds =
+            (args?['initialSelectedIds'] as List<dynamic>?)
+                    ?.map((e) => e.toString())
+                    .toList() ??
+                [];
+        return MaterialPageRoute(
+          builder: (_) => InviteGuestsScreen(
+            maxGuests: maxGuests,
+            initialSelectedIds: initialSelectedIds,
+          ),
         );
       default:
         return MaterialPageRoute(

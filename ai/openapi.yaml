@@ -1,0 +1,1976 @@
+openapi: 3.0.3
+info:
+  title: Metal Social App API
+  description: |
+    Backend API for Metal - A social networking application with discovery, connections, messaging, and community features.
+
+    ## Authentication
+    Most endpoints require authentication via Firebase ID token in the Authorization header:
+    ```
+    Authorization: Bearer <firebase-id-token>
+    ```
+
+    ## Rate Limiting
+    - Auth endpoints: 5 requests per 15 minutes
+    - Search endpoints: 30 requests per 15 minutes
+    - Upload endpoints: 10 requests per hour
+    - Default: 100 requests per 15 minutes
+
+  version: 1.0.0
+  contact:
+    name: Metal API Support
+servers:
+  - url: https://metal-ad87d.web.app/api/v1
+    description: Production server
+  - url: http://localhost:5001/metal-ad87d/us-central1/api/api/v1
+    description: Local development server
+
+tags:
+  - name: Authentication
+    description: User authentication and account management
+  - name: Users
+    description: User profile and account operations
+  - name: Connections
+    description: Chat connections and conversations
+  - name: Messages
+    description: Chat messaging
+  - name: Discovery
+    description: User discovery and swiping
+  - name: Melt
+    description: Connection requests (melt system)
+  - name: Thoughts
+    description: Social posts and feeds
+  - name: Notifications
+    description: Notification management
+  - name: Media
+    description: Media upload handling
+  - name: Sparks
+    description: Virtual currency system
+  - name: Stories
+    description: 24-hour temporary posts
+  - name: Reports
+    description: Feedback and content reporting
+  - name: Referrals
+    description: Referral program
+  - name: Communities
+    description: Community management
+  - name: Verification
+    description: Work email verification
+  - name: Admin
+    description: Administrative endpoints
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Firebase ID token
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        statusCode:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: "Error message"
+        timestamp:
+          type: string
+          format: date-time
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Operation successful"
+        data:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        fullname:
+          type: string
+        email:
+          type: string
+        profilePhoto:
+          type: string
+        dob:
+          type: string
+          format: date
+        gender:
+          type: string
+        location:
+          type: object
+        sparksBalance:
+          type: integer
+        workEmailVerified:
+          type: boolean
+
+    Connection:
+      type: object
+      properties:
+        id:
+          type: string
+        participants:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, blocked, deleted]
+        createdAt:
+          type: string
+          format: date-time
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+        connectionId:
+          type: string
+        senderId:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+          enum: [text, audio, un_melt, calls]
+        timestamp:
+          type: string
+          format: date-time
+        isRead:
+          type: boolean
+
+    Thought:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        content:
+          type: string
+        type:
+          type: string
+          enum: [text, voice, repost]
+        communityId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        authorMetadata:
+          type: object
+
+    Community:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        memberCount:
+          type: integer
+        photoUrl:
+          type: string
+        isMember:
+          type: boolean
+        isAdmin:
+          type: boolean
+
+    Story:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        mediaUrl:
+          type: string
+        mediaType:
+          type: string
+          enum: [image, video]
+        caption:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        viewedBy:
+          type: array
+          items:
+            type: string
+
+paths:
+  # ==================== Authentication ====================
+  /auth/send-verification-code:
+    post:
+      tags: [Authentication]
+      summary: Send OTP verification code to email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Verification code sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /auth/verify-code:
+    post:
+      tags: [Authentication]
+      summary: Verify OTP code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, code]
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+      responses:
+        '200':
+          description: Code verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          token:
+                            type: string
+                          user:
+                            $ref: '#/components/schemas/User'
+
+  /auth/signup:
+    post:
+      tags: [Authentication]
+      summary: Sign up new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, fullname]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                fullname:
+                  type: string
+                username:
+                  type: string
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /auth/reset-password:
+    post:
+      tags: [Authentication]
+      summary: Reset password with OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, code, newPassword]
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                newPassword:
+                  type: string
+                  minLength: 6
+      responses:
+        '200':
+          description: Password reset successfully
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh authentication token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed successfully
+
+  # ==================== Users ====================
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+
+    put:
+      tags: [Users]
+      summary: Update current user profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullname:
+                  type: string
+                username:
+                  type: string
+                bio:
+                  type: string
+                profilePhoto:
+                  type: string
+      responses:
+        '200':
+          description: Profile updated successfully
+
+    delete:
+      tags: [Users]
+      summary: Delete user account (soft delete)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password, confirmation]
+              properties:
+                password:
+                  type: string
+                confirmation:
+                  type: string
+                  enum: [DELETE_MY_ACCOUNT]
+      responses:
+        '200':
+          description: Account deleted successfully
+
+  /users/me/profile/complete:
+    post:
+      tags: [Users]
+      summary: Complete profile setup
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Profile completed successfully
+
+  /users/me/location:
+    put:
+      tags: [Users]
+      summary: Update user location
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [latitude, longitude]
+              properties:
+                latitude:
+                  type: number
+                  minimum: -90
+                  maximum: 90
+                longitude:
+                  type: number
+                  minimum: -180
+                  maximum: 180
+                city:
+                  type: string
+                state:
+                  type: string
+                country:
+                  type: string
+      responses:
+        '200':
+          description: Location updated successfully
+
+  /users/search:
+    get:
+      tags: [Users]
+      summary: Search users by username or name
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [username, name, all]
+            default: all
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        '200':
+          description: Search results returned
+
+  /users/me/blocked:
+    get:
+      tags: [Users]
+      summary: Get list of blocked users
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Blocked users list retrieved
+
+  /users/me/blocked/{userId}:
+    post:
+      tags: [Users]
+      summary: Block a user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  maxLength: 500
+      responses:
+        '200':
+          description: User blocked successfully
+
+    delete:
+      tags: [Users]
+      summary: Unblock a user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User unblocked successfully
+
+  /users/{userId}:
+    get:
+      tags: [Users]
+      summary: Get public user profile
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: include
+          in: query
+          schema:
+            type: string
+            description: Comma-separated list (photos, preferences, stats)
+      responses:
+        '200':
+          description: Profile retrieved successfully
+
+  # ==================== Connections ====================
+  /connections:
+    get:
+      tags: [Connections]
+      summary: Get all connections (chat list)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, blocked, deleted, all]
+        - name: meltStatus
+          in: query
+          schema:
+            type: string
+            enum: [mutual, pending]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Connections retrieved successfully
+
+  /connections/{connectionId}:
+    get:
+      tags: [Connections]
+      summary: Get a single connection
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Connection retrieved successfully
+
+    patch:
+      tags: [Connections]
+      summary: Update a connection
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                game:
+                  type: string
+                requestUnmelt:
+                  type: boolean
+      responses:
+        '200':
+          description: Connection updated successfully
+
+    delete:
+      tags: [Connections]
+      summary: Delete a connection (unmetal)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Connection deleted successfully
+
+  /connections/{connectionId}/unmelt:
+    post:
+      tags: [Connections]
+      summary: Process unmelt action (approve/reject)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [messageId, action]
+              properties:
+                messageId:
+                  type: string
+                action:
+                  type: string
+                  enum: [approve, reject]
+      responses:
+        '200':
+          description: Unmelt action processed
+
+  /connections/{connectionId}/block:
+    post:
+      tags: [Connections]
+      summary: Block a connection
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Connection blocked
+
+  /connections/{connectionId}/messages:
+    delete:
+      tags: [Connections]
+      summary: Clear all messages in a connection
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Messages cleared
+
+  # ==================== Messages ====================
+  /messages/{connectionId}:
+    get:
+      tags: [Messages]
+      summary: Get messages for a connection
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum: [before, after]
+            default: before
+      responses:
+        '200':
+          description: Messages retrieved successfully
+
+  /messages:
+    post:
+      tags: [Messages]
+      summary: Send a message
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [connectionId, message, type]
+              properties:
+                connectionId:
+                  type: string
+                message:
+                  type: string
+                type:
+                  type: string
+                  enum: [text, audio, un_melt, calls]
+                content:
+                  type: string
+                replyToMessageId:
+                  type: string
+      responses:
+        '201':
+          description: Message sent successfully
+
+  /messages/{messageId}/read:
+    put:
+      tags: [Messages]
+      summary: Mark a message as read
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [connectionId]
+              properties:
+                connectionId:
+                  type: string
+      responses:
+        '200':
+          description: Message marked as read
+
+  /messages/{connectionId}/read-all:
+    put:
+      tags: [Messages]
+      summary: Mark all messages in connection as read
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: connectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: All messages marked as read
+
+  /messages/{messageId}:
+    delete:
+      tags: [Messages]
+      summary: Delete a message
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [connectionId]
+              properties:
+                connectionId:
+                  type: string
+      responses:
+        '200':
+          description: Message deleted
+
+    patch:
+      tags: [Messages]
+      summary: Update a message
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [connectionId, updateData]
+              properties:
+                connectionId:
+                  type: string
+                updateData:
+                  type: object
+      responses:
+        '200':
+          description: Message updated
+
+  # ==================== Discovery ====================
+  /discovery/users:
+    get:
+      tags: [Discovery]
+      summary: Get users for discovery (swipe interface)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Discovery users retrieved
+
+  /discovery/swipe:
+    post:
+      tags: [Discovery]
+      summary: Record a swipe action
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targetUserId, action]
+              properties:
+                targetUserId:
+                  type: string
+                action:
+                  type: string
+                  enum: [like, pass, superlike]
+      responses:
+        '200':
+          description: Swipe recorded
+
+  /discovery/history:
+    get:
+      tags: [Discovery]
+      summary: Get swipe history
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: action
+          in: query
+          schema:
+            type: string
+            enum: [like, pass, superlike]
+      responses:
+        '200':
+          description: Swipe history retrieved
+
+  /discovery/undo:
+    post:
+      tags: [Discovery]
+      summary: Undo last swipe (premium feature)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Swipe undone
+
+  # ==================== Melt ====================
+  /melt:
+    post:
+      tags: [Melt]
+      summary: Create a melt request (initiate connection)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [recipientId]
+              properties:
+                recipientId:
+                  type: string
+      responses:
+        '201':
+          description: Melt request created
+
+  /melt/pending:
+    get:
+      tags: [Melt]
+      summary: Get pending melt requests (received)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Pending requests retrieved
+
+  /melt/status/{userId}:
+    get:
+      tags: [Melt]
+      summary: Check melt status with another user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Melt status retrieved
+
+  /melt/{userId}:
+    delete:
+      tags: [Melt]
+      summary: Cancel a melt request
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Melt request cancelled
+
+  /melt/unmelt/{userId}:
+    post:
+      tags: [Melt]
+      summary: Unmelt from a user (disconnect)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User unmelted
+
+  # ==================== Thoughts ====================
+  /thoughts:
+    get:
+      tags: [Thoughts]
+      summary: Get thoughts feed
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Thoughts retrieved
+
+    post:
+      tags: [Thoughts]
+      summary: Create a new thought
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                  maxLength: 1000
+                type:
+                  type: string
+                  enum: [text, voice, repost]
+                  default: text
+                audioUrl:
+                  type: string
+                audioDuration:
+                  type: integer
+                  minimum: 1
+                  maximum: 120
+                connectionOnly:
+                  type: boolean
+                communityId:
+                  type: string
+                communityMetadata:
+                  type: object
+                originalThoughtId:
+                  type: string
+      responses:
+        '201':
+          description: Thought created
+
+  /thoughts/{id}:
+    get:
+      tags: [Thoughts]
+      summary: Get single thought by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Thought retrieved
+
+    put:
+      tags: [Thoughts]
+      summary: Update a thought
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  maxLength: 1000
+                connectionOnly:
+                  type: boolean
+      responses:
+        '200':
+          description: Thought updated
+
+    delete:
+      tags: [Thoughts]
+      summary: Delete a thought
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Thought deleted
+
+  /thoughts/{id}/reactions:
+    get:
+      tags: [Thoughts]
+      summary: Get reactions for a thought
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reactions retrieved
+
+    post:
+      tags: [Thoughts]
+      summary: Add/toggle reaction on a thought
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [emoji]
+              properties:
+                emoji:
+                  type: string
+                  maxLength: 10
+      responses:
+        '200':
+          description: Reaction added/toggled
+
+  /thoughts/{id}/comments:
+    get:
+      tags: [Thoughts]
+      summary: Get comments for a thought
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Comments retrieved
+
+    post:
+      tags: [Thoughts]
+      summary: Add a comment to a thought
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                  maxLength: 500
+                replyToCommentId:
+                  type: string
+      responses:
+        '201':
+          description: Comment added
+
+  /thoughts/{id}/comments/{commentId}:
+    delete:
+      tags: [Thoughts]
+      summary: Delete a comment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Comment deleted
+
+  /thoughts/{id}/comments/{commentId}/reactions:
+    post:
+      tags: [Thoughts]
+      summary: React to a comment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [emoji]
+              properties:
+                emoji:
+                  type: string
+                  maxLength: 10
+      responses:
+        '200':
+          description: Reaction added
+
+  /thoughts/{id}/serve:
+    get:
+      tags: [Thoughts]
+      summary: Serve thought page for deep links (public)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Thought page served
+          content:
+            text/html:
+              schema:
+                type: string
+
+  # ==================== Notifications ====================
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: Get list of notifications
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [all, match, message, reaction, comment]
+            default: all
+        - name: unreadOnly
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Notifications retrieved
+
+  /notifications/read-all:
+    put:
+      tags: [Notifications]
+      summary: Mark all notifications as read
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: All notifications marked as read
+
+  /notifications/settings:
+    put:
+      tags: [Notifications]
+      summary: Update notification preferences
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                push:
+                  type: object
+                email:
+                  type: object
+      responses:
+        '200':
+          description: Settings updated
+
+  /notifications/devices:
+    post:
+      tags: [Notifications]
+      summary: Register device for push notifications
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [deviceToken, platform]
+              properties:
+                deviceToken:
+                  type: string
+                platform:
+                  type: string
+                  enum: [ios, android]
+                appVersion:
+                  type: string
+      responses:
+        '201':
+          description: Device registered
+
+  /notifications/{notificationId}/read:
+    put:
+      tags: [Notifications]
+      summary: Mark a notification as read
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification marked as read
+
+  # ==================== Media ====================
+  /media/upload-url:
+    post:
+      tags: [Media]
+      summary: Request signed URL for media upload
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mediaType, purpose, contentType, fileSize]
+              properties:
+                mediaType:
+                  type: string
+                  enum: [image, video, audio]
+                purpose:
+                  type: string
+                  enum: [profile, thought, message, story]
+                contentType:
+                  type: string
+                  description: MIME type (e.g., image/jpeg, video/mp4)
+                fileSize:
+                  type: integer
+                  description: File size in bytes
+      responses:
+        '200':
+          description: Signed URL generated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          uploadUrl:
+                            type: string
+                          publicUrl:
+                            type: string
+
+  # ==================== Sparks ====================
+  /sparks:
+    get:
+      tags: [Sparks]
+      summary: Get sparks balance and transaction history
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: includeHistory
+          in: query
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Sparks balance retrieved
+
+  /sparks/send:
+    post:
+      tags: [Sparks]
+      summary: Send sparks to another user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [recipientId, amount]
+              properties:
+                recipientId:
+                  type: string
+                amount:
+                  type: integer
+                  minimum: 1
+                message:
+                  type: string
+                  maxLength: 200
+      responses:
+        '200':
+          description: Sparks sent successfully
+
+  # ==================== Stories ====================
+  /stories:
+    get:
+      tags: [Stories]
+      summary: Get stories feed from connections
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: Optional - get stories from specific user
+      responses:
+        '200':
+          description: Stories retrieved
+
+    post:
+      tags: [Stories]
+      summary: Create a new story (expires in 24 hours)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mediaUrl, mediaType]
+              properties:
+                mediaUrl:
+                  type: string
+                mediaType:
+                  type: string
+                  enum: [image, video]
+                duration:
+                  type: integer
+                  minimum: 1
+                  maximum: 30
+                caption:
+                  type: string
+                  maxLength: 300
+      responses:
+        '201':
+          description: Story created
+
+  /stories/{storyId}/view:
+    post:
+      tags: [Stories]
+      summary: Mark a story as viewed
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: storyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Story marked as viewed
+
+  /stories/{storyId}:
+    delete:
+      tags: [Stories]
+      summary: Delete a story
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: storyId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Story deleted
+
+  # ==================== Reports ====================
+  /feedback:
+    post:
+      tags: [Reports]
+      summary: Submit feedback
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, subject, description]
+              properties:
+                type:
+                  type: string
+                  enum: [bug, feature, general]
+                subject:
+                  type: string
+                  minLength: 5
+                  maxLength: 200
+                description:
+                  type: string
+                  minLength: 10
+                  maxLength: 2000
+                attachments:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Feedback submitted
+
+  /reports/user:
+    post:
+      tags: [Reports]
+      summary: Report a user for violations
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reportedUserId, reason]
+              properties:
+                reportedUserId:
+                  type: string
+                reason:
+                  type: string
+                  enum: [spam, harassment, inappropriate, fake]
+                description:
+                  type: string
+                  maxLength: 1000
+                evidence:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: User reported
+
+  /reports/content:
+    post:
+      tags: [Reports]
+      summary: Report content
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contentType, contentId, reason]
+              properties:
+                contentType:
+                  type: string
+                  enum: [thought, comment, message]
+                contentId:
+                  type: string
+                reason:
+                  type: string
+                  minLength: 3
+                  maxLength: 100
+                description:
+                  type: string
+                  maxLength: 1000
+      responses:
+        '201':
+          description: Content reported
+
+  # ==================== Referrals ====================
+  /referrals:
+    get:
+      tags: [Referrals]
+      summary: Get user's referral information
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Referral info retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          referralCode:
+                            type: string
+                          referredCount:
+                            type: integer
+                          sparksEarned:
+                            type: integer
+                          referredUsers:
+                            type: array
+
+  /referrals/apply:
+    post:
+      tags: [Referrals]
+      summary: Apply a referral code
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [referralCode]
+              properties:
+                referralCode:
+                  type: string
+                  minLength: 4
+                  maxLength: 20
+      responses:
+        '200':
+          description: Referral code applied
+
+  # ==================== Communities ====================
+  /communities:
+    get:
+      tags: [Communities]
+      summary: Get communities (discover or user's communities)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [discover, my-communities]
+            default: discover
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Communities retrieved
+
+    post:
+      tags: [Communities]
+      summary: Create a new community
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, description, category]
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  maxLength: 50
+                description:
+                  type: string
+                  minLength: 10
+                  maxLength: 500
+                category:
+                  type: string
+                photoUrl:
+                  type: string
+                  format: uri
+                coverUrl:
+                  type: string
+                  format: uri
+                rules:
+                  type: array
+                  items:
+                    type: string
+                    maxLength: 200
+      responses:
+        '201':
+          description: Community created
+
+  /communities/{communityId}:
+    get:
+      tags: [Communities]
+      summary: Get community details with recent posts
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: communityId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Community details retrieved
+
+  /communities/{communityId}/join:
+    post:
+      tags: [Communities]
+      summary: Join a community
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: communityId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Joined community successfully
+
+  /communities/{communityId}/leave:
+    delete:
+      tags: [Communities]
+      summary: Leave a community
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: communityId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Left community successfully
+
+  # ==================== Verification ====================
+  /verification/work-email:
+    post:
+      tags: [Verification]
+      summary: Request work email verification
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [workEmail, company]
+              properties:
+                workEmail:
+                  type: string
+                  format: email
+                company:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+      responses:
+        '200':
+          description: Verification code sent
+
+  /verification/work-email/verify:
+    post:
+      tags: [Verification]
+      summary: Verify work email code
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [workEmail, code]
+              properties:
+                workEmail:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                  pattern: '^\d{6}$'
+      responses:
+        '200':
+          description: Work email verified successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          verified:
+                            type: boolean
+                          badgeAwarded:
+                            type: boolean
+
+  # ==================== Admin ====================
+  /admin/health:
+    get:
+      tags: [Admin]
+      summary: Admin health check
+      security:
+        - BearerAuth: []
+      description: Requires admin role
+      responses:
+        '200':
+          description: System health status

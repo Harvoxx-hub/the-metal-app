@@ -19,19 +19,19 @@ class NotificationPayloadModel {
   });
 
   factory NotificationPayloadModel.fromRemoteMessage(RemoteMessage message) {
+    final data = message.data;
+    final typeStr = data?['type'] as String? ?? data?['action'] as String?;
     return NotificationPayloadModel(
       title: message.notification?.title,
       body: message.notification?.body,
-      action: _parseAction(message.data['action'] as String?),
-      data: message.data,
+      action: _parseAction(typeStr),
+      data: data,
       id: message.messageId,
     );
   }
 
   factory NotificationPayloadModel.fromJson(String json) {
-    final Map<String, dynamic> data = Map<String, dynamic>.from(
-      json as Map<String, dynamic>,
-    );
+    final Map<String, dynamic> data = jsonDecode(json);
     return NotificationPayloadModel(
       title: data['title'] as String?,
       body: data['body'] as String?,
@@ -53,10 +53,10 @@ class NotificationPayloadModel {
 
   static PushType? _parseAction(String? action) {
     if (action == null) return null;
-    return PushType.values.firstWhere(
-      (type) => type.name == action,
-      orElse: () => PushType.unknown,
-    );
+    for (final type in PushType.values) {
+      if (type.value == action) return type;
+    }
+    return PushType.unknown;
   }
 
   @override

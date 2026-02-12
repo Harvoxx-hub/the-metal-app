@@ -3,25 +3,22 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  app_links
   audioplayers_windows
-  cloud_firestore
   connectivity_plus
   emoji_picker_flutter
   file_selector_windows
-  firebase_auth
   firebase_core
-  firebase_storage
+  flutter_secure_storage_windows
   flutter_tts
-  flutter_volume_controller
   geolocator_windows
   permission_handler_windows
   share_plus
   url_launcher_windows
-  zego_express_engine
-  zego_zim
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
+  flutter_local_notifications_windows
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

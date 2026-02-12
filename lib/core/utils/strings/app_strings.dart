@@ -1,4 +1,5 @@
 class AppStrings {
+  //base
   // Dashboard Strings
   static const String completeProfileSetup = "Complete Profile Setup";
   static const String completeProfileDesc =
@@ -39,7 +40,7 @@ class AppStrings {
   static const String sparks = "Sparks";
   static const String chat = "Chat";
   static const String profile = "Profile";
-
+  static const String tought = "Tought";
   // Authentication Strings
   static const String welcomeBack = "👋 Welcome Back";
   static const String loginDesc = "Let's log you in, you've been missed!";
@@ -110,7 +111,7 @@ class AppStrings {
   static const String enableLocationTitle =
       "You'll need to enable location in order to use Metal";
   static const String enableLocationDesc =
-      "Your location would be used to show you potential metals near you";
+      "You’ll need to enable location in order to use Metal";
   static const String enableLocation = "Enable Location";
   static const String locationDisabled =
       "Location services are disabled. Please enable the services";
@@ -126,6 +127,7 @@ class AppStrings {
   static const String profileVisibility = "Profile visibility";
   static const String showProfile = "Show my profile to other metals";
   static const String editProfile = "Make changes to my profile";
+  static const String editPreferences = "Edit Preferences";
   static const String edit = "Edit";
   static const String editAddress = "Edit Address";
 
@@ -142,4 +144,77 @@ class AppStrings {
   static const String yourNameHere = "Your name here";
   static const String locationLabel = "Location";
   static const String myCurrentLocation = "My current location";
+
+  // Profile Setup Strings
+  static const String createProfile = "Create Profile";
+  static const String chooseYourMetal = "Choose Your Metal";
+  static const String passions = "Passions";
+  static const String aboutYou = "About You";
+  static const String moreAboutYou = "More About You";
+  static const String connectionOption = "Connection option";
+  static const String preferencesInMetal = "Preferences in Metal";
+
+  // Profile Setup Headers
+  static const String chooseMetalTitle =
+      "Choose one Metal that represents your values";
+  static const String chooseMetalSubtitle = "You can only select one metal";
+  static const String passionsTitle =
+      "Tell us your passions and what interest you most";
+  static const String passionsSubtitle = "We could add it to your profile!";
+  static const String aboutYouTitle = "Just a little more about you";
+  static const String aboutYouSubtitle =
+      "The more we know you, the easier it is to match you!";
+  static const String moreAboutYouTitle = "Tell us about yourself";
+  static const String moreAboutYouSubtitle = "Write something about yourself";
+  static const String connectionOptionsTitle =
+      "What are you looking for in a person?";
+  static const String connectionOptionsSubtitle =
+      "**Please select up to two. You can always change your selection in settings";
+  static const String preferencesTitle =
+      "Let us know what your special preferences are in a person";
+  static const String preferencesSubtitle = " ";
+
+  // Profile Setup Labels
+  static const String firstNameLastName = "First Name and Last Name";
+  static const String userName = "User name";
+  static const String selectGender = "Select Gender";
+  static const String selectDateOfBirth = "Please Select your Date Of Birth";
+  static const String dateOfBirthLabel = "Select Date Of Birth";
+  static const String ageCannotBeChanged = "Age cannot be changed";
+  static const String lookingToConnectWith = "I am looking to connect with";
+  static const String usernameHint =
+      "Type a name unique to you that will be displayed to other users";
+  static const String maritalStatus = "Marital Status";
+  static const String language = "Language";
+  static const String bio = "Bio";
+  static const String tellUsAboutYourself = "Tell us about yourself";
+  static const String noSpecialPreference = "No Special Preference";
+  static const String specialPreferencesHint =
+      "If you have special preferences, please select below.";
+  static const String ageRange = "Age range";
+  static const String ethnicity = "Ethnicity";
+  static const String education = "Education";
+  static const String demography = "Demography";
+  static const String completeProfile = "Complete Profile";
+
+  // Profile Setup Validation Messages
+  static const String pleaseEnterName = "Please enter your name";
+  static const String pleaseEnterBothNames =
+      "Please enter both first name and last name";
+  static const String pleaseEnterUsername = "Please enter a username";
+  static const String usernameInvalidChars =
+      "Username cannot contain special characters or spaces";
+  static const String usernameNoSpecialChars =
+      "Username should not contain special characters or spaces";
+  static const String pleaseSelectGender = "Please select your gender";
+  static const String pleaseSelectDob = "Please select your date of birth";
+  static const String pleaseSelectAtLeastOnePassion =
+      "Please select at least one passion";
+  static const String pleaseSelectAtLeastOneOption =
+      "Please select at least one option";
+  static const String maxTwoOptions = "You can only select up to two options";
+
+  // Profile Setup Buttons
+  static const String saving = "Saving...";
+  static const String nextButton = "Next";
 }

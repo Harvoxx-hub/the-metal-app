@@ -1,4 +1,4 @@
-// todo starter: update Android push model
+// Android push notification model
 import 'push_type.dart';
 
 class AndroidPushModel {

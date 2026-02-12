@@ -92,19 +92,28 @@ class BaseButton extends StatelessWidget {
                 ),
               )
             : Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  leftIcon ?? const SizedBox.shrink(),
-                  child ??
+                  if (leftIcon != null) ...[
+                    leftIcon!,
+                    const SizedBox(width: 8),
+                  ],
+                  Flexible(
+                    child: child ??
                       TextView(
                         text: lowerCase ? buttonText : buttonText.toUpperCase(),
                         fontWeight: fontWeight,
                         fontSize: fontSize,
                         color: outlined ? color : textColor,
-                        textAlign: textAlign,
+                          textAlign: textAlign ?? TextAlign.center,
+                        ),
                       ),
-                  rightIcon ?? const SizedBox.shrink(),
+                  if (rightIcon != null) ...[
+                    const SizedBox(width: 8),
+                    rightIcon!,
+                  ],
                 ],
               ),
       ),

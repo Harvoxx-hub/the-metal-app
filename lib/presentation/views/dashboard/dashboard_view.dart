@@ -1,0 +1,154 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/core/services/startup_service.dart';
+
+import 'package:metal/presentation/views/chat/chat_list_view.dart';
+import 'package:metal/presentation/views/profile/my_profile_view.dart';
+import 'package:metal/presentation/views/spark/spark_view.dart';
+import 'package:metal/presentation/views/thought/thought_screen.dart';
+import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
+import 'package:metal/presentation/views/home/home_view.dart';
+import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/widgets/nav/badged_nav_icon.dart';
+
+/// Dashboard View
+/// Main navigation hub hosting bottom navigation and page switching
+/// Keep this clean - initialization logic is in StartupService
+class DashboardView extends ConsumerStatefulWidget {
+  final int? initialPageIndex;
+
+  const DashboardView({
+    super.key,
+    this.initialPageIndex,
+  });
+
+  static const name = 'dashboard';
+  static const route = '/$name';
+
+  @override
+  ConsumerState<DashboardView> createState() => _DashboardViewState();
+}
+
+class _DashboardViewState extends ConsumerState<DashboardView> {
+  late int _currentIndex;
+  bool _startupComplete = false;
+
+  /// Pages displayed in bottom navigation
+  final List<Widget> _pages = [
+    const HomeView(),
+    const ThoughtScreen(),
+    const SparkView(),
+    const ChatListView(),
+    const MyProfileView(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialPageIndex ?? 0;
+
+    // Run startup tasks after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _runStartupTasks();
+    });
+  }
+
+  /// Run startup initialization tasks
+  Future<void> _runStartupTasks() async {
+    if (_startupComplete || !mounted) return;
+    _startupComplete = true;
+
+    final userData = ref.read(userStateProvider).user;
+    if (userData != null && mounted) {
+      await ref
+          .read(startupServiceProvider)
+          .runStartupTasks(context, ref, userData);
+    }
+  }
+
+  /// Handle bottom nav tap
+  void _onNavTap(int index) {
+    setState(() => _currentIndex = index);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Watch providers that need to stay active
+    ref.watch(metalPropertiesProvider);
+
+    return BaseScreen(
+      appBarState: AppBarState.Dashboard,
+      body: _pages[_currentIndex],
+      floatingActionButton: _buildFAB(),
+      bottomNavigationBar: _buildBottomNavBar(),
+    );
+  }
+
+  Widget? _buildFAB() => null;
+
+  BottomNavigationBar _buildBottomNavBar() {
+    return BottomNavigationBar(
+      currentIndex: _currentIndex,
+      showSelectedLabels: false,
+      showUnselectedLabels: false,
+      selectedFontSize: 0,
+      unselectedFontSize: 0,
+      onTap: _onNavTap,
+      items: [
+        _buildNavItem(
+          icon: Assets.images.inactiveHome.path,
+          activeIcon: Assets.images.activeHome.path,
+          label: "Home",
+        ),
+        _buildNavItem(
+          iconWidget: Assets.icons.tought.svg(
+            colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.srcIn),
+          ),
+          activeIconWidget: Assets.icons.tought.svg(
+            colorFilter: const ColorFilter.mode(
+                AppColors.metalPinkColour, BlendMode.srcIn),
+          ),
+          label: "Thoughts",
+        ),
+        _buildNavItem(
+          icon: Assets.images.inactiveSpark.path,
+          activeIcon: Assets.images.activeSpark.path,
+          label: "Spark",
+        ),
+        _buildChatNavItem(),
+        _buildNavItem(
+          icon: Assets.images.inactiveUser.path,
+          activeIcon: Assets.images.activeUser.path,
+          label: "Profile",
+        ),
+      ],
+    );
+  }
+
+  BottomNavigationBarItem _buildNavItem({
+    String? icon,
+    String? activeIcon,
+    Widget? iconWidget,
+    Widget? activeIconWidget,
+    required String label,
+  }) {
+    return BottomNavigationBarItem(
+      icon: iconWidget ?? Image.asset(icon!),
+      activeIcon: activeIconWidget ?? Image.asset(activeIcon!),
+      label: label,
+    );
+  }
+
+  BottomNavigationBarItem _buildChatNavItem() {
+    return BottomNavigationBarItem(
+      icon: ChatNavIcon(icon: Image.asset(Assets.images.inactiveMessage.path)),
+      activeIcon:
+          ChatNavIcon(icon: Image.asset(Assets.images.activeMessage.path)),
+      label: "Chat",
+    );
+  }
+}

@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
-import 'package:metal/features/authentication/provider/metal.properties.notifier.dart';
-
+ 
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 
 class ProfilePhoto extends ConsumerWidget {
   final double size;
@@ -56,22 +56,32 @@ class ProfilePhoto extends ConsumerWidget {
                   ),
                   shape: OvalBorder(),
                 ),
-                child: Padding(
-                    padding: EdgeInsets.all(9),
                     child: CachedNetworkImage(
                         imageUrl: imgUrl ?? metal.img,
-                        imageBuilder: (context, imageProvider) => CircleAvatar(
-                             // Image radius
-                              backgroundImage: imageProvider,
+                  fit: BoxFit.cover,
+                  imageBuilder: (context, imageProvider) => Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                             ),
-                        placeholder: (context, url) => const SizedBox(
+                  placeholder: (context, url) => Center(
+                    child: SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator
-                                  .adaptive(), // Loading indicator
+                      child: CircularProgressIndicator.adaptive(),
+                    ),
                             ),
-                        errorWidget: (context, url, error) => Assets.images.logo
-                            .image(height: size * 0.7, width: size * 0.7))),
+                  errorWidget: (context, url, error) => Center(
+                    child: Assets.images.logo.image(
+                      height: size * 0.5,
+                      width: size * 0.5,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

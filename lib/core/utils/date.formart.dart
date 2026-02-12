@@ -19,23 +19,78 @@ String formatTime({
   DateTime? datetime,
   String locale = 'en',
 }) {
-  // Parse the date and convert to local time
-  DateTime date = datetime ??
-      DateTime.parse(isoDateString ?? DateTime.now().toIso8601String());
+  // Parse the date: API timestamps are typically UTC (ISO with Z). Convert to local for display.
+  DateTime date = datetime ?? _parseToLocal(isoDateString ?? DateTime.now().toIso8601String());
 
-  // Convert to local time for display
-  DateTime localDate = date.toLocal();
+  // Ensure we compare local time to local "now" for correct relative strings
+  final localDate = date.isUtc ? date.toLocal() : date;
 
-  // Return relative time string based on local time
   return timeago.format(localDate, locale: locale);
 }
 
-String ActiveTime({String? isoDateString, DateTime? datetime}) {
-  String time = formatTime(isoDateString: isoDateString);
+/// Parse ISO string (UTC or local) and return as local DateTime for consistent display.
+DateTime _parseToLocal(String isoDateString) {
+  final date = DateTime.parse(isoDateString);
+  return date.isUtc ? date.toLocal() : date;
+}
+
+String ActiveTime({
+  String? isoDateString,
+  DateTime? datetime,
+  String locale = 'en',
+}) {
+  String time = formatTime(
+    isoDateString: isoDateString,
+    datetime: datetime,
+    locale: locale,
+  );
   if (time == "a moment ago") {
     return "active";
   } else {
     return time;
+  }
+}
+
+/// Determines the accurate online status based on both isOnline flag and lastActive timestamp
+/// This prevents showing "active" for users who went offline but have stale isOnline=true
+String getAccurateOnlineStatus({
+  required bool isOnline,
+  required bool showOnline,
+  String? lastActive,
+  int maxOfflineMinutes = 5, // Consider offline after 5 minutes of inactivity
+  String locale = 'en',
+}) {
+  // If user has disabled showing online status
+  if (!showOnline) {
+    return "Offline";
+  }
+
+  // If no lastActive data, fall back to isOnline flag
+  if (lastActive == null || lastActive.isEmpty) {
+    return isOnline ? "active" : "Offline";
+  }
+
+  try {
+    // Parse lastActive (API sends UTC). Compare in local time.
+    final lastActiveTime = _parseToLocal(lastActive);
+    final now = DateTime.now();
+    final timeDifference = now.difference(lastActiveTime);
+
+    // If lastActive is more than maxOfflineMinutes ago, definitely offline
+    if (timeDifference.inMinutes > maxOfflineMinutes) {
+      return ActiveTime(isoDateString: lastActive, locale: locale);
+    }
+
+    // If recent activity AND isOnline flag is true, show active
+    if (isOnline && timeDifference.inMinutes <= maxOfflineMinutes) {
+      return "active";
+    }
+
+    // If isOnline is false or activity is getting stale, show time-based status
+    return ActiveTime(isoDateString: lastActive, locale: locale);
+  } catch (e) {
+    // Fallback to isOnline flag if parsing fails
+    return isOnline ? "active" : "Offline";
   }
 }
 
@@ -46,14 +101,15 @@ int daysRemaining(String isoDateString, int durationInDays) {
   DateTime date =
       isoDateString == "" ? now : DateTime.parse(isoDateString).toLocal();
 
-  // Calculate the target date by adding the duration to the parsed date
-  DateTime targetDate = date.add(Duration(days: durationInDays));
+  // Calculate the difference in days since connection
+  int daysSinceConnection = now.difference(date).inDays;
 
-  // Calculate the difference in days
-  int remainingDays = targetDate.difference(now).inDays;
-
-  // If the duration has passed, return 0 (no days remaining)
-  return remainingDays > 0 ? remainingDays : 0;
+  // Return completed days, capped at the required duration
+  final days = daysSinceConnection >= durationInDays
+      ? durationInDays
+      : daysSinceConnection;
+  print('days: $days');
+  return days;
 }
 
 bool hasDurationReached(String isoDateString, int durationInDays) {

@@ -66,19 +66,33 @@ class TextView extends StatelessWidget {
       );
     }
 
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.all(padding),
-        child: RichText(
+    final richText = RichText(
           text: TextSpan(
             children: textSpans,
+        style: defaultStyle,
           ),
           textAlign: textAlign!,
           overflow: textOverflow!,
           maxLines: maxLines,
-        ),
+    );
+
+    final paddedText = Padding(
+      padding: EdgeInsets.all(padding),
+      child: richText,
+    );
+
+    // If onTap is provided, wrap in Material and InkWell for ink effects
+    if (onTap != null) {
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          child: paddedText,
       ),
     );
+    }
+
+    // Otherwise, just return the text
+    return paddedText;
   }
 }

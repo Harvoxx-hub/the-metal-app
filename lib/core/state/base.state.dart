@@ -27,13 +27,20 @@ class BaseState<T> {
   factory BaseState.success(T data, {Map? action}) {
     return BaseState<T>(status: Status.success, data: data, action: action);
   }
+
+  /// Success with no data (e.g. RSVP success; caller will refresh).
+  static BaseState<T> successNoData<T>() {
+    return BaseState<T>(status: Status.success, data: null);
+  }
   factory BaseState.action({required Map action}) {
     return BaseState<T>(status: Status.action, action: action);
   }
 
   factory BaseState.error(String errorMessage,
       {Map? errorData, StackTrace? stackTrace}) {
-    Fluttertoast.showToast(msg: errorMessage);
+    if (!errorMessage.contains('refresh')) {
+      Fluttertoast.showToast(msg: errorMessage);
+    }
     return BaseState<T>(
         status: Status.error, errorMessage: errorMessage, errorData: errorData);
   }

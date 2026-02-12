@@ -3,4 +3,5 @@ class FirebaseRemoteConfigKeys {
 
   static const String daysRequiredToUnMelt = 'daysRequiredToUnMelt';
   static const String latest_version = 'latest_version';
+  static const String rules = 'rules';
 }

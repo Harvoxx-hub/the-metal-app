@@ -1,0 +1,101 @@
+import 'package:metal/core/state/base.state.dart';
+import 'package:metal/core/error_handling/error_handler.dart';
+import 'package:metal/data/datasources/remote/notification_remote_data_source.dart';
+import 'package:metal/data/repositories/notification/notification_repository_abstract.dart';
+import 'package:metal/domain/entities/notification_dto.dart';
+
+class NotificationRepository implements NotificationRepositoryAbstract {
+  final NotificationRemoteDataSource _remoteDataSource;
+
+  NotificationRepository({
+    required NotificationRemoteDataSource remoteDataSource,
+  }) : _remoteDataSource = remoteDataSource;
+
+  @override
+  Future<BaseState<NotificationsResponseDto>> getNotifications({
+    required int page,
+    required int limit,
+  }) async {
+    try {
+      final response = await _remoteDataSource.getNotifications(
+        page: page,
+        limit: limit,
+      );
+      final dto = response.toDomain();
+      return BaseState.success(dto);
+    } catch (e) {
+      return ErrorHandler.handleError<NotificationsResponseDto>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<void>> markAsRead({required String notificationId}) async {
+    try {
+      await _remoteDataSource.markAsRead(notificationId: notificationId);
+      return BaseState.success(null);
+    } catch (e) {
+      return ErrorHandler.handleError<void>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<void>> markAllAsRead() async {
+    try {
+      await _remoteDataSource.markAllAsRead();
+      return BaseState.success(null);
+    } catch (e) {
+      return ErrorHandler.handleError<void>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<Map<String, dynamic>>> executeAction({
+    required String notificationId,
+    required String action,
+    Map<String, dynamic>? params,
+  }) async {
+    try {
+      final result = await _remoteDataSource.executeAction(
+        notificationId: notificationId,
+        action: action,
+        params: params,
+      );
+      return BaseState.success(result);
+    } catch (e) {
+      return ErrorHandler.handleError<Map<String, dynamic>>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<NotificationSettingsDto>> updateSettings({
+    required NotificationSettingsDto settings,
+  }) async {
+    try {
+      final response = await _remoteDataSource.updateSettings(
+        settings: settings.toJson(),
+      );
+      final dto = response.toDomain();
+      return BaseState.success(dto);
+    } catch (e) {
+      return ErrorHandler.handleError<NotificationSettingsDto>(e);
+    }
+  }
+
+  @override
+  Future<BaseState<void>> registerDevice({
+    required String deviceToken,
+    required String platform,
+    String? appVersion,
+  }) async {
+    try {
+      await _remoteDataSource.registerDevice(
+        deviceToken: deviceToken,
+        platform: platform,
+        appVersion: appVersion,
+      );
+      return BaseState.success(null);
+    } catch (e) {
+      return ErrorHandler.handleError<void>(e);
+    }
+  }
+}

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/presentation/viewmodels/notification/notification_viewmodel.dart';
 
 import '../../gen/assets.gen.dart';
 
@@ -13,7 +15,7 @@ enum AppBarState {
   HambugerWithHeader,
 }
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final AppBarState appBarState;
   final Function() onHamburgerPressed;
   final Function() onBackButtonPressed;
@@ -39,7 +41,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       appBarEnabled ? const Size.fromHeight(kToolbarHeight) : Size.zero;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (!appBarEnabled) {
       return const SizedBox
           .shrink(); // Return an empty widget if AppBar is disabled
@@ -47,7 +49,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     String leftIcon;
     String? rightIcon;
-    String? rightText;
 
     Function() onLeftIconTap;
     Function()? onRightIconTap;
@@ -69,10 +70,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         break;
       case AppBarState.BackWithHeaderWithSkip:
         leftIcon = Assets.icons.back.path;
-        rightText = "Skip";
         onLeftIconTap = onBackButtonPressed;
         onRightIconTap = onSkipButtonPressed;
-
         break;
     }
 
@@ -105,16 +104,59 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         rightIcon == null
             ? const SizedBox.shrink()
-            : GestureDetector(
-                onTap: onRightIconTap,
-                child: SvgPicture.asset(
-                  rightIcon,
-                  height: 40,
-                  width: 40,
-                ),
-              ),
+            : _buildNotificationIcon(onRightIconTap, rightIcon, ref),
         const Gap(10),
       ],
+    );
+  }
+
+  Widget _buildNotificationIcon(
+      Function()? onTap, String iconPath, WidgetRef ref) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        children: [
+          SvgPicture.asset(
+            iconPath,
+            height: 40,
+            width: 40,
+          ),
+          // Only show badge for notification icon
+          if (iconPath == Assets.icons.notification.path)
+            Consumer(
+              builder: (context, ref, child) {
+                final notificationState = ref.watch(notificationViewModelProvider);
+                final count = notificationState.unreadCount;
+                return count > 0
+                    ? Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            count.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink();
+              },
+            ),
+        ],
+      ),
     );
   }
 }

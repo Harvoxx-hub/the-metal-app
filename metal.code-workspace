@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../metal-BE"
+		},
+		{
+			"path": "../harvoxx/metal-website"
+		}
+	],
+	"settings": {}
+}

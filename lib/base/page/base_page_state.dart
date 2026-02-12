@@ -7,7 +7,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/utils/screen.size.dart';
 
 import 'package:metal/gen/assets.gen.dart';
-import 'package:metal/features/dashboard.dart/widget/nav.drawer.dart';
+import 'package:metal/presentation/views/dashboard/widgets/nav.drawer.dart';
 
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
@@ -92,26 +92,29 @@ class _BaseScreenState extends State<BaseScreen> {
                       FocusScope.of(context).unfocus();
                     },
                     child: widget.authFlow
-                        ? Padding(
-                            padding: const EdgeInsets.only(
-                                top: 50.0, left: 16, right: 16, bottom: 16),
-                            child: Container(
-                              height: getDeviceHeight(context) - 100,
-                              padding: const EdgeInsets.all(15),
-                              decoration: BoxDecoration(
-                                  color: AppColors.metalWhite,
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: Column(
-                                children: [
-                                  _authAppbar(context),
-                                  const Gap(10),
+                        ? SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 16, right: 16, bottom: 16),
+                              child: Container(
+                                height: getDeviceHeight(context) - 100,
+                                padding: const EdgeInsets.all(15),
+                                decoration: BoxDecoration(
+                                    color: AppColors.metalWhite,
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Column(
+                                  children: [
+                                    _authAppbar(context),
+                                    const Gap(10),
 
-                                  Expanded(
-                                      child: widget
-                                          .body), // Use an Expanded widget for flexible content
-                                ],
+                                    Expanded(
+                                        child: widget
+                                            .body), // Use an Expanded widget for flexible content
+                                  ],
+                                ),
                               ),
-                            ))
+                            ),
+                          )
                         : widget.body,
                   ),
           ))),

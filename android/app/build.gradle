@@ -29,20 +29,26 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
- 
+def hasKeystore = keystorePropertiesFile.exists() &&
+    keystoreProperties['keyAlias'] != null &&
+    keystoreProperties['storeFile'] != null
+
+// Fallback to default debug keystore when key.properties is missing (e.g. for local debug builds)
+def debugKeystorePath = "${System.getProperty('user.home')}/.android/debug.keystore"
+
 android {
     namespace "com.bwh.metal_app"
-    compileSdkVersion 35
+    compileSdk 36
     ndkVersion  "27.0.12077973"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
         coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
 
     sourceSets {
@@ -51,34 +57,41 @@ android {
 
     defaultConfig {
         applicationId "com.bwh.metal_app"
-        minSdkVersion 23
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
+        multiDexKeepProguard file('multidex-keep.pro')
+        multiDexKeepFile file('main-dex-list.txt')
         consumerProguardFiles 'proguard-rules.pro'
+        // Google Maps API key: add GOOGLE_MAPS_API_KEY=your_key to android/local.properties
+        manifestPlaceholders = [
+            GOOGLE_MAPS_API_KEY: localProperties.getProperty('GOOGLE_MAPS_API_KEY') ?: '',
+            applicationName: 'com.bwh.metal_app.MetalApplication'
+        ]
     }
 
     signingConfigs {
         debug {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+            keyAlias hasKeystore ? keystoreProperties['keyAlias'] : 'androiddebugkey'
+            keyPassword hasKeystore ? keystoreProperties['keyPassword'] : 'android'
+            storeFile hasKeystore ? file(keystoreProperties['storeFile']) : file(debugKeystorePath)
+            storePassword hasKeystore ? keystoreProperties['storePassword'] : 'android'
         }
-
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-        }
-
-        profile {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+        if (hasKeystore) {
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+            profile {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
         }
     }
 
@@ -91,33 +104,17 @@ android {
         }
         profile {
             minifyEnabled true
-            signingConfig signingConfigs.profile
+            signingConfig hasKeystore ? signingConfigs.profile : signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled false
             shrinkResources false
-            signingConfig signingConfigs.release
+            signingConfig hasKeystore ? signingConfigs.release : signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
-    flavorDimensions "app"
-    productFlavors {
-        prod {
-            dimension "app"
-            applicationIdSuffix ""
-            resValue "string", "app_name", "metal"
-        }
-        dev {
-            dimension "app"
-            applicationIdSuffix ".dev"
-            resValue "string", "app_name", "metal-dev"
-            versionNameSuffix "-dev"
-        }
-    }
-
-    
     lint {
         disable 'InvalidPackage'
     }
@@ -131,10 +128,16 @@ flutter {
 }
 
 dependencies {
+    // FlutterApplication for MetalApplication is provided by the Flutter Gradle plugin (embedding).
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'com.google.firebase:firebase-messaging:23.0.0'
     implementation 'androidx.multidex:multidex:2.0.1'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     // Ensure correct version for Heytap if needed
     // implementation 'com.heytap.msp:push:2.0.6'
+    implementation platform('com.google.firebase:firebase-bom:31.0.2')
+    implementation 'com.google.firebase:firebase-analytics'
+    // TODO: Uncomment when video calling is implemented and ZEGO repository credentials are configured
+    // ZEGO dependency requires authenticated access to Heytap Maven repository
+    // implementation 'im.zego:zpns-fcm:2.8.0' //ZPNs package for Google FCM push
 }

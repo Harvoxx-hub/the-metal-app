@@ -1,0 +1,377 @@
+import 'package:dio/dio.dart';
+import 'package:metal/core/network/api_routes.dart';
+import 'package:metal/core/network/dio_client.dart';
+import 'package:metal/data/models/message_model.dart';
+
+/// Remote data source for chat operations
+/// Handles API communication for messages and connections
+class ChatRemoteDataSource {
+  final DioClient _client;
+
+  ChatRemoteDataSource(this._client);
+
+  // ============ Connection Methods ============
+
+  /// Get all connections for the current user
+  /// Returns paginated list of chat connections
+  Future<ConnectionsResponseModel> getConnections({
+    int limit = 20,
+    String? cursor,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'limit': limit,
+      if (cursor != null) 'cursor': cursor,
+    };
+
+    final response = await _client.get(
+      ApiRoutes.buildPath(ApiRoutes.connections),
+      queryParameters: queryParams,
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return ConnectionsResponseModel.fromJson(data);
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to get connections');
+  }
+
+  /// Get a single connection by ID
+  Future<ConnectionModel> getConnectionById(String connectionId) async {
+    final response = await _client.get(
+      '${ApiRoutes.buildPath(ApiRoutes.connectionById)}/$connectionId',
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return ConnectionModel.fromJson(data);
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to get connection');
+  }
+
+  /// Clear chat history for a connection
+  Future<void> clearChat(String connectionId) async {
+    final response = await _client.delete(
+      '${ApiRoutes.buildPath(ApiRoutes.clearChat)}/$connectionId/messages',
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(response.data?['error'] ?? 'Failed to clear chat');
+    }
+  }
+
+  /// Update game in a connection
+  Future<ConnectionModel> updateGame({
+    required String connectionId,
+    required String? gameTitle,
+  }) async {
+    final response = await _client.patch(
+      '${ApiRoutes.buildPath(ApiRoutes.connectionById)}/$connectionId',
+      data: {'game': gameTitle},
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return ConnectionModel.fromJson(data);
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to update game');
+  }
+
+  // ============ Message Methods ============
+
+  /// Get messages for a connection
+  /// Returns paginated list of messages
+  Future<MessagesResponseModel> getMessages(
+    String connectionId, {
+    int limit = 50,
+    String? cursor,
+    String? sinceMessageId,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'limit': limit,
+      if (cursor != null) 'cursor': cursor,
+      if (sinceMessageId != null) 'since': sinceMessageId,
+    };
+
+    final response = await _client.get(
+      '${ApiRoutes.buildPath(ApiRoutes.messagesByConnection)}/$connectionId',
+      queryParameters: queryParams,
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return MessagesResponseModel.fromJson(data);
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to get messages');
+  }
+
+  /// Get messages since a specific message ID (for polling)
+  Future<List<MessageModel>> getMessagesSince(
+    String connectionId, {
+    required String sinceMessageId,
+  }) async {
+    final response = await _client.get(
+      '${ApiRoutes.buildPath(ApiRoutes.messagesByConnection)}/$connectionId',
+      queryParameters: {'since': sinceMessageId},
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      final messagesJson = data['messages'] as List<dynamic>? ?? [];
+      return messagesJson
+          .map((m) => MessageModel.fromJson(m as Map<String, dynamic>))
+          .toList();
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to get messages');
+  }
+
+  /// Send a message
+  Future<MessageModel> sendMessage(SendMessageRequestModel request) async {
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.messages),
+      data: request.toJson(),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.data != null) {
+        final data =
+            response.data['data'] as Map<String, dynamic>? ?? response.data;
+        return MessageModel.fromJson(data);
+      }
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to send message');
+  }
+
+  /// Send a direct message from discovery (no connection until recipient accepts)
+  Future<Map<String, dynamic>> sendDirectMessage({
+    required String recipientId,
+    required String message,
+  }) async {
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.directMessage),
+      data: {
+        'recipientId': recipientId,
+        'message': message,
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.data != null) {
+        final data =
+            response.data['data'] as Map<String, dynamic>? ?? response.data;
+        return data as Map<String, dynamic>;
+      }
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to send direct message');
+  }
+
+  /// Get pending direct messages from a sender (for Accept/Reject sheet)
+  Future<Map<String, dynamic>> getPendingDirectMessages(String senderId) async {
+    final response = await _client.get(
+      '${ApiRoutes.buildPath(ApiRoutes.pendingDirectMessage)}/$senderId',
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return data as Map<String, dynamic>;
+    }
+
+    throw Exception(
+        response.data?['error'] ?? 'Failed to get pending direct messages');
+  }
+
+  /// Accept direct message: create connection, move messages to chat
+  Future<Map<String, dynamic>> acceptDirectMessage(String senderId) async {
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.directMessageAccept),
+      data: {'senderId': senderId},
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return data as Map<String, dynamic>;
+    }
+
+    throw Exception(
+        response.data?['error'] ?? 'Failed to accept direct message');
+  }
+
+  /// Reject direct message: clear pending, no connection
+  Future<Map<String, dynamic>> rejectDirectMessage(String senderId) async {
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.directMessageReject),
+      data: {'senderId': senderId},
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return data as Map<String, dynamic>;
+    }
+
+    throw Exception(
+        response.data?['error'] ?? 'Failed to reject direct message');
+  }
+
+  /// Send a prompt reaction (reply to user's prompt)
+  Future<Map<String, dynamic>> sendPromptReaction({
+    required String recipientId,
+    required String promptQuestionText,
+    required String promptAnswer,
+    String? comment,
+  }) async {
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.promptReaction),
+      data: {
+        'recipientId': recipientId,
+        'promptQuestionText': promptQuestionText,
+        'promptAnswer': promptAnswer,
+        if (comment != null && comment.isNotEmpty) 'comment': comment,
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.data != null) {
+        final data =
+            response.data['data'] as Map<String, dynamic>? ?? response.data;
+        return data;
+      }
+    }
+
+    throw Exception(
+        response.data?['error'] ?? 'Failed to send prompt reaction');
+  }
+
+  /// Upload and send an audio message
+  Future<MessageModel> sendAudioMessage({
+    required String connectionId,
+    required String audioFilePath,
+    String? replyToMessageId,
+    String? replyToMessageText,
+    String? replyToSenderId,
+    String? replyToMessageType,
+  }) async {
+    final formData = FormData.fromMap({
+      'connectionId': connectionId,
+      'audio': await MultipartFile.fromFile(audioFilePath),
+      if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
+      if (replyToMessageText != null) 'replyToMessageText': replyToMessageText,
+      if (replyToSenderId != null) 'replyToSenderId': replyToSenderId,
+      if (replyToMessageType != null) 'replyToMessageType': replyToMessageType,
+    });
+
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.messagesAudio),
+      data: formData,
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.data != null) {
+        final data =
+            response.data['data'] as Map<String, dynamic>? ?? response.data;
+        return MessageModel.fromJson(data);
+      }
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to send audio message');
+  }
+
+  /// Delete a message
+  Future<void> deleteMessage(String messageId, String connectionId) async {
+    if (messageId.isEmpty) {
+      throw Exception('Message ID is required');
+    }
+    if (connectionId.isEmpty) {
+      throw Exception('Connection ID is required');
+    }
+
+    final response = await _client.delete(
+      ApiRoutes.buildPathWithId(ApiRoutes.messageById, messageId),
+      data: {
+        'connectionId': connectionId,
+      },
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception(response.data?['error'] ?? 'Failed to delete message');
+    }
+  }
+
+  /// Mark a message as read
+  Future<void> markMessageAsRead(String messageId) async {
+    final response = await _client.put(
+      '${ApiRoutes.buildPath(ApiRoutes.markMessageRead)}/$messageId/read',
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+          response.data?['error'] ?? 'Failed to mark message as read');
+    }
+  }
+
+  /// Mark all messages in a connection as read
+  Future<void> markAllMessagesAsRead(String connectionId) async {
+    final response = await _client.put(
+      '${ApiRoutes.buildPath(ApiRoutes.markAllMessagesRead)}/$connectionId/read-all',
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+          response.data?['error'] ?? 'Failed to mark messages as read');
+    }
+  }
+
+  /// Update a message (for unmelt actions, etc.)
+  Future<MessageModel> updateMessage({
+    required String messageId,
+    required Map<String, dynamic> data,
+  }) async {
+    final response = await _client.patch(
+      '${ApiRoutes.buildPath(ApiRoutes.messageById)}/$messageId',
+      data: data,
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final responseData =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return MessageModel.fromJson(responseData);
+    }
+
+    throw Exception(response.data?['error'] ?? 'Failed to update message');
+  }
+
+  // ============ Unmelt Methods ============
+
+  /// Process unmelt action (approve/reject)
+  Future<void> processUnmeltAction({
+    required String connectionId,
+    required String messageId,
+    required String action, // 'approve' or 'reject'
+  }) async {
+    final response = await _client.post(
+      '${ApiRoutes.buildPath(ApiRoutes.connectionById)}/$connectionId/unmelt',
+      data: {
+        'messageId': messageId,
+        'action': action,
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+          response.data?['error'] ?? 'Failed to process unmelt action');
+    }
+  }
+}

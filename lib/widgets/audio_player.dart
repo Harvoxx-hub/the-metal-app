@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:gap/gap.dart';
@@ -50,22 +52,46 @@ class AudioPlayer extends StatefulWidget {
 }
 
 class _AudioPlayerState extends State<AudioPlayer> {
+  /// Only one player should play at a time app-wide (fixes Android multi-play; iOS often already does this).
+  static final ValueNotifier<Object?> _globalActivePlayerKey = ValueNotifier<Object?>(null);
+
   final PlayerController _controller = PlayerController();
+  final Object _instanceKey = Object();
   bool _prepared = false;
   bool _error = false;
   bool _loading = true;
   String? _localPath;
   bool _downloading = false;
   int _totalDurationMs = 0;
+  StreamSubscription<PlayerState>? _stateSubscription;
+
+  void _onGlobalActivePlayerChanged() {
+    if (_globalActivePlayerKey.value != null && _globalActivePlayerKey.value != _instanceKey) {
+      if (_controller.playerState.isPlaying) {
+        _controller.pausePlayer();
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _globalActivePlayerKey.addListener(_onGlobalActivePlayerChanged);
+    _stateSubscription = _controller.onPlayerStateChanged.listen((state) {
+      if (state == PlayerState.stopped && _globalActivePlayerKey.value == _instanceKey) {
+        _globalActivePlayerKey.value = null;
+      }
+    });
     _prepare();
   }
 
   @override
   void dispose() {
+    _stateSubscription?.cancel();
+    _globalActivePlayerKey.removeListener(_onGlobalActivePlayerChanged);
+    if (_globalActivePlayerKey.value == _instanceKey) {
+      _globalActivePlayerKey.value = null;
+    }
     _controller.dispose();
     if (_localPath != null && _isRemoteUrl(widget.audioUrl)) {
       try {
@@ -294,13 +320,24 @@ class _AudioPlayerState extends State<AudioPlayer> {
               return GestureDetector(
                 onTap: () async {
                   if (playing) {
+                    if (_globalActivePlayerKey.value == _instanceKey) {
+                      _globalActivePlayerKey.value = null;
+                    }
                     await _controller.pausePlayer();
                   } else {
                     try {
-                      // After playback completes, state is stopped and startPlayer() no-ops.
-                      // Re-prepare so we go back to initialized, then start.
+                      _globalActivePlayerKey.value = _instanceKey;
+                      // After playback completes, state is stopped. Re-prepare then start.
+                      // On Android, must call stopPlayer() before preparePlayer() or playback won't restart.
                       if (_controller.playerState == PlayerState.stopped &&
                           _localPath != null) {
+                        if (Platform.isAndroid) {
+                          try {
+                            await _controller.stopPlayer();
+                          } catch (_) {
+                            // Ignore if already stopped
+                          }
+                        }
                         await _controller.preparePlayer(
                           path: _localPath!,
                           shouldExtractWaveform: true,
@@ -308,6 +345,9 @@ class _AudioPlayerState extends State<AudioPlayer> {
                       }
                       await _controller.startPlayer();
                     } catch (e) {
+                      if (_globalActivePlayerKey.value == _instanceKey) {
+                        _globalActivePlayerKey.value = null;
+                      }
                       if (mounted) setState(() => _error = true);
                     }
                   }

@@ -1,27 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:gap/gap.dart';
-
 import 'package:metal/data/repositories/chat/chat_repository_providers.dart';
 import 'package:metal/domain/entities/discovery_user_dto.dart';
 import 'package:metal/domain/entities/prompt_dto.dart';
-import 'package:metal/domain/entities/thought_dto.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
+import 'package:metal/presentation/views/home/widgets/enhanced_swipe_card.dart';
 import 'package:metal/res/colors/cr_colors.dart';
-import 'package:metal/widgets/text_views.dart';
-import 'package:metal/core/utils/date.formart.dart';
 import 'package:metal/route/routes.dart';
-import 'package:metal/widgets/state.handler/empty.state.dart';
-import 'package:metal/presentation/viewmodels/discovery/discovery_user_thoughts_viewmodel.dart';
+import 'package:metal/widgets/text_views.dart';
 
-/// Discovery User Card - Swipeable card with scrollable content
-/// Displays user information with prompts in a scrollable format
-/// Supports horizontal swiping (left/right) but not vertical dismissal
-class DiscoveryUserCard extends ConsumerStatefulWidget {
+/// Discovery User Card for swipe interface — old UI with prompt flow and direct message.
+/// Uses [DiscoveryUserDto] and [EnhancedSwipeCard] for Tinder-like swipe feedback.
+/// Swipe up or star/message buttons open the direct message dialog.
+class DiscoveryUserCard extends ConsumerWidget {
   final DiscoveryUserDto user;
   final VoidCallback? onLike;
   final VoidCallback? onPass;
+  final VoidCallback? onMessage;
   final void Function(String userId)? onDirectMessageSent;
 
   const DiscoveryUserCard({
@@ -29,253 +25,97 @@ class DiscoveryUserCard extends ConsumerStatefulWidget {
     required this.user,
     this.onLike,
     this.onPass,
+    this.onMessage,
     this.onDirectMessageSent,
   });
 
   @override
-  ConsumerState<DiscoveryUserCard> createState() => _DiscoveryUserCardState();
-}
-
-class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
-  double _dragOffset = 0.0;
-  bool _isHorizontalSwipe = false;
-  double _totalHorizontalDrag = 0.0;
-  double _totalVerticalDrag = 0.0;
-  final double _swipeThreshold =
-      100.0; // Minimum drag distance to trigger swipe
-  final double _horizontalSwipeThreshold =
-      20.0; // Minimum horizontal movement to start swipe
-
-  /// Actual user prompts only (no dummy data). If empty, card shows bio instead.
-  List<UserPromptDto> get _prompts => widget.user.prompts ?? [];
-
-  void _onPanStart(DragStartDetails details) {
-    setState(() {
-      _isHorizontalSwipe = false;
-      _totalHorizontalDrag = 0.0;
-      _totalVerticalDrag = 0.0;
-    });
-  }
-
-  void _onPanUpdate(DragUpdateDetails details) {
-    final horizontalDelta = details.delta.dx;
-    final verticalDelta = details.delta.dy.abs();
-
-    _totalHorizontalDrag += horizontalDelta.abs();
-    _totalVerticalDrag += verticalDelta;
-
-    // Determine if this is primarily a horizontal swipe
-    // Only start horizontal dragging if horizontal movement is dominant
-    if (!_isHorizontalSwipe) {
-      if (_totalHorizontalDrag > _horizontalSwipeThreshold &&
-          _totalHorizontalDrag > _totalVerticalDrag) {
-        setState(() {
-          _isHorizontalSwipe = true;
-        });
-      }
-    }
-
-    // Only update drag offset if we've determined this is a horizontal swipe
-    if (_isHorizontalSwipe) {
-      setState(() {
-        _dragOffset += horizontalDelta;
-        // Clamp the offset to prevent excessive dragging
-        _dragOffset = _dragOffset.clamp(-300.0, 300.0);
-      });
-    }
-  }
-
-  void _onPanEnd(DragEndDetails details) {
-    // Only trigger swipe action if it was a horizontal swipe
-    if (_isHorizontalSwipe && _dragOffset.abs() > _swipeThreshold) {
-      if (_dragOffset > 0) {
-        // Swiped right - like
-        widget.onLike?.call();
-      } else {
-        // Swiped left - pass
-        widget.onPass?.call();
-      }
-      // Reset position after action
-      setState(() {
-        _dragOffset = 0.0;
-        _isHorizontalSwipe = false;
-      });
-    } else {
-      // Spring back to center
-      setState(() {
-        _dragOffset = 0.0;
-        _isHorizontalSwipe = false;
-      });
-    }
-  }
-
-  void _onPanCancel() {
-    setState(() {
-      _dragOffset = 0.0;
-      _isHorizontalSwipe = false;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final prompts = _prompts;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final rotation = _dragOffset / screenWidth * 0.1; // Slight rotation effect
-    final opacity =
-        1.0 - (_dragOffset.abs() / screenWidth * 0.3).clamp(0.0, 0.3);
-
-    // Watch thoughts state from ViewModel
-    final thoughtsState = ref.watch(
-      discoveryUserThoughtsProvider(widget.user.id),
-    );
-
-    return GestureDetector(
-      onPanStart: _onPanStart,
-      onPanUpdate: _onPanUpdate,
-      onPanEnd: _onPanEnd,
-      onPanCancel: _onPanCancel,
-      // Only accept horizontal gestures when not scrolling vertically
-      behavior: HitTestBehavior.opaque,
-      child: Transform.translate(
-        offset: Offset(_dragOffset, 0),
-        child: Transform.rotate(
-          angle: rotation,
-          child: Opacity(
-            opacity: opacity,
-            child: Container(
-              color: Colors.grey.withOpacity(0.1),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              child: Stack(
-                children: [
-                  // Scrollable content - wrapped to allow vertical scrolling
-                  Container(
-                    decoration: BoxDecoration(
+  Widget build(BuildContext context, WidgetRef ref) {
+    return EnhancedSwipeCard(
+      onSwipeLeft: onPass,
+      onSwipeRight: onLike,
+      onSwipeUp: () => _showDirectMessageDialog(context),
+      swipeUpLabelText: 'MESSAGE',
+      swipeUpIcon: Icons.message,
+      swipeUpColor: AppColors.metalPinkColour,
+      swipeThreshold: 120.0,
+      velocityThreshold: 500.0,
+      child: GestureDetector(
+        onTap: () {
+          // Open metal profile for viewing only — does not create a connection.
+          Navigator.pushNamed(
+            context,
+            AppRoutes.userProfile,
+            arguments: <String, String>{'userId': user.id},
+          );
+        },
+        child: Container(
+          margin: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.metalPinkColour.withOpacity(0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              children: [
+                // Background
+                Positioned.fill(
+                  child: Container(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.metalPinkColour,
-                          blurRadius: 10,
-                          spreadRadius: 10,
-                          offset: const Offset(0, 0),
-                        ),
-                      ],
-                      border: Border.all(
-                        color: AppColors.metalPinkColour,
-                        width: 1,
+                    ),
+                  ),
+                ),
+
+                // Metal image at top
+                Positioned(
+                  top: 20,
+                  left: 0,
+                  right: 0,
+                  child: SizedBox(
+                    height: 300,
+                    child: _buildMetalBackground(ref),
+                  ),
+                ),
+
+                // User info at bottom
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: _buildUserInfo(context, ref),
+                ),
+
+                // Location and distance badge
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  child: _buildLocationBadge(),
+                ),
+
+                // Online indicator
+                if (user.isOnline)
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
                     ),
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            physics: const ClampingScrollPhysics(),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Metal image at top
-                                _buildMetalImage(ref),
-
-                                // User info section
-
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      _buildUsernameWithDetails(ref),
-                                      const Gap(12),
-                                      // Prompts if user has any; otherwise show bio
-                                      if (prompts.isNotEmpty)
-                                        _buildPromptsSection(prompts, context)
-                                      else
-                                        _buildBioSection(),
-                                      const Gap(12),
-                                      _buildPassions(),
-                                    ],
-                                  ),
-                                ),
-
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      TextView(
-                                        text: "Looking for:",
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                      const SizedBox(height: 12),
-                                      _buildConnectionOptions(),
-                                    ],
-                                  ),
-                                ),
-
-                                // Recent Thoughts section
-                                if (thoughtsState.thoughts.isNotEmpty ||
-                                    thoughtsState.isLoading)
-                                  Container(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        TextView(
-                                          text: "Recent Thoughts:",
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                        const SizedBox(height: 12),
-                                        _buildRecentThoughtsSection(
-                                            thoughtsState),
-                                      ],
-                                    ),
-                                  ),
-                                const Gap(45),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    //
                   ),
-                  // Like and Reject buttons positioned at bottom
-                  Positioned(
-                    bottom: 16,
-                    left: 0,
-                    right: 0,
-                    child: Row(
-                      children: [
-                        Spacer(),
-                        _buildActionButton(
-                          icon: Icons.close,
-                          color: Colors.red,
-                          onTap: widget.onPass,
-                        ),
-                        Spacer(),
-                        _buildActionButton(
-                          icon: Icons.message,
-                          color: AppColors.metalPinkColour,
-                          onTap: () => _showDirectMessageDialog(context),
-                        ),
-                        Spacer(),
-                        _buildActionButton(
-                          icon: Icons.favorite,
-                          color: Colors.green,
-                          onTap: widget.onLike,
-                        ),
-                        Spacer(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ),
           ),
         ),
@@ -283,7 +123,7 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
     );
   }
 
-  Widget _buildMetalImage(WidgetRef ref) {
+  Widget _buildMetalBackground(WidgetRef ref) {
     final metalProperties = ref.watch(metalPropertiesProvider);
 
     if (metalProperties.isLoading || metalProperties.data?.metals == null) {
@@ -291,99 +131,29 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
     }
 
     final metals = metalProperties.data!.metals!;
-    if (metals.isEmpty || widget.user.metal == null) {
+    if (metals.isEmpty || user.metal == null) {
       return _buildDefaultBackground();
     }
 
     final metal = metals.firstWhere(
-      (element) => element.id == widget.user.metal,
+      (element) => element.id == user.metal,
       orElse: () => metals[0],
     );
 
-    return Stack(
-      children: [
-        SizedBox(
-          height: 270,
-          width: double.infinity,
-          child: Container(
-            padding:
-                const EdgeInsets.only(top: 30, bottom: 0, left: 30, right: 30),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: CachedNetworkImage(
-              imageUrl: metal.img,
-              fit: BoxFit.fitHeight,
-              height: 270,
-              placeholder: (context, url) => _buildDefaultBackground(),
-              errorWidget: (context, url, error) => _buildDefaultBackground(),
-            ),
-          ),
-        ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (widget.user.location?.address != null)
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.metalPinkColour.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: TextView(
-                      text: widget.user.location!.address!,
-                      fontSize: 12,
-                      color: Colors.black87,
-                    ),
-                  ),
-                const Gap(6),
-                if (widget.user.location?.address != null ||
-                    widget.user.distance != null)
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.metalPinkColour.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.location_on,
-                          color: Colors.white,
-                          size: 14,
-                        ),
-                        const SizedBox(width: 4),
-                        TextView(
-                          text: _formatDistance(widget.user.distance!),
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        )
-      ],
+    return CachedNetworkImage(
+      imageUrl: metal.img,
+      fit: BoxFit.fill,
+      width: double.infinity,
+      height: double.infinity,
+      placeholder: (context, url) => _buildDefaultBackground(),
+      errorWidget: (context, url, error) => _buildDefaultBackground(),
     );
   }
 
   Widget _buildDefaultBackground() {
     return Container(
-      height: 270,
       width: double.infinity,
+      height: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -394,61 +164,182 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
           ],
         ),
       ),
+      child: const Center(
+        child: Icon(
+          Icons.person,
+          size: 80,
+          color: Colors.grey,
+        ),
+      ),
     );
   }
 
-  Widget _buildUsernameWithDetails(WidgetRef ref) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildUserInfo(BuildContext context, WidgetRef ref) {
+    final prompts = user.prompts ?? [];
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.white, Colors.white],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Name and verified badge
+          Row(
             children: [
-              TextView(
-                text: widget.user.username ?? 'Anonymous',
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+              Expanded(
+                child: TextView(
+                  text: user.username ?? 'Anonymous',
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
               ),
-              const Gap(12),
-              if (widget.user.age != null) ...[
-                const SizedBox(width: 4),
-                TextView(
-                  text: '${widget.user.age} Years Old',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
+              if (user.isVerified)
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: AppColors.metalPinkColour,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.verified,
+                    color: Colors.white,
+                    size: 16,
+                  ),
                 ),
-              ],
-              const Gap(12),
-              if (widget.user.gender != null &&
-                  widget.user.gender!.isNotEmpty) ...[
-                const SizedBox(width: 4),
-                TextView(
-                  text: '${widget.user.gender}',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ],
+              _buildMetalTitle(ref),
             ],
           ),
-        ),
-        if (widget.user.isVerified)
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: AppColors.metalPinkColour,
-              borderRadius: BorderRadius.circular(12),
+
+          const SizedBox(height: 8),
+
+          // Gender
+          if (user.gender != null && user.gender!.isNotEmpty)
+            TextView(
+              text: user.gender!,
+              fontSize: 16,
+              color: Colors.black87,
             ),
-            child: const Icon(
-              Icons.verified,
-              color: Colors.white,
-              size: 20,
+
+          const SizedBox(height: 8),
+
+          // Age
+          if (user.age != null)
+            TextView(
+              text: '${user.age} Years Old',
+              fontSize: 16,
+              color: Colors.black87,
             ),
+
+          const SizedBox(height: 8),
+
+          // Bio
+          if (user.bio != null && user.bio!.isNotEmpty)
+            TextView(
+              text: user.bio!,
+              fontSize: 16,
+              color: Colors.black87,
+              maxLines: 2,
+            ),
+
+          // Prompts (kept from new flow)
+          if (prompts.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _buildPromptsSection(prompts, context),
+          ],
+
+          const SizedBox(height: 12),
+
+          // Passions
+          if (user.passion != null && user.passion!.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: (user.passion!.take(3)).map((passion) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                  ),
+                  child: TextView(
+                    text: passion,
+                    fontSize: 12,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w500,
+                  ),
+                );
+              }).toList(),
+            ),
+
+          // Connection options
+          if (user.connectionOption != null && user.connectionOption!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            const TextView(
+              text: "Looking for:",
+              fontSize: 14,
+              color: Colors.black87,
+              fontWeight: FontWeight.w600,
+            ),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: (user.connectionOption!.take(3)).map((option) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.metalPinkColour.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.metalPinkColour.withOpacity(0.3)),
+                  ),
+                  child: TextView(
+                    text: option,
+                    fontSize: 12,
+                    color: AppColors.metalPinkColour,
+                    fontWeight: FontWeight.w500,
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+
+          const SizedBox(height: 16),
+
+          // Action buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildActionButton(
+                icon: Icons.close,
+                color: Colors.red,
+                onTap: onPass,
+              ),
+              _buildActionButton(
+                icon: Icons.message,
+                color: AppColors.metalPinkColour,
+                onTap: () {
+                  onMessage?.call();
+                  _showDirectMessageDialog(context);
+                },
+              ),
+              _buildActionButton(
+                icon: Icons.favorite,
+                color: Colors.green,
+                onTap: onLike,
+              ),
+            ],
           ),
-        _buildMetalTitle(ref),
-      ],
+        ],
+      ),
     );
   }
 
@@ -460,12 +351,12 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
     }
 
     final metals = metalProperties.data!.metals!;
-    if (metals.isEmpty || widget.user.metal == null) {
+    if (metals.isEmpty || user.metal == null) {
       return const SizedBox.shrink();
     }
 
     final metal = metals.firstWhere(
-      (element) => element.id == widget.user.metal,
+      (element) => element.id == user.metal,
       orElse: () => metals[0],
     );
 
@@ -485,30 +376,97 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
     );
   }
 
-  Widget _buildBioSection() {
-    final bio = widget.user.bio?.trim();
-    if (bio == null || bio.isEmpty) return const SizedBox.shrink();
+  Widget _buildLocationBadge() {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextView(
-          text: bio,
-          fontSize: 16,
-          color: Colors.black87,
-          maxLines: 6,
-          textOverflow: TextOverflow.ellipsis,
-        ),
+        if (user.location?.address != null)
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.metalPinkColour.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: TextView(
+              text: user.location?.address ?? "No Address",
+              fontSize: 14,
+              color: Colors.black87,
+            ),
+          ),
+        if (user.distance != null) ...[
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.metalPinkColour.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.location_on,
+                  color: Colors.white,
+                  size: 16,
+                ),
+                const SizedBox(width: 4),
+                TextView(
+                  text: _formatDistance(user.distance!),
+                  fontSize: 14,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
 
-  Widget _buildPromptsSection(
-      List<UserPromptDto> prompts, BuildContext context) {
+  String _formatDistance(double distance) {
+    if (distance >= 1.0) {
+      return '${distance.toStringAsFixed(1)} km';
+    } else {
+      return '${(distance * 1000).round()} m';
+    }
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required Color color,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: color,
+          size: 30,
+        ),
+      ),
+    );
+  }
+
+  // ─── Prompt flow (kept from new flow) ───────────────────────────────────
+
+  Widget _buildPromptsSection(List<UserPromptDto> prompts, BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    // Card width is 85% of screen, leaving 15% visible for next card peek
     final cardWidth = screenWidth * 0.85;
-    // Right margin creates the gap and peek effect
     final rightMargin = 12.0;
 
     return Column(
@@ -531,7 +489,6 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
             },
           ),
         ),
-        // Swipe indicator (only show when there are multiple prompts)
       ],
     );
   }
@@ -584,8 +541,8 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
       barrierColor: Colors.black.withOpacity(0.5),
       builder: (dialogContext) => _PromptReplyDialog(
         prompt: prompt,
-        userName: widget.user.username ?? 'User',
-        recipientId: widget.user.id,
+        userName: user.username ?? 'User',
+        recipientId: user.id,
         onCancel: () => Navigator.pop(dialogContext),
       ),
     );
@@ -596,191 +553,20 @@ class _DiscoveryUserCardState extends ConsumerState<DiscoveryUserCard> {
       context: context,
       barrierColor: Colors.black.withOpacity(0.5),
       builder: (dialogContext) => _DirectMessageDialog(
-        userName: widget.user.username ?? 'User',
-        recipientId: widget.user.id,
+        userName: user.username ?? 'User',
+        recipientId: user.id,
         onCancel: () => Navigator.pop(dialogContext),
         onSent: () {
           Navigator.pop(dialogContext);
-          widget.onDirectMessageSent?.call(widget.user.id);
+          onDirectMessageSent?.call(user.id);
         },
       ),
     );
-  }
-
-  Widget _buildPassions() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: widget.user.passion!.map((passion) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.grey.withOpacity(0.3)),
-          ),
-          child: TextView(
-            text: passion,
-            fontSize: 14,
-            color: Colors.black,
-            fontWeight: FontWeight.w500,
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildConnectionOptions() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: widget.user.connectionOption!.map((option) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.grey.withOpacity(0.3),
-            ),
-          ),
-          child: TextView(
-            text: option,
-            fontSize: 14,
-            color: Colors.black,
-            fontWeight: FontWeight.w500,
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildRecentThoughtsSection(DiscoveryUserThoughtsState thoughtsState) {
-    if (thoughtsState.isLoading) {
-      return const SizedBox(
-        height: 100,
-        child: Center(child: CircularProgressIndicator.adaptive()),
-      );
-    }
-
-    if (thoughtsState.isError || thoughtsState.thoughts.isEmpty) {
-      return SizedBox(
-        height: 80,
-        child: EmptyState(
-          text: 'no recent thought',
-        ),
-      );
-    }
-
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding:
-            EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.15),
-        itemCount: thoughtsState.thoughts.length,
-        itemBuilder: (context, index) {
-          final thought = thoughtsState.thoughts[index];
-          return _buildThoughtSnippet(thought);
-        },
-      ),
-    );
-  }
-
-  Widget _buildThoughtSnippet(ThoughtDto thought) {
-    final dateText = formatTime(
-      datetime: thought.createdAt,
-      locale: Localizations.localeOf(context).languageCode,
-    );
-
-    return InkWell(
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          AppRoutes.thoughtDetails,
-          arguments: thought.id,
-        );
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        width: 200,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: AppColors.metalPinkColour.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: AppColors.metalPinkColour.withOpacity(0.3),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: TextView(
-                text: thought.content,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black,
-                maxLines: 2,
-                textOverflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const Gap(8),
-            TextView(
-              text: dateText,
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: AppColors.metalPinkColour.withOpacity(0.7),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required Color color,
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(
-          icon,
-          color: color,
-          size: 30,
-        ),
-      ),
-    );
-  }
-
-  String _formatDistance(double distance) {
-    if (distance >= 1.0) {
-      return '${distance.toStringAsFixed(1)} km';
-    } else {
-      return '${(distance * 1000).round()} m';
-    }
   }
 }
 
-/// Custom dialog for replying to a prompt
+// ─── Prompt reply dialog (kept from new flow) ───────────────────────────────
+
 class _PromptReplyDialog extends ConsumerStatefulWidget {
   final UserPromptDto prompt;
   final String userName;
@@ -823,7 +609,6 @@ class _PromptReplyDialogState extends ConsumerState<_PromptReplyDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // User name
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
               child: TextView(
@@ -833,7 +618,6 @@ class _PromptReplyDialogState extends ConsumerState<_PromptReplyDialog> {
                 color: Colors.black,
               ),
             ),
-            // Prompt card
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Container(
@@ -866,7 +650,6 @@ class _PromptReplyDialogState extends ConsumerState<_PromptReplyDialog> {
                 ),
               ),
             ),
-            // Comment input
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
               child: TextField(
@@ -891,12 +674,10 @@ class _PromptReplyDialogState extends ConsumerState<_PromptReplyDialog> {
                 maxLines: 3,
               ),
             ),
-            // Action buttons
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
               child: Row(
                 children: [
-                  // Like button with count
                   GestureDetector(
                     onTap: () {
                       setState(() {
@@ -933,7 +714,6 @@ class _PromptReplyDialogState extends ConsumerState<_PromptReplyDialog> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Send Like button
                   Expanded(
                     child: GestureDetector(
                       onTap: _isSending ? null : _handleSendLike,
@@ -967,7 +747,6 @@ class _PromptReplyDialogState extends ConsumerState<_PromptReplyDialog> {
                 ],
               ),
             ),
-            // Cancel button
             Center(
               child: TextButton(
                 onPressed: widget.onCancel,
@@ -1006,7 +785,6 @@ class _PromptReplyDialogState extends ConsumerState<_PromptReplyDialog> {
 
       if (mounted) {
         Navigator.pop(context);
-        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Your reaction has been sent!'),
@@ -1031,7 +809,8 @@ class _PromptReplyDialogState extends ConsumerState<_PromptReplyDialog> {
   }
 }
 
-/// Dialog for sending a direct message from discovery (no connection until recipient accepts)
+// ─── Direct message dialog (kept from new flow) ────────────────────────────
+
 class _DirectMessageDialog extends ConsumerStatefulWidget {
   final String userName;
   final String recipientId;

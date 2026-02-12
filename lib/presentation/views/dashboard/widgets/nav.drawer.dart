@@ -126,22 +126,20 @@ class NavDrawer extends ConsumerWidget {
           //     ),
           //     child: Center(
           //         child: SvgPicture.asset(
-          //       Assets.icons.rocketLaunch.path,
+          //       Assets.icons.srMenuVerticalLite.path,
           //       height: 24,
           //       width: 24,
           //     )),
           //   ),
-          //   title: TextView(
-          //       text: user.subscription == null
-          //           ? "Upgrade to Metal Plus"
-          //           : " Metal Plus"),
+          //   title: TextView(text: "Verify your account"),
           //   onTap: () => {
           //     Navigator.pushNamed(
           //       context,
-          //       AppRoutes.upgradePage,
+          //       AppRoutes.workEmail,
           //     )
           //   },
           // ),
+        
           const Gap(20),
           ListTile(
             leading: Container(

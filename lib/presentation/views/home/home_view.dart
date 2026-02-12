@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/core/di/provider_setup.dart';
-import 'package:metal/core/managers/location_manager.dart';
-import 'package:metal/core/utils/permission_helper.dart';
 import 'package:metal/domain/entities/discovery_user_dto.dart';
 import 'package:metal/presentation/viewmodels/home/home_viewmodel.dart';
 import 'package:metal/presentation/views/home/widgets/discovery_user_card.dart';
@@ -13,8 +10,13 @@ import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
 import 'package:metal/widgets/text_views.dart';
 
-/// Home View - Discovery/Swipe Interface
-/// Uses the new Clean Architecture with backend API
+/// Home View — pure UI.
+///
+/// Watches [homeViewModelProvider] and renders:
+///   • Loading spinner
+///   • Discovery cards
+///   • Location permission screen (when API says location is missing)
+///   • Error / empty states
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
 
@@ -24,16 +26,12 @@ class HomeView extends ConsumerStatefulWidget {
 
 class _HomeViewState extends ConsumerState<HomeView>
     with WidgetsBindingObserver {
-  bool _hasCheckedLocation = false;
-  int? _lastSeenTabIndex;
+  bool _locationScreenPushed = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkLocationAndLoadUsers();
-    });
   }
 
   @override
@@ -45,83 +43,13 @@ class _HomeViewState extends ConsumerState<HomeView>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _hasCheckedLocation = false;
-      _checkLocationAndLoadUsers();
+      ref.read(homeViewModelProvider.notifier).retryIfNeeded();
     }
-  }
-
-  Future<void> _checkLocationAndLoadUsers() async {
-    if (_hasCheckedLocation) return;
-
-    // Wait for dashboard startup (location attempt) to finish to avoid races
-    final gate = ref.read(startupGateProvider);
-    if (gate != null) {
-      await gate.future;
-    }
-    if (!mounted) return;
-
-    _hasCheckedLocation = true;
-
-    // Use permission_handler as single source of truth for location permission
-    if (await PermissionHelper.hasLocationPermission()) {
-      await _updateProfileLocationAndLoadUsers();
-      return;
-    }
-
-    // Try request once (handles "Ask every time" on Android before showing Settings)
-    final result = await PermissionHelper.requestLocationPermission();
-    if (result.granted) {
-      await _updateProfileLocationAndLoadUsers();
-      return;
-    }
-    if (result.permanentlyDenied) {
-      if (mounted) _showLocationPermissionScreen(true);
-      return;
-    }
-    if (mounted) _showLocationPermissionScreen(false);
-  }
-
-  /// Get location, update profile, then load discovery users.
-  Future<void> _updateProfileLocationAndLoadUsers() async {
-    await LocationManager().updateProfileLocation(ref);
-    if (mounted) {
-      ref.read(homeViewModelProvider.notifier).loadUsers();
-    }
-  }
-
-  void _showLocationPermissionScreen(bool isPermanentlyDenied) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => LocationPermissionScreen(
-          isPermanentlyDenied: isPermanentlyDenied,
-          onLocationGranted: () async {
-            await LocationManager().updateProfileLocation(ref);
-            if (mounted) {
-              ref.read(homeViewModelProvider.notifier).refresh();
-            }
-          },
-        ),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     final homeState = ref.watch(homeViewModelProvider);
-    final currentTabIndex = ref.watch(currentDashboardTabIndexProvider);
-
-    // Re-check location when Discovery tab becomes visible again
-    if (currentTabIndex == 0 &&
-        _lastSeenTabIndex != null &&
-        _lastSeenTabIndex != 0) {
-      _lastSeenTabIndex = 0;
-      _hasCheckedLocation = false;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _checkLocationAndLoadUsers();
-      });
-    } else {
-      _lastSeenTabIndex = currentTabIndex;
-    }
 
     // Listen for match results
     ref.listen<SwipeResultDto?>(lastSwipeResultProvider, (previous, next) {
@@ -133,12 +61,77 @@ class _HomeViewState extends ConsumerState<HomeView>
     return Column(
       children: [
         _buildHeader(),
-        Expanded(
-          child: _buildContent(homeState),
-        ),
+        Expanded(child: _buildContent(homeState)),
       ],
     );
   }
+
+  // ── Content switcher ──────────────────────────────────────────
+
+  Widget _buildContent(HomeState state) {
+    // API said location is needed → push permission screen once
+    if (state.locationStatus == LocationStatus.denied ||
+        state.locationStatus == LocationStatus.permanentlyDenied) {
+      _pushLocationScreenOnce(
+          state.locationStatus == LocationStatus.permanentlyDenied);
+      return const Center(child: CircularProgressIndicator.adaptive());
+    }
+
+    // Loading
+    if (state.isLoading && (state.data == null || state.data!.isEmpty)) {
+      return const Center(child: CircularProgressIndicator.adaptive());
+    }
+
+    // Error (non-location)
+    if (state.isError && (state.data == null || state.data!.isEmpty)) {
+      return ErrorState(
+        retry: () => ref.read(homeViewModelProvider.notifier).refresh(),
+        text: state.errorMessage ?? '',
+      );
+    }
+
+    // No users
+    final users = state.data ?? [];
+    if (users.isEmpty) return _buildEmptyState();
+
+    return _buildSwipeStack(users);
+  }
+
+  // ── Navigation helpers ────────────────────────────────────────
+
+  void _pushLocationScreenOnce(bool isPermanentlyDenied) {
+    if (_locationScreenPushed) return;
+    _locationScreenPushed = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context)
+          .push(
+        MaterialPageRoute(
+          builder: (_) => LocationPermissionScreen(
+            isPermanentlyDenied: isPermanentlyDenied,
+            onLocationGranted: () {
+              _locationScreenPushed = false;
+              ref.read(homeViewModelProvider.notifier).onLocationGranted();
+            },
+          ),
+        ),
+      )
+          .then((_) {
+        _locationScreenPushed = false;
+      });
+    });
+  }
+
+  void _showMatchDialog(SwipeResultDto result) {
+    ref.read(homeViewModelProvider.notifier).clearLastSwipeResult();
+    Navigator.pushNamed(context, AppRoutes.meltMetal, arguments: {
+      'userId': result.targetUserId,
+      'connectionId': result.connectionId,
+    });
+  }
+
+  // ── Static UI ─────────────────────────────────────────────────
 
   Widget _buildHeader() {
     return Container(
@@ -167,52 +160,6 @@ class _HomeViewState extends ConsumerState<HomeView>
     );
   }
 
-  Widget _buildContent(HomeState state) {
-    if (state.isLoading && (state.data == null || state.data!.isEmpty)) {
-      return const Center(
-        child: CircularProgressIndicator.adaptive(),
-      );
-    }
-
-    if (state.isError && (state.data == null || state.data!.isEmpty)) {
-      final errorMessage = state.errorMessage ?? "";
-
-      // Check if error is related to location
-      if (errorMessage.contains("Location data required") ||
-          errorMessage.toLowerCase().contains("location")) {
-        _hasCheckedLocation = false;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _checkLocationAndShowScreen();
-          }
-        });
-        return const Center(
-          child: CircularProgressIndicator.adaptive(),
-        );
-      }
-
-      return ErrorState(
-        retry: () => ref.read(homeViewModelProvider.notifier).refresh(),
-        text: errorMessage,
-      );
-    }
-
-    final users = state.data ?? [];
-    if (users.isEmpty) {
-      return _buildEmptyState();
-    }
-
-    return _buildSwipeStack(users);
-  }
-
-  Future<void> _checkLocationAndShowScreen() async {
-    final isPermanentlyDenied =
-        await PermissionHelper.isLocationPermanentlyDenied();
-    if (mounted) {
-      _showLocationPermissionScreen(isPermanentlyDenied);
-    }
-  }
-
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -220,11 +167,7 @@ class _HomeViewState extends ConsumerState<HomeView>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.people_outline,
-              size: 80,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.people_outline, size: 80, color: Colors.grey[400]),
             const SizedBox(height: 16),
             TextView(
               text: "No more people to discover",
@@ -270,97 +213,25 @@ class _HomeViewState extends ConsumerState<HomeView>
   }
 
   Widget _buildSwipeStack(List<DiscoveryUserDto> users) {
-    return _UserCardView(
-      users: users,
-      onLike: (userId) =>
-          ref.read(homeViewModelProvider.notifier).likeUser(userId),
-      onPass: (userId) =>
-          ref.read(homeViewModelProvider.notifier).passUser(userId),
-      onDirectMessageSent: (userId) {
-        ref.read(homeViewModelProvider.notifier).removeUser(userId);
-      },
-    );
-  }
+    final notifier = ref.read(homeViewModelProvider.notifier);
 
-  void _showMatchDialog(SwipeResultDto result) {
-    // Clear the result first
-    ref.read(homeViewModelProvider.notifier).clearLastSwipeResult();
-
-    // Navigate to the melt screen instead of showing a dialog
-    Navigator.pushNamed(
-      context,
-      AppRoutes.meltMetal,
-      arguments: {
-        'userId': result.targetUserId,
-        'connectionId': result.connectionId,
-      },
-    );
-  }
-}
-
-/// View for displaying a single user card with navigation
-class _UserCardView extends ConsumerStatefulWidget {
-  final List<DiscoveryUserDto> users;
-  final Function(String) onLike;
-  final Function(String) onPass;
-  final void Function(String userId)? onDirectMessageSent;
-
-  const _UserCardView({
-    required this.users,
-    required this.onLike,
-    required this.onPass,
-    this.onDirectMessageSent,
-  });
-
-  @override
-  ConsumerState<_UserCardView> createState() => _UserCardViewState();
-}
-
-class _UserCardViewState extends ConsumerState<_UserCardView> {
-  bool _isProcessing = false;
-
-  Future<void> _handleAction(Future<void> Function() action) async {
-    if (_isProcessing) return;
-
-    setState(() {
-      _isProcessing = true;
-    });
-
-    try {
-      await action();
-    } finally {
-      // Reset after a short delay to allow viewmodel to update
-      Future.delayed(const Duration(milliseconds: 200), () {
-        if (mounted) {
-          setState(() {
-            _isProcessing = false;
-          });
-        }
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.users.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    // Always show the first user - viewmodel removes users after swipe
-    final currentUser = widget.users.first;
-    final currentUserId = currentUser.id;
-
-    return DiscoveryUserCard(
-      user: currentUser,
-      onLike: _isProcessing
-          ? null
-          : () => _handleAction(() => widget.onLike(currentUserId)),
-      onPass: _isProcessing
-          ? null
-          : () => _handleAction(() => widget.onPass(currentUserId)),
-      onDirectMessageSent: widget.onDirectMessageSent != null
-          ? (userId) => widget.onDirectMessageSent!(userId)
-          : null,
+    return Stack(
+      children: [
+        // Reverse so first user is on top (last in stack = drawn on top).
+        for (var i = users.length - 1; i >= 0; i--) ...[
+          Positioned.fill(
+            child: Transform.scale(
+              scale: 1.0,
+              child: DiscoveryUserCard(
+                user: users[i],
+                onLike: () => notifier.likeUser(users[i].id),
+                onPass: () => notifier.passUser(users[i].id),
+                onDirectMessageSent: (userId) => notifier.removeUser(userId),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

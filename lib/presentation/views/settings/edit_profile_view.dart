@@ -111,6 +111,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
                       dropDownItems: const [
                         "Male",
                         "Female",
+                        "Non-binary",
                         "Prefer not to say",
                         "Others",
                       ],

@@ -54,7 +54,7 @@ class _BasicInfoViewState extends ConsumerState<BasicInfoView> {
           _dobController.text = formatDateDDMMYY(date.toString());
         }
       },
-      buttonPadding: 16,
+      buttonPadding: 36,
       buttonSingleColor: AppColors.metalBlack,
       pickerTitle: const TextView(text: AppStrings.selectDateOfBirth),
     ).show(context);

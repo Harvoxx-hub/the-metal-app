@@ -1,2 +1,1 @@
 com/bwh/metal_app/MetalApplication.class
-io/flutter/embedding/android/FlutterApplication.class

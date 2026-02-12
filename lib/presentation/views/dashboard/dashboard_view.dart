@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
-import 'package:metal/core/di/provider_setup.dart';
 import 'package:metal/core/services/startup_service.dart';
 
 import 'package:metal/presentation/views/chat/chat_list_view.dart';
@@ -36,14 +35,15 @@ class DashboardView extends ConsumerStatefulWidget {
 
 class _DashboardViewState extends ConsumerState<DashboardView> {
   late int _currentIndex;
+  bool _startupComplete = false;
 
   /// Pages displayed in bottom navigation
   final List<Widget> _pages = [
     const HomeView(),
-    const ThoughtScreen(), // Updated to use new API-based thoughts with 3 tabs
-    const SparkView(), // Updated to use new API-based sparks
-    const ChatListView(), // Updated to use new API-based chat
-    const MyProfileView(), // Profile screen with 3 tabs
+    const ThoughtScreen(),
+    const SparkView(),
+    const ChatListView(),
+    const MyProfileView(),
   ];
 
   @override
@@ -53,55 +53,43 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
 
     // Run startup tasks after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(currentDashboardTabIndexProvider.notifier).state = _currentIndex;
       _runStartupTasks();
     });
   }
 
-  /// Run startup initialization tasks. Gate is completed when done so HomeView can await it.
-  void _runStartupTasks() {
-    ref.read(startupGateProvider.notifier).runAfterGate(() async {
-      if (!mounted) return;
-      final userData = ref.read(userStateProvider).user;
-      if (userData != null && mounted) {
-        await ref
-            .read(startupServiceProvider)
-            .runStartupTasks(context, ref, userData);
-      }
-    });
+  /// Run startup initialization tasks
+  Future<void> _runStartupTasks() async {
+    if (_startupComplete || !mounted) return;
+    _startupComplete = true;
+
+    final userData = ref.read(userStateProvider).user;
+    if (userData != null && mounted) {
+      await ref
+          .read(startupServiceProvider)
+          .runStartupTasks(context, ref, userData);
+    }
   }
 
   /// Handle bottom nav tap
   void _onNavTap(int index) {
     setState(() => _currentIndex = index);
-    ref.read(currentDashboardTabIndexProvider.notifier).state = index;
   }
 
   @override
   Widget build(BuildContext context) {
-    final userState = ref.watch(userStateProvider);
-
     // Watch providers that need to stay active
     ref.watch(metalPropertiesProvider);
 
     return BaseScreen(
       appBarState: AppBarState.Dashboard,
-      body: userState.status == AuthStatus.loading
-          ? const Center(child: CircularProgressIndicator())
-          : _pages[_currentIndex],
+      body: _pages[_currentIndex],
       floatingActionButton: _buildFAB(),
       bottomNavigationBar: _buildBottomNavBar(),
     );
   }
 
-  /// Build FAB for thought screen
-  /// Note: FAB is now handled by ThoughtScreen itself based on current tab
-  Widget? _buildFAB() {
-    // FAB is handled inside ThoughtScreen for tab-specific actions
-    return null;
-  }
+  Widget? _buildFAB() => null;
 
-  /// Build bottom navigation bar
   BottomNavigationBar _buildBottomNavBar() {
     return BottomNavigationBar(
       currentIndex: _currentIndex,
@@ -141,7 +129,6 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     );
   }
 
-  /// Build standard nav item
   BottomNavigationBarItem _buildNavItem({
     String? icon,
     String? activeIcon,
@@ -156,7 +143,6 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     );
   }
 
-  /// Build chat nav item with badge
   BottomNavigationBarItem _buildChatNavItem() {
     return BottomNavigationBarItem(
       icon: ChatNavIcon(icon: Image.asset(Assets.images.inactiveMessage.path)),

@@ -40,14 +40,10 @@ class ProfileRepository implements ProfileRepositoryAbstract {
   }
 
   @override
-  Future<BaseState<List<UserDto>>> searchUsers({
-    required String query,
-    int limit = 10,
-  }) async {
+  Future<BaseState<List<UserDto>>> searchUsers({required String query}) async {
     try {
       final response = await profileRemoteDataSource.searchUsers(
         query: query,
-        limit: limit,
       );
       final users = response
           .map((json) => UserModel.fromJson(json).toDomain())

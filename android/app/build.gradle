@@ -20,10 +20,6 @@ if (flutterRoot == null) {
     throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
-// Engine version for Flutter embedding dependency (MetalApplication extends FlutterApplication)
-def engineStampFile = file("${flutterRoot}/bin/cache/engine.stamp")
-def engineVersion = engineStampFile.exists() ? engineStampFile.text.trim() : ""
-
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '1'
 def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
 
@@ -72,7 +68,7 @@ android {
         // Google Maps API key: add GOOGLE_MAPS_API_KEY=your_key to android/local.properties
         manifestPlaceholders = [
             GOOGLE_MAPS_API_KEY: localProperties.getProperty('GOOGLE_MAPS_API_KEY') ?: '',
-            applicationName: 'io.flutter.embedding.android.FlutterApplication'
+            applicationName: 'com.bwh.metal_app.MetalApplication'
         ]
     }
 
@@ -132,9 +128,7 @@ flutter {
 }
 
 dependencies {
-    // Compile-only engine JAR contains io.flutter.app.FlutterApplication (v1) so MetalApplication compiles.
-    // Runtime Flutter comes from Flutter plugin.
-    compileOnly files("${flutterRoot}/bin/cache/artifacts/engine/android-arm64-release/flutter.jar")
+    // FlutterApplication for MetalApplication is provided by the Flutter Gradle plugin (embedding).
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'com.google.firebase:firebase-messaging:23.0.0'
     implementation 'androidx.multidex:multidex:2.0.1'

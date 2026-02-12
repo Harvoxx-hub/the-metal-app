@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/data/repositories/verification/verification_repository_providers.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 
 /// State for work email verification
 class WorkEmailVerificationState {
@@ -37,8 +38,7 @@ class WorkEmailVerificationState {
     );
   }
 
-  factory WorkEmailVerificationState.initial() =>
-      WorkEmailVerificationState();
+  factory WorkEmailVerificationState.initial() => WorkEmailVerificationState();
 }
 
 /// ViewModel for work email verification
@@ -115,6 +115,7 @@ class WorkEmailVerificationViewModel
           isVerified: true,
           successMessage: 'Work email verified successfully!',
         );
+        await _ref.read(userStateProvider.notifier).fetchAndSetUser();
         return true;
       } else {
         state = state.copyWith(

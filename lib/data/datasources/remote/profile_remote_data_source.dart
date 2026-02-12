@@ -60,18 +60,16 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
     }
   }
 
-  /// Search users by query (username, name, etc.)
-  /// Backend: GET /api/v1/users?query=&limit= - query optional, empty returns []
+  /// Search users by username. No limit; empty query returns [].
+  /// Backend: GET /api/v1/users?query=
   Future<List<Map<String, dynamic>>> searchUsers({
     required String query,
-    int limit = 10,
   }) async {
     try {
       final response = await dioClient.get(
         ApiRoutes.buildPath(ApiRoutes.searchUsers),
         queryParameters: {
           'query': query.trim(),
-          'limit': limit,
         },
       );
 

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/managers/location_manager.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/domain/entities/user_dto.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/dashboard/widgets/new_update_dialog.dart';
 import 'package:metal/presentation/views/dashboard/widgets/prompt_reminder_dialog.dart';
 import 'package:metal/presentation/views/dashboard/widgets/thought_reminder_dialog.dart';
@@ -18,20 +19,30 @@ class StartupService {
   bool _initialized = false;
 
   /// Run all startup tasks
-  /// Call this once when dashboard loads
+  /// Call this once when dashboard loads.
+  /// Waits for user data to finish loading before running (userData must be non-null).
   Future<void> runStartupTasks(
     BuildContext context,
     WidgetRef ref,
     UserDto? userData,
   ) async {
-    if (_initialized || userData == null || !context.mounted) return;
+    if (_initialized || !context.mounted) return;
+
+    // Wait for user data to be loaded (do not run while still loading)
+    var state = ref.read(userStateProvider);
+    if (state.status == AuthStatus.loading) {
+      return; // Caller should retry or we wait; dashboard will have spinner
+    }
+    final currentUser = state.user;
+    if (currentUser == null) return;
+    if (_initialized) return;
     _initialized = true;
 
     // 1. Update location
     await _updateLocation(context, ref);
 
-    // 2. Check onboarding and user status
-    await _checkOnboardingAndUserStatus(context, userData);
+    // 2. Check onboarding and user status (pass ref for prompt check to fetch fresh user)
+    await _checkOnboardingAndUserStatus(context, ref, currentUser);
   }
 
   /// Update user location on startup
@@ -46,6 +57,7 @@ class StartupService {
   /// Check onboarding status and show relevant dialogs
   Future<void> _checkOnboardingAndUserStatus(
     BuildContext context,
+    WidgetRef ref,
     UserDto userData,
   ) async {
     if (!context.mounted) return;
@@ -85,9 +97,8 @@ class StartupService {
         await prefs.setBool('hasSeenThoughtReminder', true);
       }
 
-      // Check and show prompt reminder if user has less than 3 prompts
-      // Keep showing until they have at least 3 prompts
-      await _checkAndShowPromptReminder(context, userData);
+      // Check and show prompt reminder only if user has not set up prompts (fetch fresh user first)
+      await _checkAndShowPromptReminder(context, ref);
     }
   }
 
@@ -112,25 +123,34 @@ class StartupService {
     }
   }
 
-  /// Check if user has less than 3 prompts and show reminder dialog
-  /// Keep showing until they complete at least 3 prompts
+  /// Check if user has less than 3 prompts and show reminder dialog only then.
+  /// Fetches fresh user data first so we don't show for users who set prompts at signup.
   Future<void> _checkAndShowPromptReminder(
     BuildContext context,
-    UserDto userData,
+    WidgetRef ref,
   ) async {
     if (!context.mounted) return;
 
+    // Fetch fresh user from API so we have latest prompts (e.g. after signup setup)
+    await ref.read(userStateProvider.notifier).fetchAndSetUser();
+    if (!context.mounted) return;
+
+    final userData = ref.read(userStateProvider).user;
+    if (userData == null) return;
+
     final promptCount = userData.prompts?.length ?? 0;
 
-    // Show dialog if user has less than 3 prompts
+    // Only show if user has not set up at least 3 prompts
     if (promptCount < 3) {
-      await showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (_) => CustomDialog(
-          content: PromptReminderDialog(currentPromptCount: promptCount),
-        ),
-      );
+      if (context.mounted) {
+        await showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (_) => CustomDialog(
+            content: PromptReminderDialog(currentPromptCount: promptCount),
+          ),
+        );
+      }
     }
   }
 

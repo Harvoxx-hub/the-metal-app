@@ -5,9 +5,9 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/presentation/viewmodels/spark/spark_viewmodel.dart';
-import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
+import 'package:metal/presentation/views/spark/widgets/search_user_dialog.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/dialog/dialogs.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -37,9 +37,6 @@ class _SendSparkScreenState extends ConsumerState<SendSparkScreen> {
   @override
   void initState() {
     super.initState();
-    _usernameController.addListener(_onUsernameChanged);
-
-    // If a user is pre-selected, set it up
     if (widget.preSelectedUser != null) {
       selectedUser = widget.preSelectedUser;
       selectedUserId = widget.preSelectedUser!.id;
@@ -51,30 +48,25 @@ class _SendSparkScreenState extends ConsumerState<SendSparkScreen> {
 
   @override
   void dispose() {
-    _usernameController.removeListener(_onUsernameChanged);
     _usernameController.dispose();
     _amountController.dispose();
     super.dispose();
   }
 
-  void _onUsernameChanged() {
-    if (_usernameController.text.isNotEmpty) {
-      // Defer to avoid modifying provider during widget build (e.g. when
-      // preSelectedUser sets text in initState)
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          ref.read(getUserByNameProvider.notifier).getUserByquery(
-                query: _usernameController.text,
-              );
-        }
-      });
-    }
+  Future<void> _openSearchUserDialog() async {
+    if (widget.preSelectedUser != null) return;
+    final user = await SearchUserDialog.show(context);
+    if (!mounted || user == null) return;
+    setState(() {
+      selectedUserId = user.id;
+      selectedUser = user;
+      _usernameController.text = user.username ?? '';
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final sparkState = ref.watch(sparkViewModelProvider);
-    final userSearchState = ref.watch(getUserByNameProvider);
 
     return Scaffold(
       backgroundColor: AppColors.metalWhite,
@@ -106,7 +98,7 @@ class _SendSparkScreenState extends ConsumerState<SendSparkScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Recipient field
+                      // Recipient field (tap opens search dialog)
                       const TextView(
                         text: "I want to send Sparks to",
                         fontSize: 14,
@@ -116,7 +108,9 @@ class _SendSparkScreenState extends ConsumerState<SendSparkScreen> {
                       const Gap(8),
                       EditFormField(
                         controller: _usernameController,
-                        hint: "Type name of recipient",
+                        hint: "Search by username",
+                        readOnly: true,
+                        onTapped: _openSearchUserDialog,
                         enabled: widget.preSelectedUser == null,
                         prefixWidget: const Icon(
                           Icons.person_outline,
@@ -128,24 +122,13 @@ class _SendSparkScreenState extends ConsumerState<SendSparkScreen> {
                           fontSize: 14,
                         ),
                         validator: (value) {
-                          if (widget.preSelectedUser != null) {
-                            return null;
-                          }
-                          if (value == null || value.isEmpty) {
-                            return "Please enter a recipient name";
-                          }
+                          if (widget.preSelectedUser != null) return null;
                           if (selectedUserId == null) {
-                            return "Please select a recipient from the list";
+                            return "Please select a recipient";
                           }
                           return null;
                         },
                       ),
-
-                      // Show search results only if no user is pre-selected
-                      if (widget.preSelectedUser == null &&
-                          _usernameController.text.isNotEmpty &&
-                          selectedUserId == null)
-                        _buildUserSearchResults(userSearchState),
 
                       const Gap(20),
 
@@ -273,66 +256,6 @@ class _SendSparkScreenState extends ConsumerState<SendSparkScreen> {
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildUserSearchResults(GetUsersByQueryState searchState) {
-    if (searchState.isLoading) {
-      return Container(
-        padding: const EdgeInsets.all(8),
-        child: const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    if (searchState.data == null || searchState.data!.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(8),
-        child: const TextView(
-          text: "No users found",
-          fontSize: 12,
-          color: Colors.grey,
-        ),
-      );
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      constraints: const BoxConstraints(maxHeight: 200),
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: searchState.data!.length,
-        itemBuilder: (context, index) {
-          final user = searchState.data![index];
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundImage: user.profilePhoto != null
-                  ? NetworkImage(user.profilePhoto!)
-                  : null,
-              child: user.profilePhoto == null
-                  ? Text(user.username?.substring(0, 1).toUpperCase() ?? 'U')
-                  : null,
-            ),
-            title: TextView(
-              text: "@${user.username ?? 'Unknown'}",
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-            onTap: () {
-              setState(() {
-                selectedUserId = user.id;
-                selectedUser = user;
-                _usernameController.text = user.username ?? '';
-              });
-            },
-          );
-        },
       ),
     );
   }

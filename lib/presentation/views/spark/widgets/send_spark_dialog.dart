@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
-import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/domain/entities/user_dto.dart';
-// TODO: Implement getUsersByQueryProvider in new architecture
-// import 'package:metal/features/thought/provider/get.users.by.query.notifier.dart';
+import 'package:metal/presentation/views/spark/widgets/search_user_dialog.dart';
 import 'package:metal/presentation/viewmodels/spark/spark_viewmodel.dart';
-import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
@@ -38,39 +35,36 @@ class _SendSparkDialogState extends ConsumerState<SendSparkDialog> {
   @override
   void initState() {
     super.initState();
-    _usernameController.addListener(_onUsernameChanged);
-    
-    // If a user is pre-selected, set it up
     if (widget.preSelectedUser != null) {
       selectedUser = widget.preSelectedUser;
       selectedUserId = widget.preSelectedUser!.id;
-      _usernameController.text = widget.preSelectedUser!.username ?? 
-                                 widget.preSelectedUser!.fullname ?? '';
+      _usernameController.text = widget.preSelectedUser!.username ??
+          widget.preSelectedUser!.fullname ?? '';
     }
   }
 
   @override
   void dispose() {
-    _usernameController.removeListener(_onUsernameChanged);
     _usernameController.dispose();
     _amountController.dispose();
     _messageController.dispose();
     super.dispose();
   }
 
-  void _onUsernameChanged() {
-    if (_usernameController.text.isNotEmpty) {
-      ref
-          .read(getUserByNameProvider.notifier)
-          .getUserByquery(query: _usernameController.text);
-    }
+  Future<void> _openSearchUserDialog() async {
+    if (widget.preSelectedUser != null) return;
+    final user = await SearchUserDialog.show(context);
+    if (!mounted || user == null) return;
+    setState(() {
+      selectedUserId = user.id;
+      selectedUser = user;
+      _usernameController.text = user.username ?? '';
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final sparkState = ref.watch(sparkViewModelProvider);
-    final userSearchState = ref.watch(getUserByNameProvider);
-    final currentUser = ref.watch(currentUserProvider);
 
     return Dialog(
       backgroundColor: AppColors.metalWhite,
@@ -107,7 +101,7 @@ class _SendSparkDialogState extends ConsumerState<SendSparkDialog> {
                 fontWeight: FontWeight.w600,
               ),
               const Gap(20),
-              // Username field
+              // Recipient (tap opens search dialog)
               const TextView(
                 text: "Recipient Username",
                 fontSize: 14,
@@ -116,23 +110,18 @@ class _SendSparkDialogState extends ConsumerState<SendSparkDialog> {
               const Gap(8),
               EditFormField(
                 controller: _usernameController,
-                hint: "Search username",
-                enabled: widget.preSelectedUser == null, // Disable if user is pre-selected
+                hint: "Search by username",
+                readOnly: true,
+                onTapped: _openSearchUserDialog,
+                enabled: widget.preSelectedUser == null,
                 validator: (value) {
-                  if (widget.preSelectedUser != null) {
-                    return null; // Skip validation if user is pre-selected
-                  }
-                  if (value == null || value.isEmpty) {
-                    return "Please enter a username";
+                  if (widget.preSelectedUser != null) return null;
+                  if (selectedUserId == null) {
+                    return "Please select a recipient";
                   }
                   return null;
                 },
               ),
-              // Show search results only if no user is pre-selected
-              if (widget.preSelectedUser == null && 
-                  _usernameController.text.isNotEmpty && 
-                  selectedUserId == null)
-                _buildUserSearchResults(userSearchState),
               const Gap(16),
               // Amount field
               const TextView(
@@ -182,66 +171,6 @@ class _SendSparkDialogState extends ConsumerState<SendSparkDialog> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildUserSearchResults(GetUsersByQueryState searchState) {
-    if (searchState.isLoading) {
-      return Container(
-        padding: const EdgeInsets.all(8),
-        child: const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    if (searchState.data == null || searchState.data!.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(8),
-        child: const TextView(
-          text: "No users found",
-          fontSize: 12,
-          color: Colors.grey,
-        ),
-      );
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      constraints: const BoxConstraints(maxHeight: 200),
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: searchState.data!.length,
-        itemBuilder: (context, index) {
-          final user = searchState.data![index];
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundImage: user.profilePhoto != null
-                  ? NetworkImage(user.profilePhoto!)
-                  : null,
-              child: user.profilePhoto == null
-                  ? Text(user.username?.substring(0, 1).toUpperCase() ?? 'U')
-                  : null,
-            ),
-            title: TextView(
-              text: "@${user.username ?? 'Unknown'}",
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-            onTap: () {
-              setState(() {
-                selectedUserId = user.id;
-                selectedUser = user;
-                _usernameController.text = user.username ?? '';
-              });
-            },
-          );
-        },
       ),
     );
   }

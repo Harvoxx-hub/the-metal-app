@@ -39,6 +39,9 @@ import 'package:metal/presentation/views/connection/melt_screen.dart';
 // Notification view
 import 'package:metal/presentation/views/notification/notification_view.dart';
 
+// Verification
+import 'package:metal/presentation/views/verification/work_email_verification_view.dart';
+
 // Settings
 import 'package:metal/presentation/views/settings/blocked_users_view.dart';
 
@@ -104,6 +107,7 @@ class AppRoutes {
   static const String userProfile = '/userProfile';
   static const String workEmail = '/work-email';
   static const String meetupDetails = '/meetupDetails';
+
   /// Meetup detail (Live Event Dashboard). Alias for meetupDetails (backwards compatibility).
   static const String linkupDetails = '/linkupDetails';
   static const String createMeetup = '/createMeetup';
@@ -350,9 +354,7 @@ class AppRoutes {
         );
       case workEmail:
         return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            body: Center(child: Text('Work email verification coming soon')),
-          ),
+          builder: (_) => const WorkEmailVerificationView(),
         );
       case createMeetup:
         final args = settings.arguments;
@@ -375,9 +377,11 @@ class AppRoutes {
       case inviteGuests:
         final args = settings.arguments as Map<String, dynamic>?;
         final maxGuests = args?['maxGuests'] as int? ?? 10;
-        final initialSelectedIds = (args?['initialSelectedIds'] as List<dynamic>?)
-            ?.map((e) => e.toString())
-            .toList() ?? [];
+        final initialSelectedIds =
+            (args?['initialSelectedIds'] as List<dynamic>?)
+                    ?.map((e) => e.toString())
+                    .toList() ??
+                [];
         return MaterialPageRoute(
           builder: (_) => InviteGuestsScreen(
             maxGuests: maxGuests,

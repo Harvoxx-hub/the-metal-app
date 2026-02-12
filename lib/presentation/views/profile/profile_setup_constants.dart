@@ -49,12 +49,14 @@ class ProfileSetupConstants {
   static const List<String> genderOptions = [
     "Male",
     "Female",
+    "Non-binary",
     "Prefer not to say",
     "Others",
   ];
 
-  // Connection Options (Connect with)
+  // Connection Options (Connect with) – who the user wants to see in discovery
   static const List<String> connectionOptions = [
+    "Everyone",
     "Male",
     "Female",
     "Non-binary",

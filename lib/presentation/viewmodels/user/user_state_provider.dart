@@ -312,8 +312,8 @@ class GetUsersByQueryNotifier extends StateNotifier<GetUsersByQueryState> {
 
   GetUsersByQueryNotifier(this._ref) : super(const GetUsersByQueryState());
 
-  /// Search users by query (username, name, etc.)
-  /// Backend accepts any query length; empty query clears results without API call.
+  /// Search users by username (substring match). No limit, no min length.
+  /// Empty query clears results without API call.
   Future<void> getUserByquery({required String query}) async {
     final trimmed = query.trim();
     if (trimmed.isEmpty) {
@@ -325,7 +325,7 @@ class GetUsersByQueryNotifier extends StateNotifier<GetUsersByQueryState> {
 
     try {
       final profileRepo = _ref.read(profileRepositoryProvider);
-      final result = await profileRepo.searchUsers(query: trimmed, limit: 10);
+      final result = await profileRepo.searchUsers(query: trimmed);
 
       if (result.isSuccess && result.data != null) {
         state = GetUsersByQueryState(
@@ -357,18 +357,14 @@ class GetUsersByQueryNotifier extends StateNotifier<GetUsersByQueryState> {
   }
 }
 
-/// Provider for searching users by name/query
+/// Provider for searching users by username (send spark, dialogs, etc.).
 ///
 /// Usage:
 /// ```dart
-/// // Trigger search
 /// ref.read(getUserByNameProvider.notifier).getUserByquery(query: 'john');
-///
-/// // Watch results
 /// final searchState = ref.watch(getUserByNameProvider);
-/// if (searchState.isLoading) { ... }
-/// if (searchState.isError) { ... }
 /// final users = searchState.data; // List<UserDto>?
+/// ref.read(getUserByNameProvider.notifier).clear(); // clear when field empty
 /// ```
 final getUserByNameProvider =
     StateNotifierProvider<GetUsersByQueryNotifier, GetUsersByQueryState>((ref) {

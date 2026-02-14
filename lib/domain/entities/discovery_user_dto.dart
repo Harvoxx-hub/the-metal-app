@@ -157,7 +157,6 @@ class LocationDto {
 enum SwipeAction {
   like,
   pass,
-  superlike,
 }
 
 /// Extension to convert SwipeAction to/from string
@@ -168,8 +167,6 @@ extension SwipeActionExtension on SwipeAction {
         return 'like';
       case SwipeAction.pass:
         return 'pass';
-      case SwipeAction.superlike:
-        return 'superlike';
     }
   }
 
@@ -180,7 +177,7 @@ extension SwipeActionExtension on SwipeAction {
       case 'pass':
         return SwipeAction.pass;
       case 'superlike':
-        return SwipeAction.superlike;
+        return SwipeAction.like; // backwards compat: treat as like
       default:
         throw ArgumentError('Invalid swipe action: $value');
     }

@@ -203,7 +203,7 @@ class UserModel {
       email: email,
       username: username,
       fullname: fullname,
-      phone: null, // Phone number is hidden from profile display for privacy
+      phone: phone,
       dob: dob,
       gender: gender,
       bio: bio ?? description,

@@ -203,13 +203,14 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
         ],
       ),
     );
-  //   EditProfileView(isPersonal: true);
+    //   EditProfileView(isPersonal: true);
   }
 
-  /// Discovery Tab - Shows location and communities section
+  /// Discovery Tab - Shows location, phone and communities section
   Widget _buildDiscoveryTab(currentUser) {
     final location = currentUser.location;
     final locationText = _formatLocation(location);
+  
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -218,7 +219,7 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
         children: [
           const Gap(20),
           EditField(
-            text: locationText,
+            text: locationText.isEmpty ? 'No location set' : locationText,
             floatingLabel: 'Location',
           ),
           const Gap(24),

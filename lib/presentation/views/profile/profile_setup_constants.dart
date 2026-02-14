@@ -50,8 +50,7 @@ class ProfileSetupConstants {
     "Male",
     "Female",
     "Non-binary",
-    "Prefer not to say",
-    "Others",
+
   ];
 
   // Connection Options (Connect with) – who the user wants to see in discovery

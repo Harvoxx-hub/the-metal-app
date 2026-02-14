@@ -70,30 +70,31 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
 
   /// Load user profile data
   Future<void> loadUserProfile() async {
+    if (!mounted) return;
     if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true, isError: false);
 
     final result = await _profileRepository.getUserById(userId);
 
-    if (mounted) {
-      if (result.isSuccess && result.data != null) {
-        state = state.copyWith(
-          isLoading: false,
-          user: result.data,
-        );
-      } else {
-        state = state.copyWith(
-          isLoading: false,
-          isError: true,
-          errorMessage: result.errorMessage ?? 'Failed to load user profile',
-        );
-      }
+    if (!mounted) return;
+    if (result.isSuccess && result.data != null) {
+      state = state.copyWith(
+        isLoading: false,
+        user: result.data,
+      );
+    } else {
+      state = state.copyWith(
+        isLoading: false,
+        isError: true,
+        errorMessage: result.errorMessage ?? 'Failed to load user profile',
+      );
     }
   }
 
   /// Load user's thoughts
   Future<void> loadUserThoughts() async {
+    if (!mounted) return;
     if (state.isLoadingThoughts) return;
 
     state = state.copyWith(isLoadingThoughts: true);
@@ -103,26 +104,26 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
       userId: userId,
     );
 
-    if (mounted) {
-      if (result.isSuccess && result.data != null) {
-        state = state.copyWith(
-          isLoadingThoughts: false,
-          thoughts: result.data!.thoughts,
-          hasMoreThoughts: result.data!.hasMore,
-          nextCursor: result.data!.nextCursor,
-        );
-      } else {
-        state = state.copyWith(
-          isLoadingThoughts: false,
-          isError: true,
-          errorMessage: result.errorMessage ?? 'Failed to load thoughts',
-        );
-      }
+    if (!mounted) return;
+    if (result.isSuccess && result.data != null) {
+      state = state.copyWith(
+        isLoadingThoughts: false,
+        thoughts: result.data!.thoughts,
+        hasMoreThoughts: result.data!.hasMore,
+        nextCursor: result.data!.nextCursor,
+      );
+    } else {
+      state = state.copyWith(
+        isLoadingThoughts: false,
+        isError: true,
+        errorMessage: result.errorMessage ?? 'Failed to load thoughts',
+      );
     }
   }
 
   /// Load more thoughts (pagination)
   Future<void> loadMoreThoughts() async {
+    if (!mounted) return;
     if (state.isLoadingThoughts || !state.hasMoreThoughts || state.nextCursor == null) {
       return;
     }
@@ -135,24 +136,25 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
       userId: userId,
     );
 
-    if (mounted) {
-      if (result.isSuccess && result.data != null) {
-        final newThoughts = [...state.thoughts, ...result.data!.thoughts];
-        state = state.copyWith(
-          isLoadingThoughts: false,
-          thoughts: newThoughts,
-          hasMoreThoughts: result.data!.hasMore,
-          nextCursor: result.data!.nextCursor,
-        );
-      } else {
-        state = state.copyWith(isLoadingThoughts: false);
-      }
+    if (!mounted) return;
+    if (result.isSuccess && result.data != null) {
+      final newThoughts = [...state.thoughts, ...result.data!.thoughts];
+      state = state.copyWith(
+        isLoadingThoughts: false,
+        thoughts: newThoughts,
+        hasMoreThoughts: result.data!.hasMore,
+        nextCursor: result.data!.nextCursor,
+      );
+    } else {
+      state = state.copyWith(isLoadingThoughts: false);
     }
   }
 
-  /// Refresh all data
+  /// Refresh all data. No-ops if notifier was disposed (e.g. user left profile screen).
   Future<void> refresh() async {
+    if (!mounted) return;
     await loadUserProfile();
+    if (!mounted) return;
     await loadUserThoughts();
   }
 }

@@ -307,9 +307,6 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
   Future<SwipeResultDto?> passUser(String userId) =>
       _recordSwipe(userId, SwipeAction.pass);
 
-  Future<SwipeResultDto?> superLikeUser(String userId) =>
-      _recordSwipe(userId, SwipeAction.superlike);
-
   Future<SwipeResultDto?> _recordSwipe(
       String userId, SwipeAction action) async {
     try {

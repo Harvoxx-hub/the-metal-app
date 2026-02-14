@@ -13,7 +13,6 @@ import 'package:metal/presentation/viewmodels/connection/melt_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
 import 'package:metal/presentation/views/user/widgets/user_thoughts_tab.dart';
 import 'package:metal/presentation/views/connection/widgets/metal_details_tab.dart';
-import 'package:metal/presentation/views/dashboard/widgets/complete.profile.dialog.dart';
 import 'package:metal/presentation/widgets/profile/profile_header.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
@@ -359,14 +358,7 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
     user,
     currentUserDto,
   ) {
-    if (currentUserDto != null && !(currentUserDto.profileUpdated ?? false)) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return const CustomDialog(content: ComplecteProfileDialog());
-        },
-      );
-    } else if (connectionCount <= 10) {
+    if (connectionCount <= 10) {
       ref.read(meltActionProvider.notifier).meltUser(widget.userId);
     } else {
       showDialog(

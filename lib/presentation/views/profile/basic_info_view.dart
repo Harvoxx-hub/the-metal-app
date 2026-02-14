@@ -1,4 +1,3 @@
-import 'package:bottom_picker/bottom_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -12,6 +11,7 @@ import 'package:metal/presentation/views/profile/profile_setup_constants.dart';
 import 'package:metal/presentation/views/profile/profile_setup_helpers.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
+import 'package:metal/widgets/birthday_picker_dialog.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdown.dart';
 import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
@@ -36,7 +36,7 @@ class _BasicInfoViewState extends ConsumerState<BasicInfoView> {
   final TextEditingController _dobController = TextEditingController();
 
   String? _gender;
-  List<String> _whatImLookingFor = [];
+  String? _whatImLookingFor;
 
   @override
   void dispose() {
@@ -46,18 +46,19 @@ class _BasicInfoViewState extends ConsumerState<BasicInfoView> {
     super.dispose();
   }
 
-  void _showDatePicker() {
-    BottomPicker.date(
-      maxDateTime: DateTime(DateTime.now().year - 18),
-      onSubmit: (date) {
-        if (date != null) {
-          _dobController.text = formatDateDDMMYY(date.toString());
-        }
-      },
-      buttonPadding: 36,
-      buttonSingleColor: AppColors.metalBlack,
-      pickerTitle: const TextView(text: AppStrings.selectDateOfBirth),
-    ).show(context);
+  Future<void> _showDatePicker() async {
+    final date = await showBirthdayPickerDialog(
+      context,
+      title: AppStrings.selectDateOfBirth,
+      confirmLabel: 'Confirm',
+      cancelLabel: 'Cancel',
+      minimumAge: 18,
+    );
+    if (date != null && mounted) {
+      setState(() {
+        _dobController.text = formatDateDDMMYY(date.toString());
+      });
+    }
   }
 
   void _onNextPressed() async {
@@ -86,7 +87,7 @@ class _BasicInfoViewState extends ConsumerState<BasicInfoView> {
       'username': _userNameController.text.trim(),
       'gender': _gender,
       'dob': _dobController.text,
-      'connectWith': _whatImLookingFor.join(","),
+      'connectWith': _whatImLookingFor,
     };
 
     await ProfileSetupHelpers.saveStepAndNavigate(
@@ -209,7 +210,7 @@ class _BasicInfoViewState extends ConsumerState<BasicInfoView> {
                         ),
                       ),
                       const Gap(ProfileSetupConstants.gapSmall),
-                      MentalDropdownMutipleSelection(
+                      MentalDropdown(
                         items: ProfileSetupConstants.connectionOptions,
                         value: _whatImLookingFor,
                         onChanged: (newValue) {

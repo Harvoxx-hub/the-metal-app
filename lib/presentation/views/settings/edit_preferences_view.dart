@@ -8,6 +8,7 @@ import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/data/models/user_preferences_model.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/presentation/viewmodels/home/home_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/widgets/settings/edit_field.dart';
@@ -271,6 +272,8 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
         .updateUserField(field: 'preferences', value: preferences.toJson());
     if (!ok && mounted) {
       Fluttertoast.showToast(msg: 'Failed to update preferences');
+    } else if (ok && mounted) {
+      ref.read(homeViewModelProvider.notifier).refresh();
     }
   }
 
@@ -630,9 +633,12 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
 
   /// Update user field via single source of truth (userStateProvider)
   Future<void> _updateUser(String field, dynamic value) async {
-    await ref.read(userStateProvider.notifier).updateUserField(
+    final ok = await ref.read(userStateProvider.notifier).updateUserField(
           field: field,
           value: value,
         );
+    if (ok && mounted) {
+      ref.read(homeViewModelProvider.notifier).refresh();
+    }
   }
 }

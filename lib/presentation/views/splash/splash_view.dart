@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/services/location_service.dart';
+import 'package:metal/core/utils/permission_helper.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/splash/splash_viewmodel_providers.dart';
@@ -69,6 +71,11 @@ class _SplashViewState extends ConsumerState<SplashView> {
           arguments: user.email,
         );
       } else {
+        // Request location at app start so it's stored before any API needs it.
+        // Notification is already requested in main() via FCM.
+        await _requestLocationAndStoreIfGranted();
+        if (!mounted) return;
+
         // User is verified, go to dashboard or welcome based on profile completion
         Navigator.pushReplacementNamed(
           context,
@@ -77,6 +84,24 @@ class _SplashViewState extends ConsumerState<SplashView> {
               : AppRoutes.welcomePage,
         );
       }
+    }
+  }
+
+  /// Request location permission at app start; if granted, get location and send to API.
+  /// This way discovery (and any other feature) never hits the API before location is stored.
+  Future<void> _requestLocationAndStoreIfGranted() async {
+    if (!mounted) return;
+    final result = await PermissionHelper.requestLocationPermission();
+    if (!mounted) return;
+    if (!result.granted) return;
+
+    final locResult = await LocationService().getCurrentLocation();
+    if (!mounted) return;
+    if (locResult.isSuccess && locResult.location != null) {
+      await ref.read(userStateProvider.notifier).updateUserField(
+            field: 'location',
+            value: locResult.location!.toJson(),
+          );
     }
   }
 

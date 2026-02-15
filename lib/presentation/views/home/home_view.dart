@@ -4,7 +4,6 @@ import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/discovery_user_dto.dart';
 import 'package:metal/presentation/viewmodels/home/home_viewmodel.dart';
 import 'package:metal/presentation/views/home/widgets/discovery_user_card.dart';
-import 'package:metal/presentation/views/home/widgets/location_permission_screen.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
@@ -69,11 +68,10 @@ class _HomeViewState extends ConsumerState<HomeView>
   // ── Content switcher ──────────────────────────────────────────
 
   Widget _buildContent(HomeState state) {
-    // API said location is needed → push permission screen once
+    // API said location is needed → navigate to central Enable Location screen once
     if (state.locationStatus == LocationStatus.denied ||
         state.locationStatus == LocationStatus.permanentlyDenied) {
-      _pushLocationScreenOnce(
-          state.locationStatus == LocationStatus.permanentlyDenied);
+      _navigateToEnableLocationOnce();
       return const Center(child: CircularProgressIndicator.adaptive());
     }
 
@@ -99,26 +97,17 @@ class _HomeViewState extends ConsumerState<HomeView>
 
   // ── Navigation helpers ────────────────────────────────────────
 
-  void _pushLocationScreenOnce(bool isPermanentlyDenied) {
+  void _navigateToEnableLocationOnce() {
     if (_locationScreenPushed) return;
     _locationScreenPushed = true;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       Navigator.of(context)
-          .push(
-        MaterialPageRoute(
-          builder: (_) => LocationPermissionScreen(
-            isPermanentlyDenied: isPermanentlyDenied,
-            onLocationGranted: () {
-              _locationScreenPushed = false;
-              ref.read(homeViewModelProvider.notifier).onLocationGranted();
-            },
-          ),
-        ),
-      )
+          .pushNamed(AppRoutes.locationEnablePage)
           .then((_) {
         _locationScreenPushed = false;
+        ref.read(homeViewModelProvider.notifier).retryIfNeeded();
       });
     });
   }

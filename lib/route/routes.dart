@@ -42,6 +42,9 @@ import 'package:metal/presentation/views/notification/notification_view.dart';
 // Verification
 import 'package:metal/presentation/views/verification/work_email_verification_view.dart';
 
+// Location (central flow; discovery uses stored user model)
+import 'package:metal/presentation/views/location/enable_location_view.dart';
+
 // Settings
 import 'package:metal/presentation/views/settings/blocked_users_view.dart';
 
@@ -230,6 +233,9 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const EditPreferencesView());
       case settingPage:
         return MaterialPageRoute(builder: (_) => const SettingsView());
+
+      case locationEnablePage:
+        return MaterialPageRoute(builder: (_) => const EnableLocationView());
 
       case blockedUser:
         return MaterialPageRoute(builder: (_) => const BlockedUsersView());

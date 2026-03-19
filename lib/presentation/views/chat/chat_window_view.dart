@@ -49,9 +49,9 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
   }
 
   void _onScroll() {
-    // Load more messages when scrolling to top
-    if (_scrollController.position.pixels <=
-        _scrollController.position.minScrollExtent + 100) {
+    // With reverse: true, older messages are towards maxScrollExtent
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 100) {
       ref
           .read(chatWindowViewModelProvider(widget.connectionId).notifier)
           .loadMoreMessages();
@@ -61,8 +61,9 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
+        // With reverse: true, the bottom (newest messages) is at offset 0
         _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
+          0.0,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
@@ -85,6 +86,10 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
         if (current.isSuccess && previous?.isSuccess != true) {
           // Invalidate connection detail to refresh unread count
           ref.invalidate(connectionDetailProvider(widget.connectionId));
+          // BUG-020: Open chat at most recent message (scroll to bottom)
+          if (current.messages.isNotEmpty) {
+            _scrollToBottom();
+          }
         }
       },
     );
@@ -135,8 +140,11 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
       return const EmptyState(text: 'User not found');
     }
 
-    final isPendingReceiver = connection.meltStatus == 'pending' &&
-        connection.isUserReceiver(currentUser?.id ?? '');
+    // BUG-011: Allow reply when there are already messages (don't show "Melt to reply" / block input)
+    final pendingReceiverNoMessages = connection.meltStatus == 'pending' &&
+        connection.isUserReceiver(currentUser?.id ?? '') &&
+        chatState.messages.isEmpty;
+    final canSend = !pendingReceiverNoMessages;
 
     return Column(
       children: [
@@ -146,8 +154,8 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
           connection: connection,
           otherUser: otherUser,
         ),
-        // Pending melt banner
-        if (isPendingReceiver) _buildPendingMeltBanner(connection),
+        // Pending melt banner (only when no messages yet)
+        if (pendingReceiverNoMessages) _buildPendingMeltBanner(connection),
         // Messages list
         Expanded(
           child: _buildMessagesList(chatState, currentUser?.id ?? ''),
@@ -155,7 +163,7 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
         // Input (no gap/padding between messages and input)
         ChatInput(
           connectionId: widget.connectionId,
-          canSend: !isPendingReceiver,
+          canSend: canSend,
           connection: connection,
           onMessageSent: _scrollToBottom,
         ),

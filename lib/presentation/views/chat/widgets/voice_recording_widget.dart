@@ -6,7 +6,6 @@ import 'package:gap/gap.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 /// Voice recording widget with waveform visualization
 class VoiceRecordingWidget extends StatefulWidget {

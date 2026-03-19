@@ -5,8 +5,10 @@ import 'package:gap/gap.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:metal/core/config/map_config.dart';
+import 'package:metal/core/services/location_service.dart' hide LocationResult;
 import 'package:metal/domain/entities/meetup_dto.dart';
 import 'package:metal/presentation/viewmodels/meetup/create_meetup_viewmodel.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/meetup/invite_guests_screen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -65,12 +67,36 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
     super.dispose();
   }
 
+  /// Resolve initial map location: picked place, then current user location, then device location, else default.
+  Future<LatLng> _getInitialLocationForPicker() async {
+    if (_pickedPlaceLatLng != null) return _pickedPlaceLatLng!;
+    final user = ref.read(currentUserProvider);
+    if (user?.location != null &&
+        user!.location!.latitude != null &&
+        user.location!.longitude != null) {
+      return LatLng(user.location!.latitude!, user.location!.longitude!);
+    }
+    final locResult = await LocationService().getCurrentLocation();
+    if (locResult.isSuccess &&
+        locResult.location != null &&
+        locResult.location!.latitude != null &&
+        locResult.location!.longitude != null) {
+      return LatLng(
+        locResult.location!.latitude!,
+        locResult.location!.longitude!,
+      );
+    }
+    return const LatLng(37.7749, -122.4194);
+  }
+
   Future<void> _openPlacePicker() async {
     if (!MapConfig.hasGoogleMapsKey) {
       Fluttertoast.showToast(
           msg: 'Map is not configured. Add a Google Maps API key.');
       return;
     }
+    final initialLocation = await _getInitialLocationForPicker();
+    if (!mounted) return;
     final result = await Navigator.of(context).push<LocationResult>(
       MaterialPageRoute<LocationResult>(
         builder: (context) => Scaffold(
@@ -83,8 +109,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
             apiKey: MapConfig.googleMapsApiKey,
             onPlacePicked: (LocationResult res) =>
                 Navigator.of(context).pop(res),
-            initialLocation:
-                _pickedPlaceLatLng ?? const LatLng(37.7749, -122.4194),
+            initialLocation: initialLocation,
             searchInputDecorationConfig: const SearchInputDecorationConfig(
               hintText: 'Search for a place',
             ),

@@ -109,11 +109,21 @@ class FCMClient {
       await _ensureAPNSToken();
     }
 
-    FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    // BUG-016: On iOS, avoid duplicate notifications (system + local). We show via
+    // _localNotifications in _onMessage, so disable system presentation in foreground.
+    if (Platform.isIOS) {
+      FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+        alert: false,
+        badge: true,
+        sound: false,
+      );
+    } else {
+      FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
   }
 
   /// Handle initial message when app is opened from notification
@@ -269,8 +279,11 @@ class FCMClient {
     if (pushType == PushType.new_connection) {
       await _handleMeltNotificationInForeground(payload);
     } else {
-      // Show local notification for other types
+      // BUG-016: Use stable id per message so same message doesn't show twice if handler fires twice
+      final messageId = message.messageId ?? message.hashCode;
+      final id = messageId.hashCode.abs().clamp(1, 0x7FFFFFFF);
       await _localNotifications.show(
+        id: id,
         title: message.notification?.title ?? '',
         body: message.notification?.body ?? '',
         payload: jsonEncode(payload.toJson()),

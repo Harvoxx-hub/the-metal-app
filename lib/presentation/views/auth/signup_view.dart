@@ -44,6 +44,17 @@ class _SignupViewState extends ConsumerState<SignupView> {
   }
 
   void _validateAndSubmit() {
+    // BUG-012: Enforce phone validation before submit
+    final digitsOnly = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
+    if (digitsOnly.length < 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid phone number (at least 10 digits)'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     if (_formKey.currentState?.validate() ?? false) {
       // Dismiss the keyboard
       FocusScope.of(context).unfocus();

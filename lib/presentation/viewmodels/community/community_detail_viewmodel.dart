@@ -226,6 +226,16 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
     return removed;
   }
 
+  /// Replace an existing post (e.g. after edit).
+  void updatePost(ThoughtDto updatedPost) {
+    if (!mounted) return;
+    final index = state.posts.indexWhere((p) => p.id == updatedPost.id);
+    if (index < 0) return;
+    final updatedPosts = List<ThoughtDto>.from(state.posts);
+    updatedPosts[index] = updatedPost;
+    state = state.copyWith(posts: updatedPosts);
+  }
+
   /// Replace a post (e.g. optimistic placeholder with real thought from API).
   void replacePost(String oldThoughtId, ThoughtDto newThought) {
     if (!mounted) return;

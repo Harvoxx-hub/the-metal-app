@@ -3,7 +3,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://maven.columbus.heytapmobi.com/repository/releases/' } // Added Heytap Maven repository
     }
 
     dependencies {
@@ -21,7 +20,6 @@ allprojects {
         google()
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
-        maven { url 'https://maven.columbus.heytapmobi.com/repository/releases/' } // Added Heytap Maven repository
         // Flutter embedding (for MetalApplication extending FlutterApplication)
         maven { url "https://storage.googleapis.com/download.flutter.io" }
     }

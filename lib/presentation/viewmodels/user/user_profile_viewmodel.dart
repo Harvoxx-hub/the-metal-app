@@ -56,26 +56,34 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
   final ProfileRepositoryAbstract _profileRepository;
   final ThoughtRepository _thoughtRepository;
   final String userId;
+  /// When set and equal to [userId], use GET /users/me for full profile; otherwise GET /users/:id returns limited public profile.
+  final String? _currentUserId;
 
   UserProfileViewModel({
     required ProfileRepositoryAbstract profileRepository,
     required ThoughtRepository thoughtRepository,
     required this.userId,
+    String? currentUserId,
   })  : _profileRepository = profileRepository,
         _thoughtRepository = thoughtRepository,
+        _currentUserId = currentUserId,
         super(UserProfileState.initial()) {
     loadUserProfile();
     loadUserThoughts();
   }
 
-  /// Load user profile data
+  /// Load user profile data.
+  /// When viewing own profile (userId == currentUser), uses GET /users/me for full data; otherwise GET /users/:id returns limited public profile.
   Future<void> loadUserProfile() async {
     if (!mounted) return;
     if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true, isError: false);
 
-    final result = await _profileRepository.getUserById(userId);
+    final isViewingSelf = _currentUserId != null && _currentUserId == userId;
+    final result = isViewingSelf
+        ? await _profileRepository.getUserProfile()
+        : await _profileRepository.getUserById(userId);
 
     if (!mounted) return;
     if (result.isSuccess && result.data != null) {

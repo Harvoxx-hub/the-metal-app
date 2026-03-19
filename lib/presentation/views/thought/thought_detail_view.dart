@@ -51,6 +51,7 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
   final TextEditingController _commentController = TextEditingController();
   final FocusNode _commentFocusNode = FocusNode();
   CommentDto? _replyingToComment;
+  bool _isSendingComment = false;
 
   @override
   void initState() {
@@ -191,6 +192,7 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
             thought: thought,
             showThoughtMenu: true,
             onDeleteThought: () => _handleDeleteThought(),
+            onEditThought: thought.type == 'text' ? () => _handleEditThought() : null,
             onReportThought: () => _handleReportThought(),
             onBlockUser: () => _handleBlockUser(),
           ),
@@ -612,29 +614,37 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
 
   Future<void> _sendComment() async {
     final content = _commentController.text.trim();
-    if (content.isEmpty || _thought == null) return;
+    if (content.isEmpty || _thought == null || _isSendingComment) return;
 
-    final viewModel = ref.read(commentViewModelProvider(_thought!.id).notifier);
+    _isSendingComment = true;
+    try {
+      final viewModel =
+          ref.read(commentViewModelProvider(_thought!.id).notifier);
 
-    if (_replyingToComment != null) {
-      // Send reply
-      await viewModel.addComment(content,
-          replyToCommentId: _replyingToComment!.id);
-      _cancelReply();
-    } else {
-      // Send regular comment
-      await viewModel.addComment(content);
-      _commentController.clear();
+      if (_replyingToComment != null) {
+        await viewModel.addComment(content,
+            replyToCommentId: _replyingToComment!.id);
+        _cancelReply();
+      } else {
+        await viewModel.addComment(content);
+        _commentController.clear();
+      }
+
+      if (!mounted) return;
+      // Scroll to bottom to show new comment
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_scrollController.hasClients) return;
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    } finally {
+      if (mounted) {
+        _isSendingComment = false;
+      }
     }
-
-    // Scroll to bottom to show new comment
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    });
   }
 
   Widget _buildCommentInput() {
@@ -833,6 +843,45 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
         }
       }
     }
+  }
+
+  Future<void> _handleEditThought() async {
+    final thought = _thought;
+    if (thought == null) return;
+    if (thought.type != 'text') return;
+
+    final communityMeta = thought.communityMetadata;
+    final communityMetadataMap = communityMeta == null
+        ? null
+        : {
+            'communityId': communityMeta.communityId,
+            'communityName': communityMeta.communityName,
+            'communityImage': communityMeta.communityImage,
+            'isPublic': communityMeta.isPublic,
+            'categories': communityMeta.categories,
+          };
+
+    final editArgs = {
+      'communityMetadata': communityMetadataMap,
+      'editThoughtId': thought.id,
+      'editText': thought.content,
+      'editConnectionOnly': thought.connectionOnly,
+    };
+
+    final result = await Navigator.pushNamed(
+      context,
+      AppRoutes.postThought,
+      arguments: editArgs,
+    );
+
+    if (!mounted) return;
+    if (result is! ThoughtDto) return;
+
+    setState(() {
+      _thought = result;
+    });
+
+    Fluttertoast.showToast(msg: 'Thought updated successfully!');
   }
 
   Future<void> _handleReportThought() async {

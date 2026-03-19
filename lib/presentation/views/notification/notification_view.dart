@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
 import 'package:metal/core/services/notification_navigation_service.dart';
-import 'package:metal/core/services/notification_refresh_signal.dart';
+
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/views/notification/widgets/notification_item_card.dart';
 import 'package:metal/presentation/viewmodels/notification/notification_viewmodel.dart';
@@ -31,7 +30,6 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    NotificationRefreshSignal.instance.addListener(_onPushReceived);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref
           .read(notificationViewModelProvider.notifier)
@@ -46,13 +44,8 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
 
   @override
   void dispose() {
-    NotificationRefreshSignal.instance.removeListener(_onPushReceived);
     _scrollController.dispose();
     super.dispose();
-  }
-
-  void _onPushReceived() {
-    ref.read(notificationViewModelProvider.notifier).refreshOnPushReceived();
   }
 
   void _onScroll() {
@@ -209,20 +202,4 @@ class _NotificationViewState extends ConsumerState<NotificationView> {
     }
   }
 
-  Future<void> _handleMarkAllAsRead(BuildContext context) async {
-    final success =
-        await ref.read(notificationViewModelProvider.notifier).markAllAsRead();
-
-    if (mounted && success) {
-      Fluttertoast.showToast(
-        msg: 'All notifications marked as read',
-        toastLength: Toast.LENGTH_SHORT,
-      );
-    } else if (mounted) {
-      Fluttertoast.showToast(
-        msg: 'Failed to mark all as read',
-        toastLength: Toast.LENGTH_SHORT,
-      );
-    }
-  }
 }

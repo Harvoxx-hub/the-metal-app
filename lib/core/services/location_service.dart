@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart' hide Location;
@@ -55,11 +57,24 @@ class LocationService {
         );
       }
 
-      // Get coordinates
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 10),
-      );
+      // Get coordinates (longer timeout for slow/cold GPS; fallback to cached on timeout)
+      Position position;
+      try {
+        position = await Geolocator.getCurrentPosition(
+          locationSettings: LocationSettings(
+            accuracy: LocationAccuracy.low,
+            timeLimit: const Duration(seconds: 25),
+          ),
+        );
+      } on TimeoutException {
+        final cached = await Geolocator.getLastKnownPosition();
+        if (cached != null) {
+          debugPrint('Using cached position after getCurrentPosition timeout');
+          position = cached;
+        } else {
+          rethrow;
+        }
+      }
 
       // Get address details from coordinates
       final addressDetails = await _getAddressDetailsFromCoordinates(
@@ -108,7 +123,9 @@ class LocationService {
   }
 
   /// Convert coordinates to address details
-  /// Returns a map with address string, city, state, and country
+  /// Returns a map with address string, city, state, and country.
+  /// BUG-015: When we have coords but reverse geocode fails or is empty, show "Location shared"
+  /// instead of "Location not available" so users know location is set.
   Future<Map<String, String?>> _getAddressDetailsFromCoordinates(
       double lat, double lng) async {
     try {
@@ -116,7 +133,7 @@ class LocationService {
 
       if (placemarks.isEmpty) {
         return {
-          'address': 'Location not available',
+          'address': 'Location shared',
           'city': null,
           'state': null,
           'country': null,
@@ -149,7 +166,7 @@ class LocationService {
       }
 
       final address =
-          parts.isEmpty ? 'Location not available' : parts.join(', ');
+          parts.isEmpty ? 'Location shared' : parts.join(', ');
 
       return {
         'address': address,
@@ -160,7 +177,7 @@ class LocationService {
     } catch (e) {
       debugPrint('Error getting address: $e');
       return {
-        'address': 'Location not available',
+        'address': 'Location shared',
         'city': null,
         'state': null,
         'country': null,

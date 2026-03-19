@@ -121,13 +121,14 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
             height: 40,
             width: 40,
           ),
-          // Only show badge for notification icon
+          // Only show badge for notification icon (BUG-009: only after load, avoid phantom count)
           if (iconPath == Assets.icons.notification.path)
             Consumer(
               builder: (context, ref, child) {
                 final notificationState = ref.watch(notificationViewModelProvider);
                 final count = notificationState.unreadCount;
-                return count > 0
+                final hasLoaded = notificationState.isSuccess || notificationState.notifications.isNotEmpty;
+                return hasLoaded && count > 0
                     ? Positioned(
                         right: 0,
                         top: 0,

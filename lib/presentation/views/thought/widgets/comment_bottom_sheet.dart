@@ -29,6 +29,7 @@ class _CommentBottomSheetState extends ConsumerState<CommentBottomSheet> {
   final ScrollController _scrollController = ScrollController();
   CommentDto? _replyingToComment;
   bool _hasScrolledToTarget = false;
+  bool _isSendingComment = false;
 
   @override
   void dispose() {
@@ -81,20 +82,27 @@ class _CommentBottomSheetState extends ConsumerState<CommentBottomSheet> {
     _commentController.clear();
   }
 
-  void _sendComment() {
+  Future<void> _sendComment() async {
     final content = _commentController.text.trim();
-    if (content.isEmpty) return;
+    if (content.isEmpty || _isSendingComment) return;
 
-    final viewModel = ref.read(commentViewModelProvider(widget.thought.id).notifier);
+    _isSendingComment = true;
+    try {
+      final viewModel =
+          ref.read(commentViewModelProvider(widget.thought.id).notifier);
 
-    if (_replyingToComment != null) {
-      // Send reply
-      viewModel.addComment(content, replyToCommentId: _replyingToComment!.id);
-      _cancelReply();
-    } else {
-      // Send regular comment
-      viewModel.addComment(content);
-      _commentController.clear();
+      if (_replyingToComment != null) {
+        await viewModel.addComment(content,
+            replyToCommentId: _replyingToComment!.id);
+        _cancelReply();
+      } else {
+        await viewModel.addComment(content);
+        _commentController.clear();
+      }
+    } finally {
+      if (mounted) {
+        _isSendingComment = false;
+      }
     }
   }
 

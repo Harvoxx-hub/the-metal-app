@@ -22,16 +22,33 @@ class SplashView extends ConsumerStatefulWidget {
 }
 
 class _SplashViewState extends ConsumerState<SplashView> {
+  static const _minSplashDuration = Duration(milliseconds: 1500);
+  DateTime? _splashShownAt;
+
   @override
   void initState() {
     super.initState();
-    // Check auth state after first frame
+    _splashShownAt = DateTime.now();
+    // Check auth state after first frame so splash is visible
+    // Request location on splash (with notification/camera/mic from main) so user isn’t asked on home
+ 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAuthAndNavigate();
     });
   }
 
+  /// Ensure splash stays visible at least [_minSplashDuration] before navigating.
+  Future<void> _waitMinSplashDuration() async {
+    if (_splashShownAt == null) return;
+    final elapsed = DateTime.now().difference(_splashShownAt!);
+    if (elapsed < _minSplashDuration) {
+      await Future.delayed(_minSplashDuration - elapsed);
+    }
+  }
+
   Future<void> _checkAuthAndNavigate() async {
+
+    await _requestLocationAndStoreIfGranted();
     final viewModel = ref.read(splashViewModelProvider.notifier);
 
     // Check if user has seen onboarding
@@ -53,38 +70,38 @@ class _SplashViewState extends ConsumerState<SplashView> {
     if (!mounted) return;
 
     if (user == null) {
-      // User is not authenticated, go to onboarding/login
       ref.read(userStateProvider.notifier).clear();
-      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
-    } else {
-      // User is authenticated - set in global state
-      ref.read(userStateProvider.notifier).setUser(user);
-
-      // Navigate based on user state
+      await _waitMinSplashDuration();
       if (!mounted) return;
-
-      if (user.emailVerified == false) {
-        // User needs email verification - just pass email
-        Navigator.pushReplacementNamed(
-          context,
-          AppRoutes.verificationPage,
-          arguments: user.email,
-        );
-      } else {
-        // Request location at app start so it's stored before any API needs it.
-        // Notification is already requested in main() via FCM.
-        await _requestLocationAndStoreIfGranted();
-        if (!mounted) return;
-
-        // User is verified, go to dashboard or welcome based on profile completion
-        Navigator.pushReplacementNamed(
-          context,
-          user.profileUpdated == true
-              ? AppRoutes.dashboardPage
-              : AppRoutes.welcomePage,
-        );
-      }
+      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+      return;
     }
+
+    ref.read(userStateProvider.notifier).setUser(user);
+    if (!mounted) return;
+
+    if (user.emailVerified == false) {
+      await _waitMinSplashDuration();
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoutes.verificationPage,
+        arguments: user.email,
+      );
+      return;
+    }
+
+    
+
+    await _waitMinSplashDuration();
+    if (!mounted) return;
+
+    Navigator.pushReplacementNamed(
+      context,
+      user.profileUpdated == true
+          ? AppRoutes.dashboardPage
+          : AppRoutes.welcomePage,
+    );
   }
 
   /// Request location permission at app start; if granted, get location and send to API.

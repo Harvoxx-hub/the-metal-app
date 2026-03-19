@@ -9,14 +9,11 @@ import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/profile/profile_setup_viewmodel.dart';
 import 'package:metal/presentation/views/profile/profile_setup_constants.dart';
 import 'package:metal/presentation/views/profile/profile_setup_helpers.dart';
-import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/birthday_picker_dialog.dart';
 import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/dropdown/metal.dropdown.dart';
-import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
-import 'package:metal/widgets/text_views.dart';
 
 /// Basic Info View - Step 1 of profile setup
 /// Collects: Name, Username, Gender, DOB, What looking for

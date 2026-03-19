@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/services/websocket_service.dart';
 import 'package:metal/domain/entities/message_dto.dart';
 import 'package:metal/domain/usecases/chat/connection_usecase.dart';
 
@@ -108,11 +110,42 @@ class ChatListState {
 /// Handles loading and filtering of chat connections
 class ChatListViewModel extends StateNotifier<ChatListState> {
   final GetConnectionsUseCase _getConnectionsUseCase;
+  final WebSocketService? _websocketService;
+  StreamSubscription? _messageSubscription;
 
   ChatListViewModel({
     required GetConnectionsUseCase getConnectionsUseCase,
+    WebSocketService? websocketService,
   })  : _getConnectionsUseCase = getConnectionsUseCase,
-        super(ChatListState.initial());
+        _websocketService = websocketService,
+        super(ChatListState.initial()) {
+    // Ensure tray can receive real-time events even before chat window opens.
+    unawaited(_ensureWebSocketConnected());
+
+    // BUG-013: Refresh list when a new message arrives so tray shows it without app refresh
+    _messageSubscription = _websocketService?.messageStream.listen((message) {
+      final type = message['type'] as String?;
+      if (type == 'message') {
+        loadConnections();
+      }
+    });
+  }
+
+  Future<void> _ensureWebSocketConnected() async {
+    final ws = _websocketService;
+    if (ws == null || ws.isConnected) return;
+    final connected = await ws.connect();
+    if (connected && mounted) {
+      // Reconcile latest state after first socket connect.
+      await loadConnections();
+    }
+  }
+
+  @override
+  void dispose() {
+    _messageSubscription?.cancel();
+    super.dispose();
+  }
 
   /// Load connections
   Future<void> loadConnections() async {

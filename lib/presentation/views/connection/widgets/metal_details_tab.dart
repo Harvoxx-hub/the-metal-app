@@ -10,7 +10,6 @@ import 'package:metal/presentation/viewmodels/user/user_profile_viewmodel_provid
 import 'package:metal/presentation/widgets/settings/edit_field.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/button/base_button.dart';
-import 'package:metal/widgets/button/outiline.button.dart';
 import 'package:metal/widgets/dialog/custom.dialog.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/presentation/widgets/settings/block_user_helper.dart';
@@ -224,19 +223,39 @@ class _MetalDetailsTabNewState extends ConsumerState<MetalDetailsTabNew> {
     }
   }
 
-  /// Calculate age display from date of birth
+  /// Calculate age display from date of birth.
+  /// Supports ISO (2000-04-03) and slash format (04/03/2000 as dd/MM/yyyy).
   String _calculateAgeDisplay(String dobString) {
+    final dob = _parseDob(dobString);
+    if (dob == null) return 'Age not available';
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+    return '$age years';
+  }
+
+  /// Parse DOB from ISO (2000-04-03) or slash format (04/03/2000 as dd/MM/yyyy = 4 Mar 2000).
+  DateTime? _parseDob(String dobString) {
+    final trimmed = dobString.trim();
+    if (trimmed.isEmpty) return null;
     try {
-      final dob = DateTime.parse(dobString);
-      final now = DateTime.now();
-      int age = now.year - dob.year;
-      if (now.month < dob.month ||
-          (now.month == dob.month && now.day < dob.day)) {
-        age--;
-      }
-      return '$age years';
-    } catch (e) {
-      return 'Age not available';
+      return DateTime.parse(trimmed);
+    } catch (_) {
+      // Try dd/MM/yyyy or MM/dd/yyyy (e.g. 04/03/2000)
+      final parts = trimmed.split('/');
+      if (parts.length != 3) return null;
+      final a = int.tryParse(parts[0].trim());
+      final b = int.tryParse(parts[1].trim());
+      final c = int.tryParse(parts[2].trim());
+      if (a == null || b == null || c == null) return null;
+      // Assume dd/MM/yyyy (day/month/year)
+      if (a > 31) return null; // first part is year (yyyy/dd/MM or yyyy/MM/dd)
+      if (b > 12) return null; // second part must be month
+      if (c < 100) return null; // third part must be 4-digit year
+      return DateTime(c, b, a);
     }
   }
 

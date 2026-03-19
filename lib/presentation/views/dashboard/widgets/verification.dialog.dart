@@ -24,10 +24,6 @@ class _VerificationDialogState extends ConsumerState<VerificationDialog> {
   //final _faceSDKService = FaceSDKService();
   Uint8List? capturedImage;
 
-  var _status = "nil";
-
-  set status(String val) => setState(() => _status = val);
-
   @override
   void initState() {
     super.initState();

@@ -20,7 +20,7 @@ class NotificationPayloadModel {
 
   factory NotificationPayloadModel.fromRemoteMessage(RemoteMessage message) {
     final data = message.data;
-    final typeStr = data?['type'] as String? ?? data?['action'] as String?;
+    final typeStr = data['type'] as String? ?? data['action'] as String?;
     return NotificationPayloadModel(
       title: message.notification?.title,
       body: message.notification?.body,

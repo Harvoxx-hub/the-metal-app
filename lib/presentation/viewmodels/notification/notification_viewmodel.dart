@@ -1,4 +1,6 @@
+import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/services/notification_refresh_signal.dart';
 import 'package:metal/data/repositories/notification/notification_repository.dart';
 import 'package:metal/data/repositories/notification/notification_repository_providers.dart';
 import 'package:metal/domain/entities/notification_dto.dart';
@@ -237,7 +239,6 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
 
     if (mounted) {
       if (result.isSuccess) {
-        // Mark all notifications as read in the list
         final updatedNotifications =
             state.notifications.map((n) => n.copyWith(isRead: true)).toList();
 
@@ -246,6 +247,11 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
           notifications: updatedNotifications,
           unreadCount: 0,
         );
+
+        // Clear the native app icon badge
+        try {
+          AppBadgePlus.updateBadge(0);
+        } catch (_) {}
 
         return true;
       } else {
@@ -316,6 +322,18 @@ final notificationViewModelProvider =
         (ref) {
   final repository = ref.watch(notificationRepositoryProvider);
   final viewModel = NotificationViewModel(repository: repository);
-  viewModel.loadNotifications(); // Initial load when screen opens
+  viewModel.loadNotifications();
+
+  // Refresh unread count whenever a push notification arrives,
+  // regardless of which screen the user is on.
+  void onPush() {
+    viewModel.refreshOnPushReceived();
+  }
+
+  NotificationRefreshSignal.instance.addListener(onPush);
+  ref.onDispose(() {
+    NotificationRefreshSignal.instance.removeListener(onPush);
+  });
+
   return viewModel;
 });

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/utils/permission_helper.dart';
 import 'package:metal/domain/entities/discovery_user_dto.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:metal/presentation/viewmodels/home/home_viewmodel.dart';
 import 'package:metal/presentation/views/home/widgets/discovery_user_card.dart';
 import 'package:metal/route/routes.dart';
@@ -42,8 +44,21 @@ class _HomeViewState extends ConsumerState<HomeView>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      ref.read(homeViewModelProvider.notifier).retryIfNeeded();
+      _onAppResumed();
     }
+  }
+
+  /// On app resume: re-check location permission (BUG-018) and refetch discovery (BUG-019).
+  Future<void> _onAppResumed() async {
+    final status = await PermissionHelper.getLocationPermissionStatus();
+    final notifier = ref.read(homeViewModelProvider.notifier);
+    if (status != PermissionStatus.granted && status != PermissionStatus.limited) {
+      notifier.setLocationDenied(
+        permanentlyDenied: status == PermissionStatus.permanentlyDenied,
+      );
+      return;
+    }
+    await notifier.retryIfNeeded();
   }
 
   @override
@@ -203,15 +218,15 @@ class _HomeViewState extends ConsumerState<HomeView>
 
   Widget _buildSwipeStack(List<DiscoveryUserDto> users) {
     final notifier = ref.read(homeViewModelProvider.notifier);
+    final visibleCount = users.length.clamp(0, 3);
 
     return Stack(
       children: [
-        // Reverse so first user is on top (last in stack = drawn on top).
-        for (var i = users.length - 1; i >= 0; i--) ...[
+        for (var i = visibleCount - 1; i >= 0; i--)
           Positioned.fill(
-            child: Transform.scale(
-              scale: 1.0,
+            child: RepaintBoundary(
               child: DiscoveryUserCard(
+                key: ValueKey(users[i].id),
                 user: users[i],
                 onLike: () => notifier.likeUser(users[i].id),
                 onPass: () => notifier.passUser(users[i].id),
@@ -219,7 +234,6 @@ class _HomeViewState extends ConsumerState<HomeView>
               ),
             ),
           ),
-        ],
       ],
     );
   }

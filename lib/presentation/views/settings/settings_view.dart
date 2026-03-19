@@ -133,14 +133,14 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                     ),
                     const Gap(20),
                     EditField(
-                      text: (blocked?.length ?? 0).toString(),
+                      text: blocked.length.toString(),
                       floatingLabel: "*Blocked Contacts*",
                       prefixIcon: TextView(
                         text: "View",
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         onTap: () {
-                          if ((blocked?.length ?? 0) >= 1) {
+                          if (blocked.length >= 1) {
                             Navigator.pushNamed(context, AppRoutes.blockedUser);
                           }
                         },

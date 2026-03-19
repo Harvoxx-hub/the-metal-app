@@ -1,6 +1,5 @@
 import 'package:metal/domain/entities/comment_dto.dart';
 import 'package:metal/domain/entities/reaction_dto.dart';
-import 'package:metal/data/models/reaction_model.dart';
 
 /// Comment response model from API
 class CommentModel {

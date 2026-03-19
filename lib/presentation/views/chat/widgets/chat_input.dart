@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:dio/dio.dart';
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:metal/core/di/provider_setup.dart';
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/route/routes.dart';
@@ -40,23 +39,21 @@ class ChatInput extends ConsumerStatefulWidget {
 class _ChatInputState extends ConsumerState<ChatInput> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  bool _isComposing = false;
+  final ValueNotifier<bool> _isComposing = ValueNotifier(false);
   bool _isRecording = false;
   bool _isUploadingAudio = false;
   bool _isMelting = false;
-  bool _showEmojiPicker = false;
 
   @override
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
+    _isComposing.dispose();
     super.dispose();
   }
 
   void _handleTextChanged(String text) {
-    setState(() {
-      _isComposing = text.trim().isNotEmpty;
-    });
+    _isComposing.value = text.trim().isNotEmpty;
   }
 
   Future<void> _handleSend() async {
@@ -64,9 +61,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
     if (text.isEmpty) return;
 
     _controller.clear();
-    setState(() {
-      _isComposing = false;
-    });
+    _isComposing.value = false;
 
     final success = await ref
         .read(chatWindowViewModelProvider(widget.connectionId).notifier)
@@ -219,9 +214,10 @@ class _ChatInputState extends ConsumerState<ChatInput> {
 
   @override
   Widget build(BuildContext context) {
-    final chatState =
-        ref.watch(chatWindowViewModelProvider(widget.connectionId));
-    final replyingTo = chatState.replyingTo;
+    final replyingTo = ref.watch(
+      chatWindowViewModelProvider(widget.connectionId)
+          .select((s) => s.replyingTo),
+    );
 
     if (!widget.canSend) {
       return _buildMeltToReplyButton();
@@ -319,67 +315,54 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                     ),
                   ),
                   const Gap(8),
-                  // Send button when composing, otherwise game and mic
-                  if (_isComposing)
-                    GestureDetector(
-                      onTap: _handleSend,
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: const BoxDecoration(
-                          color: AppColors.metalPinkColour,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Assets.icons.chatsWindowactiveSend.svg(
-                            width: 20,
-                            height: 20,
-                            colorFilter: const ColorFilter.mode(
-                              Colors.white,
-                              BlendMode.srcIn,
+                  ValueListenableBuilder<bool>(
+                    valueListenable: _isComposing,
+                    builder: (context, composing, _) {
+                      if (composing) {
+                        return GestureDetector(
+                          onTap: _handleSend,
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: const BoxDecoration(
+                              color: AppColors.metalPinkColour,
+                              shape: BoxShape.circle,
                             ),
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Game button
-                        // GestureDetector(
-                        //   onTap: () {
-                        //     // TODO: Implement game picker
-                        //   },
-                        //   child: Padding(
-                        //     padding: const EdgeInsets.all(8.0),
-                        //     child: Assets.icons.chatsEmptyStateGamingPad01.svg(
-                        //       width: 28,
-                        //       height: 28,
-                        //       colorFilter: ColorFilter.mode(
-                        //         Colors.grey[700]!,
-                        //         BlendMode.srcIn,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
-                        // Mic button
-                        GestureDetector(
-                          onTap: _startRecording,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Assets.icons.chatsEmptyStateMicrophone.svg(
-                              width: 28,
-                              height: 28,
-                              colorFilter: ColorFilter.mode(
-                                Colors.grey[700]!,
-                                BlendMode.srcIn,
+                            child: Center(
+                              child: Assets.icons.chatsWindowactiveSend.svg(
+                                width: 20,
+                                height: 20,
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.white,
+                                  BlendMode.srcIn,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                        );
+                      }
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
+                            onTap: _startRecording,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child:
+                                  Assets.icons.chatsEmptyStateMicrophone.svg(
+                                width: 28,
+                                height: 28,
+                                colorFilter: ColorFilter.mode(
+                                  Colors.grey[700]!,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
             ),

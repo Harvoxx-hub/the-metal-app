@@ -14,10 +14,16 @@ import 'package:metal/presentation/views/thought/widgets/thought_audio_section.d
 /// Create Thought Screen - Facebook-style thought creation
 class CreateThoughtScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic>? communityMetadata;
+  final String? editThoughtId;
+  final String? editText;
+  final bool editConnectionOnly;
 
   const CreateThoughtScreen({
     super.key,
     this.communityMetadata,
+    this.editThoughtId,
+    this.editText,
+    this.editConnectionOnly = false,
   });
 
   @override
@@ -29,11 +35,13 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
   final TextEditingController _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool _hasChanges = false;
+  bool _isPrefilling = false;
 
   @override
   void initState() {
     super.initState();
     _textController.addListener(() {
+      if (_isPrefilling) return;
       if (!_hasChanges) {
         setState(() {
           _hasChanges = true;
@@ -44,6 +52,18 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
+
+    // Prefill edit state
+    if (widget.editThoughtId != null && widget.editText != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _isPrefilling = true;
+        _textController.text = widget.editText!;
+        ref.read(createThoughtViewModelProvider.notifier).updateText(widget.editText!);
+        _hasChanges = false;
+        _isPrefilling = false;
+      });
+    }
   }
 
   @override
@@ -117,6 +137,7 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
   Widget build(BuildContext context) {
     final viewModelState = ref.watch(createThoughtViewModelProvider);
     final viewModel = ref.read(createThoughtViewModelProvider.notifier);
+    final isEditing = widget.editThoughtId != null;
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -135,19 +156,22 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
             },
           ),
           title: TextView(
-            text: widget.communityMetadata != null
-                ? 'Post to ${widget.communityMetadata!['communityName'] ?? 'Community'}'
-                : 'Create Thought',
+            text: isEditing
+                ? 'Edit Thought'
+                : (widget.communityMetadata != null
+                    ? 'Post to ${widget.communityMetadata!['communityName'] ?? 'Community'}'
+                    : 'Create Thought'),
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: AppColors.metalBlack,
           ),
           actions: [
             TextButton(
-              onPressed:
-                  viewModelState.canPost ? () => _handlePost(viewModel) : null,
+              onPressed: viewModelState.canPost
+                  ? () => isEditing ? _handleEdit(viewModel) : _handlePost(viewModel)
+                  : null,
               child: TextView(
-                text: 'Post',
+                text: isEditing ? 'Save' : 'Post',
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: viewModelState.canPost
@@ -217,22 +241,23 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
                       ),
                       const Gap(16),
                       // Audio section
-                      ThoughtAudioSection(
-                        onAudioRecorded: (audioPath, duration) {
-                          viewModel.updateAudio(audioPath, duration);
-                          setState(() {
-                            _hasChanges = true;
-                          });
-                        },
-                        onAudioDeleted: () {
-                          viewModel.clearAudio();
-                          setState(() {
-                            _hasChanges = true;
-                          });
-                        },
-                        audioUrl: viewModelState.audioUrl,
-                        audioDuration: viewModelState.audioDuration,
-                      ),
+                      if (!isEditing)
+                        ThoughtAudioSection(
+                          onAudioRecorded: (audioPath, duration) {
+                            viewModel.updateAudio(audioPath, duration);
+                            setState(() {
+                              _hasChanges = true;
+                            });
+                          },
+                          onAudioDeleted: () {
+                            viewModel.clearAudio();
+                            setState(() {
+                              _hasChanges = true;
+                            });
+                          },
+                          audioUrl: viewModelState.audioUrl,
+                          audioDuration: viewModelState.audioDuration,
+                        ),
                     ],
                   ),
                 ),
@@ -335,6 +360,29 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
       final currentState = ref.read(createThoughtViewModelProvider);
       Fluttertoast.showToast(
           msg: currentState.errorMessage ?? 'Failed to post thought');
+    }
+  }
+
+  Future<void> _handleEdit(CreateThoughtViewModel viewModel) async {
+    final thoughtId = widget.editThoughtId;
+    if (thoughtId == null) return;
+
+    final updatedThought = await viewModel.updateThought(
+      thoughtId: thoughtId,
+      connectionOnly: widget.editConnectionOnly,
+    );
+
+    if (!mounted) return;
+
+    if (updatedThought != null) {
+      _clearAndPop();
+      Navigator.pop(context, updatedThought);
+      Fluttertoast.showToast(msg: 'Thought updated successfully!');
+    } else {
+      final currentState = ref.read(createThoughtViewModelProvider);
+      Fluttertoast.showToast(
+        msg: currentState.errorMessage ?? 'Failed to update thought',
+      );
     }
   }
 

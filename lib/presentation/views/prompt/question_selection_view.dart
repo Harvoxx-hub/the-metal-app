@@ -132,7 +132,8 @@ class _QuestionSelectionViewState extends ConsumerState<QuestionSelectionView> {
                           }
                         },
                         enabled: true,
-                        width: 200, // Let Row determine width when used in Row
+                        width: 50.0,
+                        // Let Row determine width when used in Row
                       ),
                     ],
                   ),

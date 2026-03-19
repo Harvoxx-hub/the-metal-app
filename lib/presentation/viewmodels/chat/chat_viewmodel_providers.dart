@@ -14,6 +14,7 @@ final chatListViewModelProvider =
     StateNotifierProvider.autoDispose<ChatListViewModel, ChatListState>((ref) {
   final viewModel = ChatListViewModel(
     getConnectionsUseCase: ref.watch(getConnectionsUseCaseProvider),
+    websocketService: ref.watch(websocketServiceProvider),
   );
 
   // Load connections on init

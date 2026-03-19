@@ -154,6 +154,9 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
                 thought: thoughtModel,
                 showThoughtMenu: true,
                 onDeleteThought: () => _handleDeleteThought(context),
+                onEditThought: thoughtModel.type == 'text'
+                    ? () => _handleEditThought(context)
+                    : null,
                 onReportThought: () => _handleReportThought(context),
                 onBlockUser: () => _handleBlockUser(context),
               ),
@@ -632,6 +635,50 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           Fluttertoast.showToast(msg: 'Failed to delete thought');
         }
       }
+    }
+  }
+
+  Future<void> _handleEditThought(BuildContext context) async {
+    // Backend update endpoint currently supports content updates.
+    // To keep UX consistent and avoid failed updates, only allow editing text thoughts for now.
+    if (thoughtModel.type != 'text') return;
+
+    final communityMeta = thoughtModel.communityMetadata;
+    final communityMetadataMap = communityMeta == null
+        ? null
+        : {
+            'communityId': communityMeta.communityId,
+            'communityName': communityMeta.communityName,
+            'communityImage': communityMeta.communityImage,
+            'isPublic': communityMeta.isPublic,
+            'categories': communityMeta.categories,
+          };
+
+    final editArgs = {
+      'communityMetadata': communityMetadataMap,
+      'editThoughtId': thoughtModel.id,
+      'editText': thoughtModel.content,
+      'editConnectionOnly': thoughtModel.connectionOnly,
+    };
+
+    final result = await Navigator.pushNamed(
+      context,
+      AppRoutes.postThought,
+      arguments: editArgs,
+    );
+
+    if (!mounted) return;
+    if (result is! ThoughtDto) return;
+
+    // Update local timeline state immediately (no full refresh).
+    if (widget.communityId != null) {
+      ref
+          .read(
+            communityDetailViewModelProvider(widget.communityId!).notifier,
+          )
+          .updatePost(result);
+    } else {
+      ref.read(thoughtFeedViewModelProvider.notifier).updateThought(result);
     }
   }
 

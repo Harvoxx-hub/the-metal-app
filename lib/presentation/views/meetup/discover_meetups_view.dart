@@ -27,7 +27,7 @@ class _DiscoverMeetupsViewState extends ConsumerState<DiscoverMeetupsView> {
   /// 1st filter: distance (within), 100km–1000km
   String _withinLabel = 'WITHIN 100KM';
   /// 2nd filter: date
-  String _dateLabel = 'TONIGHT';
+  String _dateLabel = 'THIS MONTH';
   /// Which filter chip is visually selected (0=within, 1=date)
   int _selectedFilterIndex = 0;
 
@@ -132,8 +132,8 @@ class _DiscoverMeetupsViewState extends ConsumerState<DiscoverMeetupsView> {
               setState(() => _dateLabel = 'THIS WEEK');
               Navigator.pop(context);
             }),
-            _bottomSheetOption('THIS WEEKEND', () {
-              setState(() => _dateLabel = 'THIS WEEKEND');
+            _bottomSheetOption('THIS MONTH', () {
+              setState(() => _dateLabel = 'THIS MONTH');
               Navigator.pop(context);
             }),
             _bottomSheetOption('ANYTIME', () {
@@ -163,7 +163,6 @@ class _DiscoverMeetupsViewState extends ConsumerState<DiscoverMeetupsView> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final endOfWeek = today.add(const Duration(days: 7));
-    final endOfWeekendRange = today.add(const Duration(days: 14));
 
     return meetups.where((m) {
       // 1. Within (distance in km)
@@ -185,10 +184,9 @@ class _DiscoverMeetupsViewState extends ConsumerState<DiscoverMeetupsView> {
         if (m.eventDateTime.isBefore(now) || m.eventDateTime.isAfter(endOfWeek)) {
           return false;
         }
-      } else if (_dateLabel == 'THIS WEEKEND') {
-        final weekday = m.eventDateTime.weekday; // 6=Sat, 7=Sun
-        final isWeekend = weekday == DateTime.saturday || weekday == DateTime.sunday;
-        if (!isWeekend || m.eventDateTime.isBefore(now) || m.eventDateTime.isAfter(endOfWeekendRange)) {
+      } else if (_dateLabel == 'THIS MONTH') {
+        final endOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+        if (m.eventDateTime.isBefore(now) || m.eventDateTime.isAfter(endOfMonth)) {
           return false;
         }
       }

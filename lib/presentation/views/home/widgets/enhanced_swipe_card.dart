@@ -4,12 +4,14 @@ import 'package:flutter/services.dart';
 
 /// Enhanced SwipeCard with Tinder-like feedback interactions
 /// Implements gesture detection, real-time visual feedback, and smooth animations
+///
+/// Uses ValueNotifiers instead of setState during drag to avoid rebuilding
+/// the child widget tree on every pointer-move frame.
 class EnhancedSwipeCard extends StatefulWidget {
   final Widget child;
   final VoidCallback? onSwipeLeft;
   final VoidCallback? onSwipeRight;
   final VoidCallback? onSwipeUp;
-  /// Optional label for swipe-up feedback (e.g. 'MESSAGE' instead of 'SUPER LIKE').
   final String? swipeUpLabelText;
   final IconData? swipeUpIcon;
   final Color? swipeUpColor;
@@ -37,28 +39,21 @@ class EnhancedSwipeCard extends StatefulWidget {
 
 class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
     with TickerProviderStateMixin {
-  // Position and animation controllers
   late AnimationController _positionController;
   late AnimationController _rotationController;
   late AnimationController _opacityController;
 
-  // Animations
   late Animation<Offset> _positionAnimation;
   late Animation<double> _rotationAnimation;
   late Animation<double> _opacityAnimation;
 
-  // Gesture tracking
-  double _dragX = 0.0;
-  double _dragY = 0.0;
+  final ValueNotifier<Offset> _dragOffset = ValueNotifier(Offset.zero);
+  final ValueNotifier<bool> _isDragging = ValueNotifier(false);
+  final ValueNotifier<SwipeDirection?> _currentDirection = ValueNotifier(null);
+
   double _velocityX = 0.0;
   double _velocityY = 0.0;
-
-  // State tracking
-  bool _isDragging = false;
   bool _hasTriggeredHaptic = false;
-
-  // Feedback labels
-  SwipeDirection? _currentDirection;
 
   @override
   void initState() {
@@ -67,25 +62,21 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
   }
 
   void _initializeAnimations() {
-    // Position animation controller
     _positionController = AnimationController(
       duration: widget.animationDuration,
       vsync: this,
     );
 
-    // Rotation animation controller
     _rotationController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
 
-    // Opacity animation controller
     _opacityController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
 
-    // Position animation
     _positionAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: Offset.zero,
@@ -94,7 +85,6 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
       curve: Curves.easeOutCubic,
     ));
 
-    // Rotation animation
     _rotationAnimation = Tween<double>(
       begin: 0.0,
       end: 0.0,
@@ -103,7 +93,6 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
       curve: Curves.easeOutCubic,
     ));
 
-    // Opacity animation
     _opacityAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -118,6 +107,9 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
     _positionController.dispose();
     _rotationController.dispose();
     _opacityController.dispose();
+    _dragOffset.dispose();
+    _isDragging.dispose();
+    _currentDirection.dispose();
     super.dispose();
   }
 
@@ -131,17 +123,18 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
           onPanEnd: _onPanEnd,
           child: Stack(
             children: [
-              // Main card with animations
               AnimatedBuilder(
                 animation: Listenable.merge([
                   _positionAnimation,
                   _rotationAnimation,
+                  _dragOffset,
                 ]),
+                child: widget.child,
                 builder: (context, child) {
                   return Transform.translate(
                     offset: Offset(
-                      _dragX + _positionAnimation.value.dx,
-                      _dragY + _positionAnimation.value.dy,
+                      _dragOffset.value.dx + _positionAnimation.value.dx,
+                      _dragOffset.value.dy + _positionAnimation.value.dy,
                     ),
                     child: Transform.rotate(
                       angle: _rotationAnimation.value,
@@ -152,11 +145,14 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
                         ),
                         child: Stack(
                           children: [
-                            // Main card content
-                            widget.child,
-
-                            // Feedback labels overlay
-                            if (_isDragging) _buildFeedbackOverlay(),
+                            child!,
+                            ValueListenableBuilder<bool>(
+                              valueListenable: _isDragging,
+                              builder: (context, dragging, _) {
+                                if (!dragging) return const SizedBox.shrink();
+                                return _buildFeedbackOverlay();
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -171,65 +167,63 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
     );
   }
 
-  /// Build feedback overlay with LIKE/NOPE/SUPER LIKE labels
   Widget _buildFeedbackOverlay() {
     return AnimatedBuilder(
       animation: _opacityAnimation,
       builder: (context, child) {
         return Opacity(
           opacity: _opacityAnimation.value,
-          child: Stack(
-            children: [
-              // LIKE label (right side)
-              if (_currentDirection == SwipeDirection.right)
-                Positioned(
-                  left: 20,
-                  top: 0,
-                  child: Center(
-                    child: _buildFeedbackLabel(
-                      text: 'LIKE',
-                      color: Colors.green,
-                      icon: Icons.favorite,
+          child: ValueListenableBuilder<SwipeDirection?>(
+            valueListenable: _currentDirection,
+            builder: (context, direction, _) {
+              return Stack(
+                children: [
+                  if (direction == SwipeDirection.right)
+                    Positioned(
+                      left: 20,
+                      top: 0,
+                      child: Center(
+                        child: _buildFeedbackLabel(
+                          text: 'LIKE',
+                          color: Colors.green,
+                          icon: Icons.favorite,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-
-              // NOPE label (left side)
-              if (_currentDirection == SwipeDirection.left)
-                Positioned(
-                  right: 20,
-                  top: 0,
-                  child: Center(
-                    child: _buildFeedbackLabel(
-                      text: 'NOPE',
-                      color: Colors.red,
-                      icon: Icons.close,
+                  if (direction == SwipeDirection.left)
+                    Positioned(
+                      right: 20,
+                      top: 0,
+                      child: Center(
+                        child: _buildFeedbackLabel(
+                          text: 'NOPE',
+                          color: Colors.red,
+                          icon: Icons.close,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-
-              // Swipe up label (top) — e.g. SUPER LIKE or MESSAGE
-              if (_currentDirection == SwipeDirection.up)
-                Positioned(
-                  top: 20,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: _buildFeedbackLabel(
-                      text: widget.swipeUpLabelText ?? 'SUPER LIKE',
-                      color: widget.swipeUpColor ?? Colors.blue,
-                      icon: widget.swipeUpIcon ?? Icons.star,
+                  if (direction == SwipeDirection.up)
+                    Positioned(
+                      top: 20,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: _buildFeedbackLabel(
+                          text: widget.swipeUpLabelText ?? 'SUPER LIKE',
+                          color: widget.swipeUpColor ?? Colors.blue,
+                          icon: widget.swipeUpIcon ?? Icons.star,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-            ],
+                ],
+              );
+            },
           ),
         );
       },
     );
   }
 
-  /// Build individual feedback label
   Widget _buildFeedbackLabel({
     required String text,
     required Color color,
@@ -268,52 +262,38 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
     );
   }
 
-  /// Handle pan start
   void _onPanStart(DragStartDetails details) {
-    _isDragging = true;
+    _isDragging.value = true;
     _hasTriggeredHaptic = false;
-    _currentDirection = null;
+    _currentDirection.value = null;
 
-    // Reset animations
     _positionController.reset();
     _rotationController.reset();
     _opacityController.reset();
   }
 
-  /// Handle pan update with real-time feedback
   void _onPanUpdate(DragUpdateDetails details) {
-    setState(() {
-      _dragX += details.delta.dx;
-      _dragY += details.delta.dy;
+    _dragOffset.value = Offset(
+      _dragOffset.value.dx + details.delta.dx,
+      _dragOffset.value.dy + details.delta.dy,
+    );
 
-      // Calculate velocity
-      _velocityX = details.delta.dx;
-      _velocityY = details.delta.dy;
+    _velocityX = details.delta.dx;
+    _velocityY = details.delta.dy;
 
-      // Determine swipe direction and update feedback
-      _updateSwipeDirection();
-
-      // Update rotation based on horizontal drag
-      _updateRotation();
-
-      // Update opacity based on drag distance
-      _updateOpacity();
-
-      // Trigger haptic feedback when crossing threshold
-      _checkHapticFeedback();
-    });
+    _updateSwipeDirection();
+    _updateRotation();
+    _updateOpacity();
+    _checkHapticFeedback();
   }
 
-  /// Handle pan end with swipe decision
   void _onPanEnd(DragEndDetails details) {
-    _isDragging = false;
+    _isDragging.value = false;
 
-    // Calculate final velocity
     final velocity = details.velocity.pixelsPerSecond;
     _velocityX = velocity.dx;
     _velocityY = velocity.dy;
 
-    // Determine final swipe action
     final swipeAction = _determineSwipeAction();
 
     if (swipeAction != null) {
@@ -323,66 +303,61 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
     }
   }
 
-  /// Update swipe direction based on current drag position
   void _updateSwipeDirection() {
-    final absX = _dragX.abs();
-    final absY = _dragY.abs();
+    final dx = _dragOffset.value.dx;
+    final dy = _dragOffset.value.dy;
+    final absX = dx.abs();
+    final absY = dy.abs();
 
     if (absX > absY) {
-      // Horizontal swipe
-      if (_dragX > 0) {
-        _currentDirection = SwipeDirection.right;
-      } else {
-        _currentDirection = SwipeDirection.left;
-      }
-    } else if (_dragY < 0 && absY > 50) {
-      // Vertical swipe up
-      _currentDirection = SwipeDirection.up;
+      _currentDirection.value =
+          dx > 0 ? SwipeDirection.right : SwipeDirection.left;
+    } else if (dy < 0 && absY > 50) {
+      _currentDirection.value = SwipeDirection.up;
     } else {
-      _currentDirection = null;
+      _currentDirection.value = null;
     }
   }
 
-  /// Update rotation based on horizontal drag
   void _updateRotation() {
-    final rotationAngle =
-        _dragX / 20; // Adjust divisor for rotation sensitivity
+    final rotationAngle = _dragOffset.value.dx / 20;
     _rotationController.value = rotationAngle.clamp(-0.3, 0.3);
   }
 
-  /// Update opacity based on drag distance
   void _updateOpacity() {
     final maxDistance = widget.swipeThreshold;
-    final currentDistance = sqrt(_dragX * _dragX + _dragY * _dragY);
+    final dx = _dragOffset.value.dx;
+    final dy = _dragOffset.value.dy;
+    final currentDistance = sqrt(dx * dx + dy * dy);
     final opacity = (currentDistance / maxDistance).clamp(0.0, 1.0);
     _opacityController.value = opacity;
   }
 
-  /// Check and trigger haptic feedback
   void _checkHapticFeedback() {
     if (_hasTriggeredHaptic) return;
 
-    final distance = sqrt(_dragX * _dragX + _dragY * _dragY);
+    final dx = _dragOffset.value.dx;
+    final dy = _dragOffset.value.dy;
+    final distance = sqrt(dx * dx + dy * dy);
     if (distance > widget.swipeThreshold * 0.7) {
       HapticFeedback.mediumImpact();
       _hasTriggeredHaptic = true;
     }
   }
 
-  /// Determine final swipe action based on position and velocity
   SwipeDirection? _determineSwipeAction() {
-    final absX = _dragX.abs();
+    final dx = _dragOffset.value.dx;
+    final dy = _dragOffset.value.dy;
+    final absX = dx.abs();
     final absVelocityX = _velocityX.abs();
     final absVelocityY = _velocityY.abs();
 
-    // Check horizontal swipes
     if (absX > widget.swipeThreshold ||
         absVelocityX > widget.velocityThreshold) {
-      return _dragX > 0 ? SwipeDirection.right : SwipeDirection.left;
+      return dx > 0 ? SwipeDirection.right : SwipeDirection.left;
     }
 
-    // Check vertical swipe up
-    if (_dragY < -widget.swipeThreshold ||
+    if (dy < -widget.swipeThreshold ||
         absVelocityY > widget.velocityThreshold) {
       return SwipeDirection.up;
     }
@@ -390,24 +365,24 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
     return null;
   }
 
-  /// Execute the determined swipe action
   void _executeSwipeAction(SwipeDirection direction) {
-    final screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery.sizeOf(context);
+    final dx = _dragOffset.value.dx;
+    final dy = _dragOffset.value.dy;
     Offset targetPosition;
 
     switch (direction) {
       case SwipeDirection.left:
-        targetPosition = Offset(-screenSize.width * 1.5, _dragY);
+        targetPosition = Offset(-screenSize.width * 1.5, dy);
         break;
       case SwipeDirection.right:
-        targetPosition = Offset(screenSize.width * 1.5, _dragY);
+        targetPosition = Offset(screenSize.width * 1.5, dy);
         break;
       case SwipeDirection.up:
-        targetPosition = Offset(_dragX, -screenSize.height * 1.5);
+        targetPosition = Offset(dx, -screenSize.height * 1.5);
         break;
     }
 
-    // Animate to target position
     _positionAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: targetPosition,
@@ -417,7 +392,6 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
     ));
 
     _positionController.forward().then((_) {
-      // Trigger callback
       switch (direction) {
         case SwipeDirection.left:
           widget.onSwipeLeft?.call();
@@ -432,18 +406,17 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
     });
   }
 
-  /// Snap card back to center
   void _snapBackToCenter() {
-    // Reset position animation
+    final oldOffset = _dragOffset.value;
+
     _positionAnimation = Tween<Offset>(
-      begin: Offset(_dragX, _dragY),
+      begin: oldOffset,
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _positionController,
       curve: Curves.elasticOut,
     ));
 
-    // Reset rotation animation
     _rotationAnimation = Tween<double>(
       begin: _rotationController.value,
       end: 0.0,
@@ -452,7 +425,6 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
       curve: Curves.elasticOut,
     ));
 
-    // Reset opacity animation
     _opacityAnimation = Tween<double>(
       begin: _opacityController.value,
       end: 0.0,
@@ -461,34 +433,19 @@ class _EnhancedSwipeCardState extends State<EnhancedSwipeCard>
       curve: Curves.easeOut,
     ));
 
-    // Start animations
     _positionController.forward();
     _rotationController.forward();
     _opacityController.forward();
 
-    // Reset drag values
-    setState(() {
-      _dragX = 0.0;
-      _dragY = 0.0;
-      _currentDirection = null;
-    });
+    _dragOffset.value = Offset.zero;
+    _currentDirection.value = null;
   }
 
-  /// Programmatic swipe methods
-  void swipeLeft() {
-    _executeSwipeAction(SwipeDirection.left);
-  }
-
-  void swipeRight() {
-    _executeSwipeAction(SwipeDirection.right);
-  }
-
-  void swipeUp() {
-    _executeSwipeAction(SwipeDirection.up);
-  }
+  void swipeLeft() => _executeSwipeAction(SwipeDirection.left);
+  void swipeRight() => _executeSwipeAction(SwipeDirection.right);
+  void swipeUp() => _executeSwipeAction(SwipeDirection.up);
 }
 
-/// Swipe direction enum
 enum SwipeDirection {
   left,
   right,

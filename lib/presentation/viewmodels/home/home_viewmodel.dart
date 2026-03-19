@@ -137,21 +137,27 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
   }
 
   /// Called when returning from central location screen (or on resume). Retry API; user model may now have location.
+  /// Called when app resumes (e.g. from background). Refetch discovery so swiped
+  /// users don't reappear (BUG-019) and list stays in sync with server.
   Future<void> retryIfNeeded() async {
     if (!mounted) return;
     if (state.locationStatus != LocationStatus.ready) {
       await loadUsers();
       return;
     }
-    if (state.data == null || state.data!.isEmpty) {
-      await loadUsers();
-    }
+    // Always refetch on resume so discovery list matches server (no stale swiped cards)
+    await loadUsers();
   }
 
   /// Refresh — reset and reload.
   Future<void> refresh() async {
     state = HomeState.initial();
     await loadUsers();
+  }
+
+  /// BUG-018: Call when app resumes; if caller determined location is now denied, show re-enable prompt.
+  void setLocationDenied({bool permanentlyDenied = false}) {
+    state = HomeState.locationNeeded(permanentlyDenied);
   }
 
   Future<void> loadMoreUsers() async {

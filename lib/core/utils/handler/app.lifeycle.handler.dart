@@ -1,3 +1,4 @@
+import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:flutter/widgets.dart';
  
 import 'package:metal/core/services/shorebird_update_service.dart';
@@ -41,6 +42,9 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         _lastResumedTime = now;
         
+        // Clear native app icon badge when user opens the app
+        _clearAppIconBadge();
+        
         // Check for Shorebird updates when app resumes
         _checkForShorebirdUpdates();
   
@@ -68,6 +72,15 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
         // That's why we rely on RTDB .onDisconnect() as the primary mechanism
        
         break;
+    }
+  }
+
+  /// Clear the native app icon badge count (iOS & Android launchers)
+  void _clearAppIconBadge() {
+    try {
+      AppBadgePlus.updateBadge(0);
+    } catch (e) {
+      // Badge clearing is best-effort; don't block the app
     }
   }
 

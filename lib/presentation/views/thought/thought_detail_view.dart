@@ -829,6 +829,8 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
 
         if (mounted) {
           if (result.isSuccess) {
+            final id = _thought!.id;
+            ref.read(thoughtFeedViewModelProvider.notifier).removeThought(id);
             Fluttertoast.showToast(msg: 'Thought deleted successfully');
             Navigator.of(context).pop(); // Go back to previous screen
           } else {
@@ -877,11 +879,12 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
     if (!mounted) return;
     if (result is! ThoughtDto) return;
 
+    ref.read(thoughtFeedViewModelProvider.notifier).updateThought(result);
+
     setState(() {
       _thought = result;
     });
-
-    Fluttertoast.showToast(msg: 'Thought updated successfully!');
+    // Toast already shown by CreateThoughtScreen when saving.
   }
 
   Future<void> _handleReportThought() async {

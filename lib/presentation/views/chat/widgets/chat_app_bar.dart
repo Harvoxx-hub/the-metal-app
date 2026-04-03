@@ -208,7 +208,7 @@ class ChatAppBar extends ConsumerWidget {
   bool _isActuallyOnline(ChatUserDto user, String locale) {
     final status = getAccurateOnlineStatus(
       isOnline: user.isOnline,
-      showOnline: true,
+      showOnline: user.showOnline ?? true,
       lastActive: user.lastActive,
       locale: locale,
     );
@@ -219,7 +219,7 @@ class ChatAppBar extends ConsumerWidget {
   String _onlineStatusText(ChatUserDto user, String locale) {
     final status = getAccurateOnlineStatus(
       isOnline: user.isOnline,
-      showOnline: true,
+      showOnline: user.showOnline ?? true,
       lastActive: user.lastActive,
       locale: locale,
     );

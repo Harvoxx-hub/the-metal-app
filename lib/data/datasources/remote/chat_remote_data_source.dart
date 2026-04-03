@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/network/dio_client.dart';
+import 'package:metal/data/models/chat_assistant_model.dart';
 import 'package:metal/data/models/message_model.dart';
 
 /// Remote data source for chat operations
@@ -351,6 +352,35 @@ class ChatRemoteDataSource {
     }
 
     throw Exception(response.data?['error'] ?? 'Failed to update message');
+  }
+
+  // ============ Chat Assistant Methods ============
+
+  /// Get AI-generated chat suggestions from DeepSeek
+  Future<ChatAssistantResponseModel> getChatSuggestions({
+    required String connectionId,
+    required String mode,
+    required String tone,
+    String? interactiveKind,
+  }) async {
+    final response = await _client.post(
+      ApiRoutes.buildPath(ApiRoutes.chatAssistantSuggestions),
+      data: {
+        'connectionId': connectionId,
+        'mode': mode,
+        'tone': tone,
+        if (interactiveKind != null) 'interactiveKind': interactiveKind,
+      },
+    );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final data =
+          response.data['data'] as Map<String, dynamic>? ?? response.data;
+      return ChatAssistantResponseModel.fromJson(data);
+    }
+
+    throw Exception(
+        response.data?['error'] ?? 'Failed to get chat suggestions');
   }
 
   // ============ Unmelt Methods ============

@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/services/chat_assistant_analytics.dart';
+import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/domain/entities/message_dto.dart';
+import 'package:metal/presentation/viewmodels/chat/chat_assistant_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_window_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
@@ -11,6 +14,7 @@ import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/chat/widgets/chat_app_bar.dart';
 import 'package:metal/presentation/views/chat/widgets/chat_input.dart';
 import 'package:metal/presentation/views/chat/widgets/chat_message_list.dart';
+import 'package:metal/presentation/views/chat/widgets/chat_suggestion_bar.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
@@ -29,6 +33,7 @@ class ChatWindowView extends ConsumerStatefulWidget {
 
 class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _chatTextController = TextEditingController();
 
   @override
   void initState() {
@@ -45,6 +50,7 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _chatTextController.dispose();
     super.dispose();
   }
 
@@ -146,6 +152,18 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
         chatState.messages.isEmpty;
     final canSend = !pendingReceiverNoMessages;
 
+    final assistantEnabled = canSend &&
+        FirebaseRemoteConfigService().isChatAssistantEnabled();
+
+    // Feed messages into the chat assistant notifier
+    if (assistantEnabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref
+            .read(chatAssistantProvider(widget.connectionId).notifier)
+            .onMessagesChanged(chatState.messages, currentUser?.id);
+      });
+    }
+
     return Column(
       children: [
         const Gap(20),
@@ -160,12 +178,35 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
         Expanded(
           child: _buildMessagesList(chatState, currentUser?.id ?? ''),
         ),
-        // Input (no gap/padding between messages and input)
+        // AI suggestion bar (only when user can send and feature is enabled)
+        if (assistantEnabled)
+          ChatSuggestionBar(
+            connectionId: widget.connectionId,
+            onSuggestionTapped: (suggestion) {
+              _chatTextController.text = suggestion;
+              _chatTextController.selection = TextSelection.fromPosition(
+                TextPosition(offset: suggestion.length),
+              );
+              ChatAssistantAnalytics.logSuggestionTapped(
+                mode: ref
+                    .read(chatAssistantProvider(widget.connectionId))
+                    .mode
+                    .apiValue,
+                index: ref
+                    .read(chatAssistantProvider(widget.connectionId))
+                    .suggestions
+                    .indexOf(suggestion),
+              );
+            },
+          ),
+        if (assistantEnabled) const Gap(4),
+        // Input
         ChatInput(
           connectionId: widget.connectionId,
           canSend: canSend,
           connection: connection,
           onMessageSent: _scrollToBottom,
+          textController: _chatTextController,
         ),
       ],
     );

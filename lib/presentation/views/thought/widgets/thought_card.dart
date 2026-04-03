@@ -62,6 +62,21 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     }
   }
 
+  @override
+  void didUpdateWidget(ThoughtCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (identical(widget.thoughtModel, thoughtModel)) return;
+    thoughtModel = widget.thoughtModel;
+    if (thoughtModel.type == 'repost' &&
+        thoughtModel.originalThoughtId != null) {
+      final oldOid = oldWidget.thoughtModel.originalThoughtId;
+      final newOid = thoughtModel.originalThoughtId;
+      if (oldOid != newOid) {
+        loadRepost(newOid!);
+      }
+    }
+  }
+
   loadRepost(String originalId) async {
     setState(() {
       isLoadingRepost = true;

@@ -10,7 +10,9 @@ import '../../res/colors/cr_colors.dart';
 class PhoneInput extends StatelessWidget {
   final String floatingLabel;
   final TextEditingController phoneController;
-  final void Function(String)? onPhoneNumberChanged;
+  final void Function(String completeNumber)? onPhoneNumberChanged;
+  /// Called with the full [PhoneNumber] from the picker (country + national digits).
+  final void Function(PhoneNumber phone)? onIntlPhoneChanged;
   final FutureOr<String?>? Function(PhoneNumber?)? validator;
 
   const PhoneInput({
@@ -18,6 +20,7 @@ class PhoneInput extends StatelessWidget {
     required this.phoneController,
     this.floatingLabel = "Phone number",
     this.onPhoneNumberChanged,
+    this.onIntlPhoneChanged,
     this.validator,
   });
 
@@ -89,8 +92,11 @@ class PhoneInput extends StatelessWidget {
               ),
             ),
           ),
-          onChanged: onPhoneNumberChanged != null
-              ? (phone) => onPhoneNumberChanged!(phone.completeNumber)
+          onChanged: (onPhoneNumberChanged != null || onIntlPhoneChanged != null)
+              ? (phone) {
+                  onIntlPhoneChanged?.call(phone);
+                  onPhoneNumberChanged?.call(phone.completeNumber);
+                }
               : null,
           validator: validator,
         ),

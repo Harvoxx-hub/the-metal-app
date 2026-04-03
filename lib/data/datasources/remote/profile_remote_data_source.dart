@@ -240,7 +240,8 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
 
       throw Exception('Invalid response format');
     } on DioException catch (e) {
-      throw Exception('Delete account failed: ${e.message}');
+      // Rethrow so ErrorHandler can extract backend message (e.g. "Invalid password")
+      rethrow;
     }
   }
 

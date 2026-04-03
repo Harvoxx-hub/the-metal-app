@@ -8,7 +8,6 @@ import 'package:metal/presentation/views/meetup/discover_meetups_view.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_feed_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
 import 'package:metal/presentation/viewmodels/meetup/meetup_viewmodel.dart';
-import 'package:metal/domain/entities/thought_dto.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/shimmer/feed_shimmer_widget.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
@@ -81,12 +80,7 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
       case 0: // Thoughts tab
         return FloatingActionButton(
           backgroundColor: AppColors.metalPinkColour,
-          onPressed: () => Navigator.pushNamed(context, AppRoutes.postThought)
-              .then((result) {
-            if (result is ThoughtDto) {
-              ref.read(thoughtFeedViewModelProvider.notifier).addThought(result);
-            }
-          }),
+          onPressed: () => Navigator.pushNamed(context, AppRoutes.postThought),
           child: const Icon(Icons.add, color: Colors.white),
         );
       case 1: // Community tab
@@ -252,6 +246,7 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
             padding:
                 const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 16),
             child: ThoughtCard(
+              key: ValueKey(thought.id),
               thoughtModel: thought,
             ),
           );

@@ -3,6 +3,12 @@ import 'package:metal/data/repositories/community/community_repository.dart';
 import 'package:metal/domain/entities/community_dto.dart';
 import 'package:metal/domain/entities/thought_dto.dart';
 
+/// On success, [data] holds the API payload (`deleted` may be true). On failure, [error] is the message.
+typedef LeaveCommunityOutcome = ({
+  Map<String, dynamic>? data,
+  String? error,
+});
+
 class CommunityDetailState {
   final bool isLoading;
   final bool isError;
@@ -88,78 +94,70 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
     }
   }
 
-  Future<void> joinCommunity(String communityId) async {
-    if (state.isJoining) return;
+  /// Returns an error message if join failed; `null` on success.
+  Future<String?> joinCommunity(String communityId) async {
+    if (state.isJoining) return null;
 
     state = state.copyWith(isJoining: true);
 
     final result = await _repository.joinCommunity(communityId);
 
-    if (mounted) {
-      if (result.isSuccess) {
-        // Optimistically update local state
-        final updatedCommunity = state.community?.copyWith(
-          isJoined: true,
-          memberCount: (state.community?.memberCount ?? 0) + 1,
-        );
-        state = state.copyWith(
-          isJoining: false,
-          community: updatedCommunity,
-        );
+    if (!mounted) return null;
 
-        // Reload from backend to get fresh state (including correct isJoined status)
-        await loadCommunityDetails(communityId);
-      } else {
-        state = state.copyWith(
-          isJoining: false,
-          isError: true,
-          errorMessage: result.errorMessage ?? 'Failed to join community',
-        );
-      }
+    if (result.isSuccess) {
+      final updatedCommunity = state.community?.copyWith(
+        isJoined: true,
+        memberCount: (state.community?.memberCount ?? 0) + 1,
+      );
+      state = state.copyWith(
+        isJoining: false,
+        community: updatedCommunity,
+      );
+
+      await loadCommunityDetails(communityId);
+      return null;
     }
+
+    state = state.copyWith(isJoining: false);
+    return result.errorMessage ?? 'Failed to join community';
   }
 
-  Future<Map<String, dynamic>?> leaveCommunity(String communityId) async {
-    if (state.isLeaving) return null;
+  Future<LeaveCommunityOutcome> leaveCommunity(String communityId) async {
+    if (state.isLeaving) return (data: null, error: null);
 
     state = state.copyWith(isLeaving: true);
 
     final result = await _repository.leaveCommunity(communityId);
 
-    if (mounted) {
-      if (result.isSuccess && result.data != null) {
-        final responseData = result.data!;
-        final wasDeleted = responseData['deleted'] == true;
+    if (!mounted) return (data: null, error: null);
 
-        if (wasDeleted) {
-          // Community was deleted - return the response data
-          state = state.copyWith(isLeaving: false);
-          return responseData;
-        } else {
-          // Regular leave - update local state
-          final updatedCommunity = state.community?.copyWith(
-            isJoined: false,
-            memberCount: (state.community?.memberCount ?? 0) - 1,
-          );
-          state = state.copyWith(
-            isLeaving: false,
-            community: updatedCommunity,
-          );
+    if (result.isSuccess && result.data != null) {
+      final responseData = result.data!;
+      final wasDeleted = responseData['deleted'] == true;
 
-          // Reload from backend to get fresh state
-          await loadCommunityDetails(communityId);
-          return responseData;
-        }
-      } else {
-        state = state.copyWith(
-          isLeaving: false,
-          isError: true,
-          errorMessage: result.errorMessage ?? 'Failed to leave community',
-        );
-        return null;
+      if (wasDeleted) {
+        state = state.copyWith(isLeaving: false);
+        return (data: responseData, error: null);
       }
+
+      final updatedCommunity = state.community?.copyWith(
+        isJoined: false,
+        memberCount: (state.community?.memberCount ?? 0) - 1,
+      );
+      state = state.copyWith(
+        isLeaving: false,
+        community: updatedCommunity,
+      );
+
+      await loadCommunityDetails(communityId);
+      return (data: responseData, error: null);
     }
-    return null;
+
+    state = state.copyWith(isLeaving: false);
+    return (
+      data: null,
+      error: result.errorMessage ?? 'Failed to leave community',
+    );
   }
 
   /// Load all community members (no pagination).

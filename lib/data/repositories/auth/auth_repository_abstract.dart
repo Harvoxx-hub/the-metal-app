@@ -15,7 +15,8 @@ abstract class AuthRepositoryAbstract extends BaseRepository {
   Future<BaseState<LoginResponseDto>> signup({
     required String email,
     required String password,
-    required String phoneNumber,
+    required String phoneNationalNumber,
+    required String phoneCountryIso2,
     String? referralCode,
     String? fcmToken,
   });

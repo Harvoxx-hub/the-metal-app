@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/websocket_provider.dart';
+import 'package:metal/data/repositories/chat/chat_repository_providers.dart';
 import 'package:metal/domain/usecases/chat/chat_usecase_providers.dart';
 import 'package:metal/domain/usecases/chat/connection_usecase.dart';
+import 'package:metal/presentation/viewmodels/chat/chat_assistant_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_list_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_window_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
@@ -65,6 +67,20 @@ final chatWindowViewModelProvider = StateNotifierProvider.autoDispose
 
 /// Provider for reply state in chat window
 final chatReplyProvider = StateProvider.autoDispose<dynamic>((ref) => null);
+
+// ============ Chat Assistant ============
+
+/// Provider for ChatAssistantNotifier — one instance per connectionId
+final chatAssistantProvider = StateNotifierProvider.autoDispose
+    .family<ChatAssistantNotifier, ChatAssistantState, String>(
+        (ref, connectionId) {
+  final repository = ref.watch(chatRepositoryProvider);
+
+  return ChatAssistantNotifier(
+    repository: repository,
+    connectionId: connectionId,
+  );
+});
 
 // ============ Connection Detail ============
 

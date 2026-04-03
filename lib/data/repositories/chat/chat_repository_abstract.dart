@@ -1,4 +1,5 @@
 import 'package:metal/core/state/base.state.dart';
+import 'package:metal/data/models/chat_assistant_model.dart';
 import 'package:metal/domain/entities/message_dto.dart';
 
 /// Abstract repository interface for chat operations
@@ -68,6 +69,16 @@ abstract class ChatRepositoryAbstract {
   Future<BaseState<MessageDto>> updateMessage({
     required String messageId,
     required Map<String, dynamic> data,
+  });
+
+  // ============ Chat Assistant Methods ============
+
+  /// Get AI-generated chat suggestions
+  Future<BaseState<ChatAssistantResponseModel>> getChatSuggestions({
+    required String connectionId,
+    required String mode,
+    required String tone,
+    String? interactiveKind,
   });
 
   // ============ Unmelt Methods ============

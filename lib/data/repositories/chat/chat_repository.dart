@@ -1,6 +1,7 @@
 import 'package:metal/core/error_handling/error_handler.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/data/datasources/remote/chat_remote_data_source.dart';
+import 'package:metal/data/models/chat_assistant_model.dart';
 import 'package:metal/data/models/message_model.dart';
 import 'package:metal/data/repositories/chat/chat_repository_abstract.dart';
 import 'package:metal/domain/entities/message_dto.dart';
@@ -194,6 +195,28 @@ class ChatRepository implements ChatRepositoryAbstract {
       return BaseState.success(response.toDomain());
     } catch (e) {
       return ErrorHandler.handleError<MessageDto>(e);
+    }
+  }
+
+  // ============ Chat Assistant Methods ============
+
+  @override
+  Future<BaseState<ChatAssistantResponseModel>> getChatSuggestions({
+    required String connectionId,
+    required String mode,
+    required String tone,
+    String? interactiveKind,
+  }) async {
+    try {
+      final response = await _remoteDataSource.getChatSuggestions(
+        connectionId: connectionId,
+        mode: mode,
+        tone: tone,
+        interactiveKind: interactiveKind,
+      );
+      return BaseState.success(response);
+    } catch (e) {
+      return ErrorHandler.handleError<ChatAssistantResponseModel>(e);
     }
   }
 

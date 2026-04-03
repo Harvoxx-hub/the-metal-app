@@ -23,6 +23,7 @@ class ChatInput extends ConsumerStatefulWidget {
   final bool canSend;
   final ChatConnectionDto connection;
   final VoidCallback? onMessageSent;
+  final TextEditingController? textController;
 
   const ChatInput({
     super.key,
@@ -30,6 +31,7 @@ class ChatInput extends ConsumerStatefulWidget {
     required this.canSend,
     required this.connection,
     this.onMessageSent,
+    this.textController,
   });
 
   @override
@@ -37,16 +39,31 @@ class ChatInput extends ConsumerStatefulWidget {
 }
 
 class _ChatInputState extends ConsumerState<ChatInput> {
-  final TextEditingController _controller = TextEditingController();
+  late final TextEditingController _controller;
   final FocusNode _focusNode = FocusNode();
   final ValueNotifier<bool> _isComposing = ValueNotifier(false);
   bool _isRecording = false;
   bool _isUploadingAudio = false;
   bool _isMelting = false;
+  bool _ownsController = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.textController != null) {
+      _controller = widget.textController!;
+    } else {
+      _controller = TextEditingController();
+      _ownsController = true;
+    }
+    _controller.addListener(() {
+      _isComposing.value = _controller.text.trim().isNotEmpty;
+    });
+  }
 
   @override
   void dispose() {
-    _controller.dispose();
+    if (_ownsController) _controller.dispose();
     _focusNode.dispose();
     _isComposing.dispose();
     super.dispose();

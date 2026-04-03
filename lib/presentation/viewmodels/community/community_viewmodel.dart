@@ -116,10 +116,13 @@ class CommunityViewModel extends StateNotifier<CommunityState> {
     }).toList();
   }
 
-  Future<void> joinCommunity(String communityId) async {
+  /// Returns an error message if join failed; `null` on success.
+  Future<String?> joinCommunity(String communityId) async {
     final result = await _repository.joinCommunity(communityId);
 
-    if (mounted && result.isSuccess) {
+    if (!mounted) return null;
+
+    if (result.isSuccess) {
       final updatedCommunities = state.communities.map((c) {
         if (c.id == communityId) {
           return c.copyWith(isJoined: true, memberCount: c.memberCount + 1);
@@ -138,18 +141,23 @@ class CommunityViewModel extends StateNotifier<CommunityState> {
         communities: updatedCommunities,
         filteredCommunities: updatedFiltered,
       );
+      return null;
     }
+
+    return result.errorMessage ?? 'Failed to join community';
   }
 
-  Future<void> leaveCommunity(String communityId) async {
+  /// Returns an error message if leave failed; `null` on success.
+  Future<String?> leaveCommunity(String communityId) async {
     final result = await _repository.leaveCommunity(communityId);
 
-    if (mounted && result.isSuccess) {
+    if (!mounted) return null;
+
+    if (result.isSuccess) {
       final responseData = result.data;
       final wasDeleted = responseData?['deleted'] == true;
 
       if (wasDeleted) {
-        // Community was deleted - remove it from the list
         final updatedCommunities =
             state.communities.where((c) => c.id != communityId).toList();
 
@@ -162,7 +170,6 @@ class CommunityViewModel extends StateNotifier<CommunityState> {
           filteredCommunities: updatedFiltered,
         );
       } else {
-        // Regular leave - just update the community status
         final updatedCommunities = state.communities.map((c) {
           if (c.id == communityId) {
             return c.copyWith(isJoined: false, memberCount: c.memberCount - 1);
@@ -182,7 +189,10 @@ class CommunityViewModel extends StateNotifier<CommunityState> {
           filteredCommunities: updatedFiltered,
         );
       }
+      return null;
     }
+
+    return result.errorMessage ?? 'Failed to leave community';
   }
 
   Future<bool> createCommunity(CreateCommunityDto request) async {

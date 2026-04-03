@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/thought_dto.dart';
 import 'package:metal/presentation/viewmodels/community/community_detail_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/thought/create_thought_viewmodel.dart';
+import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/text_views.dart';
@@ -344,6 +345,8 @@ class _CreateThoughtScreenState extends ConsumerState<CreateThoughtScreen> {
             .read(communityDetailViewModelProvider(communityId).notifier)
             .replacePost(optimisticId, thought);
       }
+      // Add to main thought feed so it appears immediately without reload
+      ref.read(thoughtFeedViewModelProvider.notifier).addThought(thought);
       _clearAndPop();
       Navigator.pop(context, thought);
       Fluttertoast.showToast(msg: 'Thought posted successfully!');

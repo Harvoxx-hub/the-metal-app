@@ -47,7 +47,8 @@ class AuthRemoteDataSource extends BaseRemoteDataSource {
   Future<Map<String, dynamic>> signup({
     required String email,
     required String password,
-    required String phoneNumber,
+    required String phoneNationalNumber,
+    required String phoneCountryIso2,
     String? referralCode,
     String? fcmToken,
   }) async {
@@ -57,7 +58,8 @@ class AuthRemoteDataSource extends BaseRemoteDataSource {
         data: {
           'email': email,
           'password': password,
-          'phoneNumber': phoneNumber,
+          'phoneNationalNumber': phoneNationalNumber,
+          'phoneCountryIso2': phoneCountryIso2,
           if (referralCode != null) 'referralCode': referralCode,
           if (fcmToken != null) 'fcmToken': fcmToken,
         },

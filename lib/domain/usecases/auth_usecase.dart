@@ -18,14 +18,18 @@ class LoginParams {
 class SignupParams {
   final String email;
   final String password;
-  final String phoneNumber;
+  /// National significant digits only (no country calling code).
+  final String phoneNationalNumber;
+  /// ISO 3166-1 alpha-2, e.g. US, NG.
+  final String phoneCountryIso2;
   final String? referralCode;
   final String? fcmToken;
 
   SignupParams({
     required this.email,
     required this.password,
-    required this.phoneNumber,
+    required this.phoneNationalNumber,
+    required this.phoneCountryIso2,
     this.referralCode,
     this.fcmToken,
   });
@@ -57,7 +61,8 @@ class SignupUseCase implements BaseUseCase<LoginResponseDto, SignupParams> {
     return await repository.signup(
       email: params.email,
       password: params.password,
-      phoneNumber: params.phoneNumber,
+      phoneNationalNumber: params.phoneNationalNumber,
+      phoneCountryIso2: params.phoneCountryIso2,
       referralCode: params.referralCode,
       fcmToken: params.fcmToken,
     );

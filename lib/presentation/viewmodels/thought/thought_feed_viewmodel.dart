@@ -90,31 +90,65 @@ class ThoughtFeedState {
 class ThoughtFeedViewModel extends StateNotifier<ThoughtFeedState> {
   final ThoughtRepository _repository;
 
+  /// Monotonic id so in-flight [loadThoughts] responses that finish out of order
+  /// are ignored (only the latest request may apply).
+  int _thoughtsLoadToken = 0;
+
   ThoughtFeedViewModel({
     required ThoughtRepository repository,
   })  : _repository = repository,
         super(ThoughtFeedState.initial());
 
-  /// Load thoughts
-  Future<void> loadThoughts() async {
+  /// Merges [server] with any [current] items not present on the server yet.
+  /// Prevents a stale GET (started before a new post) from wiping [addThought] updates.
+  List<ThoughtDto> _mergeServerWithLocalPreservingOptimistic(
+    List<ThoughtDto> server,
+    List<ThoughtDto> current,
+  ) {
+    final serverIds = server.map((t) => t.id).toSet();
+    final localOnly = <ThoughtDto>[];
+    for (final t in current) {
+      if (!serverIds.contains(t.id)) {
+        localOnly.add(t);
+      }
+    }
+    return [...localOnly, ...server];
+  }
+
+  /// Load first page of thoughts.
+  ///
+  /// [replaceAll]: when true (e.g. pull-to-refresh), trust the server list only.
+  /// When false, prepend any local thoughts not yet returned by the server so
+  /// they are not overwritten by an older in-flight request.
+  Future<void> loadThoughts({bool replaceAll = false}) async {
     if (state.isLoading) return;
 
-    state = ThoughtFeedState.loading();
+    final token = ++_thoughtsLoadToken;
+    final snapshotForLoading = state.thoughts;
+
+    state = replaceAll
+        ? ThoughtFeedState.loading()
+        : ThoughtFeedState.loading(existingThoughts: snapshotForLoading);
 
     final result = await _repository.getThoughts(limit: 20);
 
-    if (mounted) {
-      if (result.isSuccess && result.data != null) {
-        state = ThoughtFeedState.success(
-          result.data!.thoughts,
-          hasMore: result.data!.hasMore,
-          nextCursor: result.data!.nextCursor,
-        );
-      } else {
-        state = ThoughtFeedState.error(
-          result.errorMessage ?? 'Failed to load thoughts',
-        );
-      }
+    if (!mounted || token != _thoughtsLoadToken) return;
+
+    if (result.isSuccess && result.data != null) {
+      final server = result.data!.thoughts;
+      final merged = replaceAll
+          ? server
+          : _mergeServerWithLocalPreservingOptimistic(server, state.thoughts);
+      state = ThoughtFeedState.success(
+        merged,
+        hasMore: result.data!.hasMore,
+        nextCursor: result.data!.nextCursor,
+      );
+    } else {
+      state = ThoughtFeedState.error(
+        result.errorMessage ?? 'Failed to load thoughts',
+        existingThoughts: state.thoughts,
+      );
     }
   }
 
@@ -150,10 +184,10 @@ class ThoughtFeedViewModel extends StateNotifier<ThoughtFeedState> {
     }
   }
 
-  /// Refresh thoughts
+  /// Refresh thoughts (full sync — discard optimistic-only merge behavior)
   Future<void> refresh() async {
     state = ThoughtFeedState.initial();
-    await loadThoughts();
+    await loadThoughts(replaceAll: true);
   }
 
   /// Add a thought to the top of the feed (after creating)

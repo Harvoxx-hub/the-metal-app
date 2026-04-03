@@ -4,12 +4,13 @@ import 'package:gap/gap.dart';
 import 'package:metal/domain/entities/community_dto.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
+import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class CommunityCard extends StatelessWidget {
   final CommunityDto community;
-  final VoidCallback onJoin;
-  final VoidCallback onLeave;
+  final Future<void> Function() onJoin;
+  final Future<void> Function() onLeave;
 
   const CommunityCard({
     super.key,
@@ -213,29 +214,21 @@ class CommunityCard extends StatelessWidget {
                         ],
                       ],
                     ),
-                    const Gap(8),
-                    // GestureDetector(
-                    //   onTap: () {
-                    //     // Handle button tap and prevent parent GestureDetector from firing
+                    // const Gap(8),
+                    // BaseButton(
+                    //   buttonText: community.isJoined ? 'Leave' : 'Join',
+                    //   onPressed: () {
                     //     if (community.isJoined) {
                     //       onLeave();
                     //     } else {
                     //       onJoin();
                     //     }
                     //   },
-                    //   behavior: HitTestBehavior.opaque,
-                    //   child: BaseButton(
-                    //     buttonText: community.isJoined ? 'Leave' : 'Join',
-                    //     onPressed: () {
-                    //       // This will be handled by the GestureDetector above
-                    //     },
-                    //     height: 36,
-                    //     width: double.infinity,
-                    //     radius: 10,
-                    //     fontSize: 13,
-                    //     fontWeight: FontWeight.w600,
-                    //     enabled: true,
-                    //   ),
+                    //   height: 36,
+                    //   width: double.infinity,
+                    //   radius: 10,
+                    //   fontSize: 13,
+                    //   fontWeight: FontWeight.w600,
                     // ),
                   ],
                 ),

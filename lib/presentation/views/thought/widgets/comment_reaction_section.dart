@@ -156,11 +156,18 @@ class _CommentReactionSectionState
         GestureDetector(
           onTap: () {
             if (reactions.isNotEmpty) {
-              showModalBottomSheet(
+              showModalBottomSheet<void>(
                 backgroundColor: Colors.white,
                 context: context,
-                builder: (BuildContext context) =>
-                    _buildReactionList(reactions),
+                isScrollControlled: true,
+                builder: (BuildContext sheetContext) {
+                  final maxHeight =
+                      MediaQuery.sizeOf(sheetContext).height * 0.55;
+                  return SizedBox(
+                    height: maxHeight,
+                    child: _buildReactionList(reactions),
+                  );
+                },
               );
             }
           },
@@ -179,10 +186,31 @@ class _CommentReactionSectionState
     );
   }
 
+  /// ListTile [title] must leave horizontal room for [leading]; keep name on one line.
+  Widget _reactionListTileTitle(String name, String emoji) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextView(
+            text: name,
+            fontSize: 16,
+            maxLines: 1,
+            textOverflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const Gap(5),
+        TextView(
+          text: emoji,
+          fontSize: 16,
+        ),
+      ],
+    );
+  }
+
   Widget _buildReactionList(List<ReactionDto> reactions) {
     return SafeArea(
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -211,10 +239,16 @@ class _CommentReactionSectionState
                       arguments: reaction.userId,
                     );
                   },
-                  leading: ProfilePhoto(
-                    verfly: false,
-                    size: 40,
-                    meltId: reaction.userId,
+                  leading: SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: Center(
+                      child: ProfilePhoto(
+                        verfly: false,
+                        size: 40,
+                        meltId: reaction.userId,
+                      ),
+                    ),
                   ),
                   title: Consumer(
                     builder: (context, ref, child) {
@@ -224,41 +258,21 @@ class _CommentReactionSectionState
                       return userAsync.when(
                         data: (baseState) {
                           if (baseState.isError || baseState.data == null) {
-                            return Row(
-                              children: [
-                                const TextView(text: "User"),
-                                const Gap(5),
-                                TextView(
-                                  text: reaction.emoji,
-                                  fontSize: 16,
-                                ),
-                              ],
+                            return _reactionListTileTitle(
+                              'User',
+                              reaction.emoji,
                             );
                           }
 
-                          return Row(
-                            children: [
-                              TextView(
-                                  text: baseState.data!.username ?? "User"),
-                              const Gap(5),
-                              TextView(
-                                text: reaction.emoji,
-                                fontSize: 16,
-                              ),
-                            ],
+                          return _reactionListTileTitle(
+                            baseState.data!.username ?? 'User',
+                            reaction.emoji,
                           );
                         },
-                        loading: () => const SizedBox.shrink(),
-                        error: (error, stack) => Row(
-                          children: [
-                            const TextView(text: "User"),
-                            const Gap(5),
-                            TextView(
-                              text: reaction.emoji,
-                              fontSize: 16,
-                            ),
-                          ],
-                        ),
+                        loading: () =>
+                            _reactionListTileTitle('…', reaction.emoji),
+                        error: (error, stack) =>
+                            _reactionListTileTitle('User', reaction.emoji),
                       );
                     },
                   ),

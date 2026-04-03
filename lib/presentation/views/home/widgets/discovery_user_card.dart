@@ -97,7 +97,7 @@ class DiscoveryUserCard extends ConsumerWidget {
                   child: _buildLocationBadge(),
                 ),
 
-                if (user.isOnline)
+                if (user.isOnline && (user.showOnline ?? true))
                   Positioned(
                     top: 16,
                     right: 16,

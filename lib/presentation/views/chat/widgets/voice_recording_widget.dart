@@ -5,6 +5,7 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/widgets/audio_player.dart';
 import 'package:metal/widgets/text_views.dart';
 
 /// Voice recording widget with waveform visualization
@@ -26,9 +27,11 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget> {
   late RecorderController _recorderController;
   bool _isPaused = false;
   bool _isInitializing = true;
+  bool _isPreview = false;
   String _recordingTime = '00:00';
   Timer? _timer;
   int _recordingSeconds = 0;
+  String? _recordedPath;
 
   @override
   void initState() {
@@ -106,7 +109,12 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget> {
     _timer?.cancel();
     final path = await _recorderController.stop();
     if (path != null && path.isNotEmpty) {
-      widget.onRecordingComplete(path);
+      if (!mounted) return;
+      setState(() {
+        _recordedPath = path;
+        _isPreview = true;
+        _isPaused = false;
+      });
     } else {
       widget.onCancel();
     }
@@ -125,6 +133,45 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget> {
     widget.onCancel();
   }
 
+  Future<void> _deleteRecordedFile() async {
+    final path = _recordedPath;
+    if (path != null && path.isNotEmpty) {
+      try {
+        final file = File(path);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      } catch (_) {
+        // Best-effort cleanup only
+      }
+    }
+  }
+
+  Future<void> _discardAndClose() async {
+    await _deleteRecordedFile();
+    widget.onCancel();
+  }
+
+  Future<void> _reRecord() async {
+    await _deleteRecordedFile();
+    if (!mounted) return;
+    setState(() {
+      _recordedPath = null;
+      _isPreview = false;
+      _recordingSeconds = 0;
+      _recordingTime = '00:00';
+      _isInitializing = true;
+      _isPaused = false;
+    });
+    await _startRecording();
+  }
+
+  Future<void> _sendRecording() async {
+    final path = _recordedPath;
+    if (path == null || path.isEmpty) return;
+    widget.onRecordingComplete(path);
+  }
+
   String _formatDuration(int seconds) {
     final minutes = seconds ~/ 60;
     final secs = seconds % 60;
@@ -133,6 +180,107 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isPreview) {
+      final path = _recordedPath ?? '';
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            children: [
+              // Discard
+              GestureDetector(
+                onTap: () async {
+                  await _discardAndClose();
+                },
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.delete_outline,
+                    color: Colors.red[400],
+                    size: 24,
+                  ),
+                ),
+              ),
+              const Gap(12),
+              // Preview player (local path)
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.metalPinkColour.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: AudioPlayer.chat(
+                    audioUrl: path,
+                    isMe: true,
+                  ),
+                ),
+              ),
+              const Gap(12),
+              // Re-record
+              GestureDetector(
+                onTap: () async {
+                  await _reRecord();
+                },
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.refresh,
+                    color: AppColors.metalBlack,
+                    size: 22,
+                  ),
+                ),
+              ),
+              const Gap(12),
+              // Send
+              GestureDetector(
+                onTap: _sendRecording,
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: const BoxDecoration(
+                    color: AppColors.metalPinkColour,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Assets.icons.chatsWindowactiveSend.svg(
+                      width: 24,
+                      height: 24,
+                      colorFilter: const ColorFilter.mode(
+                        Colors.white,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     // Show loading while initializing
     if (_isInitializing) {
       return Container(

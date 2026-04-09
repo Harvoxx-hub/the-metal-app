@@ -14,11 +14,15 @@ class VerificationRemoteDataSource extends BaseRemoteDataSource {
   /// Sends verification code to the provided work email
   Future<Map<String, dynamic>> requestWorkEmailVerification({
     required String workEmail,
+    required String company,
   }) async {
     try {
       final response = await dioClient.post(
         ApiRoutes.buildPath(ApiRoutes.workEmailVerification),
-        data: {'workEmail': workEmail},
+        data: {
+          'workEmail': workEmail,
+          'company': company,
+        },
       );
 
       if (response.data is Map<String, dynamic>) {

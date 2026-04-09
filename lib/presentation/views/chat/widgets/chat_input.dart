@@ -144,10 +144,14 @@ class _ChatInputState extends ConsumerState<ChatInput> {
         }
       }
 
-      // Delete local file after upload
-      final file = File(audioPath);
-      if (await file.exists()) {
-        await file.delete();
+      // Delete local file after upload attempt (preview flow keeps it until user taps Send)
+      try {
+        final file = File(audioPath);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      } catch (_) {
+        // Best-effort cleanup only
       }
     } catch (e) {
       print('Error uploading audio: $e');

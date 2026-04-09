@@ -5,6 +5,7 @@ abstract class VerificationRepositoryAbstract {
   /// Request work email verification
   Future<BaseState<bool>> requestWorkEmailVerification({
     required String workEmail,
+    required String company,
   });
 
   /// Verify work email code

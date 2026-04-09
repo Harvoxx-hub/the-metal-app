@@ -25,6 +25,8 @@ class FCMClient {
 
   static final FCMClient instance = FCMClient._();
   static bool _isInit = false;
+  static final Map<String, DateTime> _recentNotificationKeys = <String, DateTime>{};
+  static const Duration _notificationDedupeWindow = Duration(seconds: 60);
   final _fCMLock = Lock();
   final _localNotifications = LocalNotifications();
 
@@ -279,9 +281,13 @@ class FCMClient {
     if (pushType == PushType.new_connection) {
       await _handleMeltNotificationInForeground(payload);
     } else {
-      // BUG-016: Use stable id per message so same message doesn't show twice if handler fires twice
-      final messageId = message.messageId ?? message.hashCode;
-      final id = messageId.hashCode.abs().clamp(1, 0x7FFFFFFF);
+      final dedupeKey = _buildNotificationDedupeKey(message, payload);
+      if (!_markAndAllowNotification(dedupeKey)) {
+        return;
+      }
+
+      // Use stable-ish id so duplicates collapse in notification tray.
+      final id = dedupeKey.hashCode.abs().clamp(1, 0x7FFFFFFF);
       await _localNotifications.show(
         id: id,
         title: message.notification?.title ?? '',
@@ -289,6 +295,55 @@ class FCMClient {
         payload: jsonEncode(payload.toJson()),
       );
     }
+  }
+
+  static String _buildNotificationDedupeKey(
+    RemoteMessage message,
+    NotificationPayloadModel payload,
+  ) {
+    final data = payload.data ?? const <String, dynamic>{};
+    String? _asString(dynamic v) => v == null ? null : v.toString();
+
+    // Prefer explicit identifiers from backend payload if present.
+    final candidateIds = <String?>[
+      _asString(data['messageId']),
+      _asString(data['chatMessageId']),
+      _asString(data['id']),
+      _asString(data['_id']),
+      _asString(data['notificationId']),
+      message.messageId,
+      payload.id,
+    ].whereType<String>().where((s) => s.trim().isNotEmpty).toList();
+
+    if (candidateIds.isNotEmpty) {
+      return 'id:${candidateIds.first}';
+    }
+
+    // Fallback: stable-ish hash from core fields.
+    final type = _asString(data['type']) ?? _asString(data['action']) ?? 'unknown';
+    final connectionId = _asString(data['connectionId']) ??
+        _asString(data['conversationId']) ??
+        _asString(data['chatId']) ??
+        '';
+    final senderId =
+        _asString(data['senderId']) ?? _asString(data['fromUserId']) ?? '';
+    final body = message.notification?.body ?? payload.body ?? '';
+    return 'fallback:$type|$connectionId|$senderId|$body';
+  }
+
+  static bool _markAndAllowNotification(String key) {
+    final now = DateTime.now();
+    // Prune old entries (small map; keep it simple).
+    _recentNotificationKeys.removeWhere(
+      (_, ts) => now.difference(ts) > _notificationDedupeWindow,
+    );
+
+    final last = _recentNotificationKeys[key];
+    if (last != null && now.difference(last) <= _notificationDedupeWindow) {
+      return false;
+    }
+    _recentNotificationKeys[key] = now;
+    return true;
   }
 
   /// Handle tap on notification when the app is open from background state.
@@ -461,6 +516,10 @@ class FCMClient {
   /// Show fallback notification when navigation fails
   Future<void> _showFallbackNotification(
       NotificationPayloadModel payload) async {
+    final dedupeKey = 'melt:${payload.id ?? payload.data?['notificationId'] ?? payload.body ?? ''}';
+    if (!_markAndAllowNotification(dedupeKey)) {
+      return;
+    }
     await _localNotifications.show(
       title: payload.title ?? 'New Connection',
       body: payload.body ?? 'Someone wants to melt metal with you!',

@@ -34,7 +34,11 @@ class ErrorMapper {
       if (responseData.containsKey('error')) {
         final error = responseData['error'];
         if (error is String) {
-          return _mapErrorCodeToMessage(error);
+          // If backend sends a human-readable message, use it as-is.
+          // Otherwise treat it as an error code.
+          final looksLikeSentence =
+              error.contains(' ') || error.contains('.') || error.contains(',');
+          return looksLikeSentence ? error : _mapErrorCodeToMessage(error);
         }
       }
       // Check for 'message' field as fallback

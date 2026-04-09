@@ -21,12 +21,15 @@ class WorkEmailVerificationView extends ConsumerStatefulWidget {
 class _WorkEmailVerificationViewState
     extends ConsumerState<WorkEmailVerificationView> {
   final _emailController = TextEditingController();
+  final _companyController = TextEditingController();
   final _codeController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _companyEdited = false;
 
   @override
   void dispose() {
     _emailController.dispose();
+    _companyController.dispose();
     _codeController.dispose();
     super.dispose();
   }
@@ -68,7 +71,11 @@ class _WorkEmailVerificationViewState
                 textAlign: TextAlign.center,
               ),
               const Gap(32),
-              if (!state.codeSent) _buildEmailInput(),
+              if (!state.codeSent) ...[
+                _buildEmailInput(),
+                const Gap(16),
+                _buildCompanyInput(),
+              ],
               if (state.codeSent && !state.isVerified) _buildCodeInput(),
               if (state.isVerified) _buildSuccessMessage(),
               const Gap(24),
@@ -124,12 +131,58 @@ class _WorkEmailVerificationViewState
             hintText: 'your.name@company.com',
             prefixIcon: Icon(Icons.email_outlined),
           ),
+          onChanged: (value) {
+            if (_companyEdited) return;
+            final inferred = _inferCompanyFromEmail(value.trim());
+            if (inferred == null) return;
+            _companyController.text = inferred;
+          },
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter your work email';
             }
             if (!value.contains('@')) {
               return 'Please enter a valid email';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCompanyInput() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const TextView(
+          text: 'Company / Organization',
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+        const Gap(8),
+        TextFormField(
+          controller: _companyController,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(
+            hintText: 'Harvoxx',
+            prefixIcon: Icon(Icons.business_outlined),
+          ),
+          onChanged: (_) {
+            // If the user types anything (even after an inferred value),
+            // don’t auto-overwrite it from email changes.
+            _companyEdited = true;
+          },
+          validator: (value) {
+            final v = value?.trim() ?? '';
+            if (v.isEmpty) {
+              return 'Please enter your company/organization';
+            }
+            if (v.length < 2) {
+              return 'Company name must be at least 2 characters';
+            }
+            if (v.length > 100) {
+              return 'Company name is too long';
             }
             return null;
           },
@@ -228,6 +281,7 @@ class _WorkEmailVerificationViewState
                       .read(workEmailVerificationViewModelProvider.notifier)
                       .requestVerification(
                         workEmail: _emailController.text.trim(),
+                        company: _companyController.text.trim(),
                       );
                 }
               },
@@ -269,5 +323,24 @@ class _WorkEmailVerificationViewState
         ],
       );
     }
+  }
+
+  String? _inferCompanyFromEmail(String email) {
+    final parts = email.split('@');
+    if (parts.length != 2) return null;
+    final domain = parts[1].trim().toLowerCase();
+    if (domain.isEmpty) return null;
+    final base = domain.split('.').first;
+    if (base.isEmpty) return null;
+    // Convert `my-company` or `my_company` to `My Company`
+    final words = base
+        .split(RegExp(r'[-_]+'))
+        .where((w) => w.trim().isNotEmpty)
+        .map((w) => w.trim())
+        .toList();
+    if (words.isEmpty) return null;
+    return words
+        .map((w) => w[0].toUpperCase() + w.substring(1))
+        .join(' ');
   }
 }

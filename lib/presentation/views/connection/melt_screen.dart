@@ -150,41 +150,79 @@ class _MeltScreenState extends ConsumerState<MeltScreen>
                     opacity: _fadeAnimation,
                     child: ScaleTransition(
                       scale: _scaleAnimation,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isNarrow = constraints.maxWidth < 420;
+                          final circleSize = isNarrow ? 96.0 : 120.0;
+                          final heartSize = isNarrow ? 36.0 : 40.0;
+                          final heartGap =
+                              (constraints.maxWidth * 0.10).clamp(16.0, 80.0);
+
+                          final youLabel =
+                              "You: @${currentUser?.username ?? currentUser?.fullname ?? 'User'}";
+                          final otherLabel =
+                              "@${otherUser?.username ?? otherUser?.fullname ?? 'User'}";
+
+                          if (isNarrow) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildUserCircle(
+                                  user: currentUser,
+                                  label: youLabel,
+                                  isCurrentUser: true,
+                                  size: circleSize,
+                                ),
+                                const Gap(16),
+                                Image.asset(
+                                  Assets.images.meltSpark.path,
+                                  height: heartSize,
+                                  width: heartSize,
+                                ),
+                                const Gap(16),
+                                _buildUserCircle(
+                                  user: otherUser,
+                                  label: otherLabel,
+                                  isCurrentUser: false,
+                                  size: circleSize,
+                                ),
+                              ],
+                            );
+                          }
+
+                          return Stack(
+                            alignment: Alignment.center,
                             children: [
-                              // Current user (You)
-                              _buildUserCircle(
-                                user: currentUser,
-                                label:
-                                    "You: @${currentUser?.username ?? currentUser?.fullname ?? 'User'}",
-                                isCurrentUser: true,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildUserCircle(
+                                    user: currentUser,
+                                    label: youLabel,
+                                    isCurrentUser: true,
+                                    size: circleSize,
+                                  ),
+                                  SizedBox(width: heartGap),
+                                  _buildUserCircle(
+                                    user: otherUser,
+                                    label: otherLabel,
+                                    isCurrentUser: false,
+                                    size: circleSize,
+                                  ),
+                                ],
                               ),
-                              const SizedBox(
-                                  width: 140), // Space for heart icon
-                              // Other user
-                              _buildUserCircle(
-                                user: otherUser,
-                                label:
-                                    "@${otherUser?.username ?? otherUser?.fullname ?? 'User'}",
-                                isCurrentUser: false,
+                              Positioned(
+                                top: (circleSize / 2) - (heartSize / 2),
+                                child: Image.asset(
+                                  Assets.images.meltSpark.path,
+                                  height: heartSize,
+                                  width: heartSize,
+                                ),
                               ),
                             ],
-                          ),
-                          // Heart with lightning icon between users (positioned above)
-                          Positioned(
-                            top: 40,
-                            child: Image.asset(
-                              Assets.images.meltSpark.path,
-                              height: 40,
-                              width: 40,
-                            ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -202,6 +240,7 @@ class _MeltScreenState extends ConsumerState<MeltScreen>
     required dynamic user,
     required String label,
     required bool isCurrentUser,
+    double size = 120,
   }) {
     final metalId = user?.metal ?? 'default';
     // Show profile photo only if connected and not anonymous, otherwise show metal image
@@ -219,8 +258,8 @@ class _MeltScreenState extends ConsumerState<MeltScreen>
           dashPattern: const [5, 5],
           color: AppColors.metalPinkColour.withOpacity(0.3),
           child: Container(
-            width: 120,
-            height: 120,
+            width: size,
+            height: size,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
@@ -239,7 +278,7 @@ class _MeltScreenState extends ConsumerState<MeltScreen>
             ),
             child: ClipOval(
               child: ProfilePhoto(
-                size: 120,
+                size: size,
                 verfly: false,
                 imgUrl: profileUrl,
                 meltId: metalId,

@@ -34,7 +34,8 @@ class _AboutYouViewState extends ConsumerState<AboutYouView> {
   void _onNextPressed() async {
     final stepData = {
       'extraData': {
-        'maritalStatus': _maritalStatus,
+        // Must match [UserExtraDataModel] / API: `marriageStatus`, not `maritalStatus`.
+        'marriageStatus': _maritalStatus,
         'religion': _religion,
         'profession': _profession,
         'language': _language?.join(","),
@@ -111,7 +112,7 @@ class _AboutYouViewState extends ConsumerState<AboutYouView> {
                     ),
                     value: _religion,
                     hint: AppStrings.pleaseSelect,
-                    floatingLabel: AppStrings.religionLabel,
+                    floatingLabel: AppStrings.yourReligionLabel,
                   ),
                   Gap(ProfileSetupConstants.gapMedium),
                   MentalDropdown(

@@ -13,10 +13,15 @@ class VoiceRecordingWidget extends StatefulWidget {
   final Function(String audioPath) onRecordingComplete;
   final VoidCallback onCancel;
 
+  /// When true, finishing a recording calls [onRecordingComplete] immediately
+  /// instead of showing the inline preview row (used for chat preview-before-send).
+  final bool skipInlinePreview;
+
   const VoiceRecordingWidget({
     super.key,
     required this.onRecordingComplete,
     required this.onCancel,
+    this.skipInlinePreview = false,
   });
 
   @override
@@ -110,6 +115,10 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget> {
     final path = await _recorderController.stop();
     if (path != null && path.isNotEmpty) {
       if (!mounted) return;
+      if (widget.skipInlinePreview) {
+        widget.onRecordingComplete(path);
+        return;
+      }
       setState(() {
         _recordedPath = path;
         _isPreview = true;

@@ -205,12 +205,16 @@ class CommunityDetailViewModel extends StateNotifier<CommunityDetailState> {
     await loadCommunityMembers(communityId);
   }
 
-  /// Add a new post to the list (optimistic update)
+  /// Add a new post to the list (optimistic update).
+  ///
+  /// Skips if a post with the same id is already present — e.g. after posting
+  /// from [CreateThoughtScreen], [replacePost] already applied the server
+  /// thought and the route handler must not prepend a duplicate.
   void addPost(ThoughtDto post) {
-    if (mounted) {
-      final updatedPosts = [post, ...state.posts];
-      state = state.copyWith(posts: updatedPosts);
-    }
+    if (!mounted) return;
+    if (state.posts.any((p) => p.id == post.id)) return;
+    final updatedPosts = [post, ...state.posts];
+    state = state.copyWith(posts: updatedPosts);
   }
 
   /// Remove a post from the list (optimistic delete). Returns the removed post for rollback on API failure.

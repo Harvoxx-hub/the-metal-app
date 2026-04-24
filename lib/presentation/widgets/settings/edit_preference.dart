@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/data/models/user_preferences_model.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
@@ -84,7 +85,7 @@ class _EditPreferenceState extends ConsumerState<EditPreference> {
             ),
             const Gap(15),
             const TextView(
-              text: "Let us know what your special preferences are in a person",
+              text: AppStrings.preferencesPartnerFiltersExplainer,
               fontSize: 14,
               fontWeight: FontWeight.w300,
               textAlign: TextAlign.center,
@@ -92,7 +93,7 @@ class _EditPreferenceState extends ConsumerState<EditPreference> {
             const Gap(16),
             CustomCheckWidget(
               boarder: true,
-              title: 'No Special Preference',
+              title: AppStrings.openToAnyonePartnerFilters,
               initialValue: noSpecialPreference,
               onChanged: (bool value) {
                 setState(() {
@@ -110,7 +111,7 @@ class _EditPreferenceState extends ConsumerState<EditPreference> {
             ),
             const Gap(16),
             const TextView(
-              text: "If you have special preferences, please select below.",
+              text: AppStrings.specialPreferencesHint,
               fontSize: 14,
               fontWeight: FontWeight.w300,
             ),
@@ -160,7 +161,7 @@ class _EditPreferenceState extends ConsumerState<EditPreference> {
                       selectedReligion = newValue;
                     });
                   },
-                  floatingLabel: "Religion",
+                  floatingLabel: AppStrings.partnerReligionPreferenceLabel,
                   hint: "Please Select",
                   prefixIcon: Assets.icons.christianity.svg(width: 24, height: 24),
                 ),
@@ -179,7 +180,7 @@ class _EditPreferenceState extends ConsumerState<EditPreference> {
                       selectedEthnicity = newValue;
                     });
                   },
-                  floatingLabel: "Ethnicity",
+                  floatingLabel: AppStrings.partnerEthnicityPreferenceLabel,
                   hint: "Please Select",
                   prefixIcon: SvgPicture.asset(
                     Assets.icons.intersectCircle.path,
@@ -202,7 +203,7 @@ class _EditPreferenceState extends ConsumerState<EditPreference> {
                       selectedEducation = newValue;
                     });
                   },
-                  floatingLabel: "Education",
+                  floatingLabel: AppStrings.partnerEducationPreferenceLabel,
                   hint: "Please Select",
                   prefixIcon: SvgPicture.asset(
                     Assets.icons.graduationHat01.path,

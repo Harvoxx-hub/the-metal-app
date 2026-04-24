@@ -5,6 +5,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/core/managers/location_manager.dart';
+import 'package:metal/core/utils/permission_helper.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/data/models/user_preferences_model.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -19,6 +22,8 @@ import 'package:metal/widgets/dropdown/metal.dropdownMutipleSelection.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/presentation/views/prompt/prompt_creation_view.dart';
 import 'package:metal/presentation/views/profile/profile_setup_constants.dart';
+import 'package:metal/route/routes.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class EditPreferencesView extends ConsumerStatefulWidget {
   const EditPreferencesView({super.key});
@@ -107,6 +112,40 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
     return cleaned.isEmpty ? null : cleaned.join(',');
   }
 
+  /// Profile lists own religion/background; partner prefs still empty — common confusion.
+  bool _showProfilePartnerMismatchBanner(UserDto? user) {
+    final ex = user?.extraData;
+    if (ex == null) return false;
+    final hasProfileDetail = (ex.religion != null && ex.religion!.trim().isNotEmpty) ||
+        (ex.ethnicity != null && ex.ethnicity!.trim().isNotEmpty) ||
+        (ex.education != null && ex.education!.trim().isNotEmpty);
+    if (!hasProfileDetail) return false;
+    final prefs = user?.preferences;
+    final noPartnerRefFilters = prefs == null ||
+        ((prefs.religion == null || prefs.religion!.trim().isEmpty) &&
+            (prefs.ethnicity == null || prefs.ethnicity!.trim().isEmpty) &&
+            (prefs.education == null || prefs.education!.trim().isEmpty));
+    return noPartnerRefFilters;
+  }
+
+  Widget _buildProfilePartnerMismatchBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.metalPinkColour40,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.metalPinkColour.withValues(alpha: 0.35)),
+      ),
+      child: const TextView(
+        text: AppStrings.editPreferencesProfilePartnerBanner,
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        color: AppColors.metalBrownColourForText,
+      ),
+    );
+  }
+
   String _getLocationText(UserDto? user) {
     if (user?.location == null) {
       return "Location not set";
@@ -130,6 +169,55 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
     }
 
     return parts.isEmpty ? "Location not set" : parts.join(", ");
+  }
+
+  /// Refresh profile location from the device when permission is already granted;
+  /// otherwise open the central enable-location flow.
+  Future<void> _onCurrentLocationTap() async {
+    final status = await PermissionHelper.getLocationPermissionStatus();
+    if (!mounted) return;
+
+    final hasPermission = status == PermissionStatus.granted ||
+        status == PermissionStatus.limited;
+
+    if (!hasPermission) {
+      await Navigator.pushNamed(context, AppRoutes.locationEnablePage);
+      return;
+    }
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const PopScope(
+        canPop: false,
+        child: Center(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final ok = await LocationManager().updateProfileLocation(ref.read);
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+      if (ok) {
+        Fluttertoast.showToast(msg: 'Location updated');
+        ref.read(homeViewModelProvider.notifier).refresh();
+      } else {
+        Fluttertoast.showToast(
+            msg: 'Could not get your location. Please try again.');
+      }
+    } catch (_) {
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        Fluttertoast.showToast(msg: 'Could not update location');
+      }
+    }
   }
 
   @override
@@ -186,10 +274,15 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                 child: Column(
                   children: [
                     const Gap(20),
-                    // Location (not editable)
+                    if (_showProfilePartnerMismatchBanner(user)) ...[
+                      _buildProfilePartnerMismatchBanner(),
+                      const Gap(16),
+                    ],
+                    // Location: tap to sync from device (same stack as Enable Location / startup).
                     EditField(
                       text: _getLocationText(user),
                       floatingLabel: "Current Location",
+                      onTap: _onCurrentLocationTap,
                       suffixIcon: SvgPicture.asset(
                         Assets.icons.markerPin03.path,
                         height: 24,
@@ -395,15 +488,22 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
         ),
         const Gap(10),
         const TextView(
-          text: "Let us know what your special preferences are in a person",
+          text: AppStrings.preferencesTitle,
           fontSize: 14,
+          fontWeight: FontWeight.w500,
+          textAlign: TextAlign.left,
+        ),
+        const Gap(6),
+        const TextView(
+          text: AppStrings.preferencesPartnerFiltersExplainer,
+          fontSize: 13,
           fontWeight: FontWeight.w300,
           textAlign: TextAlign.left,
         ),
         const Gap(16),
         CustomCheckWidget(
           boarder: true,
-          title: 'No Special Preference',
+          title: AppStrings.openToAnyonePartnerFilters,
           initialValue: noSpecialPreference,
           onChanged: (bool value) {
             setState(() {
@@ -419,7 +519,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
         ),
         const Gap(16),
         const TextView(
-          text: "If you have special preferences, please select below.",
+          text: AppStrings.specialPreferencesHint,
           fontSize: 14,
           fontWeight: FontWeight.w300,
         ),
@@ -437,7 +537,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                 });
                 _pushPreferences();
               },
-              floatingLabel: "Religion",
+              floatingLabel: AppStrings.partnerReligionPreferenceLabel,
               hint: "Please Select",
               prefixIcon: Assets.icons.christianity.svg(width: 24, height: 24),
             ),
@@ -457,7 +557,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                 });
                 _pushPreferences();
               },
-              floatingLabel: "Ethnicity",
+              floatingLabel: AppStrings.partnerEthnicityPreferenceLabel,
               hint: "Please Select",
               prefixIcon: SvgPicture.asset(
                 Assets.icons.intersectCircle.path,
@@ -481,7 +581,7 @@ class _EditPreferencesViewState extends ConsumerState<EditPreferencesView> {
                 });
                 _pushPreferences();
               },
-              floatingLabel: "Education",
+              floatingLabel: AppStrings.partnerEducationPreferenceLabel,
               hint: "Please Select",
               prefixIcon: SvgPicture.asset(
                 Assets.icons.graduationHat01.path,

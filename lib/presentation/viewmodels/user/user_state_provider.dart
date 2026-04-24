@@ -154,6 +154,22 @@ class UserStateNotifier extends StateNotifier<UserState> {
     }
   }
 
+  /// Refresh [user] from GET /users/me without switching [AuthStatus] to loading.
+  /// Use after background location sync so discovery sees up-to-date coordinates.
+  Future<void> mergeUserFromServer() async {
+    if (state.user == null) return;
+    try {
+      final profileRepo = _ref.read(profileRepositoryProvider);
+      final result = await profileRepo.getUserProfile();
+      if (result.isSuccess && result.data != null) {
+        state = state.copyWith(
+          user: result.data,
+          status: AuthStatus.authenticated,
+        );
+      }
+    } catch (_) {}
+  }
+
   /// Fetch user profile from API and update state
   Future<void> fetchAndSetUser() async {
     state = state.copyWith(status: AuthStatus.loading);

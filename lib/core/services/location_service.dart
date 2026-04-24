@@ -71,7 +71,7 @@ class LocationService {
         if (cached != null) {
           debugPrint('Using cached position after getCurrentPosition timeout');
           position = cached;
-        } else {
+        } else  {
           rethrow;
         }
       }
@@ -165,8 +165,7 @@ class LocationService {
         parts.add(country);
       }
 
-      final address =
-          parts.isEmpty ? 'Location shared' : parts.join(', ');
+      final address = parts.isEmpty ? null : parts.join(', ');
 
       return {
         'address': address,
@@ -177,7 +176,7 @@ class LocationService {
     } catch (e) {
       debugPrint('Error getting address: $e');
       return {
-        'address': 'Location shared',
+        'address': null,
         'city': null,
         'state': null,
         'country': null,

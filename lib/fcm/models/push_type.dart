@@ -15,6 +15,8 @@ enum PushType {
   meltRequest('melt_request'),
   meetupRsvpDeclined('meetup_rsvp_declined'),
   thought_created('thought_created'),
+  /// Repost notification (backend `thought.service`); must match FCM `data.type`.
+  thoughtRepost('thought_repost'),
   reaction_added('reaction_added'),
   sparks_transaction('sparks_transaction'),
   thought_reminder('thought_reminder'),

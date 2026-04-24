@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -5,6 +7,8 @@ import 'package:gap/gap.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:metal/core/config/map_config.dart';
+import 'package:metal/core/di/provider_setup.dart';
+import 'package:metal/core/services/meetup_create_draft_storage.dart';
 import 'package:metal/core/services/location_service.dart' hide LocationResult;
 import 'package:metal/domain/entities/meetup_dto.dart';
 import 'package:metal/presentation/viewmodels/meetup/create_meetup_viewmodel.dart';
@@ -54,6 +58,9 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
   String? _pickedPlaceName;
   LatLng? _pickedPlaceLatLng;
 
+  Timer? _draftSaveTimer;
+  bool _draftResumeChecked = false;
+
   static const double _sectionGap = 24;
   static const double _fieldGap = 12;
   static const double _paddingH = 20;
@@ -61,10 +68,172 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
   static const double _cardRadius = 16;
 
   @override
+  void initState() {
+    super.initState();
+    _titleController.addListener(_scheduleDraftSave);
+    _descriptionController.addListener(_scheduleDraftSave);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _offerDraftResume());
+  }
+
+  @override
   void dispose() {
+    _draftSaveTimer?.cancel();
+    _titleController.removeListener(_scheduleDraftSave);
+    _descriptionController.removeListener(_scheduleDraftSave);
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  DateTime _tomorrowCalendarDate() {
+    final t = DateTime.now();
+    return DateTime(t.year, t.month, t.day).add(const Duration(days: 1));
+  }
+
+  bool _isDefaultSelectedDate(DateTime d) {
+    final x = DateTime(d.year, d.month, d.day);
+    return x == _tomorrowCalendarDate();
+  }
+
+  /// True if the user changed anything from a blank, default new meetup.
+  bool _isFormDirty() {
+    if (_titleController.text.trim().isNotEmpty) return true;
+    if (_descriptionController.text.trim().isNotEmpty) return true;
+    if (_pickedPlaceLatLng != null) return true;
+    if (!_isDefaultSelectedDate(_selectedDate)) return true;
+    if (_guestCapacity != 8) return true;
+    if (_broadcastRadius != 25) return true;
+    if (_inviteType != 'broadcast') return true;
+    if (_selectedFriendIds.isNotEmpty) return true;
+    return false;
+  }
+
+  void _scheduleDraftSave() {
+    if (!_isFormDirty()) return;
+    _draftSaveTimer?.cancel();
+    _draftSaveTimer = Timer(const Duration(milliseconds: 700), _persistDraftNow);
+  }
+
+  Future<void> _persistDraftNow() async {
+    if (!mounted || !_isFormDirty()) return;
+    final prefs = ref.read(sharedPreferencesProvider);
+    final draft = MeetupCreateDraft(
+      savedAt: DateTime.now(),
+      title: _titleController.text,
+      description: _descriptionController.text,
+      selectedDate: _selectedDate,
+      focusedMonth: _focusedMonth,
+      guestCapacity: _guestCapacity,
+      broadcastRadius: _broadcastRadius,
+      inviteType: _inviteType,
+      selectedFriendIds: List<String>.from(_selectedFriendIds),
+      pickedPlaceName: _pickedPlaceName,
+      pickedLat: _pickedPlaceLatLng?.latitude,
+      pickedLng: _pickedPlaceLatLng?.longitude,
+      communityId: widget.communityId,
+    );
+    await MeetupCreateDraft.save(prefs, draft);
+  }
+
+  Future<void> _clearDraft() async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    await MeetupCreateDraft.clear(prefs);
+  }
+
+  Future<void> _offerDraftResume() async {
+    if (_draftResumeChecked || !mounted) return;
+    _draftResumeChecked = true;
+    final prefs = ref.read(sharedPreferencesProvider);
+    final draft = await MeetupCreateDraft.load(prefs);
+    if (!mounted || draft == null || !draft.hasMeaningfulContent) return;
+
+    final resume = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Resume meetup draft?'),
+        content: Text(
+          'You have an unsaved meetup from '
+          '${DateFormat('MMM d, y').format(draft.savedAt)}. '
+          'Continue where you left off?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Start fresh'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              'Resume',
+              style: TextStyle(color: AppColors.metalPinkColour),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+    if (resume == true) {
+      setState(() {
+        _titleController.text = draft.title;
+        _descriptionController.text = draft.description;
+        _selectedDate = DateTime(
+          draft.selectedDate.year,
+          draft.selectedDate.month,
+          draft.selectedDate.day,
+        );
+        _focusedMonth = DateTime(draft.focusedMonth.year, draft.focusedMonth.month);
+        _guestCapacity = draft.guestCapacity.clamp(1, 10);
+        _broadcastRadius = draft.broadcastRadius.clamp(5, 100);
+        _inviteType = draft.inviteType;
+        _selectedFriendIds = List<String>.from(draft.selectedFriendIds);
+        _pickedPlaceName = draft.pickedPlaceName;
+        if (draft.pickedLat != null && draft.pickedLng != null) {
+          _pickedPlaceLatLng = LatLng(draft.pickedLat!, draft.pickedLng!);
+        } else {
+          _pickedPlaceLatLng = null;
+        }
+      });
+    } else {
+      await _clearDraft();
+    }
+  }
+
+  Future<bool> _confirmDiscardDraft() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Discard meetup?'),
+        content: const Text(
+          'Your changes will be lost. You can also keep editing and your progress is saved automatically.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Keep editing'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              'Discard',
+              style: TextStyle(color: Colors.red.shade700),
+            ),
+          ),
+        ],
+      ),
+    );
+    return ok == true;
+  }
+
+  Future<void> _onCancelOrBack() async {
+    if (_isLoading) return;
+    if (_isFormDirty()) {
+      final discard = await _confirmDiscardDraft();
+      if (!mounted || !discard) return;
+      await _clearDraft();
+    }
+    if (mounted) Navigator.of(context).pop();
   }
 
   /// Resolve initial map location: picked place, then current user location, then device location, else default.
@@ -122,10 +291,9 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
         _pickedPlaceName = result.formattedAddress ?? result.name ?? '';
         _pickedPlaceLatLng = result.latLng;
       });
+      _scheduleDraftSave();
     }
   }
-
-  void _closeModal() => Navigator.of(context).pop();
 
   void _showHelp() {
     showDialog(
@@ -162,6 +330,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
     );
     if (selectedIds != null) {
       setState(() => _selectedFriendIds = selectedIds);
+      _scheduleDraftSave();
     }
   }
 
@@ -205,17 +374,21 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
       final viewModel = ref.read(createMeetupViewModelProvider.notifier);
       final success = await viewModel.createMeetup(createData);
 
-      if (mounted) {
-        if (success) {
-          Fluttertoast.showToast(msg: 'Meetup created successfully!');
-          Navigator.pop(context, true);
-        } else {
-          final error = ref.read(createMeetupViewModelProvider).errorMessage;
-          Fluttertoast.showToast(
-            msg: error ?? 'Failed to create Meetup. Please try again.',
-            toastLength: Toast.LENGTH_LONG,
-          );
-        }
+      if (!context.mounted) return;
+      if (success) {
+        await _clearDraft();
+        if (!context.mounted) return;
+        Fluttertoast.showToast(msg: 'Meetup created successfully!');
+        if (!context.mounted) return;
+        // context verified after awaits; safe to pop create screen.
+        // ignore: use_build_context_synchronously
+        Navigator.of(context).pop(true);
+      } else {
+        final error = ref.read(createMeetupViewModelProvider).errorMessage;
+        Fluttertoast.showToast(
+          msg: error ?? 'Failed to create Meetup. Please try again.',
+          toastLength: Toast.LENGTH_LONG,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -230,7 +403,13 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) async {
+        if (didPop) return;
+        await _onCancelOrBack();
+      },
+      child: Scaffold(
       backgroundColor: AppColors.metalWhite,
       body: SafeArea(
         child: Column(
@@ -262,6 +441,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -271,7 +451,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
       child: Row(
         children: [
           TextButton(
-            onPressed: _isLoading ? null : _closeModal,
+            onPressed: _isLoading ? null : _onCancelOrBack,
             child: TextView(
               text: 'Cancel',
               fontSize: 16,
@@ -340,7 +520,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
             color: AppColors.metalTabBg,
             borderRadius: BorderRadius.circular(_inputRadius),
             border: Border.all(
-              color: AppColors.metalButtonStroke.withOpacity(0.3),
+              color: AppColors.metalButtonStroke.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -354,7 +534,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
                   fontWeight: FontWeight.w400,
                   color: _pickedPlaceName?.isNotEmpty == true
                       ? AppColors.metalBrownColourForText
-                      : AppColors.metalBrownColourForText.withOpacity(0.5),
+                      : AppColors.metalBrownColourForText.withValues(alpha: 0.5),
                   maxLines: 2,
                   textOverflow: TextOverflow.ellipsis,
                 ),
@@ -426,7 +606,9 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
       for (int i = 0; i < 7 && day <= daysInMonth; i++) {
         row.add(day++);
       }
-      while (row.length < 7) row.add(0);
+      while (row.length < 7) {
+        row.add(0);
+      }
       rows.add(row);
     }
 
@@ -436,7 +618,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
         color: AppColors.metalTabBg,
         borderRadius: BorderRadius.circular(_inputRadius),
         border: Border.all(
-          color: AppColors.metalButtonStroke.withOpacity(0.3),
+          color: AppColors.metalButtonStroke.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -450,6 +632,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
                     _focusedMonth =
                         DateTime(_focusedMonth.year, _focusedMonth.month - 1);
                   });
+                  _scheduleDraftSave();
                 },
                 icon: Icon(
                   Icons.chevron_left,
@@ -468,6 +651,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
                     _focusedMonth =
                         DateTime(_focusedMonth.year, _focusedMonth.month + 1);
                   });
+                  _scheduleDraftSave();
                 },
                 icon: Icon(
                   Icons.chevron_right,
@@ -515,6 +699,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
                                 _selectedDate = DateTime(
                                     _focusedMonth.year, _focusedMonth.month, d);
                               });
+                              _scheduleDraftSave();
                             }
                           : null,
                       child: Container(
@@ -537,7 +722,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
                                   ? AppColors.metalWhite
                                   : AppColors.metalBrownColourForText)
                               : AppColors.metalBrownColourForText
-                                  .withOpacity(0.35),
+                                  .withValues(alpha: 0.35),
                         ),
                       ),
                     );
@@ -583,7 +768,10 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
             min: 1,
             max: 10,
             divisions: 9,
-            onChanged: (v) => setState(() => _guestCapacity = v.toInt()),
+            onChanged: (v) {
+              setState(() => _guestCapacity = v.toInt());
+              _scheduleDraftSave();
+            },
           ),
         ),
         Row(
@@ -641,7 +829,10 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
             min: 5,
             max: 100,
             divisions: 19,
-            onChanged: (v) => setState(() => _broadcastRadius = v.toInt()),
+            onChanged: (v) {
+              setState(() => _broadcastRadius = v.toInt());
+              _scheduleDraftSave();
+            },
           ),
         ),
         Row(
@@ -684,7 +875,10 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
                 title: 'Broadcast Area',
                 subtitle: 'Local discovery',
                 selected: _inviteType == 'broadcast',
-                onTap: () => setState(() => _inviteType = 'broadcast'),
+                onTap: () {
+                  setState(() => _inviteType = 'broadcast');
+                  _scheduleDraftSave();
+                },
               ),
             ),
             const Gap(12),
@@ -697,6 +891,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
                 onTap: () {
                   setState(() => _inviteType = 'select_friends');
                   _showFriendsSelection();
+                  _scheduleDraftSave();
                 },
               ),
             ),
@@ -731,7 +926,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
           border: Border.all(
             color: selected
                 ? AppColors.metalPinkColour
-                : AppColors.metalButtonStroke.withOpacity(0.3),
+                : AppColors.metalButtonStroke.withValues(alpha: 0.3),
             width: selected ? 2 : 1,
           ),
         ),
@@ -796,7 +991,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
         color: AppColors.metalTabBg,
         borderRadius: BorderRadius.circular(_inputRadius),
         border: Border.all(
-          color: AppColors.metalButtonStroke.withOpacity(0.3),
+          color: AppColors.metalButtonStroke.withValues(alpha: 0.3),
         ),
       ),
       child: TextField(
@@ -810,7 +1005,7 @@ class _CreateMeetupScreenState extends ConsumerState<CreateMeetupScreen> {
         decoration: InputDecoration(
           hintText: placeholder,
           hintStyle: TextStyle(
-            color: AppColors.metalBrownColourForText.withOpacity(0.5),
+            color: AppColors.metalBrownColourForText.withValues(alpha: 0.5),
             fontSize: 16,
             fontWeight: FontWeight.w400,
           ),

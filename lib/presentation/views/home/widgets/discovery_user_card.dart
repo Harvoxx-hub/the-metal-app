@@ -10,6 +10,14 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
+/// Hides legacy placeholder text when geocoding did not produce a real address.
+String? _displayableLocationAddress(String? address) {
+  final a = address?.trim();
+  if (a == null || a.isEmpty) return null;
+  if (a == 'Location shared') return null;
+  return a;
+}
+
 /// Discovery User Card for swipe interface — old UI with prompt flow and direct message.
 /// Uses [DiscoveryUserDto] and [EnhancedSwipeCard] for Tinder-like swipe feedback.
 /// Swipe up or star/message buttons open the direct message dialog.
@@ -374,10 +382,11 @@ class DiscoveryUserCard extends ConsumerWidget {
   }
 
   Widget _buildLocationBadge() {
+    final addressLabel = _displayableLocationAddress(user.location?.address);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (user.location?.address != null)
+        if (addressLabel != null)
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -385,7 +394,7 @@ class DiscoveryUserCard extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: TextView(
-              text: user.location?.address ?? "No Address",
+              text: addressLabel,
               fontSize: 14,
               color: Colors.black87,
             ),

@@ -6,11 +6,9 @@ import 'package:metal/domain/entities/message_dto.dart';
 
 // ── Enums ────────────────────────────────────────────────────────────────────
 
-enum AssistantMode { starter, reply, booster, interactive }
+enum AssistantMode { starter, reply, booster }
 
 enum AssistantTone { casual, funny, deep, flirty }
-
-enum InteractiveKind { wouldYouRather, thisOrThat, hotTake, guessFavorite }
 
 extension AssistantModeX on AssistantMode {
   String get apiValue => name;
@@ -20,74 +18,36 @@ extension AssistantToneX on AssistantTone {
   String get apiValue => name;
 }
 
-extension InteractiveKindX on InteractiveKind {
-  String get apiValue {
-    switch (this) {
-      case InteractiveKind.wouldYouRather:
-        return 'would_you_rather';
-      case InteractiveKind.thisOrThat:
-        return 'this_or_that';
-      case InteractiveKind.hotTake:
-        return 'hot_take';
-      case InteractiveKind.guessFavorite:
-        return 'guess_favorite';
-    }
-  }
-
-  String get label {
-    switch (this) {
-      case InteractiveKind.wouldYouRather:
-        return 'Would You Rather';
-      case InteractiveKind.thisOrThat:
-        return 'This or That';
-      case InteractiveKind.hotTake:
-        return 'Hot Takes 🔥';
-      case InteractiveKind.guessFavorite:
-        return 'Guess My Favorite';
-    }
-  }
-}
-
 // ── State ────────────────────────────────────────────────────────────────────
 
 class ChatAssistantState {
   final List<String> suggestions;
   final AssistantMode mode;
   final AssistantTone tone;
-  final InteractiveKind? interactiveKind;
   final bool isLoading;
   final bool usedFallback;
-  final bool showInteractiveMenu;
 
   const ChatAssistantState({
     this.suggestions = const [],
     this.mode = AssistantMode.starter,
     this.tone = AssistantTone.casual,
-    this.interactiveKind,
     this.isLoading = false,
     this.usedFallback = false,
-    this.showInteractiveMenu = false,
   });
 
   ChatAssistantState copyWith({
     List<String>? suggestions,
     AssistantMode? mode,
     AssistantTone? tone,
-    InteractiveKind? interactiveKind,
     bool? isLoading,
     bool? usedFallback,
-    bool? showInteractiveMenu,
-    bool clearInteractiveKind = false,
   }) {
     return ChatAssistantState(
       suggestions: suggestions ?? this.suggestions,
       mode: mode ?? this.mode,
       tone: tone ?? this.tone,
-      interactiveKind:
-          clearInteractiveKind ? null : (interactiveKind ?? this.interactiveKind),
       isLoading: isLoading ?? this.isLoading,
       usedFallback: usedFallback ?? this.usedFallback,
-      showInteractiveMenu: showInteractiveMenu ?? this.showInteractiveMenu,
     );
   }
 }
@@ -111,11 +71,11 @@ const _replyFallbacks = [
 ];
 
 const _boosterFallbacks = [
-  "Ask about their hobbies 👀",
-  "Share something random about your day",
-  "Try '2 truths and a lie'",
-  "Switch it up with a random question 🎲",
-  "Ask what music they're into",
+  "What are you into when you're not on here?",
+  "What are your plans this week?",
+  "What's been the best part of your day?",
+  "What are you watching or listening to lately?",
+  "What's something random I should know about you?",
 ];
 
 List<String> _getFallbackSuggestions(AssistantMode mode) {
@@ -126,13 +86,6 @@ List<String> _getFallbackSuggestions(AssistantMode mode) {
       return _replyFallbacks;
     case AssistantMode.booster:
       return _boosterFallbacks;
-    case AssistantMode.interactive:
-      return [
-        "Would you rather travel to the past or the future?",
-        "Sunrise or sunset?",
-        "Hot take: pineapple on pizza is actually good 🔥",
-        "Guess my favorite color 🎨",
-      ];
   }
 }
 
@@ -145,6 +98,8 @@ class ChatAssistantNotifier extends StateNotifier<ChatAssistantState> {
   Timer? _debounceTimer;
   Timer? _idleTimer;
   DateTime? _lastMessageTime;
+
+  int _fetchGeneration = 0;
 
   /// Simple in-memory cache: cacheKey → suggestions
   final Map<String, List<String>> _cache = {};
@@ -174,19 +129,6 @@ class ChatAssistantNotifier extends StateNotifier<ChatAssistantState> {
     if (tone == state.tone) return;
     state = state.copyWith(tone: tone);
     _fetchSuggestions();
-  }
-
-  void selectInteractiveKind(InteractiveKind kind) {
-    state = state.copyWith(
-      mode: AssistantMode.interactive,
-      interactiveKind: kind,
-      showInteractiveMenu: false,
-    );
-    _fetchSuggestions();
-  }
-
-  void toggleInteractiveMenu() {
-    state = state.copyWith(showInteractiveMenu: !state.showInteractiveMenu);
   }
 
   void refresh() {
@@ -229,7 +171,7 @@ class ChatAssistantNotifier extends StateNotifier<ChatAssistantState> {
 
   void _setMode(AssistantMode mode) {
     if (state.mode == mode && state.suggestions.isNotEmpty) return;
-    state = state.copyWith(mode: mode, clearInteractiveKind: true);
+    state = state.copyWith(mode: mode);
     _fetchSuggestions();
   }
 
@@ -248,17 +190,15 @@ class ChatAssistantNotifier extends StateNotifier<ChatAssistantState> {
 
     final remaining = _idleThreshold - elapsed;
     _idleTimer = Timer(remaining, () {
-      if (mounted) {
-        state = state.copyWith(mode: AssistantMode.booster);
-        _fetchSuggestions();
-      }
+      if (!mounted) return;
+      state = state.copyWith(mode: AssistantMode.booster);
+      _fetchSuggestions();
     });
   }
 
   // ── API call ────────────────────────────────────────────────────────────
 
-  String get _cacheKey =>
-      '${state.mode.apiValue}:${state.tone.apiValue}:${state.interactiveKind?.apiValue ?? ''}';
+  String get _cacheKey => '${state.mode.apiValue}:${state.tone.apiValue}';
 
   Future<void> _fetchSuggestions() async {
     // Check cache first
@@ -272,16 +212,17 @@ class ChatAssistantNotifier extends StateNotifier<ChatAssistantState> {
       return;
     }
 
+    final generation = ++_fetchGeneration;
     state = state.copyWith(isLoading: true);
 
     final result = await _repository.getChatSuggestions(
       connectionId: connectionId,
       mode: state.mode.apiValue,
       tone: state.tone.apiValue,
-      interactiveKind: state.interactiveKind?.apiValue,
+      interactiveKind: null,
     );
 
-    if (!mounted) return;
+    if (!mounted || generation != _fetchGeneration) return;
 
     if (result.isSuccess && result.data != null) {
       final data = result.data as ChatAssistantResponseModel;

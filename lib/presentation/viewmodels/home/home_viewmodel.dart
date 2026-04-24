@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/error_handling/error_handler.dart';
+import 'package:metal/core/managers/location_manager.dart';
 import 'package:metal/data/repositories/discovery/discovery_repository.dart';
 import 'package:metal/domain/entities/discovery_user_dto.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 
 /// Whether discovery needs location (from API). Location is stored in user model; discovery does not request or update it.
 enum LocationStatus {
@@ -102,11 +104,17 @@ bool _isLocationRequiredError(String msg) =>
 /// When API returns "location required", we set locationNeeded and the UI navigates to the central location screen.
 class HomeViewModelNotifier extends StateNotifier<HomeState> {
   final IDiscoveryRepository _repository;
+  final Ref _ref;
 
-  HomeViewModelNotifier(this._repository, Ref ref)
-      : super(HomeState.initial()) {
-    loadUsers();
-  }
+  /// One-shot retry when API returns empty + "enable location" (see backend discovery.service).
+  bool _didEmptyDiscoveryLocationRetry = false;
+
+  HomeViewModelNotifier(this._repository, this._ref)
+      : super(HomeState.initial());
+
+  /// First discovery fetch is triggered from [DashboardView] after [StartupService]
+  /// finishes updating location on the server — not from the constructor — so the
+  /// `/discovery/users` call does not race ahead of profile location sync.
 
   /// Load discovery users. Uses location from stored user model (backend). No permission or location logic here.
   Future<void> loadUsers() async {
@@ -115,7 +123,21 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
     state = HomeState.loading(existingUsers: state.data);
 
     try {
-      final response = await _repository.getDiscoveryUsers(limit: 20);
+      var response = await _repository.getDiscoveryUsers(limit: 20);
+
+      if (response.users.isEmpty &&
+          !_didEmptyDiscoveryLocationRetry &&
+          (response.apiMessage
+                  ?.toLowerCase()
+                  .contains('enable location') ??
+              false)) {
+        _didEmptyDiscoveryLocationRetry = true;
+        final got = await LocationManager().updateProfileLocation(_ref.read);
+        if (got) {
+          await _ref.read(userStateProvider.notifier).mergeUserFromServer();
+          response = await _repository.getDiscoveryUsers(limit: 20);
+        }
+      }
 
       if (mounted) {
         state = HomeState.success(
@@ -151,6 +173,7 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
 
   /// Refresh — reset and reload.
   Future<void> refresh() async {
+    _didEmptyDiscoveryLocationRetry = false;
     state = HomeState.initial();
     await loadUsers();
   }

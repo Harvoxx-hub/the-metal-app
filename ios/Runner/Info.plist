@@ -77,10 +77,6 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>com.apple.developer.associated-domains</key>
-	<array>
-		<string>applinks:themetalapp.com</string>
-	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/network/dio_client.dart';
 import 'package:metal/data/datasources/base_data_source.dart';
+import 'package:phone_numbers_parser/phone_numbers_parser.dart' as phone_parser;
 
 /// Remote data source for authentication
 /// Handles all API calls related to authentication
@@ -53,11 +54,14 @@ class AuthRemoteDataSource extends BaseRemoteDataSource {
     String? fcmToken,
   }) async {
     try {
+      final e164 = _e164PhoneForSignup(phoneNationalNumber, phoneCountryIso2);
       final response = await dioClient.post(
         ApiRoutes.buildPath(ApiRoutes.signup),
         data: {
           'email': email,
           'password': password,
+          // Backend persists `phone` from `phoneNumber` (see auth.controller / auth.service).
+          if (e164 != null) 'phoneNumber': e164,
           'phoneNationalNumber': phoneNationalNumber,
           'phoneCountryIso2': phoneCountryIso2,
           if (referralCode != null) 'referralCode': referralCode,
@@ -78,6 +82,26 @@ class AuthRemoteDataSource extends BaseRemoteDataSource {
       // Re-throw DioException to preserve response data for error handling
       // ErrorHandler will extract the proper error message from the response
       rethrow;
+    }
+  }
+
+  /// E.164-style string (e.g. `+2348012345678`) for signup; backend validates `phoneNumber`.
+  static String? _e164PhoneForSignup(
+    String phoneNationalNumber,
+    String phoneCountryIso2,
+  ) {
+    final national = phoneNationalNumber.replaceAll(RegExp(r'\D'), '');
+    if (national.isEmpty) return null;
+    final isoUpper = phoneCountryIso2.trim().toUpperCase();
+    if (isoUpper.length != 2) return null;
+    try {
+      final iso = phone_parser.IsoCode.values.byName(isoUpper);
+      final parsed =
+          phone_parser.PhoneNumber.parse(national, callerCountry: iso);
+      if (!parsed.isValid()) return null;
+      return parsed.international.replaceAll(RegExp(r'[\s-]'), '');
+    } catch (_) {
+      return null;
     }
   }
 

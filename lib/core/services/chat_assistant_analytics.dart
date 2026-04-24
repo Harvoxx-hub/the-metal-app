@@ -44,12 +44,6 @@ class ChatAssistantAnalytics {
         parameters: {'reason': reason},
       );
 
-  static Future<void> logInteractiveSelected({required String kind}) =>
-      _analytics.logEvent(
-        name: 'chat_assistant_interactive_selected',
-        parameters: {'kind': kind},
-      );
-
   static Future<void> logFallbackUsed({required String mode}) =>
       _analytics.logEvent(
         name: 'chat_assistant_fallback_used',

@@ -32,9 +32,6 @@ class ChatSuggestionBar extends ConsumerWidget {
       children: [
         // Tone selector row
         _ToneSelector(connectionId: connectionId),
-        // Interactive menu (if open)
-        if (assistantState.showInteractiveMenu)
-          _InteractiveMenu(connectionId: connectionId),
         const Gap(4),
         // Suggestion chips or shimmer
         if (assistantState.isLoading && assistantState.suggestions.isEmpty)
@@ -72,21 +69,9 @@ class _ToneSelector extends ConsumerWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: _tones.length + 1, // +1 for interactive "🎲" button
+        itemCount: _tones.length,
         separatorBuilder: (_, __) => const Gap(6),
         itemBuilder: (context, index) {
-          if (index == _tones.length) {
-            // Interactive games button
-            return _ToneChip(
-              emoji: '🎲',
-              label: 'Games',
-              isSelected: ref.watch(chatAssistantProvider(connectionId)
-                  .select((s) => s.mode == AssistantMode.interactive)),
-              onTap: () => ref
-                  .read(chatAssistantProvider(connectionId).notifier)
-                  .toggleInteractiveMenu(),
-            );
-          }
           final (tone, emoji, label) = _tones[index];
           return _ToneChip(
             emoji: emoji,
@@ -154,45 +139,6 @@ class _ToneChip extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ── Interactive menu ─────────────────────────────────────────────────────────
-
-class _InteractiveMenu extends ConsumerWidget {
-  final String connectionId;
-  const _InteractiveMenu({required this.connectionId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 6,
-        children: InteractiveKind.values.map((kind) {
-          return ActionChip(
-            label: Text(
-              kind.label,
-              style: const TextStyle(fontSize: 12),
-            ),
-            backgroundColor: AppColors.metalPinkColour.withValues(alpha: 0.08),
-            side: BorderSide(
-                color: AppColors.metalPinkColour.withValues(alpha: 0.3)),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            onPressed: () {
-              ref
-                  .read(chatAssistantProvider(connectionId).notifier)
-                  .selectInteractiveKind(kind);
-              ChatAssistantAnalytics.logInteractiveSelected(
-                  kind: kind.apiValue);
-            },
-          );
-        }).toList(),
       ),
     );
   }

@@ -41,7 +41,9 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
   Future<void> _maybeGeocodePlaceName(MeetupDto meetup) async {
     if (meetup.placeLocation != null ||
         meetup.placeName.isEmpty ||
-        _geocodeRequestedForMeetupId == meetup.id) return;
+        _geocodeRequestedForMeetupId == meetup.id) {
+      return;
+    }
     _geocodeRequestedForMeetupId = meetup.id;
     final repo = ref.read(placeRepositoryProvider);
     final result = await repo.geocodeAddress(meetup.placeName);
@@ -138,6 +140,10 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
             _buildPageHeader(meetup, viewModel),
             const Gap(10),
             _buildStatusBadge(meetup, viewModel.isCreator),
+            if (!viewModel.isCreator) ...[
+              const Gap(10),
+              _buildHostOnlyEditNote(),
+            ],
             if (meetup.description != null && meetup.description!.trim().isNotEmpty) ...[
               const Gap(_sectionGap),
               _buildDescriptionSection(meetup),
@@ -217,6 +223,40 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Non-hosts: clarify that editing is host-only (settings is hidden for them).
+  Widget _buildHostOnlyEditNote() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.metalTabBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.metalButtonStroke.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.info_outline,
+            size: 18,
+            color: AppColors.metalBrownColourForText.withValues(alpha: 0.7),
+          ),
+          const Gap(10),
+          Expanded(
+            child: TextView(
+              text:
+                  'Only the host can edit or delete this meetup. RSVP below if you were invited.',
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+              color: AppColors.metalBrownColourForText.withValues(alpha: 0.85),
+            ),
+          ),
+        ],
       ),
     );
   }

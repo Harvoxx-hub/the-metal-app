@@ -198,39 +198,51 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
           ),
           const Gap(12),
 
-          // Community tag if applicable
+          // Community tag if applicable (tappable → community detail)
           if (thought.communityMetadata != null) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.metalPinkColour.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.metalPinkColour.withOpacity(0.3),
-                  width: 1,
+            GestureDetector(
+              onTap: () {
+                final id = thought.communityMetadata!.communityId;
+                if (id.isEmpty) return;
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.communityDetails,
+                  arguments: id,
+                );
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.metalPinkColour.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.metalPinkColour.withOpacity(0.3),
+                    width: 1,
+                  ),
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.group,
-                    size: 14,
-                    color: AppColors.metalPinkColour,
-                  ),
-                  const Gap(4),
-                  Expanded(
-                    child: TextView(
-                      text:
-                          'Posted in: ${thought.communityMetadata!.communityName}',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.group,
+                      size: 14,
                       color: AppColors.metalPinkColour,
-                      maxLines: 1,
-                      textOverflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                    const Gap(4),
+                    Expanded(
+                      child: TextView(
+                        text:
+                            'Posted in: ${thought.communityMetadata!.communityName}',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.metalPinkColour,
+                        maxLines: 1,
+                        textOverflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const Gap(12),

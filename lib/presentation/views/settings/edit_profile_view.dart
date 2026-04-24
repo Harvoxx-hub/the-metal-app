@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/data/models/metal_properties_model.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
@@ -178,7 +179,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
                     const Gap(20),
                     EditField(
                       text: user.extraData?.religion ?? "Religion",
-                      floatingLabel: "Religion",
+                      floatingLabel: AppStrings.yourReligionLabel,
                       subLabel: "Edit",
                       dropDownItems: metalProperties.religion,
                       editType: EditType.dropdown,

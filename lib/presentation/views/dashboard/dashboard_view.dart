@@ -9,6 +9,7 @@ import 'package:metal/presentation/views/profile/my_profile_view.dart';
 import 'package:metal/presentation/views/spark/spark_view.dart';
 import 'package:metal/presentation/views/thought/thought_screen.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/presentation/viewmodels/home/home_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/home/home_view.dart';
@@ -68,6 +69,12 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           .read(startupServiceProvider)
           .runStartupTasks(context, ref, userData);
     }
+    if (!mounted) return;
+    // Align client user with server (e.g. location saved during startup).
+    await ref.read(userStateProvider.notifier).mergeUserFromServer();
+    if (!mounted) return;
+    // Run after optional startup so location is on the server before /discovery/users.
+    await ref.read(homeViewModelProvider.notifier).loadUsers();
   }
 
   /// Handle bottom nav tap

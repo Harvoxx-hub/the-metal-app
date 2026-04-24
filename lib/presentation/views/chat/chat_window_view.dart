@@ -35,6 +35,9 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _chatTextController = TextEditingController();
 
+  /// Avoid re-feeding the same transcript into the assistant on every rebuild.
+  String? _lastChatAssistantMessageSignature;
+
   @override
   void initState() {
     super.initState();
@@ -97,6 +100,18 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
             _scrollToBottom();
           }
         }
+
+        // AI assistant: only react when the message list actually changes (not every rebuild).
+        final connection = ref
+            .read(connectionDetailProvider(widget.connectionId))
+            .valueOrNull;
+        if (connection is ChatConnectionDto) {
+          _syncChatAssistantIfEnabled(
+            current,
+            connection,
+            ref.read(currentUserProvider)?.id,
+          );
+        }
       },
     );
 
@@ -155,13 +170,14 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
     final assistantEnabled = canSend &&
         FirebaseRemoteConfigService().isChatAssistantEnabled();
 
-    // Feed messages into the chat assistant notifier
     if (assistantEnabled) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref
-            .read(chatAssistantProvider(widget.connectionId).notifier)
-            .onMessagesChanged(chatState.messages, currentUser?.id);
-      });
+      _syncChatAssistantIfEnabled(
+        chatState,
+        connection,
+        currentUser?.id,
+      );
+    } else {
+      _lastChatAssistantMessageSignature = null;
     }
 
     return Column(
@@ -374,6 +390,36 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
         Fluttertoast.showToast(msg: 'Error: $e');
       }
     }
+  }
+
+  static String _messageListSignature(List<MessageDto> messages) {
+    if (messages.isEmpty) return '0:empty';
+    return '${messages.length}:${messages.first.id}:${messages.last.id}';
+  }
+
+  /// Notifies the chat assistant only when the transcript identity changes.
+  void _syncChatAssistantIfEnabled(
+    ChatWindowState chatState,
+    ChatConnectionDto connection,
+    String? currentUserId,
+  ) {
+    final pendingReceiverNoMessages = connection.meltStatus == 'pending' &&
+        connection.isUserReceiver(currentUserId ?? '') &&
+        chatState.messages.isEmpty;
+    final canSend = !pendingReceiverNoMessages;
+    if (!canSend ||
+        !FirebaseRemoteConfigService().isChatAssistantEnabled()) {
+      return;
+    }
+
+    final sig = _messageListSignature(chatState.messages);
+    if (_lastChatAssistantMessageSignature == sig) return;
+    _lastChatAssistantMessageSignature = sig;
+
+    ref.read(chatAssistantProvider(widget.connectionId).notifier).onMessagesChanged(
+          chatState.messages,
+          currentUserId,
+        );
   }
 }
 

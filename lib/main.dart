@@ -20,6 +20,7 @@ import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:metal/core/services/deep_link_service.dart';
 import 'package:metal/core/di/provider_setup.dart';
 import 'package:metal/core/utils/permission_helper.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
@@ -47,13 +48,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Log uncaught Flutter errors (visible in adb logcat when app crashes on Android)
-  FlutterError.onError = (FlutterErrorDetails details) {
-    debugPrint('FlutterError: $details');
-    FlutterError.dumpErrorToConsole(details);
-  };
-
-  // Lock app to portrait orientation
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -124,17 +118,36 @@ void main() async {
     AppBadgePlus.updateBadge(0);
   } catch (_) {}
 
-  runApp(
-    ProviderScope(
-      overrides: [
-        // Override sharedPreferencesProvider with pre-initialized instance
-        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
-      ],
-      child: const MyApp(),
-    ),
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://f13d648fc1ed4066516aa53c150ae36c@o4510908276801536.ingest.us.sentry.io/4511325235052544';
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
+      // We recommend adjusting this value in production.
+      options.tracesSampleRate = 1.0;
+      // The sampling rate for profiling is relative to tracesSampleRate
+      // Setting to 1.0 will profile 100% of sampled transactions:
+      options.profilesSampleRate = 1.0;
+    },
+    appRunner: () {
+      FlutterError.onError = (FlutterErrorDetails details) {
+        FlutterError.presentError(details);
+        Sentry.captureException(
+          details.exception,
+          stackTrace: details.stack,
+        );
+      };
+      runApp(
+        SentryWidget(
+          child: ProviderScope(
+            overrides: [
+              sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+            ],
+            child: const MyApp(),
+          ),
+        ),
+      );
+    },
   );
-
-  // Deep link service will be initialized in MyApp widget where we have access to providers
 }
 
 class MyApp extends ConsumerStatefulWidget {

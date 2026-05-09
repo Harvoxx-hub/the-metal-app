@@ -33,8 +33,8 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Get user profile failed: ${e.message}');
+    } on DioException catch (_) {
+      rethrow;
     }
   }
 
@@ -55,8 +55,8 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Get user by ID failed: ${e.message}');
+    } on DioException catch (_) {
+      rethrow;
     }
   }
 
@@ -84,8 +84,8 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Search users failed: ${e.message}');
+    } on DioException catch (_) {
+      rethrow;
     }
   }
 
@@ -108,8 +108,8 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Update profile failed: ${e.message}');
+    } on DioException catch (_) {
+      rethrow;
     }
   }
 
@@ -132,8 +132,8 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Complete profile failed: ${e.message}');
+    } on DioException catch (_) {
+      rethrow;
     }
   }
 
@@ -162,8 +162,8 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Get blocked users failed: ${e.message}');
+    } on DioException catch (_) {
+      rethrow;
     }
   }
 
@@ -189,8 +189,8 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Block user failed: ${e.message}');
+    } on DioException catch (_) {
+      rethrow;
     }
   }
 
@@ -212,8 +212,8 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
-      throw Exception('Unblock user failed: ${e.message}');
+    } on DioException catch (_) {
+      rethrow;
     }
   }
 
@@ -239,7 +239,7 @@ class ProfileRemoteDataSource extends BaseRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } on DioException catch (e) {
+    } on DioException {
       // Rethrow so ErrorHandler can extract backend message (e.g. "Invalid password")
       rethrow;
     }

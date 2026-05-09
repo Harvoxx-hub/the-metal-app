@@ -155,12 +155,16 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             if (thoughtModel.type == 'repost') ...[
-              TextView(
-                text:
-                    'Reposted by ${thoughtModel.authorMetadata?.authorName ?? ''}',
-                fontSize: 12,
-                color: Colors.grey[700],
+              BuildUserInfo(
+                userId: thoughtModel.userId,
+                thought: thoughtModel,
+                showThoughtMenu: true,
+                onDeleteThought: () => _handleDeleteThought(context),
+                onEditThought: null,
+                onReportThought: () => _handleReportThought(context),
+                onBlockUser: () => _handleBlockUser(context),
               ),
+              const Gap(10),
               _buildRepostCard(context),
               const Gap(10),
             ] else ...[
@@ -439,39 +443,50 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           thought: original,
         ),
         const Gap(10),
-        // Community tag if this is a community post
+        // Community tag if this is a community post (same navigation as non-repost)
         if (original.communityMetadata != null) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.metalPinkColour.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.metalPinkColour.withOpacity(0.3),
-                width: 1,
+          GestureDetector(
+            onTap: () {
+              final id = original.communityMetadata!.communityId;
+              if (id.isEmpty) return;
+              Navigator.pushNamed(
+                context,
+                AppRoutes.communityDetails,
+                arguments: id,
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.metalPinkColour.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.metalPinkColour.withOpacity(0.3),
+                  width: 1,
+                ),
               ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.group,
-                  size: 14,
-                  color: AppColors.metalPinkColour,
-                ),
-                const Gap(4),
-                Expanded(
-                  child: TextView(
-                    text:
-                        'Posted in: ${original.communityMetadata!.communityName}',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.group,
+                    size: 14,
                     color: AppColors.metalPinkColour,
-                    maxLines: 1,
-                    textOverflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                  const Gap(4),
+                  Expanded(
+                    child: TextView(
+                      text:
+                          'Posted in: ${original.communityMetadata!.communityName}',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.metalPinkColour,
+                      maxLines: 1,
+                      textOverflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const Gap(8),
@@ -489,10 +504,12 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           ReadMoreText(
             text: original.content,
             onTap: () {
+              // Open the repost document so the reposter can delete/manage their repost;
+              // original thought detail is still reachable from nested profile/report flows.
               Navigator.pushNamed(
                 context,
                 AppRoutes.thoughtDetails,
-                arguments: original.id,
+                arguments: thoughtModel.id,
               );
             },
           ),

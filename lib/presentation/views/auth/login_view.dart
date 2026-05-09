@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/services/deep_link_service.dart';
+import 'package:metal/fcm/fcm_client.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/domain/entities/user_dto.dart';
@@ -57,6 +58,10 @@ class _LoginViewState extends ConsumerState<LoginView> {
 
     // Set user in global state
     ref.read(userStateProvider.notifier).setUser(user);
+
+    try {
+      await FCMClient.instance.registerTokenWithBackend(ref);
+    } catch (_) {}
 
     // Process any pending deep links before navigation
     // This will handle navigation to the deep link target if one exists

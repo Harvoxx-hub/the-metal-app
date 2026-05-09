@@ -5,6 +5,7 @@ import 'package:metal/core/services/location_service.dart';
 import 'package:metal/core/utils/permission_helper.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/fcm/fcm_client.dart';
 import 'package:metal/presentation/viewmodels/splash/splash_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/route/routes.dart';
@@ -78,6 +79,10 @@ class _SplashViewState extends ConsumerState<SplashView> {
     }
 
     ref.read(userStateProvider.notifier).setUser(user);
+    try {
+      await FCMClient.instance.registerTokenWithBackend(ref);
+    } catch (_) {}
+
     if (!mounted) return;
 
     if (user.emailVerified == false) {

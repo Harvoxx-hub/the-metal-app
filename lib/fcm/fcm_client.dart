@@ -111,21 +111,13 @@ class FCMClient {
       await _ensureAPNSToken();
     }
 
-    // BUG-016: On iOS, avoid duplicate notifications (system + local). We show via
-    // _localNotifications in _onMessage, so disable system presentation in foreground.
-    if (Platform.isIOS) {
-      FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-        alert: false,
-        badge: true,
-        sound: false,
-      );
-    } else {
-      FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-    }
+    // iOS foreground: Firebase/APNs presents the banner when alert/sound are true.
+    // Local plugin covers Android foreground + iOS melt fallbacks only.
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
   }
 
   /// Handle initial message when app is opened from notification
@@ -209,8 +201,8 @@ class FCMClient {
     }
   }
 
-  /// Register FCM token with backend (call this after user authentication)
-  /// Uses Riverpod providers to access notification repository
+  /// Register FCM token with backend (call after auth/session restore).
+  /// Uses Riverpod [WidgetRef] to reach [notificationRepositoryProvider].
   Future<void> registerTokenWithBackend(WidgetRef ref) async {
     try {
       // Get stored token
@@ -280,21 +272,48 @@ class FCMClient {
     // Handle melt notifications differently in foreground
     if (pushType == PushType.new_connection) {
       await _handleMeltNotificationInForeground(payload);
-    } else {
-      final dedupeKey = _buildNotificationDedupeKey(message, payload);
-      if (!_markAndAllowNotification(dedupeKey)) {
-        return;
-      }
-
-      // Use stable-ish id so duplicates collapse in notification tray.
-      final id = dedupeKey.hashCode.abs().clamp(1, 0x7FFFFFFF);
-      await _localNotifications.show(
-        id: id,
-        title: message.notification?.title ?? '',
-        body: message.notification?.body ?? '',
-        payload: jsonEncode(payload.toJson()),
-      );
+      return;
     }
+
+    if (Platform.isIOS) {
+      // Foreground banners come from setForegroundNotificationPresentationOptions above.
+      return;
+    }
+
+    final dedupeKey = _buildNotificationDedupeKey(message, payload);
+    if (!_markAndAllowNotification(dedupeKey)) {
+      return;
+    }
+
+    final id = dedupeKey.hashCode.abs().clamp(1, 0x7FFFFFFF);
+    await _localNotifications.show(
+      id: id,
+      title: _resolvedPushTitle(message, payload),
+      body: _resolvedPushBody(message, payload),
+      payload: jsonEncode(payload.toJson()),
+    );
+  }
+
+  static String _resolvedPushTitle(
+    RemoteMessage message,
+    NotificationPayloadModel payload,
+  ) {
+    final n = message.notification?.title?.trim();
+    if (n != null && n.isNotEmpty) return n;
+    final t = payload.title?.trim();
+    if (t != null && t.isNotEmpty) return t;
+    return 'Metal';
+  }
+
+  static String _resolvedPushBody(
+    RemoteMessage message,
+    NotificationPayloadModel payload,
+  ) {
+    final n = message.notification?.body?.trim();
+    if (n != null && n.isNotEmpty) return n;
+    final b = payload.body?.trim();
+    if (b != null && b.isNotEmpty) return b;
+    return 'You have a new notification';
   }
 
   static String _buildNotificationDedupeKey(
@@ -521,8 +540,12 @@ class FCMClient {
       return;
     }
     await _localNotifications.show(
-      title: payload.title ?? 'New Connection',
-      body: payload.body ?? 'Someone wants to melt metal with you!',
+      title: (payload.title?.trim().isNotEmpty ?? false)
+          ? payload.title!.trim()
+          : 'New Connection',
+      body: (payload.body?.trim().isNotEmpty ?? false)
+          ? payload.body!.trim()
+          : 'Someone wants to melt metal with you!',
       payload: jsonEncode(payload.toJson()),
     );
   }

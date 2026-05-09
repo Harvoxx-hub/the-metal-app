@@ -178,8 +178,19 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
     );
   }
 
+  /// Direct posts use [ThoughtDto.communityMetadata]; reposts often omit it on the
+  /// wrapper document — fall back to the embedded original thought's metadata.
+  CommunityMetadataDto? _communityMetadataForNavigation(ThoughtDto thought) {
+    if (thought.communityMetadata != null) return thought.communityMetadata;
+    if (thought.type == 'repost') {
+      return thought.originalThought?.communityMetadata;
+    }
+    return null;
+  }
+
   Widget _buildThoughtSection() {
     final thought = _thought!;
+    final communityMeta = _communityMetadataForNavigation(thought);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -199,10 +210,10 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
           const Gap(12),
 
           // Community tag if applicable (tappable → community detail)
-          if (thought.communityMetadata != null) ...[
+          if (communityMeta != null) ...[
             GestureDetector(
               onTap: () {
-                final id = thought.communityMetadata!.communityId;
+                final id = communityMeta.communityId;
                 if (id.isEmpty) return;
                 Navigator.pushNamed(
                   context,
@@ -233,7 +244,7 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
                     Expanded(
                       child: TextView(
                         text:
-                            'Posted in: ${thought.communityMetadata!.communityName}',
+                            'Posted in: ${communityMeta.communityName}',
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         color: AppColors.metalPinkColour,

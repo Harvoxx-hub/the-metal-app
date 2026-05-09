@@ -58,6 +58,7 @@ class BuildUserInfo extends ConsumerWidget {
           isOwnContent: isOwnContent,
           metalId: userId,
           thoughtDate: date ?? thought.createdAt,
+          openProfileOnTap: true,
         );
       }
     }
@@ -68,17 +69,46 @@ class BuildUserInfo extends ConsumerWidget {
     return userAsync.when(
       data: (baseState) {
         if (baseState.isError || baseState.data == null) {
-          final name = authorMetadata?.authorName?.trim().isNotEmpty == true
-              ? authorMetadata!.authorName!
-              : 'Anonymous';
+          final isComment = commentId != null;
+
+          if (isComment) {
+            return _buildUserInfoRow(
+              context: context,
+              name: 'Anonymous',
+              profilePhoto: null,
+              isVerified: false,
+              isOwnContent: isOwnContent,
+              metalId: userId,
+              thoughtDate: date ?? thought.createdAt,
+              openProfileOnTap: false,
+            );
+          }
+
+          final meta = authorMetadata;
+          if (meta != null &&
+              meta.authorId == userId &&
+              meta.authorName?.trim().isNotEmpty == true) {
+            return _buildUserInfoRow(
+              context: context,
+              name: meta.authorName!.trim(),
+              profilePhoto: meta.authorProfilePhoto,
+              isVerified: meta.authorIsVerified ?? false,
+              isOwnContent: isOwnContent,
+              metalId: userId,
+              thoughtDate: date ?? thought.createdAt,
+              openProfileOnTap: true,
+            );
+          }
+
           return _buildUserInfoRow(
             context: context,
-            name: name,
-            profilePhoto: authorMetadata?.authorProfilePhoto,
-            isVerified: authorMetadata?.authorIsVerified ?? false,
+            name: 'Anonymous',
+            profilePhoto: null,
+            isVerified: false,
             isOwnContent: isOwnContent,
             metalId: userId,
             thoughtDate: date ?? thought.createdAt,
+            openProfileOnTap: true,
           );
         }
 
@@ -93,6 +123,7 @@ class BuildUserInfo extends ConsumerWidget {
           isOwnContent: isOwnContent,
           metalId: user.metal ?? userId,
           thoughtDate: date ?? thought.createdAt,
+          openProfileOnTap: true,
         );
       },
       loading: () => _buildLoadingState(),
@@ -104,6 +135,7 @@ class BuildUserInfo extends ConsumerWidget {
         isOwnContent: isOwnContent,
         metalId: userId,
         thoughtDate: date ?? thought.createdAt,
+        openProfileOnTap: commentId == null,
       ),
     );
   }
@@ -140,19 +172,21 @@ class BuildUserInfo extends ConsumerWidget {
     required bool isOwnContent,
     required String metalId,
     required DateTime thoughtDate,
+    bool openProfileOnTap = true,
   }) {
+    void openProfileIfAllowed() {
+      if (!openProfileOnTap || isOwnContent) return;
+      Navigator.pushNamed(
+        context,
+        AppRoutes.userProfile,
+        arguments: userId,
+      );
+    }
+
     return Row(
       children: [
         GestureDetector(
-          onTap: () {
-            if (!isOwnContent) {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.userProfile,
-                arguments: userId,
-              );
-            }
-          },
+          onTap: openProfileIfAllowed,
           child: ProfilePhoto(
             verfly: isVerified,
             size: 40,
@@ -162,15 +196,7 @@ class BuildUserInfo extends ConsumerWidget {
         const Gap(8),
         Expanded(
           child: GestureDetector(
-            onTap: () {
-              if (!isOwnContent) {
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.userProfile,
-                  arguments: userId,
-                );
-              }
-            },
+            onTap: openProfileIfAllowed,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

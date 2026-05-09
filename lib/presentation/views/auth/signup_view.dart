@@ -7,6 +7,7 @@ import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/fcm/fcm_client.dart';
 import 'package:metal/presentation/viewmodels/auth/signup_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/res.dart';
@@ -110,6 +111,10 @@ class _SignupViewState extends ConsumerState<SignupView> {
 
     // Set user in global state
     ref.read(userStateProvider.notifier).setUser(user);
+
+    try {
+      await FCMClient.instance.registerTokenWithBackend(ref);
+    } catch (_) {}
 
     // Navigate to verification page - just pass email
     if (mounted) {

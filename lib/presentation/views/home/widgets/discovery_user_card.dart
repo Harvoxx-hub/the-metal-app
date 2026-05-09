@@ -493,7 +493,7 @@ class DiscoveryUserCard extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 90,
+          height: 112,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.only(left: 0, right: screenWidth * 0.15),
@@ -521,10 +521,13 @@ class DiscoveryUserCard extends ConsumerWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
         ),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
@@ -533,6 +536,8 @@ class DiscoveryUserCard extends ConsumerWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.black45,
+                    maxLines: 2,
+                    textOverflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Icon(
@@ -542,11 +547,13 @@ class DiscoveryUserCard extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             TextView(
               text: '\u201C${prompt.answer}\u201D',
               fontSize: 20,
               color: Colors.black87,
+              maxLines: 2,
+              textOverflow: TextOverflow.ellipsis,
             ),
           ],
         ),

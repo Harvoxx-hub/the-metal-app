@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 /// Wrapper for [FlutterLocalNotificationsPlugin]
@@ -45,10 +47,25 @@ class LocalNotifications {
     await _localNotifications.initialize(
       InitializationSettings(
         android: AndroidInitializationSettings(androidDefaultIcon),
-        iOS: const DarwinInitializationSettings(),
+        iOS: const DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        ),
       ),
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
     );
+
+    if (Platform.isIOS) {
+      await _localNotifications
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+    }
   }
 
   Future<void> show({

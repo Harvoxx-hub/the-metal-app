@@ -21,9 +21,13 @@ class NotificationPayloadModel {
   factory NotificationPayloadModel.fromRemoteMessage(RemoteMessage message) {
     final data = message.data;
     final typeStr = data['type'] as String? ?? data['action'] as String?;
+    final nTitle = message.notification?.title?.trim();
+    final nBody = message.notification?.body?.trim();
+    final dTitle = (data['title'] as String?)?.trim();
+    final dBody = (data['body'] as String?)?.trim();
     return NotificationPayloadModel(
-      title: message.notification?.title,
-      body: message.notification?.body,
+      title: (nTitle != null && nTitle.isNotEmpty) ? nTitle : dTitle,
+      body: (nBody != null && nBody.isNotEmpty) ? nBody : dBody,
       action: _parseAction(typeStr),
       data: data,
       id: message.messageId,

@@ -119,7 +119,8 @@ class _BaseScreenState extends State<BaseScreen> {
                   ),
           ))),
       floatingActionButton: widget.floatingActionButton,
-      bottomNavigationBar: widget.bottomNavigationBar,
+      bottomNavigationBar:
+          widget.bottomWidget ?? widget.bottomNavigationBar,
     );
   }
 

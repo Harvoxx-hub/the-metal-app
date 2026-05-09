@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:metal/core/error_handling/error_handler.dart';
 import 'package:metal/core/state/base.state.dart';
 import 'package:metal/data/datasources/remote/profile_remote_data_source.dart';
@@ -34,6 +35,17 @@ class ProfileRepository implements ProfileRepositoryAbstract {
       final response = await profileRemoteDataSource.getUserById(userId);
       final user = UserModel.fromJson(response).toDomain();
       return BaseState.success(user);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        final handled = ErrorHandler.handleError<UserDto>(e);
+        return BaseState<UserDto>(
+          status: Status.error,
+          errorMessage: "This user isn't available.",
+          errorData: handled.errorData,
+          errorHttpStatus: 404,
+        );
+      }
+      return ErrorHandler.handleError<UserDto>(e);
     } catch (e) {
       return ErrorHandler.handleError<UserDto>(e);
     }

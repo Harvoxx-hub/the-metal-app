@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/fcm/fcm_client.dart';
 import 'package:metal/core/managers/location_manager.dart';
 import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/domain/entities/user_dto.dart';
@@ -37,6 +38,12 @@ class StartupService {
     if (currentUser == null) return;
     if (_initialized) return;
     _initialized = true;
+
+    try {
+      await FCMClient.instance.registerTokenWithBackend(ref);
+    } catch (e) {
+      debugPrint('StartupService: FCM registerTokenWithBackend failed: $e');
+    }
 
     // 1. Update location
     await _updateLocation(context, ref);

@@ -140,12 +140,16 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
     }
 
     if (profileState.isError && profileState.user == null) {
+      final unavailable = profileState.userUnavailable;
       return BaseScreen(
         Header: 'Metal Profile',
         appBarState: AppBarState.BackWithHeader,
         body: ErrorState(
           text: profileState.errorMessage ?? 'Failed to load user profile',
-          retry: () => profileViewModel.refresh(),
+          retry: unavailable
+              ? () => Navigator.of(context).maybePop()
+              : () => profileViewModel.refresh(),
+          retryButtonText: unavailable ? 'Go back' : 'Try Again',
         ),
       );
     }

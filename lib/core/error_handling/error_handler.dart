@@ -12,8 +12,10 @@ class ErrorHandler {
   static BaseState<T> handleError<T>(dynamic error) {
     String errorMessage;
     Map? errorData;
+    int? errorHttpStatus;
 
     if (error is DioException) {
+      errorHttpStatus = error.response?.statusCode;
       errorMessage = ErrorMapper.mapDioException(error);
       // Extract error data from response if available
       if (error.response?.data is Map) {
@@ -32,6 +34,7 @@ class ErrorHandler {
       status: Status.error,
       errorMessage: errorMessage,
       errorData: errorData,
+      errorHttpStatus: errorHttpStatus,
     );
   }
 

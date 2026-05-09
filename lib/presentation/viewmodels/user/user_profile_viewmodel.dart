@@ -14,6 +14,8 @@ class UserProfileState {
   final List<ThoughtDto> thoughts;
   final bool hasMoreThoughts;
   final String? nextCursor;
+  /// True when GET /users/:id returned 404 (e.g. deleted user).
+  final bool userUnavailable;
 
   const UserProfileState({
     this.isLoading = false,
@@ -24,6 +26,7 @@ class UserProfileState {
     this.thoughts = const [],
     this.hasMoreThoughts = false,
     this.nextCursor,
+    this.userUnavailable = false,
   });
 
   factory UserProfileState.initial() => const UserProfileState();
@@ -37,6 +40,7 @@ class UserProfileState {
     List<ThoughtDto>? thoughts,
     bool? hasMoreThoughts,
     String? nextCursor,
+    bool? userUnavailable,
   }) {
     return UserProfileState(
       isLoading: isLoading ?? this.isLoading,
@@ -47,6 +51,7 @@ class UserProfileState {
       thoughts: thoughts ?? this.thoughts,
       hasMoreThoughts: hasMoreThoughts ?? this.hasMoreThoughts,
       nextCursor: nextCursor,
+      userUnavailable: userUnavailable ?? this.userUnavailable,
     );
   }
 }
@@ -78,7 +83,11 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
     if (!mounted) return;
     if (state.isLoading) return;
 
-    state = state.copyWith(isLoading: true, isError: false);
+    state = state.copyWith(
+      isLoading: true,
+      isError: false,
+      userUnavailable: false,
+    );
 
     final isViewingSelf = _currentUserId != null && _currentUserId == userId;
     final result = isViewingSelf
@@ -90,12 +99,15 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
       state = state.copyWith(
         isLoading: false,
         user: result.data,
+        userUnavailable: false,
       );
     } else {
+      final unavailable = result.errorHttpStatus == 404;
       state = state.copyWith(
         isLoading: false,
         isError: true,
         errorMessage: result.errorMessage ?? 'Failed to load user profile',
+        userUnavailable: unavailable,
       );
     }
   }
@@ -121,11 +133,16 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
         nextCursor: result.data!.nextCursor,
       );
     } else {
-      state = state.copyWith(
-        isLoadingThoughts: false,
-        isError: true,
-        errorMessage: result.errorMessage ?? 'Failed to load thoughts',
-      );
+      // Do not overwrite profile load errors (e.g. 404) while user is still null.
+      if (state.user != null) {
+        state = state.copyWith(
+          isLoadingThoughts: false,
+          isError: true,
+          errorMessage: result.errorMessage ?? 'Failed to load thoughts',
+        );
+      } else {
+        state = state.copyWith(isLoadingThoughts: false);
+      }
     }
   }
 

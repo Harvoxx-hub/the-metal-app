@@ -86,9 +86,11 @@ class PromptState {
 /// Handles loading questions and managing user prompts
 class PromptViewModel extends StateNotifier<PromptState> {
   final PromptRepositoryAbstract _repository;
+  final void Function(List<UserPromptDto> prompts)? onPromptsSynced;
 
   PromptViewModel({
     required PromptRepositoryAbstract repository,
+    this.onPromptsSynced,
   })  : _repository = repository,
         super(PromptState.initial());
 
@@ -174,6 +176,7 @@ class PromptViewModel extends StateNotifier<PromptState> {
 
     if (mounted) {
       if (result.isSuccess && result.data != null) {
+        onPromptsSynced?.call(result.data!);
         state = state.copyWith(
           isSaving: false,
           isSuccess: true,

@@ -16,7 +16,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:metal/fcm/fcm_client.dart';
 import 'package:metal/core/services/shorebird_update_service.dart';
 
-import 'package:app_badge_plus/app_badge_plus.dart';
+import 'package:metal/fcm/app_icon_badge.dart';
 import 'package:metal/core/services/deep_link_service.dart';
 import 'package:metal/core/di/provider_setup.dart';
 import 'package:metal/core/utils/permission_helper.dart';
@@ -114,9 +114,7 @@ void main() async {
   }
 
   // Clear any stale app icon badge from previous sessions
-  try {
-    AppBadgePlus.updateBadge(0);
-  } catch (_) {}
+  await AppIconBadge.clear();
 
   await SentryFlutter.init(
     (options) {

@@ -1,4 +1,4 @@
-import 'package:app_badge_plus/app_badge_plus.dart';
+import 'package:metal/fcm/app_icon_badge.dart';
 import 'package:flutter/widgets.dart';
  
 import 'package:metal/core/services/shorebird_update_service.dart';
@@ -77,11 +77,7 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
 
   /// Clear the native app icon badge count (iOS & Android launchers)
   void _clearAppIconBadge() {
-    try {
-      AppBadgePlus.updateBadge(0);
-    } catch (e) {
-      // Badge clearing is best-effort; don't block the app
-    }
+    AppIconBadge.clear();
   }
 
   /// Check for Shorebird OTA updates when app resumes

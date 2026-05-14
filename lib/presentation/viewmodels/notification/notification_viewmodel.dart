@@ -1,4 +1,4 @@
-import 'package:app_badge_plus/app_badge_plus.dart';
+import 'package:metal/fcm/app_icon_badge.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/core/services/notification_refresh_signal.dart';
 import 'package:metal/data/repositories/notification/notification_repository.dart';
@@ -248,10 +248,7 @@ class NotificationViewModel extends StateNotifier<NotificationState> {
           unreadCount: 0,
         );
 
-        // Clear the native app icon badge
-        try {
-          AppBadgePlus.updateBadge(0);
-        } catch (_) {}
+        await AppIconBadge.clear();
 
         return true;
       } else {

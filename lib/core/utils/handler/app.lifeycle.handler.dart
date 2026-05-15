@@ -1,7 +1,5 @@
 import 'package:metal/fcm/app_icon_badge.dart';
 import 'package:flutter/widgets.dart';
- 
-import 'package:metal/core/services/shorebird_update_service.dart';
 
 /// Handles app lifecycle events for presence management and notifications.
 ///
@@ -13,7 +11,6 @@ import 'package:metal/core/services/shorebird_update_service.dart';
 /// 2. Uses server-side disconnect detection for reliability
 /// 3. Syncs status to Firestore via Cloud Functions
 class AppLifecycleHandler extends WidgetsBindingObserver {
-  DateTime? _lastResumedTime;
   bool _isInitialized = false;
 
   AppLifecycleHandler();
@@ -36,18 +33,9 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
       return;
     }
 
-    final now = DateTime.now();
-
     switch (state) {
       case AppLifecycleState.resumed:
-        _lastResumedTime = now;
-        
-        // Clear native app icon badge when user opens the app
         _clearAppIconBadge();
-        
-        // Check for Shorebird updates when app resumes
-        _checkForShorebirdUpdates();
-  
         break;
 
       case AppLifecycleState.inactive:
@@ -79,36 +67,4 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
   void _clearAppIconBadge() {
     AppIconBadge.clear();
   }
-
-  /// Check for Shorebird OTA updates when app resumes
-  /// Only checks if app has been in background for at least 30 seconds
-  void _checkForShorebirdUpdates() async {
-    try {
-      // Only check for updates if app was in background for a reasonable time
-      // This avoids excessive checks on quick app switches
-      if (_lastResumedTime != null) {
-        final timeSinceLastResume = DateTime.now().difference(_lastResumedTime!);
-        if (timeSinceLastResume.inSeconds < 30) {
-          // Skip if app was only briefly in background
-          return;
-        }
-      }
-
-      // Check for updates in background (non-blocking)
-      // Note: With auto_update enabled, patches download automatically
-      // This is just a check to log if updates are available
-      ShorebirdUpdateService.instance.checkForUpdates().then((hasUpdate) {
-        if (hasUpdate) {
-          print('Shorebird: New patch available');
-          // With auto_update enabled, the patch will download automatically
-          // We can optionally trigger manual download if auto_update is disabled
-          // ShorebirdUpdateService.instance.downloadAndApplyPatch();
-        }
-      }).catchError((e) {
-        print('Shorebird: Error during update check on resume: $e');
-      });
-    } catch (e) {
-      print('Shorebird: Error setting up update check: $e');
-    }
-  }
- }
+}

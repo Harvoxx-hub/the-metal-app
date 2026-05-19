@@ -85,7 +85,11 @@ class LocalNotifications {
           importance: Importance.max,
           priority: Priority.high,
         ),
-        iOS: DarwinNotificationDetails(),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBanner: true,
+          presentSound: true,
+        ),
       ),
       payload: payload,
     );
@@ -96,4 +100,10 @@ class LocalNotifications {
       _localNotifications.cancel(id, tag: tag);
 
   Future<void> cancelAll() => _localNotifications.cancelAll();
+
+  /// Call **after** [init] completes. Required on Android/iOS when a tap
+  /// launched a cold start — [onDidReceiveNotificationResponse] is not fired
+  /// for those launches (see flutter_local_notifications changelog).
+  Future<NotificationAppLaunchDetails?> getNotificationAppLaunchDetails() =>
+      _localNotifications.getNotificationAppLaunchDetails();
 }

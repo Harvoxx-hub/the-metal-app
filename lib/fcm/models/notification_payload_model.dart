@@ -34,14 +34,29 @@ class NotificationPayloadModel {
     );
   }
 
-  factory NotificationPayloadModel.fromJson(String json) {
-    final Map<String, dynamic> data = jsonDecode(json);
+  /// Accepts a JSON string or a decoded [Map] (e.g. from [jsonDecode] or prefs).
+  factory NotificationPayloadModel.fromJson(dynamic json) {
+    final Map<String, dynamic> map = switch (json) {
+      final String s => jsonDecode(s) as Map<String, dynamic>,
+      final Map<String, dynamic> m => m,
+      final Map m => Map<String, dynamic>.from(m),
+      _ => throw const FormatException(
+          'NotificationPayloadModel.fromJson: expected String or Map',
+        ),
+    };
+
+    Map<String, dynamic>? dataMap;
+    final raw = map['data'];
+    if (raw is Map) {
+      dataMap = Map<String, dynamic>.from(raw);
+    }
+
     return NotificationPayloadModel(
-      title: data['title'] as String?,
-      body: data['body'] as String?,
-      action: _parseAction(data['action'] as String?),
-      data: data['data'] as Map<String, dynamic>?,
-      id: data['id'] as String?,
+      title: map['title'] as String?,
+      body: map['body'] as String?,
+      action: _parseAction(map['action'] as String?),
+      data: dataMap,
+      id: map['id']?.toString(),
     );
   }
 
@@ -49,7 +64,7 @@ class NotificationPayloadModel {
     return {
       'title': title,
       'body': body,
-      'action': action?.name,
+      'action': action?.value,
       'data': data,
       'id': id,
     };
@@ -58,7 +73,7 @@ class NotificationPayloadModel {
   static PushType? _parseAction(String? action) {
     if (action == null) return null;
     for (final type in PushType.values) {
-      if (type.value == action) return type;
+      if (type.value == action || type.name == action) return type;
     }
     return PushType.unknown;
   }

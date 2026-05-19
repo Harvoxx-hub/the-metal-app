@@ -1,5 +1,8 @@
-import 'package:metal/fcm/app_icon_badge.dart';
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
+import 'package:metal/fcm/app_icon_badge.dart';
+import 'package:metal/fcm/fcm_client.dart';
 
 /// Handles app lifecycle events for presence management and notifications.
 ///
@@ -36,6 +39,7 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         _clearAppIconBadge();
+        unawaited(FCMClient.instance.onAppResumed());
         break;
 
       case AppLifecycleState.inactive:

@@ -52,8 +52,9 @@ class FCMClient {
         // Set platform-specific settings
         await _configurePlatformSettings();
 
-        // Handle initial message
-        await _handleInitialMessage();
+        // Firebase cold-start tap: read [getInitialMessage] only after first frame
+        // (see [processFirebaseColdStartNavigationIfNeeded]); reading here is too
+        // early on Android and often returns null.
 
         // Set up message listeners
         _setupMessageListeners();
@@ -62,6 +63,8 @@ class FCMClient {
         await _localNotifications.init(
           onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
         );
+
+        await _consumeLocalNotificationColdStartTap();
 
         // Subscribe to dev topic
         await _firebaseMessaging.subscribeToTopic("dev");
@@ -120,17 +123,50 @@ class FCMClient {
     );
   }
 
-  /// Handle initial message when app is opened from notification
-  Future<void> _handleInitialMessage() async {
-    final initialMessage = await _firebaseMessaging.getInitialMessage();
-    if (initialMessage != null) {
-      final payload =
-          NotificationPayloadModel.fromRemoteMessage(initialMessage);
-      Future.delayed(
-        const Duration(seconds: 2),
-        () => _onTapNotification(payload),
-      );
+  /// Taps that open a **cold start** are not delivered to
+  /// [onDidReceiveNotificationResponse]; the plugin exposes them here instead.
+  Future<void> _consumeLocalNotificationColdStartTap() async {
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      return;
     }
+    try {
+      final details = await _localNotifications.getNotificationAppLaunchDetails();
+      final launched = details?.didNotificationLaunchApp ?? false;
+      if (!launched) {
+        return;
+      }
+      final response = details?.notificationResponse;
+      if (response?.payload != null) {
+        await _onDidReceiveNotificationResponse(response);
+      }
+    } catch (e) {
+      print('FCMClient: Error handling local notification cold start: $e');
+    }
+  }
+
+  static bool _firebaseColdStartNavigationHandled = false;
+
+  /// Invoked from [MyApp] after the first frame. Do not call [getInitialMessage]
+  /// before [MaterialApp] — on Android the activity intent often is not wired yet
+  /// during [main] / [FCMClient.init].
+  Future<void> processFirebaseColdStartNavigationIfNeeded() async {
+    if (_firebaseColdStartNavigationHandled) {
+      return;
+    }
+    _firebaseColdStartNavigationHandled = true;
+
+    RemoteMessage? initial = await _firebaseMessaging.getInitialMessage();
+    if (initial == null && Platform.isAndroid) {
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      initial = await _firebaseMessaging.getInitialMessage();
+    }
+
+    if (initial == null) {
+      return;
+    }
+
+    final payload = NotificationPayloadModel.fromRemoteMessage(initial);
+    await _onTapNotification(payload);
   }
 
   /// Set up message listeners
@@ -386,10 +422,13 @@ class FCMClient {
   ) async {
     if (notificationResponse?.payload == null) return;
 
-    final payloadModel = NotificationPayloadModel.fromJson(
-      jsonDecode(notificationResponse!.payload!),
-    );
-    await _onTapNotification(payloadModel);
+    try {
+      final decoded = jsonDecode(notificationResponse!.payload!);
+      final payloadModel = NotificationPayloadModel.fromJson(decoded);
+      await _onTapNotification(payloadModel);
+    } catch (e) {
+      print('FCMClient: Error handling notification tap: $e');
+    }
   }
 
   /// Handle tap on notification when the app in background or foreground.

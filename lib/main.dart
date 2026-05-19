@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -150,6 +152,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
     // Request microphone and camera permissions on iOS after app is initialized
     // Using post-frame callback to ensure app is fully running
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(FCMClient.instance.processFirebaseColdStartNavigationIfNeeded());
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) => _onFirstFrameReady(ref));
   }
 

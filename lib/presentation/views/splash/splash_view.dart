@@ -6,6 +6,7 @@ import 'package:metal/core/utils/permission_helper.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/fcm/fcm_client.dart';
+import 'package:metal/core/services/notification_navigation_service.dart';
 import 'package:metal/presentation/viewmodels/splash/splash_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/route/routes.dart';
@@ -101,12 +102,24 @@ class _SplashViewState extends ConsumerState<SplashView> {
     await _waitMinSplashDuration();
     if (!mounted) return;
 
-    Navigator.pushReplacementNamed(
-      context,
-      user.profileUpdated == true
-          ? AppRoutes.dashboardPage
-          : AppRoutes.welcomePage,
-    );
+    final targetRoute = user.profileUpdated == true
+        ? AppRoutes.dashboardPage
+        : AppRoutes.welcomePage;
+
+    Navigator.pushReplacementNamed(context, targetRoute);
+
+    // After splash navigates away, process any cold-start notification tap so
+    // the user lands on the right screen rather than the dashboard root.
+    if (targetRoute == AppRoutes.dashboardPage) {
+      final coldStartPayload = FCMClient.consumePendingColdStartPayload();
+      if (coldStartPayload != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          NotificationNavigationService.instance
+              .navigateFromPayload(coldStartPayload, context);
+        });
+      }
+    }
   }
 
   /// Request location permission at app start; if granted, get location and send to API.

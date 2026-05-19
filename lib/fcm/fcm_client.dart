@@ -146,6 +146,18 @@ class FCMClient {
 
   static bool _firebaseColdStartNavigationHandled = false;
 
+  // Payload from a cold-start notification tap. Splash reads this after auth
+  // and navigates; avoids racing with splash's own pushReplacementNamed call.
+  static NotificationPayloadModel? _pendingColdStartPayload;
+
+  /// Consume (read + clear) the cold-start notification payload.
+  /// Call this from the splash screen after auth is confirmed.
+  static NotificationPayloadModel? consumePendingColdStartPayload() {
+    final payload = _pendingColdStartPayload;
+    _pendingColdStartPayload = null;
+    return payload;
+  }
+
   /// Invoked from [MyApp] after the first frame. Do not call [getInitialMessage]
   /// before [MaterialApp] — on Android the activity intent often is not wired yet
   /// during [main] / [FCMClient.init].
@@ -165,8 +177,10 @@ class FCMClient {
       return;
     }
 
-    final payload = NotificationPayloadModel.fromRemoteMessage(initial);
-    await _onTapNotification(payload);
+    // Store instead of navigating immediately. Splash will navigate to dashboard
+    // via pushReplacementNamed, which would overwrite any navigation we do now.
+    // Splash consumes this payload after its own navigation is complete.
+    _pendingColdStartPayload = NotificationPayloadModel.fromRemoteMessage(initial);
   }
 
   /// Set up message listeners
@@ -407,7 +421,12 @@ class FCMClient {
     print(
         'onMessageOpenedApp: title ${message.notification?.title}, body: ${message.notification?.body}');
     final payload = NotificationPayloadModel.fromRemoteMessage(message);
-    _onTapNotification(payload);
+    // Defer one frame so the app is fully resumed and the navigator stack is
+    // settled before we push a new route. Without this the navigation can fire
+    // mid-transition and land on the wrong screen.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _onTapNotification(payload);
+    });
   }
 
   /// Handle tap on notification that we shown in [_onMessage].

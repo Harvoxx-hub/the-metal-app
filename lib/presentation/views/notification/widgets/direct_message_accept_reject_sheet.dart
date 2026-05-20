@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/data/repositories/chat/chat_repository_providers.dart';
 import 'package:metal/domain/entities/notification_dto.dart';
 import 'package:metal/res/colors/cr_colors.dart';
+import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
 /// Modal bottom sheet shown when recipient taps a direct_message notification.
@@ -158,36 +159,64 @@ class _DirectMessageAcceptRejectSheetState
             ),
           ),
           const SizedBox(height: 20),
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: Colors.grey.shade200,
-                backgroundImage:
-                    _senderPhoto != null && _senderPhoto!.isNotEmpty
-                        ? CachedNetworkImageProvider(_senderPhoto!)
+          InkWell(
+            onTap: _senderId.isNotEmpty
+                ? () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.userProfile,
+                      arguments: _senderId,
+                    )
+                : null,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 28,
+                    backgroundColor: Colors.grey.shade200,
+                    backgroundImage:
+                        _senderPhoto != null && _senderPhoto!.isNotEmpty
+                            ? CachedNetworkImageProvider(_senderPhoto!)
+                            : null,
+                    child: _senderPhoto == null || _senderPhoto!.isEmpty
+                        ? TextView(
+                            text: _senderName.isNotEmpty
+                                ? _senderName.substring(0, 1).toUpperCase()
+                                : '?',
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade600,
+                          )
                         : null,
-                child: _senderPhoto == null || _senderPhoto!.isEmpty
-                    ? TextView(
-                        text: _senderName.isNotEmpty
-                            ? _senderName.substring(0, 1).toUpperCase()
-                            : '?',
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade600,
-                      )
-                    : null,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextView(
+                          text: _senderName,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                        TextView(
+                          text: 'Tap to view profile',
+                          fontSize: 12,
+                          color: AppColors.metalPinkColour,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: Colors.grey.shade400,
+                    size: 24,
+                  ),
+                ],
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextView(
-                  text: _senderName,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-            ],
+            ),
           ),
           const SizedBox(height: 16),
           if (_loading)

@@ -1020,15 +1020,14 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
             borderRadius: BorderRadius.circular(24),
             child: InkWell(
               onTap: () async {
-                final success =
+                final error =
                     await viewModel.broadcastMeetup(widget.meetupId);
                 if (mounted) {
-                  if (success) {
+                  if (error == null) {
                     Fluttertoast.showToast(
                         msg: 'Meetup re-broadcast successfully');
                   } else {
-                    Fluttertoast.showToast(
-                        msg: 'Re-broadcast failed. Try again later.');
+                    Fluttertoast.showToast(msg: error);
                   }
                 }
               },

@@ -7,6 +7,10 @@ class ReactionDto extends BaseEntity {
   final String thoughtId;
   final String emoji;
   final DateTime createdAt;
+  /// Denormalized from the reaction document — available even if the user
+  /// profile can no longer be fetched (deleted account, network error).
+  final String? username;
+  final String? metalId;
 
   const ReactionDto({
     required this.id,
@@ -14,6 +18,8 @@ class ReactionDto extends BaseEntity {
     required this.thoughtId,
     required this.emoji,
     required this.createdAt,
+    this.username,
+    this.metalId,
   });
 
   ReactionDto copyWith({
@@ -22,6 +28,8 @@ class ReactionDto extends BaseEntity {
     String? thoughtId,
     String? emoji,
     DateTime? createdAt,
+    String? username,
+    String? metalId,
   }) {
     return ReactionDto(
       id: id ?? this.id,
@@ -29,6 +37,8 @@ class ReactionDto extends BaseEntity {
       thoughtId: thoughtId ?? this.thoughtId,
       emoji: emoji ?? this.emoji,
       createdAt: createdAt ?? this.createdAt,
+      username: username ?? this.username,
+      metalId: metalId ?? this.metalId,
     );
   }
 }

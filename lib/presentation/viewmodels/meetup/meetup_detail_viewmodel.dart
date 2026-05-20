@@ -235,14 +235,15 @@ class MeetupDetailViewModel extends StateNotifier<MeetupDetailState> {
     await loadMeetup(meetupId);
   }
 
-  /// Re-broadcast the meetup to reach more users (creator only). Returns true on success.
-  Future<bool> broadcastMeetup(String meetupId) async {
+  /// Re-broadcast the meetup to reach more users (creator only).
+  /// Returns null on success, or the error message string on failure.
+  Future<String?> broadcastMeetup(String meetupId) async {
     final result = await _repository.broadcastMeetup(meetupId);
     if (result.isSuccess) {
       await loadMeetup(meetupId);
-      return true;
+      return null;
     }
-    return false;
+    return result.errorMessage ?? 'Re-broadcast failed. Try again later.';
   }
 
 }

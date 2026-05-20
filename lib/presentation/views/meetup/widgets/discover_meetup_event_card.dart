@@ -159,6 +159,13 @@ class DiscoverMeetupEventCard extends ConsumerWidget {
   }
 
   String _timeDisplay() {
+    if (meetup.isPast) {
+      try {
+        return 'Ended ${DateFormat('MMM d').format(meetup.eventDateTime)}';
+      } catch (_) {
+        return 'Past event';
+      }
+    }
     try {
       final dt = meetup.eventDateTime;
       final now = DateTime.now();
@@ -200,6 +207,22 @@ class DiscoverMeetupEventCard extends ConsumerWidget {
   }
 
   Widget _buildActionButton(BuildContext context, bool isCreator) {
+    // Past event: no action possible, show greyed-out label
+    if (meetup.isPast) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.metalTabBg,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: TextView(
+          text: 'PAST',
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: AppColors.metalBrownColourForText.withValues(alpha: 0.45),
+        ),
+      );
+    }
     // Creator: show "View" only — they can't join their own Meetup; tap opens detail/dashboard.
     if (isCreator) {
       return Container(

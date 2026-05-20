@@ -81,7 +81,7 @@ class MeetupRemoteDataSource {
 
     if (response.statusCode == 200 && response.data != null) {
       final responseData = response.data['data'] as Map<String, dynamic>? ?? response.data;
-      return MeetupModel.fromJson(responseData);
+      return MeetupModel.fromJson(responseData['meetup'] ?? responseData);
     }
 
     throw Exception(response.data?['error'] ?? 'Failed to update meetup');

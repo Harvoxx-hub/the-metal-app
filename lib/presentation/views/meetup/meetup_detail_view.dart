@@ -10,6 +10,7 @@ import 'package:metal/core/services/deep_link_service.dart';
 import 'package:metal/data/repositories/place/place_repository_providers.dart';
 import 'package:metal/domain/entities/meetup_dto.dart';
 import 'package:metal/presentation/viewmodels/meetup/meetup_detail_viewmodel.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/meetup/edit_meetup_screen.dart';
 import 'package:metal/presentation/views/meetup/widgets/rsvp_section.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -76,11 +77,14 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     final state = ref.watch(meetupDetailViewModelProvider(widget.meetupId));
     final viewModel =
         ref.read(meetupDetailViewModelProvider(widget.meetupId).notifier);
+    final currentUser = ref.watch(currentUserProvider);
+    final isCreator = currentUser?.id != null &&
+        state.meetup?.creatorId == currentUser!.id;
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildAppBar(state, viewModel),
-      body: _buildBody(state, viewModel),
+      body: _buildBody(state, viewModel, isCreator),
     );
   }
 
@@ -109,7 +113,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
   static const double _paddingH = 16;
   static const double _sectionGap = 20;
 
-  Widget _buildBody(MeetupDetailState state, MeetupDetailViewModel viewModel) {
+  Widget _buildBody(MeetupDetailState state, MeetupDetailViewModel viewModel, bool isCreator) {
     if (widget.meetupId.isEmpty) {
       return const EmptyState(text: 'Invalid link');
     }
@@ -117,6 +121,9 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
       return const Center(child: CircularProgressIndicator.adaptive());
     }
     if (state.isError) {
+      if (state.isNotFound) {
+        return _buildDeletedMeetupState();
+      }
       return ErrorState(
         text: state.errorMessage ?? 'Failed to load meetup',
         retry: () => viewModel.refresh(widget.meetupId),
@@ -137,10 +144,10 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Gap(8),
-            _buildPageHeader(meetup, viewModel),
+            _buildPageHeader(meetup, viewModel, isCreator),
             const Gap(10),
-            _buildStatusBadge(meetup, viewModel.isCreator),
-            if (!viewModel.isCreator) ...[
+            _buildStatusBadge(meetup, isCreator),
+            if (!isCreator) ...[
               const Gap(10),
               _buildHostOnlyEditNote(),
             ],
@@ -153,7 +160,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
             const Gap(_sectionGap),
             _buildPeopleAttendingSection(state, viewModel),
             const Gap(_sectionGap),
-            if (viewModel.isCreator) ...[
+            if (isCreator) ...[
               _buildStatsCards(meetup),
               const Gap(_sectionGap),
               _buildCapacitySection(meetup),
@@ -176,7 +183,60 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
     );
   }
 
-  Widget _buildPageHeader(MeetupDto meetup, MeetupDetailViewModel viewModel) {
+  Widget _buildDeletedMeetupState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.event_busy_outlined,
+              size: 72,
+              color: Colors.grey.shade400,
+            ),
+            const Gap(20),
+            const TextView(
+              text: 'Meetup no longer available',
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              textAlign: TextAlign.center,
+            ),
+            const Gap(10),
+            TextView(
+              text: 'This meetup has been deleted by the host.',
+              fontSize: 15,
+              textAlign: TextAlign.center,
+              color: Colors.grey.shade600,
+            ),
+            const Gap(28),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.metalPinkColour,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+                onPressed: () => Navigator.pop(context),
+                child: const TextView(
+                  text: 'Go Back',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPageHeader(MeetupDto meetup, MeetupDetailViewModel viewModel, bool isCreator) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -188,7 +248,7 @@ class _MeetupDetailViewState extends ConsumerState<MeetupDetailView> {
             color: AppColors.metalBrownColourForText,
           ),
         ),
-        if (viewModel.isCreator)
+        if (isCreator)
           IconButton(
             icon: const Icon(Icons.settings_outlined,
                 color: AppColors.metalBrownColourForText),

@@ -2,13 +2,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/data/repositories/meetup/meetup_repository.dart';
 import 'package:metal/data/repositories/meetup/meetup_repository_providers.dart';
 import 'package:metal/domain/entities/meetup_dto.dart';
-import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 
 /// Meetup Detail State
 class MeetupDetailState {
   final bool isLoading;
   final bool isSuccess;
   final bool isError;
+  /// True when the meetup was deleted or never existed (404). Distinct from
+  /// generic errors so the UI can show a "meetup deleted" prompt instead of
+  /// a retry screen.
+  final bool isNotFound;
   final String? errorMessage;
   final MeetupDto? meetup;
   final List<MeetupRsvpDto> attendees;
@@ -22,6 +25,7 @@ class MeetupDetailState {
     this.isLoading = false,
     this.isSuccess = false,
     this.isError = false,
+    this.isNotFound = false,
     this.errorMessage,
     this.meetup,
     this.attendees = const [],
@@ -49,10 +53,19 @@ class MeetupDetailState {
     );
   }
 
+  factory MeetupDetailState.notFound() {
+    return const MeetupDetailState(
+      isError: true,
+      isNotFound: true,
+      errorMessage: 'This meetup has been deleted',
+    );
+  }
+
   MeetupDetailState copyWith({
     bool? isLoading,
     bool? isSuccess,
     bool? isError,
+    bool? isNotFound,
     String? errorMessage,
     MeetupDto? meetup,
     List<MeetupRsvpDto>? attendees,
@@ -65,6 +78,7 @@ class MeetupDetailState {
       isLoading: isLoading ?? this.isLoading,
       isSuccess: isSuccess ?? this.isSuccess,
       isError: isError ?? this.isError,
+      isNotFound: isNotFound ?? this.isNotFound,
       errorMessage: errorMessage ?? this.errorMessage,
       meetup: meetup ?? this.meetup,
       attendees: attendees ?? this.attendees,
@@ -79,13 +93,10 @@ class MeetupDetailState {
 /// Meetup Detail ViewModel
 class MeetupDetailViewModel extends StateNotifier<MeetupDetailState> {
   final MeetupRepository _repository;
-  final String _currentUserId;
 
   MeetupDetailViewModel({
     required MeetupRepository repository,
-    required String currentUserId,
   })  : _repository = repository,
-        _currentUserId = currentUserId,
         super(MeetupDetailState.initial());
 
   /// [silentRefresh] when true: do not set loading state (keeps current UI, e.g. after RSVP).
@@ -102,9 +113,15 @@ class MeetupDetailViewModel extends StateNotifier<MeetupDetailState> {
       state = MeetupDetailState.success(result.data!).copyWith(attendeeStatus: 'accepted');
       await loadAttendees(meetupId);
     } else if (!silentRefresh) {
-      state = MeetupDetailState.error(
-        result.errorMessage ?? 'Failed to load meetup',
-      );
+      final is404 = result.errorHttpStatus == 404 ||
+          (result.errorMessage?.toLowerCase().contains('not found') == true);
+      if (is404) {
+        state = MeetupDetailState.notFound();
+      } else {
+        state = MeetupDetailState.error(
+          result.errorMessage ?? 'Failed to load meetup',
+        );
+      }
     }
   }
 
@@ -228,17 +245,12 @@ class MeetupDetailViewModel extends StateNotifier<MeetupDetailState> {
     return false;
   }
 
-  bool get isCreator {
-    return state.meetup?.creatorId == _currentUserId;
-  }
 }
 
 /// Meetup Detail ViewModel Provider (parameterized by meetupId)
 final meetupDetailViewModelProvider =
     StateNotifierProvider.family<MeetupDetailViewModel, MeetupDetailState, String>((ref, meetupId) {
-  final currentUser = ref.watch(currentUserProvider);
   return MeetupDetailViewModel(
     repository: ref.read(meetupRepositoryProvider),
-    currentUserId: currentUser?.id ?? '',
   );
 });

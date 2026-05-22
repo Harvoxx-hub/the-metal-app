@@ -45,8 +45,11 @@ class MeetupRemoteDataSource {
     );
 
     if (response.statusCode == 200 && response.data != null) {
-      final data = response.data['data'] as Map<String, dynamic>? ?? response.data;
-      return MeetupModel.fromJson(data['meetup'] ?? data);
+      final meetupJson = _extractMeetupJson(response.data);
+      if (meetupJson == null) {
+        throw Exception('Invalid meetup response');
+      }
+      return MeetupModel.fromJson(_normalizeMeetupJson(meetupJson));
     }
 
     throw Exception(response.data?['error'] ?? 'Failed to get meetup');
@@ -61,8 +64,10 @@ class MeetupRemoteDataSource {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       if (response.data != null) {
-        final responseData = response.data['data'] as Map<String, dynamic>? ?? response.data;
-        return MeetupModel.fromJson(responseData['meetup'] ?? responseData);
+        final meetupJson = _extractMeetupJson(response.data);
+        if (meetupJson != null) {
+          return MeetupModel.fromJson(_normalizeMeetupJson(meetupJson));
+        }
       }
     }
 
@@ -80,8 +85,12 @@ class MeetupRemoteDataSource {
     );
 
     if (response.statusCode == 200 && response.data != null) {
-      final responseData = response.data['data'] as Map<String, dynamic>? ?? response.data;
-      return MeetupModel.fromJson(responseData['meetup'] ?? responseData);
+      final meetupJson = _extractMeetupJson(response.data);
+      if (meetupJson != null && _isFullMeetupPayload(meetupJson)) {
+        return MeetupModel.fromJson(_normalizeMeetupJson(meetupJson));
+      }
+      // Older API returns only changed fields (meetupId + patch), not a full meetup
+      return getMeetupById(meetupId);
     }
 
     throw Exception(response.data?['error'] ?? 'Failed to update meetup');
@@ -164,6 +173,29 @@ class MeetupRemoteDataSource {
       throw Exception(response.data?['error'] ?? 'Failed to broadcast meetup');
     }
   }
+}
+
+Map<String, dynamic>? _extractMeetupJson(dynamic responseBody) {
+  if (responseBody is! Map<String, dynamic>) return null;
+  final data = responseBody['data'] as Map<String, dynamic>? ?? responseBody;
+  final meetup = data['meetup'];
+  if (meetup is Map<String, dynamic>) return meetup;
+  if (data['id'] != null || data['meetupId'] != null) return data;
+  return null;
+}
+
+bool _isFullMeetupPayload(Map<String, dynamic> json) {
+  final hasId = json['id'] != null || json['meetupId'] != null;
+  return hasId &&
+      json['creatorId'] != null &&
+      json['eventName'] != null &&
+      json['status'] != null;
+}
+
+Map<String, dynamic> _normalizeMeetupJson(Map<String, dynamic> json) {
+  final normalized = Map<String, dynamic>.from(json);
+  normalized['id'] ??= normalized['meetupId'];
+  return normalized;
 }
 
 /// Meetups response model

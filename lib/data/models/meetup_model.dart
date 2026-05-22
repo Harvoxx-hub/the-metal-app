@@ -63,7 +63,7 @@ class MeetupModel {
 
   factory MeetupModel.fromJson(Map<String, dynamic> json) {
     return MeetupModel(
-      id: json['id'] as String,
+      id: (json['id'] ?? json['meetupId']) as String,
       eventName: json['eventName'] as String,
       date: json['date'] as String,
       time: json['time'] as String,

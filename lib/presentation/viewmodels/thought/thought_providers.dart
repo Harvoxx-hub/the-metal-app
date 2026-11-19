@@ -19,6 +19,8 @@ final thoughtRepositoryProvider = Provider<ThoughtRepository>((ref) {
 /// Provider for ThoughtFeedViewModel
 final thoughtFeedViewModelProvider =
     StateNotifierProvider.autoDispose<ThoughtFeedViewModel, ThoughtFeedState>((ref) {
+  // Keep feed state when switching dashboard tabs so post/delete sync isn't lost.
+  ref.keepAlive();
   final repository = ref.watch(thoughtRepositoryProvider);
   final viewModel = ThoughtFeedViewModel(repository: repository);
   viewModel.loadThoughts();

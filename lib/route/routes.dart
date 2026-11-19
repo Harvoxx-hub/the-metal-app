@@ -42,6 +42,9 @@ import 'package:metal/presentation/views/notification/notification_view.dart';
 // Verification
 import 'package:metal/presentation/views/verification/work_email_verification_view.dart';
 
+// Location (central flow; discovery uses stored user model)
+import 'package:metal/presentation/views/location/enable_location_view.dart';
+
 // Settings
 import 'package:metal/presentation/views/settings/blocked_users_view.dart';
 
@@ -231,6 +234,18 @@ class AppRoutes {
       case settingPage:
         return MaterialPageRoute(builder: (_) => const SettingsView());
 
+      case locationEnablePage: {
+        final args = settings.arguments is Map
+            ? settings.arguments as Map<String, dynamic>
+            : null;
+        return MaterialPageRoute(
+          builder: (_) => EnableLocationView(
+            fromSplash: args?['fromSplash'] as bool? ?? false,
+            profileUpdated: args?['profileUpdated'] as bool? ?? false,
+          ),
+        );
+      }
+
       case blockedUser:
         return MaterialPageRoute(builder: (_) => const BlockedUsersView());
       case notificationPage:
@@ -305,10 +320,33 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const DeleteAccountView());
 
       case postThought:
-        final communityMetadata = settings.arguments as Map<String, dynamic>?;
+        final rawArgs = settings.arguments;
+        Map<String, dynamic>? communityMetadata;
+        String? editThoughtId;
+        String? editText;
+        bool editConnectionOnly = false;
+
+        if (rawArgs is Map<String, dynamic>) {
+          // New edit-mode payload shape:
+          // { communityMetadata?: {...}, editThoughtId, editText, editConnectionOnly }
+          if (rawArgs.containsKey('communityMetadata')) {
+            final cm = rawArgs['communityMetadata'];
+            communityMetadata = cm is Map<String, dynamic> ? cm : null;
+          } else {
+            // Backwards compatible: old callers pass community metadata directly
+            communityMetadata = rawArgs;
+          }
+
+          editThoughtId = rawArgs['editThoughtId'] as String?;
+          editText = rawArgs['editText'] as String?;
+          editConnectionOnly = rawArgs['editConnectionOnly'] as bool? ?? false;
+        }
         return MaterialPageRoute(
           builder: (_) => CreateThoughtScreen(
             communityMetadata: communityMetadata,
+            editThoughtId: editThoughtId,
+            editText: editText,
+            editConnectionOnly: editConnectionOnly,
           ),
         );
       case thoughtDetails:

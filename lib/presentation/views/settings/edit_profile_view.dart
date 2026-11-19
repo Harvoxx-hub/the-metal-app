@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/base/widget/appbar.state.dart';
+import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/data/models/metal_properties_model.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/presentation/viewmodels/profile/metal_properties_provider.dart';
@@ -100,8 +101,17 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
                     ),
                     const Gap(20),
                     EditField(
-                      text: user.phone ?? "Phone Number",
+                      text: user.phone?.isNotEmpty == true
+                          ? user.phone!
+                          : "Add phone number",
                       floatingLabel: "Phone Number",
+                      subLabel: "Edit",
+                      editType: EditType.text,
+                      onSubLabel: (value) {
+                        if (value != null && value.toString().trim().isNotEmpty) {
+                          _updateField('phone', value.toString().trim());
+                        }
+                      },
                     ),
                     const Gap(20),
                     EditField(
@@ -112,8 +122,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
                         "Male",
                         "Female",
                         "Non-binary",
-                        "Prefer not to say",
-                        "Others",
+                       
                       ],
                       editType: EditType.dropdown,
                       onSubLabel: (value) => _updateField('gender', value),
@@ -170,7 +179,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
                     const Gap(20),
                     EditField(
                       text: user.extraData?.religion ?? "Religion",
-                      floatingLabel: "Religion",
+                      floatingLabel: AppStrings.yourReligionLabel,
                       subLabel: "Edit",
                       dropDownItems: metalProperties.religion,
                       editType: EditType.dropdown,
@@ -213,8 +222,15 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
     );
 
     if (!success && mounted) {
-      final errorMessage = ref.read(userStateProvider).errorMessage;
-      Fluttertoast.showToast(msg: errorMessage ?? 'Failed to update profile');
+      final raw = ref.read(userStateProvider).errorMessage ?? '';
+      final isConnectionError = raw.contains('Connection refused') ||
+          raw.contains('ConnectionTimeout') ||
+          raw.contains('ReceiveTimeout') ||
+          raw.contains('connection');
+      final msg = isConnectionError
+          ? 'Couldn\'t save. Check your connection and try again.'
+          : (raw.isNotEmpty ? raw : 'Failed to update profile');
+      Fluttertoast.showToast(msg: msg);
     }
   }
 }

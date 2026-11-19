@@ -5,9 +5,15 @@ import 'package:metal/widgets/button/outiline.button.dart';
 import 'package:metal/widgets/text_views.dart';
 
 class ErrorState extends StatelessWidget {
-  const ErrorState({super.key, required this.retry, this.text});
+  const ErrorState({
+    super.key,
+    required this.retry,
+    this.text,
+    this.retryButtonText = 'Try Again',
+  });
   final Function() retry;
   final String? text;
+  final String retryButtonText;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +36,7 @@ class ErrorState extends StatelessWidget {
           ),
           const Gap(10),
           OutilineButton(
-            buttonText: "Try Again",
+            buttonText: retryButtonText,
             onPressed: retry,
           ),
         ],

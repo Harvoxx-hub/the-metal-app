@@ -5,16 +5,23 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
 import 'package:metal/widgets/text_views.dart';
 
+/// Signature for when location permission is granted (caller may update profile then pop).
+typedef OnLocationGranted = Future<void> Function()?;
+
 /// Location permission screen
-/// Shows when user hasn't granted location permissions
+/// Shows when user hasn't granted location permissions.
+/// [onEnablePressed] when set and not permanently denied: show "Enable Location" button (request in-app).
+/// [onLocationGranted] called when permission is granted (e.g. after returning from Settings); awaited before pop.
 class LocationPermissionScreen extends StatelessWidget {
   final bool isPermanentlyDenied;
-  final VoidCallback? onLocationGranted;
+  final OnLocationGranted onLocationGranted;
+  final VoidCallback? onEnablePressed;
 
   const LocationPermissionScreen({
     super.key,
     this.isPermanentlyDenied = false,
     this.onLocationGranted,
+    this.onEnablePressed,
   });
 
   @override
@@ -109,6 +116,17 @@ class LocationPermissionScreen extends StatelessWidget {
                 const SizedBox(height: 32),
               ],
 
+              // Enable Location (in-app request) when not permanently denied
+              if (!isPermanentlyDenied && onEnablePressed != null) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: BaseButton(
+                    buttonText: "Enable Location",
+                    onPressed: onEnablePressed,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               // Open Settings Button
               SizedBox(
                 width: double.infinity,
@@ -173,7 +191,7 @@ class LocationPermissionScreen extends StatelessWidget {
 
     for (var attempt = 0; attempt < maxAttempts && context.mounted; attempt++) {
       if (await PermissionHelper.hasLocationPermission()) {
-        onLocationGranted?.call();
+        await onLocationGranted?.call();
         if (context.mounted) {
           Navigator.of(context).pop();
         }

@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/fcm/fcm_client.dart';
 import 'package:metal/presentation/viewmodels/auth/verification_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/res.dart';
@@ -77,6 +78,10 @@ class _VerificationViewState extends ConsumerState<VerificationView> {
   void _handleVerificationSuccess() async {
     // Refresh user state to get updated emailVerified status
     await ref.read(userStateProvider.notifier).fetchAndSetUser();
+
+    try {
+      await FCMClient.instance.registerTokenWithBackend(ref);
+    } catch (_) {}
 
     if (!mounted) return;
 

@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/base/page/base_page_state.dart';
+import 'package:metal/core/services/chat_assistant_analytics.dart';
+import 'package:metal/core/services/firebase.remote.config.service.dart';
 import 'package:metal/domain/entities/message_dto.dart';
+import 'package:metal/presentation/viewmodels/chat/chat_assistant_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_viewmodel_providers.dart';
 import 'package:metal/presentation/viewmodels/chat/chat_window_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/connection/connection_providers.dart';
@@ -11,6 +14,7 @@ import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/chat/widgets/chat_app_bar.dart';
 import 'package:metal/presentation/views/chat/widgets/chat_input.dart';
 import 'package:metal/presentation/views/chat/widgets/chat_message_list.dart';
+import 'package:metal/presentation/views/chat/widgets/chat_suggestion_bar.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/error.state.dart';
@@ -29,6 +33,10 @@ class ChatWindowView extends ConsumerStatefulWidget {
 
 class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _chatTextController = TextEditingController();
+
+  /// Avoid re-feeding the same transcript into the assistant on every rebuild.
+  String? _lastChatAssistantMessageSignature;
 
   @override
   void initState() {
@@ -45,13 +53,14 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _chatTextController.dispose();
     super.dispose();
   }
 
   void _onScroll() {
-    // Load more messages when scrolling to top
-    if (_scrollController.position.pixels <=
-        _scrollController.position.minScrollExtent + 100) {
+    // With reverse: true, older messages are towards maxScrollExtent
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 100) {
       ref
           .read(chatWindowViewModelProvider(widget.connectionId).notifier)
           .loadMoreMessages();
@@ -61,8 +70,9 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
+        // With reverse: true, the bottom (newest messages) is at offset 0
         _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
+          0.0,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
@@ -85,6 +95,22 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
         if (current.isSuccess && previous?.isSuccess != true) {
           // Invalidate connection detail to refresh unread count
           ref.invalidate(connectionDetailProvider(widget.connectionId));
+          // BUG-020: Open chat at most recent message (scroll to bottom)
+          if (current.messages.isNotEmpty) {
+            _scrollToBottom();
+          }
+        }
+
+        // AI assistant: only react when the message list actually changes (not every rebuild).
+        final connection = ref
+            .read(connectionDetailProvider(widget.connectionId))
+            .valueOrNull;
+        if (connection is ChatConnectionDto) {
+          _syncChatAssistantIfEnabled(
+            current,
+            connection,
+            ref.read(currentUserProvider)?.id,
+          );
         }
       },
     );
@@ -135,8 +161,24 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
       return const EmptyState(text: 'User not found');
     }
 
-    final isPendingReceiver = connection.meltStatus == 'pending' &&
-        connection.isUserReceiver(currentUser?.id ?? '');
+    // BUG-011: Allow reply when there are already messages (don't show "Melt to reply" / block input)
+    final pendingReceiverNoMessages = connection.meltStatus == 'pending' &&
+        connection.isUserReceiver(currentUser?.id ?? '') &&
+        chatState.messages.isEmpty;
+    final canSend = !pendingReceiverNoMessages;
+
+    final assistantEnabled = canSend &&
+        FirebaseRemoteConfigService().isChatAssistantEnabled();
+
+    if (assistantEnabled) {
+      _syncChatAssistantIfEnabled(
+        chatState,
+        connection,
+        currentUser?.id,
+      );
+    } else {
+      _lastChatAssistantMessageSignature = null;
+    }
 
     return Column(
       children: [
@@ -146,18 +188,41 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
           connection: connection,
           otherUser: otherUser,
         ),
-        // Pending melt banner
-        if (isPendingReceiver) _buildPendingMeltBanner(connection),
+        // Pending melt banner (only when no messages yet)
+        if (pendingReceiverNoMessages) _buildPendingMeltBanner(connection),
         // Messages list
         Expanded(
           child: _buildMessagesList(chatState, currentUser?.id ?? ''),
         ),
-        // Input (no gap/padding between messages and input)
+        // AI suggestion bar (only when user can send and feature is enabled)
+        if (assistantEnabled)
+          ChatSuggestionBar(
+            connectionId: widget.connectionId,
+            onSuggestionTapped: (suggestion) {
+              _chatTextController.text = suggestion;
+              _chatTextController.selection = TextSelection.fromPosition(
+                TextPosition(offset: suggestion.length),
+              );
+              ChatAssistantAnalytics.logSuggestionTapped(
+                mode: ref
+                    .read(chatAssistantProvider(widget.connectionId))
+                    .mode
+                    .apiValue,
+                index: ref
+                    .read(chatAssistantProvider(widget.connectionId))
+                    .suggestions
+                    .indexOf(suggestion),
+              );
+            },
+          ),
+        if (assistantEnabled) const Gap(4),
+        // Input
         ChatInput(
           connectionId: widget.connectionId,
-          canSend: !isPendingReceiver,
+          canSend: canSend,
           connection: connection,
           onMessageSent: _scrollToBottom,
+          textController: _chatTextController,
         ),
       ],
     );
@@ -325,6 +390,36 @@ class _ChatWindowViewState extends ConsumerState<ChatWindowView> {
         Fluttertoast.showToast(msg: 'Error: $e');
       }
     }
+  }
+
+  static String _messageListSignature(List<MessageDto> messages) {
+    if (messages.isEmpty) return '0:empty';
+    return '${messages.length}:${messages.first.id}:${messages.last.id}';
+  }
+
+  /// Notifies the chat assistant only when the transcript identity changes.
+  void _syncChatAssistantIfEnabled(
+    ChatWindowState chatState,
+    ChatConnectionDto connection,
+    String? currentUserId,
+  ) {
+    final pendingReceiverNoMessages = connection.meltStatus == 'pending' &&
+        connection.isUserReceiver(currentUserId ?? '') &&
+        chatState.messages.isEmpty;
+    final canSend = !pendingReceiverNoMessages;
+    if (!canSend ||
+        !FirebaseRemoteConfigService().isChatAssistantEnabled()) {
+      return;
+    }
+
+    final sig = _messageListSignature(chatState.messages);
+    if (_lastChatAssistantMessageSignature == sig) return;
+    _lastChatAssistantMessageSignature = sig;
+
+    ref.read(chatAssistantProvider(widget.connectionId).notifier).onMessagesChanged(
+          chatState.messages,
+          currentUserId,
+        );
   }
 }
 

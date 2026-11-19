@@ -70,10 +70,19 @@ class DiscoveryRemoteDataSource {
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        final data = response.data['data'] as Map<String, dynamic>?;
+        final bodyMap = response.data is Map<String, dynamic>
+            ? response.data as Map<String, dynamic>
+            : null;
+        final apiMessage = bodyMap?['message'] as String?;
+
+        final data = bodyMap?['data'] as Map<String, dynamic>?;
 
         if (data == null) {
-          return const DiscoveryUsersResponse(users: [], pagination: null);
+          return DiscoveryUsersResponse(
+            users: [],
+            pagination: null,
+            apiMessage: apiMessage,
+          );
         }
 
         final usersJson = data['users'] as List<dynamic>? ?? [];
@@ -87,7 +96,11 @@ class DiscoveryRemoteDataSource {
             ? DiscoveryPaginationDto.fromJson(paginationJson)
             : null;
 
-        return DiscoveryUsersResponse(users: users, pagination: pagination);
+        return DiscoveryUsersResponse(
+          users: users,
+          pagination: pagination,
+          apiMessage: apiMessage,
+        );
       }
 
       throw Exception(
@@ -199,9 +212,13 @@ class DiscoveryUsersResponse {
   final List<DiscoveryUserDto> users;
   final DiscoveryPaginationDto? pagination;
 
+  /// Top-level `message` from API (e.g. "Enable location to discover users near you").
+  final String? apiMessage;
+
   const DiscoveryUsersResponse({
     required this.users,
     this.pagination,
+    this.apiMessage,
   });
 }
 

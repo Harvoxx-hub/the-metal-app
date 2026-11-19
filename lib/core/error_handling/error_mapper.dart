@@ -34,7 +34,11 @@ class ErrorMapper {
       if (responseData.containsKey('error')) {
         final error = responseData['error'];
         if (error is String) {
-          return _mapErrorCodeToMessage(error);
+          // If backend sends a human-readable message, use it as-is.
+          // Otherwise treat it as an error code.
+          final looksLikeSentence =
+              error.contains(' ') || error.contains('.') || error.contains(',');
+          return looksLikeSentence ? error : _mapErrorCodeToMessage(error);
         }
       }
       // Check for 'message' field as fallback
@@ -98,6 +102,13 @@ class ErrorMapper {
     }
   }
 
+  /// Dio wraps failed responses with a long [validateStatus] explanation in some code paths.
+  static bool _looksLikeDioWrappedBadResponse(String s) {
+    final lower = s.toLowerCase();
+    return lower.contains('validatestatus') &&
+        (lower.contains('404') || lower.contains('status code'));
+  }
+
   /// Extract error message from API response
   static String extractErrorMessage(dynamic error) {
     if (error is Responses) {
@@ -118,9 +129,13 @@ class ErrorMapper {
         }
       }
       // Return a cleaner version of the exception message
-      return errorString
+      final cleaned = errorString
           .replaceAll('Exception: ', '')
           .replaceAll('Login failed: ', '');
+      if (_looksLikeDioWrappedBadResponse(cleaned)) {
+        return 'Resource not found.';
+      }
+      return cleaned;
     }
     return error.toString();
   }

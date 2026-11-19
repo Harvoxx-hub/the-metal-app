@@ -200,6 +200,46 @@ class CreateThoughtViewModel extends StateNotifier<CreateThoughtState> {
       return null;
     }
   }
+
+  /// Update an existing thought's content.
+  ///
+  /// Note: Current backend update endpoint supports content updates only.
+  /// (Audio editing is not supported yet in this flow.)
+  Future<ThoughtDto?> updateThought({
+    required String thoughtId,
+    required bool connectionOnly,
+  }) async {
+    if (!state.canPost) return null;
+
+    state = state.copyWith(isPosting: true, isError: false, errorMessage: null);
+
+    try {
+      final result = await _repository.updateThought(
+        thoughtId: thoughtId,
+        content: state.text.trim(),
+        connectionOnly: connectionOnly,
+      );
+
+      if (result.isSuccess && result.data != null) {
+        state = state.copyWith(isPosting: false, isSuccess: true);
+        return result.data;
+      }
+
+      state = state.copyWith(
+        isPosting: false,
+        isError: true,
+        errorMessage: result.errorMessage ?? 'Failed to update thought',
+      );
+      return null;
+    } catch (e) {
+      state = state.copyWith(
+        isPosting: false,
+        isError: true,
+        errorMessage: 'Error: $e',
+      );
+      return null;
+    }
+  }
 }
 
 /// Provider for Create Thought ViewModel.

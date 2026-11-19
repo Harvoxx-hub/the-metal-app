@@ -10,6 +10,14 @@ import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/widgets/text_views.dart';
 
+/// Hides legacy placeholder text when geocoding did not produce a real address.
+String? _displayableLocationAddress(String? address) {
+  final a = address?.trim();
+  if (a == null || a.isEmpty) return null;
+  if (a == 'Location shared') return null;
+  return a;
+}
+
 /// Discovery User Card for swipe interface — old UI with prompt flow and direct message.
 /// Uses [DiscoveryUserDto] and [EnhancedSwipeCard] for Tinder-like swipe feedback.
 /// Swipe up or star/message buttons open the direct message dialog.
@@ -31,6 +39,8 @@ class DiscoveryUserCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final metalProperties = ref.watch(metalPropertiesProvider);
+
     return EnhancedSwipeCard(
       onSwipeLeft: onPass,
       onSwipeRight: onLike,
@@ -42,7 +52,6 @@ class DiscoveryUserCard extends ConsumerWidget {
       velocityThreshold: 500.0,
       child: GestureDetector(
         onTap: () {
-          // Open metal profile for viewing only — does not create a connection.
           Navigator.pushNamed(
             context,
             AppRoutes.userProfile,
@@ -65,7 +74,6 @@ class DiscoveryUserCard extends ConsumerWidget {
             borderRadius: BorderRadius.circular(20),
             child: Stack(
               children: [
-                // Background
                 Positioned.fill(
                   child: Container(
                     decoration: const BoxDecoration(
@@ -74,34 +82,30 @@ class DiscoveryUserCard extends ConsumerWidget {
                   ),
                 ),
 
-                // Metal image at top
                 Positioned(
                   top: 20,
                   left: 0,
                   right: 0,
                   child: SizedBox(
                     height: 300,
-                    child: _buildMetalBackground(ref),
+                    child: _buildMetalBackground(metalProperties),
                   ),
                 ),
 
-                // User info at bottom
                 Positioned(
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  child: _buildUserInfo(context, ref),
+                  child: _buildUserInfo(context, metalProperties),
                 ),
 
-                // Location and distance badge
                 Positioned(
                   top: 16,
                   left: 16,
                   child: _buildLocationBadge(),
                 ),
 
-                // Online indicator
-                if (user.isOnline)
+                if (user.isOnline && (user.showOnline ?? true))
                   Positioned(
                     top: 16,
                     right: 16,
@@ -123,9 +127,7 @@ class DiscoveryUserCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildMetalBackground(WidgetRef ref) {
-    final metalProperties = ref.watch(metalPropertiesProvider);
-
+  Widget _buildMetalBackground(MetalPropertiesState metalProperties) {
     if (metalProperties.isLoading || metalProperties.data?.metals == null) {
       return _buildDefaultBackground();
     }
@@ -145,6 +147,8 @@ class DiscoveryUserCard extends ConsumerWidget {
       fit: BoxFit.fill,
       width: double.infinity,
       height: double.infinity,
+      memCacheWidth: 400,
+      memCacheHeight: 400,
       placeholder: (context, url) => _buildDefaultBackground(),
       errorWidget: (context, url, error) => _buildDefaultBackground(),
     );
@@ -174,7 +178,7 @@ class DiscoveryUserCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildUserInfo(BuildContext context, WidgetRef ref) {
+  Widget _buildUserInfo(BuildContext context, MetalPropertiesState metalProperties) {
     final prompts = user.prompts ?? [];
 
     return Container(
@@ -214,7 +218,7 @@ class DiscoveryUserCard extends ConsumerWidget {
                     size: 16,
                   ),
                 ),
-              _buildMetalTitle(ref),
+              _buildMetalTitle(metalProperties),
             ],
           ),
 
@@ -314,17 +318,19 @@ class DiscoveryUserCard extends ConsumerWidget {
 
           const SizedBox(height: 16),
 
-          // Action buttons
+          // Action buttons (BUG-007: include text labels)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildActionButton(
                 icon: Icons.close,
+                label: 'Pass',
                 color: Colors.red,
                 onTap: onPass,
               ),
               _buildActionButton(
                 icon: Icons.message,
+                label: 'Message',
                 color: AppColors.metalPinkColour,
                 onTap: () {
                   onMessage?.call();
@@ -333,6 +339,7 @@ class DiscoveryUserCard extends ConsumerWidget {
               ),
               _buildActionButton(
                 icon: Icons.favorite,
+                label: 'Like',
                 color: Colors.green,
                 onTap: onLike,
               ),
@@ -343,9 +350,7 @@ class DiscoveryUserCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildMetalTitle(WidgetRef ref) {
-    final metalProperties = ref.watch(metalPropertiesProvider);
-
+  Widget _buildMetalTitle(MetalPropertiesState metalProperties) {
     if (metalProperties.isLoading || metalProperties.data?.metals == null) {
       return const SizedBox.shrink();
     }
@@ -377,10 +382,11 @@ class DiscoveryUserCard extends ConsumerWidget {
   }
 
   Widget _buildLocationBadge() {
+    final addressLabel = _displayableLocationAddress(user.location?.address);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (user.location?.address != null)
+        if (addressLabel != null)
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -388,7 +394,7 @@ class DiscoveryUserCard extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: TextView(
-              text: user.location?.address ?? "No Address",
+              text: addressLabel,
               fontSize: 14,
               color: Colors.black87,
             ),
@@ -434,30 +440,43 @@ class DiscoveryUserCard extends ConsumerWidget {
 
   Widget _buildActionButton({
     required IconData icon,
+    required String label,
     required Color color,
     VoidCallback? onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Icon(
-          icon,
-          color: color,
-          size: 30,
-        ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 30,
+            ),
+          ),
+          const SizedBox(height: 6),
+          TextView(
+            text: label,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ],
       ),
     );
   }
@@ -465,7 +484,7 @@ class DiscoveryUserCard extends ConsumerWidget {
   // ─── Prompt flow (kept from new flow) ───────────────────────────────────
 
   Widget _buildPromptsSection(List<UserPromptDto> prompts, BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.sizeOf(context).width;
     final cardWidth = screenWidth * 0.85;
     final rightMargin = 12.0;
 
@@ -474,7 +493,7 @@ class DiscoveryUserCard extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 90,
+          height: 112,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.only(left: 0, right: screenWidth * 0.15),
@@ -502,10 +521,13 @@ class DiscoveryUserCard extends ConsumerWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
         ),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
@@ -514,6 +536,8 @@ class DiscoveryUserCard extends ConsumerWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.black45,
+                    maxLines: 2,
+                    textOverflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Icon(
@@ -523,11 +547,13 @@ class DiscoveryUserCard extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             TextView(
               text: '\u201C${prompt.answer}\u201D',
               fontSize: 20,
               color: Colors.black87,
+              maxLines: 2,
+              textOverflow: TextOverflow.ellipsis,
             ),
           ],
         ),

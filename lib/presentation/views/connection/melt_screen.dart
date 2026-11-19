@@ -80,28 +80,19 @@ class _MeltScreenState extends ConsumerState<MeltScreen>
     final profileState = ref.watch(userProfileViewModelProvider(widget.userId));
     final otherUser = profileState.user;
     final currentUser = ref.watch(currentUserProvider);
+    final youLabel =
+        "You: @${currentUser?.username ?? currentUser?.fullname ?? 'User'}";
+    final otherLabel =
+        "@${otherUser?.username ?? otherUser?.fullname ?? 'User'}";
 
     return BaseScreen(
       Header: 'Metals Melt',
       appBarState: AppBarState.HambugerWithHeader,
-      body: Stack(
+      body: Column(
         children: [
-          // Light pink heart icon in top left corner
-          Positioned(
-            top: 20,
-            left: 20,
-            child: Opacity(
-              opacity: 0.3,
-              child: Image.asset(
-                Assets.images.heartLocks1.path,
-                height: 40,
-                width: 40,
-              ),
-            ),
-          ),
-          // Main content
-          Center(
-            child: SingleChildScrollView(
+          Expanded(
+            child: Center(
+              child: SingleChildScrollView(
               padding:
                   const EdgeInsets.symmetric(horizontal: 24.0, vertical: 60),
               child: Column(
@@ -145,53 +136,30 @@ class _MeltScreenState extends ConsumerState<MeltScreen>
                     ),
                   ),
                   const Gap(40),
-                  // Two circular profile photos side by side
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: ScaleTransition(
-                      scale: _scaleAnimation,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Current user (You)
-                              _buildUserCircle(
-                                user: currentUser,
-                                label:
-                                    "You: @${currentUser?.username ?? currentUser?.fullname ?? 'User'}",
-                                isCurrentUser: true,
-                              ),
-                              const SizedBox(
-                                  width: 140), // Space for heart icon
-                              // Other user
-                              _buildUserCircle(
-                                user: otherUser,
-                                label:
-                                    "@${otherUser?.username ?? otherUser?.fullname ?? 'User'}",
-                                isCurrentUser: false,
-                              ),
-                            ],
-                          ),
-                          // Heart with lightning icon between users (positioned above)
-                          Positioned(
-                            top: 40,
-                            child: Image.asset(
-                              Assets.images.meltSpark.path,
-                              height: 40,
-                              width: 40,
-                            ),
-                          ),
-                        ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildUserCircle(
+                        user: currentUser,
+                        label: youLabel,
+                        isCurrentUser: true,
+                        size: 100,
                       ),
-                    ),
+                      const Gap(20),
+                      _buildUserCircle(
+                        user: otherUser,
+                        label: otherLabel,
+                        isCurrentUser: false,
+                        size: 100,
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
           ),
+        ),
         ],
       ),
       bottomWidget: _buildBottomNavBar(),
@@ -202,6 +170,7 @@ class _MeltScreenState extends ConsumerState<MeltScreen>
     required dynamic user,
     required String label,
     required bool isCurrentUser,
+    double size = 120,
   }) {
     final metalId = user?.metal ?? 'default';
     // Show profile photo only if connected and not anonymous, otherwise show metal image
@@ -219,8 +188,8 @@ class _MeltScreenState extends ConsumerState<MeltScreen>
           dashPattern: const [5, 5],
           color: AppColors.metalPinkColour.withOpacity(0.3),
           child: Container(
-            width: 120,
-            height: 120,
+            width: size,
+            height: size,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
@@ -239,7 +208,7 @@ class _MeltScreenState extends ConsumerState<MeltScreen>
             ),
             child: ClipOval(
               child: ProfilePhoto(
-                size: 120,
+                size: size,
                 verfly: false,
                 imgUrl: profileUrl,
                 meltId: metalId,

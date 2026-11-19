@@ -75,7 +75,12 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView> {
                   : NestedScrollView(
                       headerSliverBuilder: (context, innerBoxIsScrolled) {
                         return [
-                          _buildAppBar(context, detailState.community!),
+                          _buildAppBar(
+                            context,
+                            detailState.community!,
+                            isJoining: detailState.isJoining,
+                            isLeaving: detailState.isLeaving,
+                          ),
                         ];
                       },
                       body: _CommunityDetailTabs(
@@ -84,7 +89,12 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView> {
                         communityId: widget.communityId,
                         postsScrollController: _postsScrollController,
                         onTabControllerReady: (c) {
-                          setState(() => _tabControllerFromChild = c);
+                          // Never call setState synchronously from child's dispose (e.g. when
+                          // ValueKey(isJoined) swaps tabs) — framework locks the tree during teardown.
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (!mounted) return;
+                            setState(() => _tabControllerFromChild = c);
+                          });
                         },
                       ),
                     ),
@@ -159,7 +169,12 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView> {
     }
   }
 
-  Widget _buildAppBar(BuildContext context, community) {
+  Widget _buildAppBar(
+    BuildContext context,
+    CommunityDto community, {
+    required bool isJoining,
+    required bool isLeaving,
+  }) {
     return SliverAppBar(
       expandedHeight: 320,
       floating: false,
@@ -263,6 +278,7 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView> {
                           community.creatorId)
                         BaseButton(
                           buttonText: community.isJoined ? 'Leave' : 'Join',
+                          loading: community.isJoined ? isLeaving : isJoining,
                           onPressed: () async {
                             final viewModel = ref.read(
                               communityDetailViewModelProvider(
@@ -270,26 +286,32 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView> {
                                   .notifier,
                             );
                             if (community.isJoined) {
-                              final result = await viewModel
+                              final outcome = await viewModel
                                   .leaveCommunity(widget.communityId);
-                              // Check if community was deleted (admin left)
-                              if (result != null && result['deleted'] == true) {
-                                if (mounted) {
-                                  // Show success message
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Community and all posts have been deleted',
-                                      ),
-                                      backgroundColor: Colors.green,
+                              if (!context.mounted) return;
+                              if (outcome.error != null) {
+                                Fluttertoast.showToast(msg: outcome.error!);
+                                return;
+                              }
+                              if (outcome.data != null &&
+                                  outcome.data!['deleted'] == true) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Community and all posts have been deleted',
                                     ),
-                                  );
-                                  // Navigate back
-                                  Navigator.pop(context);
-                                }
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                                Navigator.pop(context);
                               }
                             } else {
-                              viewModel.joinCommunity(widget.communityId);
+                              final err = await viewModel
+                                  .joinCommunity(widget.communityId);
+                              if (!context.mounted) return;
+                              if (err != null) {
+                                Fluttertoast.showToast(msg: err);
+                              }
                             }
                           },
                           height: 36,
@@ -297,18 +319,7 @@ class _CommunityDetailViewState extends ConsumerState<CommunityDetailView> {
                           radius: 8,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          enabled: !ref
-                                  .watch(
-                                    communityDetailViewModelProvider(
-                                        widget.communityId),
-                                  )
-                                  .isJoining &&
-                              !ref
-                                  .watch(
-                                    communityDetailViewModelProvider(
-                                        widget.communityId),
-                                  )
-                                  .isLeaving,
+                          enabled: !isJoining && !isLeaving,
                         ),
                     ],
                   ),

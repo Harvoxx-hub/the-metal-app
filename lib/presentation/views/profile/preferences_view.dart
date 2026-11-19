@@ -114,7 +114,7 @@ class _PreferencesViewState extends ConsumerState<PreferencesView> {
                 children: [
                   CustomCheckWidget(
                     boarder: true,
-                    title: AppStrings.noSpecialPreference,
+                    title: AppStrings.openToAnyonePartnerFilters,
                     initialValue: _noSpecialPreference,
                     onChanged: (bool value) {
                       setState(() {
@@ -134,6 +134,13 @@ class _PreferencesViewState extends ConsumerState<PreferencesView> {
                     text: AppStrings.specialPreferencesHint,
                     fontSize: 14,
                     fontWeight: FontWeight.w300,
+                  ),
+                  Gap(ProfileSetupConstants.gapSmall),
+                  const TextView(
+                    text: AppStrings.preferencesPartnerFiltersExplainer,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black54,
                   ),
                   Gap(15),
                   AbsorbPointer(
@@ -175,7 +182,7 @@ class _PreferencesViewState extends ConsumerState<PreferencesView> {
                             _selectedReligion = newValue;
                           });
                         },
-                        floatingLabel: AppStrings.religionLabel,
+                        floatingLabel: AppStrings.partnerReligionPreferenceLabel,
                         hint: AppStrings.pleaseSelect,
                         prefixIcon: Assets.icons.christianity.svg(
                           width: ProfileSetupConstants.iconSize,
@@ -199,7 +206,7 @@ class _PreferencesViewState extends ConsumerState<PreferencesView> {
                             _selectedEthnicity = newValue;
                           });
                         },
-                        floatingLabel: AppStrings.ethnicity,
+                        floatingLabel: AppStrings.partnerEthnicityPreferenceLabel,
                         hint: AppStrings.pleaseSelect,
                         prefixIcon: SvgPicture.asset(
                           Assets.icons.intersectCircle.path,
@@ -224,7 +231,7 @@ class _PreferencesViewState extends ConsumerState<PreferencesView> {
                             _selectedEducation = newValue;
                           });
                         },
-                        floatingLabel: AppStrings.education,
+                        floatingLabel: AppStrings.partnerEducationPreferenceLabel,
                         hint: AppStrings.pleaseSelect,
                         prefixIcon: SvgPicture.asset(
                           Assets.icons.graduationHat01.path,

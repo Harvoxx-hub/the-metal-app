@@ -15,10 +15,12 @@ class VerificationRepository implements VerificationRepositoryAbstract {
   @override
   Future<BaseState<bool>> requestWorkEmailVerification({
     required String workEmail,
+    required String company,
   }) async {
     try {
       await _remoteDataSource.requestWorkEmailVerification(
         workEmail: workEmail,
+        company: company,
       );
       return BaseState.success(true);
     } catch (e) {

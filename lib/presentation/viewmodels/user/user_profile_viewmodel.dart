@@ -14,6 +14,8 @@ class UserProfileState {
   final List<ThoughtDto> thoughts;
   final bool hasMoreThoughts;
   final String? nextCursor;
+  /// True when GET /users/:id returned 404 (e.g. deleted user).
+  final bool userUnavailable;
 
   const UserProfileState({
     this.isLoading = false,
@@ -24,6 +26,7 @@ class UserProfileState {
     this.thoughts = const [],
     this.hasMoreThoughts = false,
     this.nextCursor,
+    this.userUnavailable = false,
   });
 
   factory UserProfileState.initial() => const UserProfileState();
@@ -37,6 +40,7 @@ class UserProfileState {
     List<ThoughtDto>? thoughts,
     bool? hasMoreThoughts,
     String? nextCursor,
+    bool? userUnavailable,
   }) {
     return UserProfileState(
       isLoading: isLoading ?? this.isLoading,
@@ -47,6 +51,7 @@ class UserProfileState {
       thoughts: thoughts ?? this.thoughts,
       hasMoreThoughts: hasMoreThoughts ?? this.hasMoreThoughts,
       nextCursor: nextCursor,
+      userUnavailable: userUnavailable ?? this.userUnavailable,
     );
   }
 }
@@ -56,44 +61,60 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
   final ProfileRepositoryAbstract _profileRepository;
   final ThoughtRepository _thoughtRepository;
   final String userId;
+  /// When set and equal to [userId], use GET /users/me for full profile; otherwise GET /users/:id returns limited public profile.
+  final String? _currentUserId;
 
   UserProfileViewModel({
     required ProfileRepositoryAbstract profileRepository,
     required ThoughtRepository thoughtRepository,
     required this.userId,
+    String? currentUserId,
   })  : _profileRepository = profileRepository,
         _thoughtRepository = thoughtRepository,
+        _currentUserId = currentUserId,
         super(UserProfileState.initial()) {
     loadUserProfile();
     loadUserThoughts();
   }
 
-  /// Load user profile data
+  /// Load user profile data.
+  /// When viewing own profile (userId == currentUser), uses GET /users/me for full data; otherwise GET /users/:id returns limited public profile.
   Future<void> loadUserProfile() async {
+    if (!mounted) return;
     if (state.isLoading) return;
 
-    state = state.copyWith(isLoading: true, isError: false);
+    state = state.copyWith(
+      isLoading: true,
+      isError: false,
+      userUnavailable: false,
+    );
 
-    final result = await _profileRepository.getUserById(userId);
+    final isViewingSelf = _currentUserId != null && _currentUserId == userId;
+    final result = isViewingSelf
+        ? await _profileRepository.getUserProfile()
+        : await _profileRepository.getUserById(userId);
 
-    if (mounted) {
-      if (result.isSuccess && result.data != null) {
-        state = state.copyWith(
-          isLoading: false,
-          user: result.data,
-        );
-      } else {
-        state = state.copyWith(
-          isLoading: false,
-          isError: true,
-          errorMessage: result.errorMessage ?? 'Failed to load user profile',
-        );
-      }
+    if (!mounted) return;
+    if (result.isSuccess && result.data != null) {
+      state = state.copyWith(
+        isLoading: false,
+        user: result.data,
+        userUnavailable: false,
+      );
+    } else {
+      final unavailable = result.errorHttpStatus == 404;
+      state = state.copyWith(
+        isLoading: false,
+        isError: true,
+        errorMessage: result.errorMessage ?? 'Failed to load user profile',
+        userUnavailable: unavailable,
+      );
     }
   }
 
   /// Load user's thoughts
   Future<void> loadUserThoughts() async {
+    if (!mounted) return;
     if (state.isLoadingThoughts) return;
 
     state = state.copyWith(isLoadingThoughts: true);
@@ -103,26 +124,31 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
       userId: userId,
     );
 
-    if (mounted) {
-      if (result.isSuccess && result.data != null) {
-        state = state.copyWith(
-          isLoadingThoughts: false,
-          thoughts: result.data!.thoughts,
-          hasMoreThoughts: result.data!.hasMore,
-          nextCursor: result.data!.nextCursor,
-        );
-      } else {
+    if (!mounted) return;
+    if (result.isSuccess && result.data != null) {
+      state = state.copyWith(
+        isLoadingThoughts: false,
+        thoughts: result.data!.thoughts,
+        hasMoreThoughts: result.data!.hasMore,
+        nextCursor: result.data!.nextCursor,
+      );
+    } else {
+      // Do not overwrite profile load errors (e.g. 404) while user is still null.
+      if (state.user != null) {
         state = state.copyWith(
           isLoadingThoughts: false,
           isError: true,
           errorMessage: result.errorMessage ?? 'Failed to load thoughts',
         );
+      } else {
+        state = state.copyWith(isLoadingThoughts: false);
       }
     }
   }
 
   /// Load more thoughts (pagination)
   Future<void> loadMoreThoughts() async {
+    if (!mounted) return;
     if (state.isLoadingThoughts || !state.hasMoreThoughts || state.nextCursor == null) {
       return;
     }
@@ -135,24 +161,25 @@ class UserProfileViewModel extends StateNotifier<UserProfileState> {
       userId: userId,
     );
 
-    if (mounted) {
-      if (result.isSuccess && result.data != null) {
-        final newThoughts = [...state.thoughts, ...result.data!.thoughts];
-        state = state.copyWith(
-          isLoadingThoughts: false,
-          thoughts: newThoughts,
-          hasMoreThoughts: result.data!.hasMore,
-          nextCursor: result.data!.nextCursor,
-        );
-      } else {
-        state = state.copyWith(isLoadingThoughts: false);
-      }
+    if (!mounted) return;
+    if (result.isSuccess && result.data != null) {
+      final newThoughts = [...state.thoughts, ...result.data!.thoughts];
+      state = state.copyWith(
+        isLoadingThoughts: false,
+        thoughts: newThoughts,
+        hasMoreThoughts: result.data!.hasMore,
+        nextCursor: result.data!.nextCursor,
+      );
+    } else {
+      state = state.copyWith(isLoadingThoughts: false);
     }
   }
 
-  /// Refresh all data
+  /// Refresh all data. No-ops if notifier was disposed (e.g. user left profile screen).
   Future<void> refresh() async {
+    if (!mounted) return;
     await loadUserProfile();
+    if (!mounted) return;
     await loadUserThoughts();
   }
 }

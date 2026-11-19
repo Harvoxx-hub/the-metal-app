@@ -13,7 +13,6 @@ import 'package:metal/presentation/viewmodels/connection/melt_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/settings/blocked_users_viewmodel.dart';
 import 'package:metal/presentation/views/user/widgets/user_thoughts_tab.dart';
 import 'package:metal/presentation/views/connection/widgets/metal_details_tab.dart';
-import 'package:metal/presentation/views/dashboard/widgets/complete.profile.dialog.dart';
 import 'package:metal/presentation/widgets/profile/profile_header.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/base_button.dart';
@@ -26,6 +25,7 @@ import 'package:metal/widgets/tab/base.tab.dart';
 import 'package:metal/widgets/text_views.dart';
 import 'package:metal/route/routes.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/domain/entities/user_dto.dart';
 
 /// Metal Profile View
 ///
@@ -55,6 +55,29 @@ class UserProfileView extends ConsumerStatefulWidget {
 
 class _UserProfileViewState extends ConsumerState<UserProfileView> {
   bool _hasShownBlockedDialog = false;
+  late final PageController _promptsPageController;
+  int _currentPromptPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _promptsPageController = PageController();
+    _promptsPageController.addListener(_onPromptPageChanged);
+  }
+
+  void _onPromptPageChanged() {
+    final page = _promptsPageController.page?.round() ?? 0;
+    if (page != _currentPromptPage && mounted) {
+      setState(() => _currentPromptPage = page);
+    }
+  }
+
+  @override
+  void dispose() {
+    _promptsPageController.removeListener(_onPromptPageChanged);
+    _promptsPageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,12 +140,16 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
     }
 
     if (profileState.isError && profileState.user == null) {
+      final unavailable = profileState.userUnavailable;
       return BaseScreen(
         Header: 'Metal Profile',
         appBarState: AppBarState.BackWithHeader,
         body: ErrorState(
           text: profileState.errorMessage ?? 'Failed to load user profile',
-          retry: () => profileViewModel.refresh(),
+          retry: unavailable
+              ? () => Navigator.of(context).maybePop()
+              : () => profileViewModel.refresh(),
+          retryButtonText: unavailable ? 'Go back' : 'Try Again',
         ),
       );
     }
@@ -217,8 +244,8 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
     );
   }
 
-  /// Build user info section with username in light pink box and location
-  Widget _buildUserInfoSection(user) {
+  /// Build user info section with username in light pink box, location, and prompts slider or bio
+  Widget _buildUserInfoSection(UserDto user) {
     // Build location text from city and country
     String locationText = '';
     if (user.location != null) {
@@ -233,34 +260,141 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
       locationText = parts.join(', ');
     }
 
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: ShapeDecoration(
-        color: const Color(0x0CD9197B),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5),
-        ),
-      ),
-      child: Column(
-        children: [
-          TextView(
-            text: '@${user.username ?? user.fullname ?? 'Unknown'}',
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: AppColors.metalBrownColourForText,
-          ),
-          if (locationText.isNotEmpty) ...[
-            const Gap(5),
-            TextView(
-              text: locationText,
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
-              color: AppColors.metalBrownColourForText,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: ShapeDecoration(
+            color: const Color(0x0CD9197B),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
             ),
-          ],
-        ],
-      ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextView(
+                text: '@${user.username ?? user.fullname ?? 'Unknown'}',
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppColors.metalBrownColourForText,
+              ),
+              if (locationText.isNotEmpty) ...[
+                const Gap(5),
+                TextView(
+                  text: locationText,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  color: AppColors.metalBrownColourForText,
+                ),
+              ],
+            ],
+          ),
+        ),
+        const Gap(10),
+        _buildPromptsOrBioSection(user),
+      ],
     );
+  }
+
+  /// Slider of user prompts (question + answer per slide), or bio if no prompts.
+  Widget _buildPromptsOrBioSection(UserDto user) {
+    final prompts = user.prompts;
+    final hasPrompts = prompts != null && prompts.isNotEmpty;
+    final bioText =
+        (user.bio ?? '').trim().isNotEmpty ? (user.bio ?? '').trim() : null;
+
+    if (hasPrompts) {
+      if (_currentPromptPage >= prompts.length && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) setState(() => _currentPromptPage = 0);
+          _promptsPageController.jumpToPage(0);
+        });
+      }
+      return SizedBox(
+        height: 60,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: PageView.builder(
+                controller: _promptsPageController,
+                itemCount: prompts.length,
+                itemBuilder: (context, index) {
+                  final prompt = prompts[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextView(
+                            text: prompt.questionText,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: AppColors.metalBrownColourForText
+                                .withValues(alpha: 0.7),
+                          ),
+                          const Gap(4),
+                          TextView(
+                            text: prompt.answer,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            color: AppColors.metalBrownColourForText,
+                            textOverflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (prompts.length > 1) ...[
+              const Gap(6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  prompts.length,
+                  (i) => Container(
+                    width: 6,
+                    height: 6,
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: i == _currentPromptPage
+                          ? AppColors.metalBrownColourForText
+                          : AppColors.metalBrownColourForText
+                              .withValues(alpha: 0.4),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
+    if (bioText != null && bioText.isNotEmpty) {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+        alignment: Alignment.centerLeft,
+        child: TextView(
+          text: bioText,
+          fontWeight: FontWeight.w400,
+          fontSize: 14,
+          color: AppColors.metalBrownColourForText,
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 
   /// Build melt action section with status-based buttons
@@ -353,27 +487,71 @@ class _UserProfileViewState extends ConsumerState<UserProfileView> {
     );
   }
 
-  /// Handle melt action
+  /// Handle melt action — show confirmation to prevent accidental send (BUG-008)
   void _handleMeltAction(
     int connectionCount,
     user,
     currentUserDto,
   ) {
-    if (currentUserDto != null && !(currentUserDto.profileUpdated ?? false)) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return const CustomDialog(content: ComplecteProfileDialog());
-        },
-      );
-    } else if (connectionCount <= 10) {
-      ref.read(meltActionProvider.notifier).meltUser(widget.userId);
-    } else {
+    if (connectionCount > 10) {
       showDialog(
         context: context,
         builder: (context) => CustomDialog(content: _meltLimitDialog()),
       );
+      return;
     }
+    final userName = user.username ?? user.fullname ?? 'this user';
+    showDialog(
+      context: context,
+      builder: (dialogContext) => CustomDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const TextView(
+              text: 'Send melt request?',
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
+            const Gap(16),
+            TextView(
+              text:
+                  'Send a melt request to $userName? They will need to accept to connect.',
+              fontSize: 14,
+              color: AppColors.metalBrownColourForText,
+            ),
+            const Gap(24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const TextView(
+                    text: 'Cancel',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                    ref
+                        .read(meltActionProvider.notifier)
+                        .meltUser(widget.userId);
+                  },
+                  child: const TextView(
+                    text: 'Send',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// Handle send spark action

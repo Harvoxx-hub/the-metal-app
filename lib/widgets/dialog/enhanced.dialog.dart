@@ -75,7 +75,7 @@ class EnhancedDialog extends StatelessWidget {
               BaseButton(
                 onPressed: onPrimaryButtonPressed,
                 buttonText: primaryButtonText,
-                width: 200,
+                width: 100,
               ),
             ],
           ),

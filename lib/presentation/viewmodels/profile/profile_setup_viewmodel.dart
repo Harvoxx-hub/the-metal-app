@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/domain/usecases/profile_usecase.dart';
 import 'package:metal/domain/usecases/profile_usecase_providers.dart';
+import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 
 /// Profile setup step enumeration
 enum ProfileSetupStep {
@@ -63,10 +64,13 @@ class ProfileSetupState {
 /// Step data is stored locally, only final completion calls API
 class ProfileSetupViewModel extends StateNotifier<ProfileSetupState> {
   final CompleteProfileUseCase completeProfileUseCase;
+  final Ref _ref;
 
   ProfileSetupViewModel({
     required this.completeProfileUseCase,
-  }) : super(ProfileSetupState.initial());
+    required Ref ref,
+  })  : _ref = ref,
+        super(ProfileSetupState.initial());
 
   static const Map<ProfileSetupStep, int> _stepOrder = {
     ProfileSetupStep.basicInfo: 0,
@@ -122,12 +126,22 @@ class ProfileSetupViewModel extends StateNotifier<ProfileSetupState> {
       finalData['completedProfile'] = true;
       finalData['profileUpdated'] = true;
 
+      // Preserve phone on the user doc if the backend supports it (signup may have set it client-side only).
+      final existingPhone = _ref.read(userStateProvider).user?.phone;
+      if (existingPhone != null && existingPhone.trim().isNotEmpty) {
+        finalData['phone'] = existingPhone.trim();
+      }
+
       // Call API to complete profile
       final result = await completeProfileUseCase(
         CompleteProfileParams(finalData: finalData),
       );
 
       if (result.isSuccess) {
+        final user = result.data;
+        if (user != null) {
+          _ref.read(userStateProvider.notifier).updateUser(user);
+        }
         state = state.copyWith(
           currentStep: ProfileSetupStep.completed,
           progress: 1.0,
@@ -203,5 +217,6 @@ final profileSetupViewModelProvider =
     StateNotifierProvider<ProfileSetupViewModel, ProfileSetupState>((ref) {
   return ProfileSetupViewModel(
     completeProfileUseCase: ref.read(completeProfileUseCaseProvider),
+    ref: ref,
   );
 });

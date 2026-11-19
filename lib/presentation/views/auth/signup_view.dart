@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:intl_phone_field/phone_number.dart' as intl_phone;
 import 'package:metal/base/page/base_page_state.dart';
 import 'package:metal/core/utils/input/validators/validators.dart';
 import 'package:metal/core/utils/strings/app_strings.dart';
 import 'package:metal/domain/entities/user_dto.dart';
 import 'package:metal/gen/assets.gen.dart';
+import 'package:metal/fcm/fcm_client.dart';
 import 'package:metal/presentation/viewmodels/auth/signup_viewmodel.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/res/res.dart';
@@ -14,6 +16,7 @@ import 'package:metal/widgets/button/buttons.dart';
 import 'package:metal/widgets/text.field/edit.from.field.dart';
 import 'package:metal/widgets/text.field/phone.number.input.dart';
 import 'package:metal/widgets/text_views.dart';
+import 'package:phone_numbers_parser/phone_numbers_parser.dart' as phone_parser;
 
 /// Signup view using Clean Architecture
 /// This view uses the new API-based authentication flow
@@ -32,7 +35,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _referController = TextEditingController();
-  String phoneNumber = "";
+  intl_phone.PhoneNumber? _intlPhone;
 
   @override
   void dispose() {
@@ -43,14 +46,57 @@ class _SignupViewState extends ConsumerState<SignupView> {
     super.dispose();
   }
 
+  static String? _validatePhoneForCountry(intl_phone.PhoneNumber? phone) {
+    if (phone == null || phone.number.trim().isEmpty) {
+      return 'Please enter a valid phone number';
+    }
+    final national = phone.number.replaceAll(RegExp(r'\D'), '');
+    if (national.length < 4) {
+      return 'Please enter a valid phone number';
+    }
+    final isoUpper = phone.countryISOCode.toUpperCase();
+    if (isoUpper.length != 2) {
+      return 'Please select a country';
+    }
+    phone_parser.IsoCode iso;
+    try {
+      iso = phone_parser.IsoCode.values.byName(isoUpper);
+    } catch (_) {
+      return 'Please select a valid country';
+    }
+    try {
+      final parsed = phone_parser.PhoneNumber.parse(
+        national,
+        destinationCountry: iso,
+      );
+      if (!parsed.isValid()) {
+        return 'Please enter a valid phone number for the selected country';
+      }
+    } catch (_) {
+      return 'Please enter a valid phone number for the selected country';
+    }
+    return null;
+  }
+
   void _validateAndSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
-      // Dismiss the keyboard
+      final phone = _intlPhone;
+      if (phone == null || phone.number.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enter a valid phone number'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+      final national = phone.number.replaceAll(RegExp(r'\D'), '');
       FocusScope.of(context).unfocus();
       ref.read(signupViewModelProvider.notifier).signup(
             email: _emailController.text.trim(),
             password: _passwordController.text,
-            phoneNumber: phoneNumber,
+            phoneNationalNumber: national,
+            phoneCountryIso2: phone.countryISOCode.toUpperCase(),
             referralCode: _referController.text.trim().isEmpty
                 ? null
                 : _referController.text.trim(),
@@ -65,6 +111,10 @@ class _SignupViewState extends ConsumerState<SignupView> {
 
     // Set user in global state
     ref.read(userStateProvider.notifier).setUser(user);
+
+    try {
+      await FCMClient.instance.registerTokenWithBackend(ref);
+    } catch (_) {}
 
     // Navigate to verification page - just pass email
     if (mounted) {
@@ -145,22 +195,12 @@ class _SignupViewState extends ConsumerState<SignupView> {
                   const Gap(16),
                   PhoneInput(
                     phoneController: _phoneController,
-                    onPhoneNumberChanged: (phone) {
+                    onIntlPhoneChanged: (phone) {
                       setState(() {
-                        phoneNumber = phone;
+                        _intlPhone = phone;
                       });
                     },
-                    validator: (phone) {
-                      if (phone == null || phone.completeNumber.isEmpty) {
-                        return 'Please enter a valid phone number';
-                      }
-                      // Validate that the phone number has at least 10 digits (country code + number)
-                      final digitsOnly = phone.completeNumber.replaceAll(RegExp(r'[^\d]'), '');
-                      if (digitsOnly.length < 10) {
-                        return 'Please enter a valid phone number';
-                      }
-                      return null;
-                    },
+                    validator: (phone) => _validatePhoneForCountry(phone),
                   ),
                   const Gap(16),
                   EditFormField(

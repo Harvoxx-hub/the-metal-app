@@ -19,7 +19,7 @@ abstract class IDiscoveryRepository {
     String? cursor,
   });
 
-  /// Record a swipe action (like, pass, superlike)
+  /// Record a swipe action (like, pass)
   Future<SwipeResultDto> recordSwipe({
     required String targetUserId,
     required SwipeAction action,

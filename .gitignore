@@ -47,3 +47,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 sendgrid.env
+
+sentry.properties

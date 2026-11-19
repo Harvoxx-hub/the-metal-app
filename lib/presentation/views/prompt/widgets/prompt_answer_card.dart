@@ -86,21 +86,12 @@ class _PromptAnswerCardState extends State<PromptAnswerCard> {
           ),
           const Gap(12),
           // Answer input or display
-          widget.isReadOnly
-              ? TextView(
-                  text: widget.prompt.answer,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: AppColors.metalBrownColourForText,
-                )
-              : EditFormField(
-                  controller: _controller,
-                  label: 'Your answer',
-                  keyboardType: TextInputType.multiline,
-                  maxLines: 4,
-                  radius: 8,
-                  onChange: (value) => widget.onAnswerChanged(value),
-                ),
+          TextView(
+            text: widget.prompt.answer,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: AppColors.metalBrownColourForText,
+          )
         ],
       ),
     );

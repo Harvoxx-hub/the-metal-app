@@ -138,6 +138,12 @@ class AppStrings {
   static const String phoneLabel = "Phone Number";
   static const String genderLabel = "Gender";
   static const String religionLabel = "Religion";
+  /// Own faith / background on profile (About You & edit profile).
+  static const String yourReligionLabel = "Your religion";
+  /// Partner / match preference labels (preferences & edit preferences).
+  static const String partnerReligionPreferenceLabel = "Religion (in a partner)";
+  static const String partnerEthnicityPreferenceLabel = "Ethnicity (in a partner)";
+  static const String partnerEducationPreferenceLabel = "Education (in a partner)";
   static const String homeAddressLabel = "Home address details";
   static const String professionLabel = "Profession";
   static const String bioLabel = "Little Bio about me";
@@ -152,7 +158,7 @@ class AppStrings {
   static const String aboutYou = "About You";
   static const String moreAboutYou = "More About You";
   static const String connectionOption = "Connection option";
-  static const String preferencesInMetal = "Preferences in Metal";
+  static const String preferencesInMetal = "Partner preferences";
 
   // Profile Setup Headers
   static const String chooseMetalTitle =
@@ -171,8 +177,14 @@ class AppStrings {
   static const String connectionOptionsSubtitle =
       "**Please select up to two. You can always change your selection in settings";
   static const String preferencesTitle =
-      "Let us know what your special preferences are in a person";
-  static const String preferencesSubtitle = " ";
+      "Who do you want to meet?";
+  static const String preferencesSubtitle =
+      "These filters apply to potential matches — not your own profile (set earlier in About You).";
+
+  /// Explainer under the partner-preference checkboxes (onboarding preferences step).
+  static const String preferencesPartnerFiltersExplainer =
+      "Religion, ethnicity, and education here describe who you are open to dating — "
+      "they are separate from your own details on your profile.";
 
   // Profile Setup Labels
   static const String firstNameLastName = "First Name and Last Name";
@@ -189,8 +201,15 @@ class AppStrings {
   static const String bio = "Bio";
   static const String tellUsAboutYourself = "Tell us about yourself";
   static const String noSpecialPreference = "No Special Preference";
+  /// Clearer label: avoids confusion with profile fields.
+  static const String openToAnyonePartnerFilters =
+      "Open to anyone for religion, ethnicity & education";
   static const String specialPreferencesHint =
-      "If you have special preferences, please select below.";
+      "Choose partner preferences below, or use the option above to stay open to all.";
+  /// Shown on Edit Preferences when profile has own religion/background but partner filters are empty.
+  static const String editPreferencesProfilePartnerBanner =
+      "Your profile includes your own religion or background from signup. "
+      "The fields below only filter who you meet — turn off “Open to anyone…” to set them.";
   static const String ageRange = "Age range";
   static const String ethnicity = "Ethnicity";
   static const String education = "Education";

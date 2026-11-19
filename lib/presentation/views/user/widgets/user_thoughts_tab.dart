@@ -93,6 +93,7 @@ class _UserThoughtsTabState extends ConsumerState<UserThoughtsTab> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: ThoughtCard(
+              key: ValueKey(thought.id),
               thoughtModel: thought,
             ),
           );

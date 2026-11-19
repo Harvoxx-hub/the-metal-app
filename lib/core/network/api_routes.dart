@@ -63,6 +63,8 @@ class ApiRoutes {
       '/messages/direct-message/accept'; // POST - accept DM, create connection
   static const String directMessageReject =
       '/messages/direct-message/reject'; // POST - reject DM
+  static const String chatAssistantSuggestions =
+      '/messages/chat-assistant/suggestions'; // POST - AI chat suggestions
   static const String clearChat =
       '/connections'; // DELETE /connections/:id/messages
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/gen/assets.gen.dart';
@@ -224,12 +225,24 @@ class _CommunityListViewState extends ConsumerState<CommunityListView> {
           final community = communities[index];
           return CommunityCard(
             community: community,
-            onJoin: () => ref
-                .read(communityViewModelProvider.notifier)
-                .joinCommunity(community.id),
-            onLeave: () => ref
-                .read(communityViewModelProvider.notifier)
-                .leaveCommunity(community.id),
+            onJoin: () async {
+              final err = await ref
+                  .read(communityViewModelProvider.notifier)
+                  .joinCommunity(community.id);
+              if (!mounted) return;
+              if (err != null) {
+                Fluttertoast.showToast(msg: err);
+              }
+            },
+            onLeave: () async {
+              final err = await ref
+                  .read(communityViewModelProvider.notifier)
+                  .leaveCommunity(community.id);
+              if (!mounted) return;
+              if (err != null) {
+                Fluttertoast.showToast(msg: err);
+              }
+            },
           );
         },
       ),

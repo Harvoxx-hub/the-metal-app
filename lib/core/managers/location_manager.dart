@@ -45,8 +45,6 @@ class LocationManager {
 
       // Update app version
       await _appVersionService.updateAppVersion(ref);
-
-      _hasUpdatedLocation = true;
     } catch (e) {
       debugPrint('Error updating location/app version: $e');
     }
@@ -54,14 +52,18 @@ class LocationManager {
 
   /// Get current location and update user profile. Call after user grants permission (e.g. on Discovery).
   /// Returns true if location was obtained and profile updated.
-  Future<bool> updateProfileLocation(WidgetRef ref) async {
+  ///
+  /// Pass [read] from any Riverpod ref (e.g. `ref.read` or `_ref.read`) so this works from widgets and notifiers.
+  Future<bool> updateProfileLocation(
+    T Function<T>(ProviderListenable<T> provider) read,
+  ) async {
     try {
-      final user = ref.read(userStateProvider).user;
+      final user = read(userStateProvider).user;
       if (user == null) return false;
 
       final result = await _locationService.getCurrentLocation();
       if (result.isSuccess && result.location != null) {
-        await ref.read(userStateProvider.notifier).updateUserField(
+        await read(userStateProvider.notifier).updateUserField(
               field: 'location',
               value: result.location!.toJson(),
             );

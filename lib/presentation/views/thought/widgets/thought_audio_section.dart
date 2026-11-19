@@ -117,6 +117,7 @@ class _ThoughtAudioSectionState extends State<ThoughtAudioSection> {
     // Show recording widget when recording
     if (_isRecording) {
       return VoiceRecordingWidget(
+        skipInlinePreview: true,
         onRecordingComplete: _handleRecordingComplete,
         onCancel: _handleRecordingCancel,
       );

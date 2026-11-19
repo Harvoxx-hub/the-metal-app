@@ -6,13 +6,11 @@ import 'package:metal/presentation/viewmodels/user/user_profile_viewmodel_provid
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 import 'package:metal/presentation/views/settings/edit_profile_view.dart';
 import 'package:metal/data/models/user_location_model.dart';
-import 'package:metal/presentation/views/community/community_list_view.dart';
 import 'package:metal/presentation/widgets/profile/profile_header.dart';
 import 'package:metal/presentation/widgets/settings/edit_field.dart';
 import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/state.handler/empty.state.dart';
 import 'package:metal/widgets/state.handler/loading.state.dart';
-import 'package:metal/widgets/text_views.dart';
 
 /// My Profile View with 3 tabs: Thoughts, Personal, Discovery
 class MyProfileView extends ConsumerStatefulWidget {
@@ -185,6 +183,7 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: ThoughtCard(
+                key: ValueKey(thought.id),
                 thoughtModel: thought,
               ),
             );
@@ -203,13 +202,14 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
         ],
       ),
     );
-  //   EditProfileView(isPersonal: true);
+    //   EditProfileView(isPersonal: true);
   }
 
-  /// Discovery Tab - Shows location and communities section
+  /// Discovery Tab - Shows location, phone and communities section
   Widget _buildDiscoveryTab(currentUser) {
     final location = currentUser.location;
     final locationText = _formatLocation(location);
+  
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -218,7 +218,7 @@ class _MyProfileViewState extends ConsumerState<MyProfileView>
         children: [
           const Gap(20),
           EditField(
-            text: locationText,
+            text: locationText.isEmpty ? 'No location set' : locationText,
             floatingLabel: 'Location',
           ),
           const Gap(24),

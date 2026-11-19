@@ -51,6 +51,7 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
   final TextEditingController _commentController = TextEditingController();
   final FocusNode _commentFocusNode = FocusNode();
   CommentDto? _replyingToComment;
+  bool _isSendingComment = false;
 
   @override
   void initState() {
@@ -177,8 +178,19 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
     );
   }
 
+  /// Direct posts use [ThoughtDto.communityMetadata]; reposts often omit it on the
+  /// wrapper document — fall back to the embedded original thought's metadata.
+  CommunityMetadataDto? _communityMetadataForNavigation(ThoughtDto thought) {
+    if (thought.communityMetadata != null) return thought.communityMetadata;
+    if (thought.type == 'repost') {
+      return thought.originalThought?.communityMetadata;
+    }
+    return null;
+  }
+
   Widget _buildThoughtSection() {
     final thought = _thought!;
+    final communityMeta = _communityMetadataForNavigation(thought);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -191,44 +203,57 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
             thought: thought,
             showThoughtMenu: true,
             onDeleteThought: () => _handleDeleteThought(),
+            onEditThought: thought.type == 'text' ? () => _handleEditThought() : null,
             onReportThought: () => _handleReportThought(),
             onBlockUser: () => _handleBlockUser(),
           ),
           const Gap(12),
 
-          // Community tag if applicable
-          if (thought.communityMetadata != null) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.metalPinkColour.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.metalPinkColour.withOpacity(0.3),
-                  width: 1,
+          // Community tag if applicable (tappable → community detail)
+          if (communityMeta != null) ...[
+            GestureDetector(
+              onTap: () {
+                final id = communityMeta.communityId;
+                if (id.isEmpty) return;
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.communityDetails,
+                  arguments: id,
+                );
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.metalPinkColour.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.metalPinkColour.withOpacity(0.3),
+                    width: 1,
+                  ),
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.group,
-                    size: 14,
-                    color: AppColors.metalPinkColour,
-                  ),
-                  const Gap(4),
-                  Expanded(
-                    child: TextView(
-                      text:
-                          'Posted in: ${thought.communityMetadata!.communityName}',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.group,
+                      size: 14,
                       color: AppColors.metalPinkColour,
-                      maxLines: 1,
-                      textOverflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                    const Gap(4),
+                    Expanded(
+                      child: TextView(
+                        text:
+                            'Posted in: ${communityMeta.communityName}',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.metalPinkColour,
+                        maxLines: 1,
+                        textOverflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const Gap(12),
@@ -612,29 +637,37 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
 
   Future<void> _sendComment() async {
     final content = _commentController.text.trim();
-    if (content.isEmpty || _thought == null) return;
+    if (content.isEmpty || _thought == null || _isSendingComment) return;
 
-    final viewModel = ref.read(commentViewModelProvider(_thought!.id).notifier);
+    _isSendingComment = true;
+    try {
+      final viewModel =
+          ref.read(commentViewModelProvider(_thought!.id).notifier);
 
-    if (_replyingToComment != null) {
-      // Send reply
-      await viewModel.addComment(content,
-          replyToCommentId: _replyingToComment!.id);
-      _cancelReply();
-    } else {
-      // Send regular comment
-      await viewModel.addComment(content);
-      _commentController.clear();
+      if (_replyingToComment != null) {
+        await viewModel.addComment(content,
+            replyToCommentId: _replyingToComment!.id);
+        _cancelReply();
+      } else {
+        await viewModel.addComment(content);
+        _commentController.clear();
+      }
+
+      if (!mounted) return;
+      // Scroll to bottom to show new comment
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_scrollController.hasClients) return;
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    } finally {
+      if (mounted) {
+        _isSendingComment = false;
+      }
     }
-
-    // Scroll to bottom to show new comment
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    });
   }
 
   Widget _buildCommentInput() {
@@ -819,6 +852,8 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
 
         if (mounted) {
           if (result.isSuccess) {
+            final id = _thought!.id;
+            ref.read(thoughtFeedViewModelProvider.notifier).removeThought(id);
             Fluttertoast.showToast(msg: 'Thought deleted successfully');
             Navigator.of(context).pop(); // Go back to previous screen
           } else {
@@ -833,6 +868,46 @@ class _ThoughtDetailViewState extends ConsumerState<ThoughtDetailView> {
         }
       }
     }
+  }
+
+  Future<void> _handleEditThought() async {
+    final thought = _thought;
+    if (thought == null) return;
+    if (thought.type != 'text') return;
+
+    final communityMeta = thought.communityMetadata;
+    final communityMetadataMap = communityMeta == null
+        ? null
+        : {
+            'communityId': communityMeta.communityId,
+            'communityName': communityMeta.communityName,
+            'communityImage': communityMeta.communityImage,
+            'isPublic': communityMeta.isPublic,
+            'categories': communityMeta.categories,
+          };
+
+    final editArgs = {
+      'communityMetadata': communityMetadataMap,
+      'editThoughtId': thought.id,
+      'editText': thought.content,
+      'editConnectionOnly': thought.connectionOnly,
+    };
+
+    final result = await Navigator.pushNamed(
+      context,
+      AppRoutes.postThought,
+      arguments: editArgs,
+    );
+
+    if (!mounted) return;
+    if (result is! ThoughtDto) return;
+
+    ref.read(thoughtFeedViewModelProvider.notifier).updateThought(result);
+
+    setState(() {
+      _thought = result;
+    });
+    // Toast already shown by CreateThoughtScreen when saving.
   }
 
   Future<void> _handleReportThought() async {

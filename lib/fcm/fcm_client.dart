@@ -25,6 +25,8 @@ class FCMClient {
 
   static final FCMClient instance = FCMClient._();
   static bool _isInit = false;
+  static final Map<String, DateTime> _recentNotificationKeys = <String, DateTime>{};
+  static const Duration _notificationDedupeWindow = Duration(seconds: 60);
   final _fCMLock = Lock();
   final _localNotifications = LocalNotifications();
 
@@ -50,8 +52,9 @@ class FCMClient {
         // Set platform-specific settings
         await _configurePlatformSettings();
 
-        // Handle initial message
-        await _handleInitialMessage();
+        // Firebase cold-start tap: read [getInitialMessage] only after first frame
+        // (see [processFirebaseColdStartNavigationIfNeeded]); reading here is too
+        // early on Android and often returns null.
 
         // Set up message listeners
         _setupMessageListeners();
@@ -60,6 +63,8 @@ class FCMClient {
         await _localNotifications.init(
           onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
         );
+
+        await _consumeLocalNotificationColdStartTap();
 
         // Subscribe to dev topic
         await _firebaseMessaging.subscribeToTopic("dev");
@@ -109,24 +114,73 @@ class FCMClient {
       await _ensureAPNSToken();
     }
 
-    FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    // iOS foreground: Firebase/APNs presents the banner when alert/sound are true.
+    // Local plugin covers Android foreground + iOS melt fallbacks only.
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
     );
   }
 
-  /// Handle initial message when app is opened from notification
-  Future<void> _handleInitialMessage() async {
-    final initialMessage = await _firebaseMessaging.getInitialMessage();
-    if (initialMessage != null) {
-      final payload =
-          NotificationPayloadModel.fromRemoteMessage(initialMessage);
-      Future.delayed(
-        const Duration(seconds: 2),
-        () => _onTapNotification(payload),
-      );
+  /// Taps that open a **cold start** are not delivered to
+  /// [onDidReceiveNotificationResponse]; the plugin exposes them here instead.
+  Future<void> _consumeLocalNotificationColdStartTap() async {
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      return;
     }
+    try {
+      final details = await _localNotifications.getNotificationAppLaunchDetails();
+      final launched = details?.didNotificationLaunchApp ?? false;
+      if (!launched) {
+        return;
+      }
+      final response = details?.notificationResponse;
+      if (response?.payload != null) {
+        await _onDidReceiveNotificationResponse(response);
+      }
+    } catch (e) {
+      print('FCMClient: Error handling local notification cold start: $e');
+    }
+  }
+
+  static bool _firebaseColdStartNavigationHandled = false;
+
+  // Payload from a cold-start notification tap. Splash reads this after auth
+  // and navigates; avoids racing with splash's own pushReplacementNamed call.
+  static NotificationPayloadModel? _pendingColdStartPayload;
+
+  /// Consume (read + clear) the cold-start notification payload.
+  /// Call this from the splash screen after auth is confirmed.
+  static NotificationPayloadModel? consumePendingColdStartPayload() {
+    final payload = _pendingColdStartPayload;
+    _pendingColdStartPayload = null;
+    return payload;
+  }
+
+  /// Invoked from [MyApp] after the first frame. Do not call [getInitialMessage]
+  /// before [MaterialApp] — on Android the activity intent often is not wired yet
+  /// during [main] / [FCMClient.init].
+  Future<void> processFirebaseColdStartNavigationIfNeeded() async {
+    if (_firebaseColdStartNavigationHandled) {
+      return;
+    }
+    _firebaseColdStartNavigationHandled = true;
+
+    RemoteMessage? initial = await _firebaseMessaging.getInitialMessage();
+    if (initial == null && Platform.isAndroid) {
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      initial = await _firebaseMessaging.getInitialMessage();
+    }
+
+    if (initial == null) {
+      return;
+    }
+
+    // Store instead of navigating immediately. Splash will navigate to dashboard
+    // via pushReplacementNamed, which would overwrite any navigation we do now.
+    // Splash consumes this payload after its own navigation is complete.
+    _pendingColdStartPayload = NotificationPayloadModel.fromRemoteMessage(initial);
   }
 
   /// Set up message listeners
@@ -197,8 +251,8 @@ class FCMClient {
     }
   }
 
-  /// Register FCM token with backend (call this after user authentication)
-  /// Uses Riverpod providers to access notification repository
+  /// Register FCM token with backend (call after auth/session restore).
+  /// Uses Riverpod [WidgetRef] to reach [notificationRepositoryProvider].
   Future<void> registerTokenWithBackend(WidgetRef ref) async {
     try {
       // Get stored token
@@ -268,14 +322,97 @@ class FCMClient {
     // Handle melt notifications differently in foreground
     if (pushType == PushType.new_connection) {
       await _handleMeltNotificationInForeground(payload);
-    } else {
-      // Show local notification for other types
-      await _localNotifications.show(
-        title: message.notification?.title ?? '',
-        body: message.notification?.body ?? '',
-        payload: jsonEncode(payload.toJson()),
-      );
+      return;
     }
+
+    if (Platform.isIOS) {
+      // Foreground banners come from setForegroundNotificationPresentationOptions above.
+      return;
+    }
+
+    final dedupeKey = _buildNotificationDedupeKey(message, payload);
+    if (!_markAndAllowNotification(dedupeKey)) {
+      return;
+    }
+
+    final id = dedupeKey.hashCode.abs().clamp(1, 0x7FFFFFFF);
+    await _localNotifications.show(
+      id: id,
+      title: _resolvedPushTitle(message, payload),
+      body: _resolvedPushBody(message, payload),
+      payload: jsonEncode(payload.toJson()),
+    );
+  }
+
+  static String _resolvedPushTitle(
+    RemoteMessage message,
+    NotificationPayloadModel payload,
+  ) {
+    final n = message.notification?.title?.trim();
+    if (n != null && n.isNotEmpty) return n;
+    final t = payload.title?.trim();
+    if (t != null && t.isNotEmpty) return t;
+    return 'Metal';
+  }
+
+  static String _resolvedPushBody(
+    RemoteMessage message,
+    NotificationPayloadModel payload,
+  ) {
+    final n = message.notification?.body?.trim();
+    if (n != null && n.isNotEmpty) return n;
+    final b = payload.body?.trim();
+    if (b != null && b.isNotEmpty) return b;
+    return 'You have a new notification';
+  }
+
+  static String _buildNotificationDedupeKey(
+    RemoteMessage message,
+    NotificationPayloadModel payload,
+  ) {
+    final data = payload.data ?? const <String, dynamic>{};
+    String? _asString(dynamic v) => v == null ? null : v.toString();
+
+    // Prefer explicit identifiers from backend payload if present.
+    final candidateIds = <String?>[
+      _asString(data['messageId']),
+      _asString(data['chatMessageId']),
+      _asString(data['id']),
+      _asString(data['_id']),
+      _asString(data['notificationId']),
+      message.messageId,
+      payload.id,
+    ].whereType<String>().where((s) => s.trim().isNotEmpty).toList();
+
+    if (candidateIds.isNotEmpty) {
+      return 'id:${candidateIds.first}';
+    }
+
+    // Fallback: stable-ish hash from core fields.
+    final type = _asString(data['type']) ?? _asString(data['action']) ?? 'unknown';
+    final connectionId = _asString(data['connectionId']) ??
+        _asString(data['conversationId']) ??
+        _asString(data['chatId']) ??
+        '';
+    final senderId =
+        _asString(data['senderId']) ?? _asString(data['fromUserId']) ?? '';
+    final body = message.notification?.body ?? payload.body ?? '';
+    return 'fallback:$type|$connectionId|$senderId|$body';
+  }
+
+  static bool _markAndAllowNotification(String key) {
+    final now = DateTime.now();
+    // Prune old entries (small map; keep it simple).
+    _recentNotificationKeys.removeWhere(
+      (_, ts) => now.difference(ts) > _notificationDedupeWindow,
+    );
+
+    final last = _recentNotificationKeys[key];
+    if (last != null && now.difference(last) <= _notificationDedupeWindow) {
+      return false;
+    }
+    _recentNotificationKeys[key] = now;
+    return true;
   }
 
   /// Handle tap on notification when the app is open from background state.
@@ -284,7 +421,12 @@ class FCMClient {
     print(
         'onMessageOpenedApp: title ${message.notification?.title}, body: ${message.notification?.body}');
     final payload = NotificationPayloadModel.fromRemoteMessage(message);
-    _onTapNotification(payload);
+    // Defer one frame so the app is fully resumed and the navigator stack is
+    // settled before we push a new route. Without this the navigation can fire
+    // mid-transition and land on the wrong screen.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _onTapNotification(payload);
+    });
   }
 
   /// Handle tap on notification that we shown in [_onMessage].
@@ -299,10 +441,13 @@ class FCMClient {
   ) async {
     if (notificationResponse?.payload == null) return;
 
-    final payloadModel = NotificationPayloadModel.fromJson(
-      jsonDecode(notificationResponse!.payload!),
-    );
-    await _onTapNotification(payloadModel);
+    try {
+      final decoded = jsonDecode(notificationResponse!.payload!);
+      final payloadModel = NotificationPayloadModel.fromJson(decoded);
+      await _onTapNotification(payloadModel);
+    } catch (e) {
+      print('FCMClient: Error handling notification tap: $e');
+    }
   }
 
   /// Handle tap on notification when the app in background or foreground.
@@ -448,9 +593,17 @@ class FCMClient {
   /// Show fallback notification when navigation fails
   Future<void> _showFallbackNotification(
       NotificationPayloadModel payload) async {
+    final dedupeKey = 'melt:${payload.id ?? payload.data?['notificationId'] ?? payload.body ?? ''}';
+    if (!_markAndAllowNotification(dedupeKey)) {
+      return;
+    }
     await _localNotifications.show(
-      title: payload.title ?? 'New Connection',
-      body: payload.body ?? 'Someone wants to melt metal with you!',
+      title: (payload.title?.trim().isNotEmpty ?? false)
+          ? payload.title!.trim()
+          : 'New Connection',
+      body: (payload.body?.trim().isNotEmpty ?? false)
+          ? payload.body!.trim()
+          : 'Someone wants to melt metal with you!',
       payload: jsonEncode(payload.toJson()),
     );
   }

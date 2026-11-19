@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 /// Wrapper for [FlutterLocalNotificationsPlugin]
@@ -45,10 +47,25 @@ class LocalNotifications {
     await _localNotifications.initialize(
       InitializationSettings(
         android: AndroidInitializationSettings(androidDefaultIcon),
-        iOS: const DarwinInitializationSettings(),
+        iOS: const DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        ),
       ),
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
     );
+
+    if (Platform.isIOS) {
+      await _localNotifications
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+    }
   }
 
   Future<void> show({
@@ -68,7 +85,11 @@ class LocalNotifications {
           importance: Importance.max,
           priority: Priority.high,
         ),
-        iOS: DarwinNotificationDetails(),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBanner: true,
+          presentSound: true,
+        ),
       ),
       payload: payload,
     );
@@ -79,4 +100,10 @@ class LocalNotifications {
       _localNotifications.cancel(id, tag: tag);
 
   Future<void> cancelAll() => _localNotifications.cancelAll();
+
+  /// Call **after** [init] completes. Required on Android/iOS when a tap
+  /// launched a cold start — [onDidReceiveNotificationResponse] is not fired
+  /// for those launches (see flutter_local_notifications changelog).
+  Future<NotificationAppLaunchDetails?> getNotificationAppLaunchDetails() =>
+      _localNotifications.getNotificationAppLaunchDetails();
 }

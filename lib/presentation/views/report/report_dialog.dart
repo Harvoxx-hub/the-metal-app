@@ -4,7 +4,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gap/gap.dart';
 import 'package:metal/data/repositories/report/report_repository_providers.dart';
 import 'package:metal/domain/entities/report_dto.dart';
-import 'package:metal/res/colors/cr_colors.dart';
 import 'package:metal/widgets/button/plain.button.dart';
 import 'package:metal/widgets/text_views.dart';
 

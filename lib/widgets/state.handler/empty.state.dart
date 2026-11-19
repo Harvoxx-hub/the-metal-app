@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'package:gap/gap.dart';
 import 'package:metal/gen/assets.gen.dart';
 import 'package:metal/widgets/text_views.dart';
 

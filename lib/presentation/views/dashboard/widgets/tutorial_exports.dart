@@ -1,1 +1,1 @@
-export 'tutorial_overlay.dart' show TutorialPosition;
+export 'tutorial_overlay.dart' show TutorialOverlay, TutorialStep;

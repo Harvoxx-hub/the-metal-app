@@ -17,6 +17,7 @@ class BuildUserInfo extends ConsumerWidget {
   final String? commentId;
   final Function(String)? onDeleteComment;
   final VoidCallback? onDeleteThought;
+  final VoidCallback? onEditThought;
   final VoidCallback? onReportThought;
   final VoidCallback? onBlockUser;
   final bool showThoughtMenu;
@@ -29,6 +30,7 @@ class BuildUserInfo extends ConsumerWidget {
     this.commentId,
     this.onDeleteComment,
     this.onDeleteThought,
+    this.onEditThought,
     this.onReportThought,
     this.onBlockUser,
     this.showThoughtMenu = false,
@@ -39,27 +41,65 @@ class BuildUserInfo extends ConsumerWidget {
     final currentUser = ref.watch(userStateProvider).user;
     final isOwnContent = currentUser?.id == userId;
 
-    // Use author metadata from thought if available and matches userId
+    // BUG-010: Use a single source for author display to avoid same post showing different names.
+    // Prefer authorMetadata when it matches userId; otherwise use fetched user (username preferred).
     final authorMetadata = thought.authorMetadata;
 
     if (authorMetadata != null && authorMetadata.authorId == userId) {
-      return _buildUserInfoRow(
-        context: context,
-        name: authorMetadata.authorName ?? 'Anonymous',
-        profilePhoto: authorMetadata.authorProfilePhoto,
-        isVerified: authorMetadata.authorIsVerified ?? false,
-        isOwnContent: isOwnContent,
-        metalId: userId,
-        thoughtDate: date ?? thought.createdAt,
-      );
+      final displayName = authorMetadata.authorName?.trim().isNotEmpty == true
+          ? authorMetadata.authorName!
+          : null;
+      if (displayName != null) {
+        return _buildUserInfoRow(
+          context: context,
+          name: displayName,
+          profilePhoto: authorMetadata.authorProfilePhoto,
+          isVerified: authorMetadata.authorIsVerified ?? false,
+          isOwnContent: isOwnContent,
+          metalId: userId,
+          thoughtDate: date ?? thought.createdAt,
+          openProfileOnTap: true,
+        );
+      }
     }
 
-    // For comments or when author metadata doesn't match, fetch user by userId
+    // Fallback: fetch user and use username consistently (not fullname/registration name)
     final userAsync = ref.watch(getUserProvider(userId));
 
     return userAsync.when(
       data: (baseState) {
         if (baseState.isError || baseState.data == null) {
+          final isComment = commentId != null;
+
+          if (isComment) {
+            return _buildUserInfoRow(
+              context: context,
+              name: 'Anonymous',
+              profilePhoto: null,
+              isVerified: false,
+              isOwnContent: isOwnContent,
+              metalId: userId,
+              thoughtDate: date ?? thought.createdAt,
+              openProfileOnTap: false,
+            );
+          }
+
+          final meta = authorMetadata;
+          if (meta != null &&
+              meta.authorId == userId &&
+              meta.authorName?.trim().isNotEmpty == true) {
+            return _buildUserInfoRow(
+              context: context,
+              name: meta.authorName!.trim(),
+              profilePhoto: meta.authorProfilePhoto,
+              isVerified: meta.authorIsVerified ?? false,
+              isOwnContent: isOwnContent,
+              metalId: userId,
+              thoughtDate: date ?? thought.createdAt,
+              openProfileOnTap: true,
+            );
+          }
+
           return _buildUserInfoRow(
             context: context,
             name: 'Anonymous',
@@ -68,18 +108,22 @@ class BuildUserInfo extends ConsumerWidget {
             isOwnContent: isOwnContent,
             metalId: userId,
             thoughtDate: date ?? thought.createdAt,
+            openProfileOnTap: true,
           );
         }
 
         final user = baseState.data!;
+        // Use username consistently for posts so same author does not appear with two names
+        final name = (user.username?.trim().isNotEmpty == true ? user.username : user.fullname) ?? 'Anonymous';
         return _buildUserInfoRow(
           context: context,
-          name: user.username ?? user.fullname ?? 'Anonymous',
+          name: name,
           profilePhoto: user.profilePhoto,
           isVerified: user.isVerified,
           isOwnContent: isOwnContent,
           metalId: user.metal ?? userId,
           thoughtDate: date ?? thought.createdAt,
+          openProfileOnTap: true,
         );
       },
       loading: () => _buildLoadingState(),
@@ -91,6 +135,7 @@ class BuildUserInfo extends ConsumerWidget {
         isOwnContent: isOwnContent,
         metalId: userId,
         thoughtDate: date ?? thought.createdAt,
+        openProfileOnTap: commentId == null,
       ),
     );
   }
@@ -127,19 +172,21 @@ class BuildUserInfo extends ConsumerWidget {
     required bool isOwnContent,
     required String metalId,
     required DateTime thoughtDate,
+    bool openProfileOnTap = true,
   }) {
+    void openProfileIfAllowed() {
+      if (!openProfileOnTap || isOwnContent) return;
+      Navigator.pushNamed(
+        context,
+        AppRoutes.userProfile,
+        arguments: userId,
+      );
+    }
+
     return Row(
       children: [
         GestureDetector(
-          onTap: () {
-            if (!isOwnContent) {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.userProfile,
-                arguments: userId,
-              );
-            }
-          },
+          onTap: openProfileIfAllowed,
           child: ProfilePhoto(
             verfly: isVerified,
             size: 40,
@@ -149,15 +196,7 @@ class BuildUserInfo extends ConsumerWidget {
         const Gap(8),
         Expanded(
           child: GestureDetector(
-            onTap: () {
-              if (!isOwnContent) {
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.userProfile,
-                  arguments: userId,
-                );
-              }
-            },
+            onTap: openProfileIfAllowed,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -229,6 +268,9 @@ class BuildUserInfo extends ConsumerWidget {
           case 'delete':
             onDeleteThought?.call();
             break;
+          case 'edit':
+            onEditThought?.call();
+            break;
           case 'report':
             onReportThought?.call();
             break;
@@ -253,6 +295,22 @@ class BuildUserInfo extends ConsumerWidget {
                     'Delete Thought',
                     style: TextStyle(color: Colors.red),
                   ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Edit option (only for own thoughts)
+        if (isOwnContent && onEditThought != null) {
+          items.add(
+            const PopupMenuItem(
+              value: 'edit',
+              child: Row(
+                children: [
+                  Icon(Icons.edit_outlined, size: 20, color: AppColors.metalPinkColour),
+                  Gap(12),
+                  Text('Edit Thought'),
                 ],
               ),
             ),

@@ -62,6 +62,21 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     }
   }
 
+  @override
+  void didUpdateWidget(ThoughtCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (identical(widget.thoughtModel, thoughtModel)) return;
+    thoughtModel = widget.thoughtModel;
+    if (thoughtModel.type == 'repost' &&
+        thoughtModel.originalThoughtId != null) {
+      final oldOid = oldWidget.thoughtModel.originalThoughtId;
+      final newOid = thoughtModel.originalThoughtId;
+      if (oldOid != newOid) {
+        loadRepost(newOid!);
+      }
+    }
+  }
+
   loadRepost(String originalId) async {
     setState(() {
       isLoadingRepost = true;
@@ -140,12 +155,8 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             if (thoughtModel.type == 'repost') ...[
-              TextView(
-                text:
-                    'Reposted by ${thoughtModel.authorMetadata?.authorName ?? ''}',
-                fontSize: 12,
-                color: Colors.grey[700],
-              ),
+              _buildRepostHeader(context),
+              const Gap(10),
               _buildRepostCard(context),
               const Gap(10),
             ] else ...[
@@ -154,6 +165,9 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
                 thought: thoughtModel,
                 showThoughtMenu: true,
                 onDeleteThought: () => _handleDeleteThought(context),
+                onEditThought: thoughtModel.type == 'text'
+                    ? () => _handleEditThought(context)
+                    : null,
                 onReportThought: () => _handleReportThought(context),
                 onBlockUser: () => _handleBlockUser(context),
               ),
@@ -163,13 +177,15 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
                 /// get community from id from community provider
 
                 GestureDetector(
-                  // onTap: () {
-                  //   Navigator.pushNamed(
-                  //     context,
-                  //     Communi.communityDetails,
-                  //     arguments: thoughtModel.communityMetadata!.communityId,
-                  //   );
-                  // },
+                  onTap: () {
+                    final id = thoughtModel.communityMetadata!.communityId;
+                    if (id.isEmpty) return;
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.communityDetails,
+                      arguments: id,
+                    );
+                  },
                   child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -368,21 +384,107 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     }).toList();
   }
 
+  /// Twitter-style "X reposted" label row with the ⋮ menu for managing the repost.
+  Widget _buildRepostHeader(BuildContext context) {
+    final reposterName =
+        thoughtModel.authorMetadata?.authorName?.trim().isNotEmpty == true
+            ? thoughtModel.authorMetadata!.authorName!
+            : 'Someone';
+    final currentUser = ref.read(userStateProvider).user;
+    final isOwnRepost = currentUser?.id == thoughtModel.userId;
+
+    return Row(
+      children: [
+        Icon(Icons.repeat_rounded, size: 15, color: Colors.grey.shade600),
+        const Gap(5),
+        Expanded(
+          child: RichText(
+            overflow: TextOverflow.ellipsis,
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: reposterName,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                TextSpan(
+                  text: ' reposted',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        PopupMenuButton<String>(
+          padding: EdgeInsets.zero,
+          iconSize: 18,
+          icon: Icon(Icons.more_vert, size: 18, color: Colors.grey.shade500),
+          onSelected: (value) {
+            switch (value) {
+              case 'delete':
+                _handleDeleteThought(context);
+                break;
+              case 'report':
+                _handleReportThought(context);
+                break;
+              case 'block':
+                _handleBlockUser(context);
+                break;
+            }
+          },
+          itemBuilder: (_) {
+            if (isOwnRepost) {
+              return [
+                const PopupMenuItem<String>(
+                  value: 'delete',
+                  child: Row(children: [
+                    Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                    Gap(10),
+                    Text('Delete Repost',
+                        style: TextStyle(color: Colors.red)),
+                  ]),
+                ),
+              ];
+            }
+            return [
+              const PopupMenuItem<String>(
+                value: 'report',
+                child: Row(children: [
+                  Icon(Icons.flag_outlined, size: 18, color: Colors.orange),
+                  Gap(10),
+                  Text('Report'),
+                ]),
+              ),
+              const PopupMenuItem<String>(
+                value: 'block',
+                child: Row(children: [
+                  Icon(Icons.block, size: 18, color: Colors.red),
+                  Gap(10),
+                  Text('Block User', style: TextStyle(color: Colors.red)),
+                ]),
+              ),
+            ];
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildRepostCard(BuildContext context) {
     if (isLoadingRepost) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.grey.shade300,
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey.shade300, width: 1),
         ),
-        child: const Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -390,7 +492,11 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
     if (original == null) {
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey.shade300, width: 1),
+        ),
         child: Column(
           children: [
             TextView(
@@ -411,73 +517,92 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
         ),
       );
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        BuildUserInfo(
-          userId: original.userId,
-          thought: original,
+
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(
+        context,
+        AppRoutes.thoughtDetails,
+        arguments: thoughtModel.id,
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey.shade300, width: 1),
         ),
-        const Gap(10),
-        // Community tag if this is a community post
-        if (original.communityMetadata != null) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.metalPinkColour.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.metalPinkColour.withOpacity(0.3),
-                width: 1,
-              ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BuildUserInfo(
+              userId: original.userId,
+              thought: original,
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.group,
-                  size: 14,
-                  color: AppColors.metalPinkColour,
-                ),
-                const Gap(4),
-                Expanded(
-                  child: TextView(
-                    text:
-                        'Posted in: ${original.communityMetadata!.communityName}',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.metalPinkColour,
-                    maxLines: 1,
-                    textOverflow: TextOverflow.ellipsis,
+            const Gap(8),
+            if (original.communityMetadata != null) ...[
+              GestureDetector(
+                onTap: () {
+                  final id = original.communityMetadata!.communityId;
+                  if (id.isEmpty) return;
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.communityDetails,
+                    arguments: id,
+                  );
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.metalPinkColour.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.metalPinkColour.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.group,
+                          size: 14, color: AppColors.metalPinkColour),
+                      const Gap(4),
+                      Expanded(
+                        child: TextView(
+                          text:
+                              'Posted in: ${original.communityMetadata!.communityName}',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.metalPinkColour,
+                          maxLines: 1,
+                          textOverflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          const Gap(8),
-        ],
-        // Show audio when reposted thought has audio
-        if (original.audioUrl != null && original.audioUrl!.isNotEmpty) ...[
-          AudioPlayer(
-            audioUrl: original.audioUrl!,
-            theme: AudioPlayerTheme.thought,
-          ),
-          const Gap(6),
-        ],
-        // Show text when reposted thought has content
-        if (original.content.isNotEmpty) ...[
-          ReadMoreText(
-            text: original.content,
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                AppRoutes.thoughtDetails,
-                arguments: original.id,
-              );
-            },
-          ),
-        ],
-      ],
+              ),
+              const Gap(6),
+            ],
+            if (original.audioUrl != null &&
+                original.audioUrl!.isNotEmpty) ...[
+              AudioPlayer(
+                audioUrl: original.audioUrl!,
+                theme: AudioPlayerTheme.thought,
+              ),
+              const Gap(6),
+            ],
+            if (original.content.isNotEmpty)
+              ReadMoreText(
+                text: original.content,
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.thoughtDetails,
+                  arguments: thoughtModel.id,
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -632,6 +757,50 @@ class _ThoughtCardState extends ConsumerState<ThoughtCard> {
           Fluttertoast.showToast(msg: 'Failed to delete thought');
         }
       }
+    }
+  }
+
+  Future<void> _handleEditThought(BuildContext context) async {
+    // Backend update endpoint currently supports content updates.
+    // To keep UX consistent and avoid failed updates, only allow editing text thoughts for now.
+    if (thoughtModel.type != 'text') return;
+
+    final communityMeta = thoughtModel.communityMetadata;
+    final communityMetadataMap = communityMeta == null
+        ? null
+        : {
+            'communityId': communityMeta.communityId,
+            'communityName': communityMeta.communityName,
+            'communityImage': communityMeta.communityImage,
+            'isPublic': communityMeta.isPublic,
+            'categories': communityMeta.categories,
+          };
+
+    final editArgs = {
+      'communityMetadata': communityMetadataMap,
+      'editThoughtId': thoughtModel.id,
+      'editText': thoughtModel.content,
+      'editConnectionOnly': thoughtModel.connectionOnly,
+    };
+
+    final result = await Navigator.pushNamed(
+      context,
+      AppRoutes.postThought,
+      arguments: editArgs,
+    );
+
+    if (!mounted) return;
+    if (result is! ThoughtDto) return;
+
+    // Update local timeline state immediately (no full refresh).
+    if (widget.communityId != null) {
+      ref
+          .read(
+            communityDetailViewModelProvider(widget.communityId!).notifier,
+          )
+          .updatePost(result);
+    } else {
+      ref.read(thoughtFeedViewModelProvider.notifier).updateThought(result);
     }
   }
 

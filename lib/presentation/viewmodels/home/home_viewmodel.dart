@@ -1,21 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:metal/core/error_handling/error_handler.dart';
-import 'package:metal/core/services/location_service.dart';
-import 'package:metal/core/utils/permission_helper.dart';
+import 'package:metal/core/managers/location_manager.dart';
 import 'package:metal/data/repositories/discovery/discovery_repository.dart';
 import 'package:metal/domain/entities/discovery_user_dto.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 
-/// Whether the user needs to provide location before discovery can work.
+/// Whether discovery needs location (from API). Location is stored in user model; discovery does not request or update it.
 enum LocationStatus {
-  /// No location issue — either we have it or haven't checked yet.
   ready,
-
-  /// API said location is missing. Permission denied (can still request).
   denied,
-
-  /// API said location is missing. Permission permanently denied (must open Settings).
   permanentlyDenied,
 }
 
@@ -103,39 +97,47 @@ class HomeState {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────
-// Helper: check if an error string means "user has no location"
-// ─────────────────────────────────────────────────────────────────
 bool _isLocationRequiredError(String msg) =>
     msg.contains('Location data required') || msg.contains('Location required');
 
-/// Home ViewModel Notifier
-///
-/// Flow:
-///   1. Call the API immediately.
-///   2. If API returns users → done.
-///   3. If API returns "location required" → check/request permission
-///      → get location → update profile → retry API.
-///   4. If permission denied → show permission screen via state.
+/// Home ViewModel: discovery only calls the API. Location is stored in user model (splash / central Enable Location screen).
+/// When API returns "location required", we set locationNeeded and the UI navigates to the central location screen.
 class HomeViewModelNotifier extends StateNotifier<HomeState> {
   final IDiscoveryRepository _repository;
   final Ref _ref;
 
+  /// One-shot retry when API returns empty + "enable location" (see backend discovery.service).
+  bool _didEmptyDiscoveryLocationRetry = false;
+
   HomeViewModelNotifier(this._repository, this._ref)
-      : super(HomeState.initial()) {
-    loadUsers();
-  }
+      : super(HomeState.initial());
 
-  // ────────────────────────── Core load ──────────────────────────
+  /// First discovery fetch is triggered from [DashboardView] after [StartupService]
+  /// finishes updating location on the server — not from the constructor — so the
+  /// `/discovery/users` call does not race ahead of profile location sync.
 
-  /// Load discovery users. Calls API directly. Handles "location required".
+  /// Load discovery users. Uses location from stored user model (backend). No permission or location logic here.
   Future<void> loadUsers() async {
     if (state.isLoading && state.data != null && state.data!.isNotEmpty) return;
 
     state = HomeState.loading(existingUsers: state.data);
 
     try {
-      final response = await _repository.getDiscoveryUsers(limit: 20);
+      var response = await _repository.getDiscoveryUsers(limit: 20);
+
+      if (response.users.isEmpty &&
+          !_didEmptyDiscoveryLocationRetry &&
+          (response.apiMessage
+                  ?.toLowerCase()
+                  .contains('enable location') ??
+              false)) {
+        _didEmptyDiscoveryLocationRetry = true;
+        final got = await LocationManager().updateProfileLocation(_ref.read);
+        if (got) {
+          await _ref.read(userStateProvider.notifier).mergeUserFromServer();
+          response = await _repository.getDiscoveryUsers(limit: 20);
+        }
+      }
 
       if (mounted) {
         state = HomeState.success(
@@ -143,138 +145,43 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
           hasMore: response.pagination?.hasMore ?? false,
           nextCursor: response.pagination?.nextCursor,
         );
-        // Background refresh location (fire-and-forget)
-        _refreshLocationInBackground();
       }
     } catch (e) {
       if (!mounted) return;
       final errorMessage = ErrorHandler.handleErrorToString(e);
 
       if (_isLocationRequiredError(errorMessage)) {
-        // API says no location → handle location flow
-        await _handleLocationRequired();
+        state = HomeState.locationNeeded(false);
       } else {
         state = HomeState.error(errorMessage, existingUsers: state.data);
       }
     }
   }
 
-  // ──────────────── Location flow (only when API rejects) ───────
-
-  /// Called when API returns "location required".
-  /// Check/request permission, get location, update profile, retry.
-  Future<void> _handleLocationRequired() async {
-    if (!mounted) return;
-
-    // 1. Already granted?
-    if (await PermissionHelper.hasLocationPermission()) {
-      await _getLocationAndRetry();
-      return;
-    }
-
-    // 2. Request once (handles Android "Ask every time")
-    final result = await PermissionHelper.requestLocationPermission();
-    if (!mounted) return;
-
-    if (result.granted) {
-      await _getLocationAndRetry();
-      return;
-    }
-
-    // 3. Denied → let UI show permission screen
-    state = HomeState.locationNeeded(result.permanentlyDenied);
-  }
-
-  /// Get device location, push to backend, then retry loadUsers.
-  Future<void> _getLocationAndRetry() async {
-    if (!mounted) return;
-    state = HomeState.loading();
-
-    try {
-      final locResult = await LocationService().getCurrentLocation();
-      if (locResult.isSuccess && locResult.location != null && mounted) {
-        await _ref.read(userStateProvider.notifier).updateUserField(
-              field: 'location',
-              value: locResult.location!.toJson(),
-            );
-      }
-    } catch (_) {
-      // best-effort; the retry below will tell us if it worked
-    }
-
-    if (mounted) await _retryLoadUsers();
-  }
-
-  /// Retry the API call after updating location.
-  Future<void> _retryLoadUsers() async {
-    if (!mounted) return;
-    state = HomeState.loading();
-
-    try {
-      final response = await _repository.getDiscoveryUsers(limit: 20);
-      if (mounted) {
-        state = HomeState.success(
-          response.users,
-          hasMore: response.pagination?.hasMore ?? false,
-          nextCursor: response.pagination?.nextCursor,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        state = HomeState.error(ErrorHandler.handleErrorToString(e));
-      }
-    }
-  }
-
-  // ──────────────── Public methods for UI ────────────────────────
-
-  /// Called after user grants permission from the permission screen.
-  Future<void> onLocationGranted() async {
-    if (!mounted) return;
-    await _getLocationAndRetry();
-  }
-
-  /// Called on app resume — just re-try if we have no data.
+  /// Called when returning from central location screen (or on resume). Retry API; user model may now have location.
+  /// Called when app resumes (e.g. from background). Refetch discovery so swiped
+  /// users don't reappear (BUG-019) and list stays in sync with server.
   Future<void> retryIfNeeded() async {
     if (!mounted) return;
     if (state.locationStatus != LocationStatus.ready) {
-      // Permission may have been granted in Settings — check again
-      if (await PermissionHelper.hasLocationPermission()) {
-        await _getLocationAndRetry();
-      }
+      await loadUsers();
       return;
     }
-    if (state.data == null || state.data!.isEmpty) {
-      await loadUsers();
-    } else {
-      _refreshLocationInBackground();
-    }
+    // Always refetch on resume so discovery list matches server (no stale swiped cards)
+    await loadUsers();
   }
 
   /// Refresh — reset and reload.
   Future<void> refresh() async {
+    _didEmptyDiscoveryLocationRetry = false;
     state = HomeState.initial();
     await loadUsers();
   }
 
-  // ──────────────── Background location refresh ──────────────────
-
-  void _refreshLocationInBackground() {
-    PermissionHelper.hasLocationPermission().then((granted) {
-      if (granted && mounted) {
-        LocationService().getCurrentLocation().then((locResult) {
-          if (locResult.isSuccess && locResult.location != null && mounted) {
-            _ref.read(userStateProvider.notifier).updateUserField(
-                  field: 'location',
-                  value: locResult.location!.toJson(),
-                );
-          }
-        });
-      }
-    });
+  /// BUG-018: Call when app resumes; if caller determined location is now denied, show re-enable prompt.
+  void setLocationDenied({bool permanentlyDenied = false}) {
+    state = HomeState.locationNeeded(permanentlyDenied);
   }
-
-  // ──────────────── Discovery API (swipe etc.) ───────────────────
 
   Future<void> loadMoreUsers() async {
     if (state.isLoading || !state.hasMore || state.nextCursor == null) return;
@@ -306,9 +213,6 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
 
   Future<SwipeResultDto?> passUser(String userId) =>
       _recordSwipe(userId, SwipeAction.pass);
-
-  Future<SwipeResultDto?> superLikeUser(String userId) =>
-      _recordSwipe(userId, SwipeAction.superlike);
 
   Future<SwipeResultDto?> _recordSwipe(
       String userId, SwipeAction action) async {
@@ -369,14 +273,6 @@ class HomeViewModelNotifier extends StateNotifier<HomeState> {
   bool get hasUsers => users.isNotEmpty;
   DiscoveryUserDto? get currentUser => users.isNotEmpty ? users.first : null;
 }
-
-// ─────────────────────────── Providers ───────────────────────────
-//
-// Not using autoDispose so the notifier is created once per app session.
-// With autoDispose, the notifier was disposed whenever HomeView unmounted
-// (e.g. dashboard showed loading spinner, or user switched tabs). When
-// HomeView mounted again, a new notifier was created → constructor and
-// loadUsers() ran again.
 
 final homeViewModelProvider =
     StateNotifierProvider<HomeViewModelNotifier, HomeState>((ref) {

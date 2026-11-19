@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:metal/core/error_handling/error_mapper.dart';
 import 'package:metal/data/repositories/verification/verification_repository_providers.dart';
 import 'package:metal/presentation/viewmodels/user/user_state_provider.dart';
 
@@ -10,6 +11,7 @@ class WorkEmailVerificationState {
   final String? errorMessage;
   final String? successMessage;
   final String? workEmail;
+  final String? company;
 
   WorkEmailVerificationState({
     this.isLoading = false,
@@ -18,6 +20,7 @@ class WorkEmailVerificationState {
     this.errorMessage,
     this.successMessage,
     this.workEmail,
+    this.company,
   });
 
   WorkEmailVerificationState copyWith({
@@ -27,6 +30,7 @@ class WorkEmailVerificationState {
     String? errorMessage,
     String? successMessage,
     String? workEmail,
+    String? company,
   }) {
     return WorkEmailVerificationState(
       isLoading: isLoading ?? this.isLoading,
@@ -35,6 +39,7 @@ class WorkEmailVerificationState {
       errorMessage: errorMessage,
       successMessage: successMessage,
       workEmail: workEmail ?? this.workEmail,
+      company: company ?? this.company,
     );
   }
 
@@ -50,18 +55,23 @@ class WorkEmailVerificationViewModel
       : super(WorkEmailVerificationState.initial());
 
   /// Request verification code for work email
-  Future<bool> requestVerification({required String workEmail}) async {
+  Future<bool> requestVerification({
+    required String workEmail,
+    required String company,
+  }) async {
     state = state.copyWith(
       isLoading: true,
       errorMessage: null,
       successMessage: null,
       workEmail: workEmail,
+      company: company,
     );
 
     try {
       final repository = _ref.read(verificationRepositoryProvider);
       final result = await repository.requestWorkEmailVerification(
         workEmail: workEmail,
+        company: company,
       );
 
       if (result.isSuccess) {
@@ -81,7 +91,7 @@ class WorkEmailVerificationViewModel
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to send code: $e',
+        errorMessage: ErrorMapper.extractErrorMessage(e),
       );
       return false;
     }
@@ -127,7 +137,7 @@ class WorkEmailVerificationViewModel
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Verification failed: $e',
+        errorMessage: ErrorMapper.extractErrorMessage(e),
       );
       return false;
     }

@@ -20,13 +20,16 @@ class UserExtraDataModel {
   factory UserExtraDataModel.fromJson(Map<String, dynamic>? json) {
     if (json == null) return UserExtraDataModel();
     
+    final marriage = json['marriageStatus'] as String? ??
+        json['maritalStatus'] as String?;
+
     return UserExtraDataModel(
       profession: json['profession'] as String?,
       education: json['education'] as String?,
       religion: json['religion'] as String?,
       ethnicity: json['ethnicity'] as String?,
       language: json['language'] as String?,
-      marriageStatus: json['marriageStatus'] as String?,
+      marriageStatus: marriage,
     );
   }
 

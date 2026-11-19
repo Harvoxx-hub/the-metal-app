@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,11 +16,12 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:metal/fcm/fcm_client.dart';
-import 'package:metal/core/services/shorebird_update_service.dart';
 
+import 'package:metal/fcm/app_icon_badge.dart';
 import 'package:metal/core/services/deep_link_service.dart';
 import 'package:metal/core/di/provider_setup.dart';
 import 'package:metal/core/utils/permission_helper.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Global key for navigation
 final navKey = GlobalKey<NavigatorState>();
@@ -46,13 +49,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Log uncaught Flutter errors (visible in adb logcat when app crashes on Android)
-  FlutterError.onError = (FlutterErrorDetails details) {
-    debugPrint('FlutterError: $details');
-    FlutterError.dumpErrorToConsole(details);
-  };
-
-  // Lock app to portrait orientation
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -84,21 +80,6 @@ void main() async {
     // Continue app startup even if FCM fails
   }
 
-  // Initialize Shorebird Code Push for OTA updates
-  // CRITICAL: Initialize Shorebird BEFORE running the app to prevent splash screen hang
-  // With auto_update enabled in shorebird.yaml, patches will be automatically downloaded
-  // but we need to wait for initialization to complete to prevent the app from getting stuck
-  try {
-    debugPrint('Initializing Shorebird before app startup...');
-    // Initialize and wait for Shorebird to be ready
-    // This prevents the app from getting stuck on splash screen after patch application
-    await ShorebirdUpdateService.instance.initialize();
-    debugPrint('Shorebird initialization complete');
-  } catch (e) {
-    debugPrint('Shorebird initialization/update check failed: $e');
-    // Continue app startup even if Shorebird fails to prevent app from hanging
-  }
-
   // Initialize SharedPreferences eagerly before app starts
   SharedPreferences sharedPreferences;
   try {
@@ -118,17 +99,39 @@ void main() async {
     // Continue so app still launches
   }
 
-  runApp(
-    ProviderScope(
-      overrides: [
-        // Override sharedPreferencesProvider with pre-initialized instance
-        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  // Clear any stale app icon badge from previous sessions
+  await AppIconBadge.clear();
 
-  // Deep link service will be initialized in MyApp widget where we have access to providers
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://f13d648fc1ed4066516aa53c150ae36c@o4510908276801536.ingest.us.sentry.io/4511325235052544';
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
+      // We recommend adjusting this value in production.
+      options.tracesSampleRate = 1.0;
+      // The sampling rate for profiling is relative to tracesSampleRate
+      // Setting to 1.0 will profile 100% of sampled transactions:
+      options.profilesSampleRate = 1.0;
+    },
+    appRunner: () {
+      FlutterError.onError = (FlutterErrorDetails details) {
+        FlutterError.presentError(details);
+        Sentry.captureException(
+          details.exception,
+          stackTrace: details.stack,
+        );
+      };
+      runApp(
+        SentryWidget(
+          child: ProviderScope(
+            overrides: [
+              sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+            ],
+            child: const MyApp(),
+          ),
+        ),
+      );
+    },
+  );
 }
 
 class MyApp extends ConsumerStatefulWidget {
@@ -149,6 +152,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
     // Request microphone and camera permissions on iOS after app is initialized
     // Using post-frame callback to ensure app is fully running
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(FCMClient.instance.processFirebaseColdStartNavigationIfNeeded());
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) => _onFirstFrameReady(ref));
   }
 

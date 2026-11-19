@@ -3,6 +3,22 @@ import 'package:metal/data/repositories/thought/thought_repository.dart';
 import 'package:metal/domain/entities/comment_dto.dart';
 import 'package:metal/presentation/viewmodels/thought/thought_providers.dart';
 
+/// Keep first occurrence of each non-empty comment id (preserves API order).
+List<CommentDto> _dedupeCommentsById(List<CommentDto> input) {
+  final seen = <String>{};
+  final out = <CommentDto>[];
+  for (final c in input) {
+    if (c.id.isEmpty) {
+      out.add(c);
+      continue;
+    }
+    if (seen.contains(c.id)) continue;
+    seen.add(c.id);
+    out.add(c);
+  }
+  return out;
+}
+
 /// State for comment management
 class CommentViewState {
   final List<CommentDto> comments;
@@ -66,6 +82,7 @@ class CommentViewState {
 class CommentViewModel extends StateNotifier<CommentViewState> {
   final ThoughtRepository _repository;
   final String thoughtId;
+  bool _addCommentInFlight = false;
 
   CommentViewModel({
     required ThoughtRepository repository,
@@ -85,8 +102,12 @@ class CommentViewModel extends StateNotifier<CommentViewState> {
     if (!mounted) return;
 
     if (result.isSuccess && result.data != null) {
+      // BUG-023: Don't show deleted comments — filter them out
+      final visible = _dedupeCommentsById(
+        result.data!.comments.where((c) => !c.isDeleted).toList(),
+      );
       state = CommentViewState.success(
-        result.data!.comments,
+        visible,
         hasMore: result.data!.hasMore,
         nextCursor: result.data!.nextCursor,
       );
@@ -117,7 +138,11 @@ class CommentViewModel extends StateNotifier<CommentViewState> {
     if (!mounted) return;
 
     if (result.isSuccess && result.data != null) {
-      final newComments = [...state.comments, ...result.data!.comments];
+      final newBatch = _dedupeCommentsById(
+        result.data!.comments.where((c) => !c.isDeleted).toList(),
+      );
+      final newComments =
+          _dedupeCommentsById([...state.comments, ...newBatch]);
       state = state.copyWith(
         comments: newComments,
         isLoadingMore: false,
@@ -131,20 +156,28 @@ class CommentViewModel extends StateNotifier<CommentViewState> {
 
   /// Add a comment
   Future<void> addComment(String content, {String? replyToCommentId}) async {
-    if (!mounted) return;
+    if (!mounted || _addCommentInFlight) return;
+    _addCommentInFlight = true;
 
-    final result = await _repository.addComment(
-      thoughtId: thoughtId,
-      content: content,
-      replyToCommentId: replyToCommentId,
-    );
+    try {
+      final result = await _repository.addComment(
+        thoughtId: thoughtId,
+        content: content,
+        replyToCommentId: replyToCommentId,
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (result.isSuccess && result.data != null) {
-      // Add the new comment to the list optimistically
-      final newComments = [result.data!, ...state.comments];
-      state = state.copyWith(comments: newComments);
+      if (result.isSuccess && result.data != null) {
+        // Add the new comment; deduplicate by id (double-submit / id mismatch from API)
+        final added = result.data!;
+        final rest = state.comments.where((c) => c.id != added.id).toList();
+        state = state.copyWith(
+          comments: _dedupeCommentsById([added, ...rest]),
+        );
+      }
+    } finally {
+      _addCommentInFlight = false;
     }
   }
 

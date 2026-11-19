@@ -18,6 +18,7 @@ class DiscoveryUserDto {
   final LocationDto? location;
   final bool isVerified;
   final bool isOnline;
+  final bool? showOnline;
   final String? lastActive;
   final double? distance; // Calculated distance in km
   final List<UserPromptDto>? prompts;
@@ -37,6 +38,7 @@ class DiscoveryUserDto {
     this.location,
     this.isVerified = false,
     this.isOnline = false,
+    this.showOnline,
     this.lastActive,
     this.distance,
     this.prompts,
@@ -60,6 +62,7 @@ class DiscoveryUserDto {
           : null,
       isVerified: json['isVerified'] as bool? ?? false,
       isOnline: json['isOnline'] as bool? ?? false,
+      showOnline: json['showOnline'] as bool?,
       lastActive: json['lastActive'] as String?,
       distance: (json['distance'] as num?)?.toDouble(),
       prompts: (json['prompts'] as List<dynamic>?)
@@ -84,6 +87,7 @@ class DiscoveryUserDto {
       'location': location?.toJson(),
       'isVerified': isVerified,
       'isOnline': isOnline,
+      if (showOnline != null) 'showOnline': showOnline,
       'lastActive': lastActive,
       'distance': distance,
       'prompts': prompts?.map((p) => p.toJson()).toList(),
@@ -157,7 +161,6 @@ class LocationDto {
 enum SwipeAction {
   like,
   pass,
-  superlike,
 }
 
 /// Extension to convert SwipeAction to/from string
@@ -168,8 +171,6 @@ extension SwipeActionExtension on SwipeAction {
         return 'like';
       case SwipeAction.pass:
         return 'pass';
-      case SwipeAction.superlike:
-        return 'superlike';
     }
   }
 
@@ -180,7 +181,7 @@ extension SwipeActionExtension on SwipeAction {
       case 'pass':
         return SwipeAction.pass;
       case 'superlike':
-        return SwipeAction.superlike;
+        return SwipeAction.like; // backwards compat: treat as like
       default:
         throw ArgumentError('Invalid swipe action: $value');
     }

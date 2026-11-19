@@ -7,6 +7,8 @@ class ReactionModel {
   final String thoughtId;
   final String emoji;
   final String createdAt;
+  final String? username;
+  final String? metalId;
 
   ReactionModel({
     required this.id,
@@ -14,6 +16,8 @@ class ReactionModel {
     required this.thoughtId,
     required this.emoji,
     required this.createdAt,
+    this.username,
+    this.metalId,
   });
 
   factory ReactionModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +27,8 @@ class ReactionModel {
       thoughtId: json['thoughtId'] as String,
       emoji: json['emoji'] as String,
       createdAt: json['createdAt'] as String,
+      username: json['username'] as String?,
+      metalId: json['metalId'] as String?,
     );
   }
 
@@ -33,6 +39,8 @@ class ReactionModel {
       'thoughtId': thoughtId,
       'emoji': emoji,
       'createdAt': createdAt,
+      if (username != null) 'username': username,
+      if (metalId != null) 'metalId': metalId,
     };
   }
 
@@ -44,6 +52,8 @@ class ReactionModel {
       thoughtId: thoughtId,
       emoji: emoji,
       createdAt: DateTime.parse(createdAt),
+      username: username,
+      metalId: metalId,
     );
   }
 
@@ -53,6 +63,8 @@ class ReactionModel {
     String? thoughtId,
     String? emoji,
     String? createdAt,
+    String? username,
+    String? metalId,
   }) {
     return ReactionModel(
       id: id ?? this.id,
@@ -60,6 +72,8 @@ class ReactionModel {
       thoughtId: thoughtId ?? this.thoughtId,
       emoji: emoji ?? this.emoji,
       createdAt: createdAt ?? this.createdAt,
+      username: username ?? this.username,
+      metalId: metalId ?? this.metalId,
     );
   }
 }

@@ -3,7 +3,6 @@ import 'package:metal/core/network/api_routes.dart';
 import 'package:metal/core/network/dio_client.dart';
 import 'package:metal/data/datasources/base_data_source.dart';
 import 'package:metal/data/models/notification_model.dart';
-import 'package:metal/domain/entities/notification_dto.dart';
 
 /// Remote data source for notification operations
 /// Handles API calls for notifications system

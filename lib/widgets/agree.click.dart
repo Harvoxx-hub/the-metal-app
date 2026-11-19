@@ -86,6 +86,7 @@ class _CustomCheckWidgetState extends State<CustomCheckWidget> {
                       ],
                     ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   isChecked
                       ? SvgPicture.asset(
@@ -102,15 +103,16 @@ class _CustomCheckWidgetState extends State<CustomCheckWidget> {
                                   .withOpacity(0.1)),
                         ),
                   const SizedBox(width: 8.0),
-                  widget.title != null
-                      ? TextView(
-                          text: widget.title!,
-                          fontSize: 13,
-                          color: AppColors.metalBrownColourForText
-                              .withOpacity(0.5),
-                          fontWeight: FontWeight.normal,
-                        )
-                      : const SizedBox(),
+                  if (widget.title != null)
+                    Expanded(
+                      child: TextView(
+                        text: widget.title!,
+                        fontSize: 13,
+                        color: AppColors.metalBrownColourForText
+                            .withOpacity(0.5),
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -123,7 +125,7 @@ class _CustomCheckWidgetState extends State<CustomCheckWidget> {
               });
             },
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 isChecked
                     ? SvgPicture.asset(
@@ -137,15 +139,16 @@ class _CustomCheckWidgetState extends State<CustomCheckWidget> {
                         width: 24,
                       ),
                 const SizedBox(width: 8.0),
-                widget.title != null
-                    ? TextView(
-                        text: widget.title!,
-                        fontSize: 13,
-                        color:
-                            AppColors.metalBrownColourForText.withOpacity(0.5),
-                        fontWeight: FontWeight.normal,
-                      )
-                    : const SizedBox(),
+                if (widget.title != null)
+                  Expanded(
+                    child: TextView(
+                      text: widget.title!,
+                      fontSize: 13,
+                      color:
+                          AppColors.metalBrownColourForText.withOpacity(0.5),
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
               ],
             ),
           );

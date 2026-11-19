@@ -39,6 +39,7 @@ class FirebaseRemoteConfigService {
           FirebaseRemoteConfigKeys.daysRequiredToUnMelt: 0,
           FirebaseRemoteConfigKeys.latest_version: "",
           FirebaseRemoteConfigKeys.rules: "",
+          FirebaseRemoteConfigKeys.chatAssistantEnabled: true,
         },
       );
 
@@ -62,4 +63,6 @@ class FirebaseRemoteConfigService {
   int getDaysRequiredToUnMelt() =>
       getInt(FirebaseRemoteConfigKeys.daysRequiredToUnMelt);
   String getRules() => getString(FirebaseRemoteConfigKeys.rules);
+  bool isChatAssistantEnabled() =>
+      getBool(FirebaseRemoteConfigKeys.chatAssistantEnabled);
 }

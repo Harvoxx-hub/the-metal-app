@@ -246,6 +246,7 @@ class _ThoughtScreenState extends ConsumerState<ThoughtScreen>
             padding:
                 const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 16),
             child: ThoughtCard(
+              key: ValueKey(thought.id),
               thoughtModel: thought,
             ),
           );

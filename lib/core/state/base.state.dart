@@ -8,13 +8,16 @@ class BaseState<T> {
   final T? data;
   final Map? errorData;
   final Map? action;
+  /// Present when the error originated from an HTTP response (e.g. Dio).
+  final int? errorHttpStatus;
 
   BaseState(
       {required this.status,
       this.errorMessage,
       this.data,
       this.errorData,
-      this.action});
+      this.action,
+      this.errorHttpStatus});
 
   factory BaseState.initial() {
     return BaseState<T>(status: Status.initial);
@@ -42,7 +45,10 @@ class BaseState<T> {
       Fluttertoast.showToast(msg: errorMessage);
     }
     return BaseState<T>(
-        status: Status.error, errorMessage: errorMessage, errorData: errorData);
+      status: Status.error,
+      errorMessage: errorMessage,
+      errorData: errorData,
+    );
   }
 
   bool get isInitial => status == Status.initial;

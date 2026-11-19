@@ -24,7 +24,8 @@ class SignupViewModel extends BaseViewModel<LoginResponseDto> {
   Future<void> signup({
     required String email,
     required String password,
-    required String phoneNumber,
+    required String phoneNationalNumber,
+    required String phoneCountryIso2,
     String? referralCode,
   }) async {
     setLoading();
@@ -44,7 +45,8 @@ class SignupViewModel extends BaseViewModel<LoginResponseDto> {
         SignupParams(
           email: email,
           password: password,
-          phoneNumber: phoneNumber,
+          phoneNationalNumber: phoneNationalNumber,
+          phoneCountryIso2: phoneCountryIso2,
           referralCode: referralCode,
           fcmToken: fcmToken,
         ),

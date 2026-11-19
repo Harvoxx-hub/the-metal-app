@@ -260,6 +260,7 @@ class NotificationNavigationService {
         await _navigateToReferral(context);
         break;
       case PushType.thought_created:
+      case PushType.thoughtRepost:
       case PushType.reaction_added:
       case PushType.comment:
       case PushType.comment_reaction:
@@ -341,7 +342,7 @@ class NotificationNavigationService {
       case NotificationType.thoughtReaction:
       case NotificationType.thoughtComment:
       case NotificationType.thoughtRepost:
-        return PushType.comment;
+        return PushType.thoughtRepost;
       case NotificationType.thoughtCreated:
         return PushType.thought_created;
       case NotificationType.communityPost:

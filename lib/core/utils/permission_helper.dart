@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:metal/res/colors/cr_colors.dart';
@@ -17,6 +18,26 @@ class LocationPermissionResult {
 }
 
 class PermissionHelper {
+  /// Only one native permission request may run at a time; overlapping
+  /// `Permission.*.request()` calls throw [PlatformException] (e.g. iOS:
+  /// ERROR_ALREADY_REQUESTING_PERMISSIONS).
+  static Future<void>? _permissionRequestInFlight;
+
+  static Future<T> _runSerializedPermissionRequest<T>(
+      Future<T> Function() action) async {
+    while (_permissionRequestInFlight != null) {
+      await _permissionRequestInFlight;
+    }
+    final done = Completer<void>();
+    _permissionRequestInFlight = done.future;
+    try {
+      return await action();
+    } finally {
+      done.complete();
+      _permissionRequestInFlight = null;
+    }
+  }
+
   static Future<bool> requestCallPermissions(BuildContext context) async {
     if (Platform.isIOS) {
       return await _requestIOSCallPermissions(context);
@@ -480,21 +501,27 @@ class PermissionHelper {
   /// Request location permission. Returns true if granted.
   /// Before showing "permanently denied" UI, call this once (e.g. "Ask every time" may show dialog).
   static Future<LocationPermissionResult> requestLocationPermission() async {
-    var status = await Permission.locationWhenInUse.status;
-    if (status.isGranted) {
-      return LocationPermissionResult(granted: true, permanentlyDenied: false);
-    }
-    if (status.isPermanentlyDenied) {
-      return LocationPermissionResult(granted: false, permanentlyDenied: true);
-    }
-    status = await Permission.locationWhenInUse.request();
-    if (status.isGranted) {
-      return LocationPermissionResult(granted: true, permanentlyDenied: false);
-    }
-    if (status.isPermanentlyDenied) {
-      return LocationPermissionResult(granted: false, permanentlyDenied: true);
-    }
-    return LocationPermissionResult(granted: false, permanentlyDenied: false);
+    return _runSerializedPermissionRequest(() async {
+      var status = await Permission.locationWhenInUse.status;
+      if (status.isGranted) {
+        return LocationPermissionResult(
+            granted: true, permanentlyDenied: false);
+      }
+      if (status.isPermanentlyDenied) {
+        return LocationPermissionResult(
+            granted: false, permanentlyDenied: true);
+      }
+      status = await Permission.locationWhenInUse.request();
+      if (status.isGranted) {
+        return LocationPermissionResult(
+            granted: true, permanentlyDenied: false);
+      }
+      if (status.isPermanentlyDenied) {
+        return LocationPermissionResult(
+            granted: false, permanentlyDenied: true);
+      }
+      return LocationPermissionResult(granted: false, permanentlyDenied: false);
+    });
   }
 
   /// Check if location is permanently denied (user must go to Settings).
@@ -811,10 +838,11 @@ class PermissionHelper {
       return;
     }
 
-    // Simply request both permissions - iOS will show dialogs if needed
-    // If already granted or denied, this returns immediately
-    await Permission.camera.request();
-    await Permission.microphone.request();
+    // Serialize with other startup permission flows (e.g. splash location).
+    await _runSerializedPermissionRequest(() async {
+      await Permission.camera.request();
+      await Permission.microphone.request();
+    });
   }
 
   // ============================================

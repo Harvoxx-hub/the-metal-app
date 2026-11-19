@@ -34,22 +34,37 @@ class ChatMessageList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.builder(
       controller: scrollController,
+      reverse: true,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount:
-          messages.length + (isLoadingMore ? 1 : 0) + 1, // +1 for date divider
+      cacheExtent: 500,
+      itemCount: messages.length + 1 + (isLoadingMore ? 1 : 0),
       itemBuilder: (context, index) {
-        if (isLoadingMore && index == 0) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
+        // reverse: true → index 0 is at the bottom (newest message).
+        // Messages list is oldest-first, so we map reversed indices.
+
+        // Message items: index 0 .. messages.length-1
+        if (index < messages.length) {
+          final messageIndex = messages.length - 1 - index;
+          final message = messages[messageIndex];
+          final isMe = message.senderId == currentUserId;
+
+          return _MessageBubble(
+            key: ValueKey(message.id),
+            message: message,
+            isMe: isMe,
+            onReply: onReply != null ? () => onReply!(message) : null,
+            onDelete: isMe &&
+                    onDelete != null &&
+                    message.id.isNotEmpty &&
+                    !message.id.startsWith('temp_')
+                ? () => onDelete!(message.id)
+                : null,
+            onUnmeltAction: onUnmeltAction,
           );
         }
 
-        // Show "Today" divider after loading indicator (or at start)
-        final dividerIndex = isLoadingMore ? 1 : 0;
-        if (index == dividerIndex) {
+        // Date divider (appears above oldest messages when scrolling up)
+        if (index == messages.length) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16.0),
             child: Center(
@@ -63,23 +78,17 @@ class ChatMessageList extends StatelessWidget {
           );
         }
 
-        final messageIndex = (isLoadingMore ? index - 2 : index - 1);
-        final message = messages[messageIndex];
-        final isMe = message.senderId == currentUserId;
+        // Loading indicator (topmost item when scrolling up to load more)
+        if (isLoadingMore && index == messages.length + 1) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          );
+        }
 
-        return _MessageBubble(
-          message: message,
-          isMe: isMe,
-          onReply: onReply != null ? () => onReply!(message) : null,
-          // Only allow delete if message has a valid ID (not temp ID and not empty)
-          onDelete: isMe &&
-                  onDelete != null &&
-                  message.id.isNotEmpty &&
-                  !message.id.startsWith('temp_')
-              ? () => onDelete!(message.id)
-              : null,
-          onUnmeltAction: onUnmeltAction,
-        );
+        return const SizedBox.shrink();
       },
     );
   }
@@ -94,6 +103,7 @@ class _MessageBubble extends StatefulWidget {
   final Function(String messageId, String action)? onUnmeltAction;
 
   const _MessageBubble({
+    super.key,
     required this.message,
     required this.isMe,
     this.onReply,

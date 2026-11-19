@@ -339,6 +339,7 @@ class ChatUserModel {
   final bool isVerified;
   /// Last seen / last active from API (ISO string). Used with isOnline for accurate online status.
   final String? lastSeen;
+  final bool? showOnline;
 
   ChatUserModel({
     required this.id,
@@ -349,6 +350,7 @@ class ChatUserModel {
     this.isOnline = false,
     this.isVerified = false,
     this.lastSeen,
+    this.showOnline,
   });
 
   factory ChatUserModel.fromJson(Map<String, dynamic> json) {
@@ -361,6 +363,7 @@ class ChatUserModel {
       isOnline: json['isOnline'] as bool? ?? false,
       isVerified: json['isVerified'] as bool? ?? false,
       lastSeen: json['lastSeen'] as String? ?? json['lastActive'] as String?,
+      showOnline: json['showOnline'] as bool?,
     );
   }
 
@@ -374,6 +377,7 @@ class ChatUserModel {
       isOnline: isOnline,
       isVerified: isVerified,
       lastActive: lastSeen,
+      showOnline: showOnline,
     );
   }
 }

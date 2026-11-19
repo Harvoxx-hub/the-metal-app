@@ -117,6 +117,8 @@ android {
 
     lint {
         disable 'InvalidPackage'
+        // Avoid lintVital on release bundle (faster builds; less disk I/O for Shorebird/CI)
+        checkReleaseBuilds false
     }
     androidResources {
         noCompress += 'Regula/faceSdkResource.dat'

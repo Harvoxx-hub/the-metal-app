@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:metal/data/repositories/meetup/meetup_repository.dart';
 import 'package:metal/data/repositories/meetup/meetup_repository_providers.dart';
 import 'package:metal/domain/entities/meetup_dto.dart';
-import 'package:metal/data/models/user_preferences_model.dart';
 
 /// Create Meetup State
 class CreateMeetupState {

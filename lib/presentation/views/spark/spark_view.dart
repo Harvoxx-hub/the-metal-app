@@ -123,7 +123,7 @@ class SparkView extends ConsumerWidget {
       onTap: onTap,
       child: Container(
         height: 84,
-        width: 158,
+  
         padding: const EdgeInsets.all(13),
         decoration: BoxDecoration(
           color: AppColors.metalWhite,

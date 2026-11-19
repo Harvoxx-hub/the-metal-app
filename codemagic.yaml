@@ -18,7 +18,7 @@ workflows:
       groups:
         # App settings > Environment variables, group "metal_credentials",
         # with these marked Secure:
-        #   APP_STORE_CONNECT_PRIVATE_KEY - contents of the .p8 file for key T5K6XMMM4L
+        #   APP_STORE_CONNECT_PRIVATE_KEY - contents of the .p8 file for key L339PRQFC7
         #   CERTIFICATE_PRIVATE_KEY       - RSA private key (PEM) used to create/match the
         #                                   distribution certificate
         # The Apple key is read from variables instead of `integrations:
@@ -27,7 +27,7 @@ workflows:
         - metal_credentials
       vars:
         BUNDLE_ID: com.bwh.metal
-        APP_STORE_CONNECT_KEY_IDENTIFIER: T5K6XMMM4L
+        APP_STORE_CONNECT_KEY_IDENTIFIER: L339PRQFC7
         APP_STORE_CONNECT_ISSUER_ID: c3459740-ef56-493a-8d48-6a4d0dfd04f5
         APP_STORE_APP_ID: 6499093482 # Apple ID from App Store Connect → App Information
 

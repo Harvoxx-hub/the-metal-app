@@ -89,3 +89,72 @@ workflows:
         notify:
           success: true
           failure: true
+
+  android-release:
+    name: Android Release → Play internal
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: dev
+          include: true
+      cancel_previous_builds: true
+
+    environment:
+      flutter: stable
+      java: 17
+      groups:
+        # Add to the "metal_credentials" group, marked Secure:
+        #   GCLOUD_SERVICE_ACCOUNT_CREDENTIALS - Google Play service account JSON
+        # Signing uses android/key.properties + android/app/buildwithharvoxx.jks,
+        # which are currently committed to the repo.
+        - metal_credentials
+      vars:
+        PACKAGE_NAME: com.bwh.metal_app
+
+    scripts:
+      - name: Get packages
+        script: flutter pub get
+
+      - name: Generate code
+        script: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze
+        script: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Check Play credentials
+        script: |
+          if [ -z "${GCLOUD_SERVICE_ACCOUNT_CREDENTIALS:-}" ]; then
+            echo "error: GCLOUD_SERVICE_ACCOUNT_CREDENTIALS not set in the metal_credentials group"
+            exit 1
+          fi
+
+      - name: Build Android App Bundle
+        script: |
+          # Version code = latest Play version code + 1 (falls back to 1 on first upload).
+          # The marketing version still comes from pubspec.yaml.
+          echo "$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS" > /tmp/play-credentials.json
+          LATEST=$(google-play get-latest-build-number \
+            --package-name "$PACKAGE_NAME" \
+            --tracks=internal \
+            --credentials @file:/tmp/play-credentials.json 2>/dev/null || echo 0)
+          rm -f /tmp/play-credentials.json
+          BUILD_NUMBER=$((LATEST + 1))
+          flutter build appbundle --release --build-number="$BUILD_NUMBER"
+
+    artifacts:
+      - build/app/outputs/bundle/release/*.aab
+
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: false
+      email:
+        recipients:
+          - vagbenro@gmail.com
+        notify:
+          success: true
+          failure: true

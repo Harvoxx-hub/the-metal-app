@@ -6,13 +6,13 @@ workflows:
     integrations:
       app_store_connect: metal key
 
-    # Manual runs only; uncomment to build automatically on pushes to production.
-    # triggering:
-    #   events:
-    #     - push
-    #   branch_patterns:
-    #     - pattern: production
-    #       include: true
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: dev
+          include: true
+      cancel_previous_builds: true
 
     environment:
       flutter: stable # pin to an exact version (e.g. 3.49.0) for reproducible builds
